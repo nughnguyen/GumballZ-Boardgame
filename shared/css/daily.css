@@ -1,0 +1,20 @@
+/* 📅 Thử thách hôm nay – CSS cho thẻ #daily ở trang chủ.
+   Dùng kèm shared/js/daily.js (renderDaily tự chèn file này nếu trang chưa có <link>;
+   nối dây chính thức thì thêm <link rel="stylesheet" href="shared/css/daily.css?v=1"> vào <head> index.html). */
+.daily{margin-top:14px;padding:10px 10px 8px;border-radius:18px;background:#fff;border:1.5px solid #ffe0b8;box-shadow:0 12px 24px -18px #b8780a;color:var(--ink);max-width:440px}
+.daily[hidden]{display:none}
+.daily.alldone{border-color:#bfe8cf}
+.dq-hd{display:flex;align-items:center;gap:8px;padding:0 4px 6px}
+.dq-hd i{font-style:normal;font-size:22px}
+.dq-hd b{font:800 16px "Baloo 2",Nunito,sans-serif;flex:1}
+.dq-hd small{color:var(--muted);font-weight:800;font-size:12.5px}
+.dq-list{display:flex;flex-direction:column;gap:4px}
+.dq{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 4px;border-radius:12px;color:inherit;text-decoration:none;min-height:44px;transition:background .15s}
+.dq:hover{background:#fff6ea}
+.dq img,.dq-emo{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:22px;background:#fff3e2}
+.dq-t{flex:1;min-width:0;line-height:1.2}
+.dq-t b{display:block;font:800 14.5px Nunito,sans-serif}
+.dq-t small{display:block;color:var(--muted);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dq em{font-style:normal;flex:none;padding:5px 11px;border-radius:999px;color:#3a2300;background:linear-gradient(120deg,#ffe27a,#ffb020);font:800 13px Nunito,sans-serif}
+.dq.done em{background:#e3f6ea;color:#17683a}
+.dq.done .dq-t b{color:#4b7a5c}

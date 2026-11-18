@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bắn Tàu online – hải chiến 2 người | GumballZ Boardgame</title>
+<meta name="description" content="Bắn Tàu online: giấu hạm đội 5 tàu trên biển 10×10, bắn sang biển địch — trúng được bắn tiếp, trượt thì đổi lượt, dùng Bẫy – Radar – Bom hạt nhân. Chơi với bạn qua mã phòng hoặc đấu với máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/bantau/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Bắn Tàu online – hải chiến 2 người | GumballZ Boardgame">
+<meta property="og:description" content="Giấu hạm đội, bắn chìm 5 tàu địch trước thì thắng. Có Bẫy, Radar, Bom hạt nhân và đấu với máy.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/bantau/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/bantau.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=1" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=1"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=4">
+<link rel="stylesheet" href="css/bantau.css?v=8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=17">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- TRANG CHỦ -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=1" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/bantau.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Bắn <span>Tàu</span></h1>
+    <p class="tag">Giấu hạm đội, bắn chìm 5 tàu địch trước thì thắng! 🚢💥</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <div class="btn-col">
+      <button class="btn big pri" id="btn-create">✨ Tạo phòng online</button>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      <button class="btn big" id="btn-offline">🤖 Chơi với máy</button>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+      <button class="chip" id="btn-news-home" data-news="bantau">📝 Có gì mới</button>
+    </div>
+    <p class="note">2 người · 5 tàu 17 ô · Bẫy – Radar – Bom hạt nhân · chơi online hoặc đấu với máy.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Thuyền trưởng <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🚢 Mỗi người 5 tàu (17 ô): Sân bay 5, Thiết giáp 4, Tuần dương 3, Tàu ngầm 3, Khu trục 2.</li>
+          <li>🎯 Bắn trúng được bắn tiếp, trượt thì đổi lượt. Chìm hết 5 tàu địch trước thì thắng.</li>
+          <li>🪙 Bắt đầu 500 xu · trúng +50 · chìm tàu +100. Mua Bẫy 150, Radar 200, Bom hạt nhân 300.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start">⚓ Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <header class="topbar">
+    <button class="chip ic" id="btn-leave" title="Rời ván" aria-label="Rời ván">←</button>
+    <div class="round" id="round" aria-live="polite"></div>
+    <span class="sp"></span>
+    <div class="tools">
+      <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+      <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+      <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+    </div>
+  </header>
+  <div class="arena">
+    <div class="seats" id="seats"></div>
+    <div class="boards" id="boards"></div>
+    <div class="shop" id="shop"></div>
+    <div class="acts" id="acts"></div>
+    <div class="hostbar" id="hostbar"></div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=19"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=67"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="vi" data-ui-sfx="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quản trị – GumballZ Boardgame</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../favicon.svg?v=1" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=1"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2a2340;--muted:#7b7391;--bg:#fff7ef;--line:#ecdfd0}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:600 15px/1.5 Nunito,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.back{display:inline-flex;align-items:center;min-height:42px;padding:6px 16px;border-radius:999px;background:#fff;border:1.5px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800}
+h1{font:800 clamp(24px,6vw,38px) "Baloo 2",Nunito,sans-serif;margin:0;flex:1;text-align:center;white-space:nowrap}@media(max-width:560px){h1{order:-1;flex-basis:100%}.top{justify-content:space-between}}
+.card{background:#fff;border-radius:20px;padding:16px;margin:14px 0;box-shadow:0 12px 28px -20px #2a234066}
+input,button,select{font:inherit;padding:9px 12px;border-radius:12px;border:1.5px solid #e2d4c4}
+button{background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:800}button.sm{padding:5px 11px;font-size:13px;border-radius:999px}button.red{background:#e0384a}button.gray{background:#8a7f96}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0;scrollbar-width:none}.tabs button{flex:none;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px}.tabs button.on{background:var(--ink);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.stat{background:#fff;border-radius:16px;padding:12px;text-align:center;box-shadow:0 8px 20px -16px #2a234066}.stat b{display:block;font:800 30px "Baloo 2",Nunito}.stat small{color:var(--muted)}
+.it{background:#fff;border-radius:16px;padding:12px 14px;margin:10px 0;box-shadow:0 2px 10px #0001}.meta{font-size:12.5px;color:#7a6f88;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tag{padding:2px 8px;border-radius:999px;background:#eee;font-weight:800}.bug{background:#ffd9dc}.idea{background:#dff5e6}.adm{background:#e6e0ff}
+.msg{white-space:pre-wrap;margin:6px 0;word-break:break-word}.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.r{margin-left:auto}
+.muted{color:var(--muted)}
+.cfl{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;background:#f6821f;color:#fff;text-decoration:none;font-weight:800;font-size:13.5px}.cfl:nth-child(n+2){background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.use h2{margin:0 0 4px;font:800 20px "Baloo 2",Nunito}.bar{height:14px;border-radius:999px;background:#f0e6da;overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:999px;background:#2fc76f;transition:width .4s}
+.bar.warn i{background:#f5a524}.bar.full i{background:#e0384a}.alert{border-radius:14px;padding:10px 14px;margin:8px 0;font-weight:800}.alert.warn{background:#fff1d6;color:#8a5a00}.alert.full{background:#ffd9dc;color:#a01828}
+.days{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:10px}.days div{flex:1;text-align:center;font-size:11px;color:var(--muted)}.days span{display:block;background:#c9b8f5;border-radius:6px 6px 0 0;margin:0 auto 2px;width:70%;min-height:2px}.hrs{display:flex;gap:2px;align-items:flex-end;height:86px;margin-top:4px}.hrs div{flex:1;min-width:0;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}.hrs span{display:block;background:#ffb27a;border-radius:4px 4px 0 0;margin:0 auto 2px;width:82%;min-height:2px}.hrs .now span{background:#ff7a45}.hrs em{font-style:normal;display:block;height:13px}.chart-h{font-weight:800;font-size:13.5px;margin-top:14px}.chart-h small{font-weight:700;color:var(--muted)}#st{min-height:22px;color:#c0263b;font-weight:700}
+.cfu{margin-top:14px;padding-top:12px;border-top:1px dashed #e7dccf}.cfu h3{margin:0 0 6px;font:800 16px 'Baloo 2',sans-serif}.cfr{margin:8px 0 2px}.cfr span{display:inline-block;margin-right:12px;font-size:13.5px}.cfr>b{display:block}.cfcost{margin:4px 0 8px;font-size:15px}.cfu code{background:#f3ece4;padding:1px 5px;border-radius:5px}
+</style>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=17">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script><main>
+  <div class="top"><a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=1" alt="" width="26" height="26"><span>GumballZ</span></a><h1>🛠️ Quản trị GumballZ</h1><span id="acct"></span></div>
+  <div id="gate" class="card" hidden></div>
+  <div id="panel" hidden>
+    <div class="card use" id="use"><p class="muted">Đang tải hạn mức…</p></div>
+    <div class="stats" id="stats"></div>
+    <div class="tabs" id="tabs"><button data-t="rp" class="on">🚩 Báo cáo chat</button><button data-t="fb">💌 Góp ý</button><button data-t="er">🐞 Lỗi web</button><button data-t="lg">📶 Lag</button><button data-t="bn">⛔ Đang cấm</button><button data-t="us">👤 Tài khoản</button></div>
+    <p id="st"></p><div id="l"></div>
+  </div>
+</main>
+<script type="module">
+import { auth, API } from '../shared/net/api.js?v=27';
+import { mountAccount, openLogin } from '../shared/ui/account.js?v=49';
+import { confirmBox, promptBox, alertBox } from '../shared/ui/dialog.js?v=8';
+import '../shared/net/presence.js?v=26';
+mountAccount(document.getElementById('acct'));
+const $ = s => document.querySelector(s), esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dt = t => new Date(t).toLocaleString('vi-VN'), T = { bug: '🐞 Lỗi', idea: '💡 Góp ý', other: '💬 Khác' };
+let tab = 'rp';
+async function api(body) {
+  try { const r = await fetch(API() + '/admin/list', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + auth.token() }, body: JSON.stringify(body || {}) }); return await r.json(); }
+  catch (e) { return { ok: false, msg: 'Không kết nối được máy chủ' }; }
+}
+async function gate() {
+  const u = auth.user();
+  if (u && u.admin) { $('#gate').hidden = true; $('#panel').hidden = false; go(tab); stats(); usage(); clearInterval(window.__useT); window.__useT = setInterval(usage, 60000); return; }
+  $('#panel').hidden = true; $('#gate').hidden = false;
+  if (!u) { $('#gate').innerHTML = '<h2 style="margin-top:0">Đăng nhập trước nha</h2><p>Trang này chỉ dành cho quản trị viên GumballZ Boardgame. Đăng nhập (Google hoặc tên đăng nhập) bằng tài khoản quản trị.</p><button id="g-login">👤 Đăng nhập</button>'; $('#g-login').onclick = () => openLogin(); return; }
+  $('#gate').innerHTML = `<h2 style="margin-top:0">Kích hoạt quyền quản trị</h2><p>Bạn đang đăng nhập là <b>${esc(u.name)}</b>. Nhập mật khẩu quản trị (<code>ADMIN_KEY</code> đặt trên Cloudflare) <b>một lần</b> để cấp quyền cho tài khoản này. Lần sau chỉ cần đăng nhập là vào được.</p>
+    <form id="g-f" style="display:flex;gap:8px;flex-wrap:wrap"><input id="g-k" type="password" placeholder="Mật khẩu quản trị" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:200px"><button>Kích hoạt</button></form><p id="g-e" style="color:#c0263b;font-weight:700"></p>`;
+  $('#g-f').onsubmit = async e => { e.preventDefault(); const r = await fetch(API() + '/auth/claim-admin', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + auth.token() }, body: JSON.stringify({ key: $('#g-k').value }) }).then(r => r.json()).catch(() => ({ ok: false, msg: 'Lỗi mạng' }));
+    if (r.ok) { localStorage.setItem('gumballz-auth', JSON.stringify({ token: auth.token(), user: r.user })); gate(); } else $('#g-e').textContent = r.msg; };
+}
+auth.onChange(() => gate()); auth.refresh().then(() => gate());
+async function stats() {
+  const s = await api({ op: 'stats' }); if (!s.ok) return;
+  const on = await fetch(API() + '/presence').then(r => r.json()).catch(() => ({}));
+  $('#stats').innerHTML = [[on.n ?? '–', '🟢 Đang online'], [s.online, '💬 Đang ở sảnh/web'], [s.rooms, '🚪 Phòng công khai'], [s.users, '🧑 Tài khoản']].map(([n, t]) => `<div class="stat"><b>${n}</b><small>${t}</small></div>`).join('');
+}
+// 📊 Hạn mức Cloudflare (ước tính, cập nhật mỗi phút)
+const CF_DASH = 'https://dash.cloudflare.com/?to=/:account';
+const hm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+// 🎮 số đang chơi / online: nhận tức thì qua kết nối presence
+let LIVE = window.__gumballzLive || null;
+const drawLive = () => {
+  const el = document.getElementById('live-line'); if (el) el.innerHTML = LIVE ? `🔴 <b>LIVE</b> · 🎮 Đang chơi: <b>${LIVE.rooms}</b> phòng · <b>${LIVE.players}</b> người · 🟢 online <b>${LIVE.n}</b>` : '🎮 Đang kết nối…';
+  const s = document.querySelector('#stats .stat b'); if (s && LIVE) s.textContent = LIVE.n;
+};
+addEventListener('gumballz-live', e => { LIVE = e.detail; drawLive(); });
+async function usage() {
+  const u = await api({ op: 'usage' }); if (!u.ok) { $('#use').innerHTML = '<p class="muted">Chưa đọc được hạn mức (máy chủ chưa cập nhật?)</p>'; return; }
+  const pg = Math.min(100, u.gbs / u.limGbs * 100), pr = Math.min(100, u.req / u.limReq * 100), lv = p => p >= 100 ? 'full' : p >= 85 ? 'warn' : '';
+  const per = u.per === 'day' ? 'hôm nay' : 'tháng này', reset = u.per === 'day' ? 'Làm mới lúc ' + hm(u.resetAt) + ' sáng mai' : 'Làm mới ngày ' + new Date(u.resetAt).toLocaleDateString('vi-VN');
+  const alert = u.level === 'full' ? `<div class="alert full">⛔ ĐÃ HẾT hạn mức ${per}! Phòng mới đang chạy bằng đường dự phòng (Firebase / P2P) – có thể chậm, rớt mạng. ${reset}. Muốn chạy tiếp ngay: nâng gói Workers Paid (5 USD/tháng).</div>`
+    : u.level === 'warn' ? `<div class="alert warn">⚠️ Sắp hết hạn mức ${per} (${u.pct}%). ${u.eta ? 'Với tốc độ hiện tại sẽ hết khoảng <b>' + hm(u.eta) + '</b>.' : ''} ${reset}.</div>`
+    : u.eta && u.plan !== 'paid' ? `<div class="alert warn">⏳ Với tốc độ hiện tại sẽ hết hạn mức khoảng <b>${hm(u.eta)}</b> – trước giờ làm mới.</div>` : ''; /* gói Paid: vượt phần có sẵn chỉ tính thêm tiền, web không bị chặn → không báo động (xem ước tính tiền ở ô "Số thật từ Cloudflare") */
+  const mx = Math.max(1, ...u.days.map(d => d.gbs));
+  const hmx = Math.max(1, ...(u.hours || []).map(x => x.gbs)), hBest = (u.hours || []).reduce((a, x) => x.gbs > (a ? a.gbs : 0) ? x : a, null), hTop = hBest ? `${new Date(hBest.h).getHours()}h–${(new Date(hBest.h).getHours() + 1) % 24}h (${hBest.gbs} GB-s)` : 'chưa có';
+  $('#use').innerHTML = `<h2>📊 Hạn mức máy chủ ${per} <small class="muted" style="font:700 13px Nunito">· gói ${u.plan === 'paid' ? 'Workers Paid' : 'Miễn phí'} · GumballZ tự đo (ước tính)</small></h2>${alert}
+    <div><b>⏱️ Thời gian chạy phòng:</b> ${u.gbs.toLocaleString('vi-VN')} / ${u.limGbs.toLocaleString('vi-VN')} GB-s (${pg.toFixed(1)}%)<div class="bar ${lv(pg)}"><i style="width:${pg}%"></i></div>
+    <small class="muted">Còn khoảng <b>${u.roomHoursLeft} giờ-phòng</b> (vd. ${Math.floor(u.roomHoursLeft)} phòng chơi liền 1 tiếng) · đang dùng ~${u.rate.toLocaleString('vi-VN')} GB-s/giờ</small></div>
+    <div style="margin-top:8px"><b>📨 Lượt gọi máy chủ:</b> ${u.req.toLocaleString('vi-VN')} / ${u.limReq.toLocaleString('vi-VN')} (${pr.toFixed(1)}%)<div class="bar ${lv(pr)}"><i style="width:${pr}%"></i></div></div>
+    <p class="muted" style="margin:8px 0 0"><span id="live-line"></span> · cao điểm hôm nay: ${u.peak} người · ${reset}</p>
+    <div class="chart-h">📅 7 ngày gần nhất <small>· GB-s mỗi ngày</small></div>
+    <div class="days">${u.days.map(d => `<div title="${d.gbs} GB-s · ${d.req} lượt"><span style="height:${Math.round(d.gbs / mx * 50)}px"></span>${new Date(d.day).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}</div>`).join('')}</div>
+    ${u.hours ? `<div class="chart-h">🕐 24 giờ gần nhất <small>· thời gian chạy phòng theo từng giờ · đông nhất: ${hTop}</small></div><div class="hrs">${u.hours.map((x, i) => { const hh = new Date(x.h).getHours(); return `<div class="${i === 23 ? 'now' : ''}" title="${hh}:00–${(hh + 1) % 24}:00 · ${x.gbs} GB-s ≈ ${Math.round(x.gbs / 0.125 / 60)} phút-phòng · ${x.req} lượt"><span style="height:${Math.round(x.gbs / hmx * 62)}px"></span><em>${hh % 3 === 0 ? hh + 'h' : ''}</em></div>`; }).join('')}</div>` : ''}
+    <div class="acts" style="margin-top:10px"><a class="cfl" href="${CF_DASH}/workers/services/view/gumballz-rooms/production/metrics" target="_blank" rel="noopener">📈 Số chính xác trên Cloudflare</a><a class="cfl" href="${CF_DASH}/workers/plans" target="_blank" rel="noopener">⬆️ Nâng gói Workers</a><a class="cfl" href="${CF_DASH}/workers/services/view/gumballz-rooms/production/settings" target="_blank" rel="noopener">⚙️ Cài đặt máy chủ</a></div>
+    <p class="muted" style="font-size:12px;margin:6px 0 0">"Đang chơi" cập nhật tức thì (chỉ tính phòng online, không tính chơi với bot trên máy). Số hạn mức do GumballZ tự đo nên lệch chút ít – bấm nút để xem số chính xác (cần đăng nhập Cloudflare).</p>`;
+  drawLive(); cfUse();
+}
+// 📈 số thật đọc từ Cloudflare (máy chủ hỏi GraphQL Analytics, giữ 5 phút)
+async function cfUse() {
+  const box = document.createElement('div'); box.id = 'cfu'; box.className = 'cfu'; $('#use').appendChild(box);
+  box.innerHTML = '<p class="muted">📈 Đang lấy số thật từ Cloudflare…</p>';
+  const c = await api({ op: 'cf' });
+  if (!c.ok) {
+    box.innerHTML = c.need === 'token'
+      ? `<h3>📈 Số thật từ Cloudflare</h3><p class="muted">Chưa nối. Làm 1 lần: Cloudflare → <b>Manage account → Account API tokens</b> → Create token → <b>Custom</b>, quyền <b>Account · Account Analytics · Read</b> → tạo xong chép token, rồi vào <b>Workers & Pages → gumballz-rooms → Settings → Variables and Secrets</b> → Add, loại <b>Secret</b>, tên <code>CF_API_TOKEN</code>, dán token vào. Không cần gửi token cho ai.</p>`
+      : `<h3>📈 Số thật từ Cloudflare</h3><p class="muted">Chưa đọc được: ${esc(c.msg || 'lỗi')}</p>`;
+    return;
+  }
+  const L = { req: 1000000, gbs: 400000, reads: 25e9, writes: 50e6 }, n = x => x == null ? '–' : Math.round(x).toLocaleString('vi-VN');
+  const T = c.today, M = c.month, since = c.since ? new Date(c.since + 'T00:00:00Z').toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }) : '';
+  const row = (label, t, m, lim, unit = '') => { const p = m == null ? 0 : Math.min(100, m / lim * 100); return `<div class="cfr"><b>${label}</b><div><span>Hôm nay: <b>${n(t)}</b>${unit}</span><span>Kỳ này: <b>${n(m)}</b> / ${n(lim)}${unit} có sẵn (${m == null ? '–' : (m / lim * 100).toFixed(1) + '%'})</span></div><div class="bar ${p >= 100 ? 'full' : p >= 85 ? 'warn' : ''}"><i style="width:${p}%"></i></div></div>`; };
+  /* ước tính tiền cả kỳ: lấy trung bình mỗi ngày đã qua × 30 ngày */
+  const days = Math.max(1, (Date.now() - Date.parse(c.since + 'T00:00:00Z')) / 864e5), per30 = x => (x || 0) / days * 30;
+  const cost = 5 + Math.max(0, per30(M.req) - L.req) / 1e6 * 0.15 + Math.max(0, per30(M.gbs) - L.gbs) / 1e6 * 12.5 + Math.max(0, per30(M.writes) - L.writes) / 1e6 * 1;
+  const BY = { http: 'mở kết nối / gọi web', jsrpc: 'máy chủ gọi nhau', alarm: 'hẹn giờ', hibernation: 'tin trong phòng (÷20)' };
+  const by = Object.entries(T.by || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${BY[k] || k}: ${n(k === 'hibernation' ? v / 20 : v)}`).join(' · ');
+  box.innerHTML = `<h3>📈 Số thật từ Cloudflare <small class="muted">· gói Workers Paid · kỳ tính tiền từ ${since} · cập nhật ${hm(c.at)}</small></h3>
+    <div class="cfcost">💵 Ước tính cả kỳ: <b>~${cost.toFixed(2)} USD</b> <small class="muted">(5 USD gói + phần dùng thêm, theo mức dùng trung bình mỗi ngày tới giờ)</small></div>
+    ${row('📨 Lượt gọi Durable Objects', T.req, M.req, L.req)}
+    <small class="muted">Hôm nay theo loại: ${by || '–'}. Trang Cloudflare ghi "Requests" ${n(T.reqRaw)} vì chưa chia 20 cho tin trong phòng.</small>
+    ${row('⏱️ Thời gian chạy', T.gbs, M.gbs, L.gbs, ' GB-s')}
+    ${c.who ? `<small class="muted">⏱️ Ai thức nhiều nhất hôm nay: ${c.who.ns.map(x => `${esc(x.name)} <b>${n(x.gbs)}</b>`).join(' · ')} GB-s${c.who.top.length ? ` · top: ${c.who.top.slice(0, 6).map(x => `${esc(x.name || (x.g || 'phòng') + ' ' + x.id.slice(0, 4))} ${n(x.gbs)}`).join(', ')}` : ''}</small><br>` : c.whoErr ? `<small class="muted">⏱️ Chưa chia được theo loại: ${esc(c.whoErr)}</small><br>` : ''}
+    ${row('✍️ Dòng ghi dữ liệu', T.writes, M.writes, L.writes)}
+    ${T.worker != null ? `<small class="muted">🌐 Lượt gọi Worker (trang, sảnh, tài khoản): hôm nay ${n(T.worker)} · kỳ này ${n(M.worker)} / 10.000.000 có sẵn</small>` : ''}
+    ${c.partial ? `<p class="muted" style="font-size:12px">Một vài chỉ số chưa đọc được (${esc(c.partial)}).</p>` : ''}
+    <p class="muted" style="font-size:12px;margin:4px 0 0">"Hôm nay" theo giờ quốc tế như Cloudflare (bắt đầu 7h sáng VN). Thanh đỏ chỉ có nghĩa là đã dùng hết phần có sẵn của gói – phần dư tính thêm tiền theo bảng giá, web không bị chặn.</p>`;
+}
+// ---------- 📶 Lag: gộp số đo độ trễ (shared/ui/netmeter.js) theo loại × game. Mỗi máy báo tối đa 1 lần/ngày/loại nên số ≈ số người gặp. ----------
+const LAG_KIND = {
+  'chủ phòng để tab ở nền': ['⏳', 'Chủ phòng chuyển tab / tắt màn hình', 'Người khác thấy dải nhắc "chủ phòng rời màn hình". Trên máy tính ván vẫn chạy (đã có bgtimers); điện thoại khoá màn hình thì ván đứng tới khi họ quay lại. Hết hẳn khi game được chuyển lên máy chủ giữ ván.'],
+  'chủ phòng chậm': ['🐢', 'Máy / mạng của chủ phòng chậm', 'Nước đi tới trễ 1–2 giây. Do máy chủ phòng yếu hoặc mạng chập chờn; game do máy chủ giữ ván thì gần như không gặp.'],
+  'mạng người chơi chậm': ['📶', 'Mạng của chính người chơi chậm', 'Do Wi-Fi/4G của người đó, web không sửa được – chỉ cần theo dõi xem có tăng đột biến không (nếu tăng đều mọi game thì có thể máy chủ Cloudflare đang chậm).'],
+  'chủ phòng không phản hồi': ['🔌', 'Chủ phòng rớt mạng hẳn', 'Phòng tự đổi chủ phòng sau 12–28 giây. Nặng nhất trong 4 loại – nếu số này cao thì đáng lo.'],
+};
+const SRV_G = ['uno', 'scribble', 'typhu', 'meono', 'bang', 'tamquoc', 'masoi', 'tienlen', 'xidach', 'camel', 'cangua', 'bacao', 'catte', 'poker', 'baitan', 'cholon', 'loto', 'tala', 'thathaythach', 'tusac', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu']; /* game đã do máy chủ giữ ván – giữ khớp với SRV_GAMES trong server/src/srvhost.js (28 game) */
+function lagTab(list) {
+  const by = {}, total = list.reduce((a, i) => a + i.n, 0);
+  for (const i of list) { const k = i.msg.replace('📶 Lag: ', ''); (by[k] = by[k] || { n: 0, g: {} }).n += i.n; by[k].g[i.game || '?'] = (by[k].g[i.game || '?'] || 0) + i.n; }
+  const since = list.length ? dt(Math.min(...list.map(i => i.first))) : '';
+  $('#l').innerHTML = list.length ? `<p class="muted">Từ ${since}: <b>${total}</b> lượt báo (mỗi máy tối đa 1 lần/ngày/loại → gần bằng số người gặp). Game có 🖥️ là đã do máy chủ giữ ván. <button class="sm gray" data-errdel-many="${esc(list.map(i => i.h).join(','))}">Xoá hết số đo lag</button></p>`
+    + Object.entries(by).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => { const L = LAG_KIND[k] || ['📶', k, ''];
+      return `<div class="it"><div class="meta"><span class="tag bug">×${v.n}</span><b>${L[0]} ${esc(L[1])}</b></div><div class="msg">${Object.entries(v.g).sort((a, b) => b[1] - a[1]).map(([g, n]) => `${esc(g)}${SRV_G.includes(g) ? ' 🖥️' : ''}: <b>${n}</b>`).join(' · ')}</div><div class="meta">${esc(L[2])}</div></div>`; }).join('')
+    : '<p class="muted">Chưa có số đo lag nào 🎉</p>';
+}
+async function go(t) {
+  tab = t; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('#st').textContent = ''; $('#l').innerHTML = '<p class="muted">Đang tải…</p>';
+  const d = await api(t === 'er' || t === 'lg' ? { errs: true } : t === 'fb' ? {} : t === 'us' ? { op: 'users', q: $('#uq')?.value || '' } : { op: 'reports' });
+  if (t !== tab) return; /* đã bấm sang tab khác trong lúc chờ */
+  if (!d.ok) { $('#st').textContent = d.msg || 'Lỗi'; $('#l').innerHTML = ''; return; }
+  const isLag = i => /^📶 Lag/.test(i.msg || '');
+  if (t === 'lg') return lagTab((d.errs || []).filter(isLag));
+  if (t === 'er') d.errs = (d.errs || []).filter(i => !isLag(i));
+  if (t === 'fb') $('#l').innerHTML = (d.items || []).map(i => `<div class="it"><div class="meta"><span class="tag ${i.t}">${T[i.t]}</span><b>${esc(i.game || 'chung')}</b><span>${dt(i.ts)}</span>${i.contact ? '<span>📮 ' + esc(i.contact) + '</span>' : ''}<button class="sm red r" data-del="${i.id}">Xoá</button></div><div class="msg">${esc(i.msg)}</div><div class="meta">${esc(i.page)} · ${esc(i.ua)}</div></div>`).join('') || '<p class="muted">Chưa có góp ý.</p>';
+  if (t === 'er') $('#l').innerHTML = ((d.errs || []).length ? '<p class="muted">Lỗi JavaScript trên máy người chơi, gộp theo từng lỗi (số đo lag nằm ở tab 📶 Lag). Sửa xong thì bấm Xoá. <button class="sm gray" data-errdel="*">Xoá hết</button></p>' : '') + (d.errs || []).map(i => `<div class="it"><div class="meta"><span class="tag bug">×${i.n}</span><b>${esc(i.game || '?')}</b><span>mới nhất ${dt(i.ts)}</span><span>lần đầu ${dt(i.first)}</span><button class="sm red r" data-errdel="${esc(i.h)}">Xoá</button></div><div class="msg">${esc(i.msg)}</div><div class="meta">${esc(i.at)} · ${esc(i.page)} · ${esc(i.ua)}</div></div>`).join('') || '<p class="muted">Chưa ghi nhận lỗi nào 🎉</p>';
+  if (t === 'rp') $('#l').innerHTML = (d.reports || []).map(r => `<div class="it"><div class="meta"><b>${esc(r.tname)}</b><span>${esc(r.target)}</span><span>${dt(r.ts)}</span><span class="r">báo bởi ${esc(r.rname)}</span></div><div class="msg">“${esc(r.text)}”${r.reason ? '\n<i>Lý do: ' + esc(r.reason) + '</i>' : ''}</div><div class="acts"><button class="sm" data-op="hide" data-msg="${r.msg}">🙈 Ẩn tin</button><button class="sm red" data-ban="${esc(r.target)}" data-h="24">Cấm 24h</button><button class="sm red" data-ban="${esc(r.target)}" data-h="168">Cấm 7 ngày</button><button class="sm red" data-ban="${esc(r.target)}" data-h="87600">Cấm vĩnh viễn</button><button class="sm gray" data-op="dismiss" data-id="${r.id}">Bỏ qua</button></div></div>`).join('') || '<p class="muted">Không có báo cáo nào 🎉</p>';
+  if (t === 'bn') $('#l').innerHTML = (d.bans || []).map(b => `<div class="it"><div class="meta"><b>${esc(b.who)}</b><span>đến ${dt(b.until)}</span><span>${esc(b.reason)}</span><button class="sm r" data-unban="${esc(b.who)}">Gỡ cấm</button></div></div>`).join('') || '<p class="muted">Không ai bị cấm.</p>';
+  if (t === 'us') { const q = $('#uq')?.value || ''; $('#l').innerHTML = `<form id="uf" style="display:flex;gap:8px"><input id="uq" placeholder="Tìm tên đăng nhập / tên / id" style="flex:1" value="${esc(q)}"><button>Tìm</button></form>` + (d.users || []).map(u => `<div class="it"><div class="meta"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${u.id}</span><span>${dt(u.created)}</span>${u.admin ? '<span class="tag adm">🛠️ quản trị</span>' : ''}${u.banned ? '<span class="tag bug">bị khoá</span>' : ''}<span class="r"></span></div><div class="acts"><button class="sm ${u.banned ? '' : 'red'}" data-ub="${u.id}" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Mở khoá' : 'Khoá tài khoản'}</button>${u.username ? `<button class="sm gray" data-pw="${u.id}">Đặt lại mật khẩu</button>` : ''}<button class="sm gray" data-adm="${u.id}" data-v="${u.admin ? 0 : 1}">${u.admin ? 'Bỏ quyền quản trị' : 'Cấp quyền quản trị'}</button></div></div>`).join(''); $('#uf').onsubmit = e => { e.preventDefault(); go('us'); }; }
+}
+$('#tabs').onclick = e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); };
+$('#l').onclick = async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.del) { if (!(await confirmBox('Góp ý này sẽ bị xoá hẳn.', { title: 'Xoá góp ý?', ok: 'Xoá', danger: true }))) return; await api({ del: b.dataset.del }); return go(tab); }
+  if (b.dataset.errdelMany) { for (const h of b.dataset.errdelMany.split(',').filter(Boolean)) await api({ errs: true, errDel: h }); return go(tab); }
+  if (b.dataset.errdel) { await api({ errs: true, errDel: b.dataset.errdel }); return go(tab); }
+  if (b.dataset.op) { await api({ op: b.dataset.op, msg: b.dataset.msg, id: b.dataset.id }); return go(tab); }
+  if (b.dataset.ban) { const reason = await promptBox('Người bị cấm sẽ thấy lý do này.', { title: '⛔ Cấm chat', placeholder: 'Lý do (không bắt buộc)', maxlength: 120, ok: 'Cấm' }); if (reason === null) return; await api({ op: 'ban', who: b.dataset.ban, hours: +b.dataset.h, reason }); return go(tab); }
+  if (b.dataset.unban) { await api({ op: 'unban', who: b.dataset.unban }); return go(tab); }
+  if (b.dataset.ub) { if (!(await confirmBox(b.dataset.v === '1' ? 'Tài khoản này sẽ bị khoá và đăng xuất khỏi mọi máy.' : 'Tài khoản này sẽ đăng nhập lại được.', { title: b.dataset.v === '1' ? 'Khoá tài khoản?' : 'Mở khoá tài khoản?', ok: b.dataset.v === '1' ? 'Khoá' : 'Mở khoá', danger: b.dataset.v === '1' }))) return; await api({ op: 'user', id: b.dataset.ub, patch: { banned: b.dataset.v === '1' } }); return go('us'); }
+  if (b.dataset.adm) { if (!(await confirmBox(b.dataset.v === '1' ? 'Người này sẽ xem được báo cáo, góp ý và cấm được người chơi.' : 'Người này sẽ không vào được trang Quản trị nữa.', { title: b.dataset.v === '1' ? 'Cấp quyền quản trị?' : 'Bỏ quyền quản trị?', ok: b.dataset.v === '1' ? 'Cấp quyền' : 'Bỏ quyền', danger: b.dataset.v !== '1' }))) return; await api({ op: 'user', id: b.dataset.adm, patch: { admin: b.dataset.v === '1' } }); return go('us'); }
+  if (b.dataset.pw) { const pw = await promptBox('Đặt xong thì nhắn mật khẩu mới cho người đó.', { title: '🔑 Đặt lại mật khẩu', placeholder: 'Mật khẩu mới (ít nhất 6 ký tự)', maxlength: 100, ok: 'Đặt lại' }); if (pw && pw.length >= 6) { await api({ op: 'user', id: b.dataset.pw, patch: { password: pw } }); await alertBox('Nhắn người đó mật khẩu mới nha.', { title: '✅ Đã đặt lại mật khẩu' }); } else if (pw) await alertBox('Mật khẩu cần ít nhất 6 ký tự.', { title: 'Chưa đặt được' }); }
+};
+</script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body></html>

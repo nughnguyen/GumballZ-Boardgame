@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- bàn 6 lá úp 3x2 -->
+<g>
+<rect x="28" y="18" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<rect x="102" y="18" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<rect x="176" y="18" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<rect x="28" y="96" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<rect x="102" y="96" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<rect x="176" y="96" width="62" height="66" rx="10" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+</g>
+<!-- dấu ? trên các lá úp -->
+<g font-family="Baloo 2, sans-serif" font-size="30" font-weight="800" fill="#2a2340" text-anchor="middle">
+<text x="59" y="62">?</text><text x="133" y="62">?</text><text x="207" y="62">?</text>
+<text x="59" y="140">?</text><text x="133" y="140">?</text>
+</g>
+<!-- 1 lá đã lật: mặt 🍓 -->
+<rect x="176" y="96" width="62" height="66" rx="10" fill="#FEE686" stroke="#2a2340" stroke-width="3"/>
+<circle cx="207" cy="129" r="17" fill="#FEC5E6"/>
+<path d="M200 114 l7 -8 7 8z" fill="#FFD273"/>
+<circle cx="200" cy="126" r="2" fill="#fff"/><circle cx="212" cy="132" r="2" fill="#fff"/><circle cx="206" cy="137" r="2" fill="#fff"/>
+<!-- huy hiệu cặp giống nhau -->
+<g transform="translate(308 90)">
+<circle r="52" fill="#FEC5E6" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<!-- 2 quả táo vẽ tay (tránh máy không có font emoji) -->
+<circle cx="296" cy="86" r="14" fill="#FEC5E6"/><path d="M291 74 l5 -6 5 6z" fill="#FFD273"/>
+<circle cx="322" cy="86" r="14" fill="#FEC5E6"/><path d="M317 74 l5 -6 5 6z" fill="#FFD273"/>
+<text y="30" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="14" font-weight="800" fill="#2a2340">TRÚNG CẶP</text>
+</g>
+</g>
+</svg>

@@ -1,0 +1,146 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tạo nhân vật – GumballZ Boardgame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/avatar.css">
+<style>
+:root{--ink:#24314d;--muted:#6b7895;--acc:#ff7a1a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#8fd3ff,#e9f8e3);font:600 15px/1.45 Nunito,system-ui,sans-serif;color:var(--ink)}
+.wrap{max-width:1000px;margin:0 auto;padding:18px;display:grid;grid-template-columns:360px 1fr;gap:16px}
+@media(max-width:760px){.wrap{grid-template-columns:1fr;padding:10px}}
+h1{font-family:"Baloo 2";font-size:34px;margin:0 0 8px;color:#ff6a1a}
+h2{font-family:"Baloo 2";font-size:22px;margin:18px 0 8px;color:#24314d}
+.card{background:#fffffff0;border-radius:24px;box-shadow:0 10px 26px -12px #1c2b5a55;padding:14px}
+#view{height:380px;border-radius:18px;background:radial-gradient(circle at 50% 40%,#ffffff,#d8efff);position:relative;overflow:hidden}
+#view canvas{width:100%!important;height:100%!important}
+.name{display:flex;gap:8px;margin-top:10px}.name input{flex:1;border:2px solid #e3e9f5;border-radius:14px;padding:9px 12px;font:inherit;font-weight:700;min-width:0}
+.btn{border:0;border-radius:14px;padding:10px 16px;font:800 16px Nunito;background:linear-gradient(135deg,#ff9a3d,#ff5a5f);color:#fff;cursor:pointer}
+.row{margin-bottom:10px}.row b{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts button{border:2px solid #e3e9f5;background:#fff;border-radius:12px;padding:5px 10px;font:700 13px Nunito;cursor:pointer;color:var(--ink)}
+.opts button.on{border-color:var(--acc);background:#fff3e8;color:#c2510a}
+.opts button.lock{opacity:.45;border-style:dashed;cursor:not-allowed}
+.sw{width:30px;height:30px;border-radius:50%!important;padding:0!important;border:3px solid #fff!important;box-shadow:0 1px 4px #0004}
+.sw.on{outline:3px solid var(--ink);outline-offset:1px}
+.presets{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-top:8px}
+@media(max-width:760px){.presets{grid-template-columns:repeat(6,1fr)}}
+.presets button{border:2px solid #e3e9f5;background:#fff;border-radius:14px;padding:2px;cursor:pointer;font:700 11px Nunito;color:var(--ink)}
+.presets button img{width:100%;display:block}
+.presets button.on{border-color:var(--acc)}
+.presets button.lock{opacity:.45;border-style:dashed}
+.grp{font:800 12.5px Nunito;color:var(--muted);margin:8px 0 4px}
+.pfprev{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pfprev .who{display:flex;align-items:center;gap:8px;font:800 17px "Baloo 2"}
+.mini{font-size:12.5px;color:var(--muted)}
+.xpbar{height:12px;border-radius:999px;background:#f0e6da;overflow:hidden;margin:6px 0}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#ff4d6a,#ffb23d)}
+.track{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(max-width:420px){.track{grid-template-columns:1fr}}
+.fxrow{display:flex;flex-wrap:wrap;gap:8px}
+.fxrow button{border:2px solid #e3e9f5;background:#fff;border-radius:999px;padding:8px 14px;font:800 14px Nunito;cursor:pointer;color:var(--ink)}
+.fxrow button.lock{opacity:.45;border-style:dashed}
+.fxrow button.on{border-color:var(--acc);background:#fff3e8}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:2px solid #e3e9f5;background:#fff;border-radius:999px;padding:6px 12px;font:800 13px Nunito;cursor:pointer;color:var(--ink)}
+.seg button.on{border-color:var(--acc);background:#fff3e8}
+</style></head><body>
+<div class="wrap">
+  <div>
+    <h1>Tạo nhân vật</h1>
+    <div class="card"><div id="view"></div><div class="name"><input id="nm" value="GumballZ"><button class="btn">Lưu ✓</button></div>
+      <div class="pfprev"><span id="frPrev"></span><span class="who"><span id="nmPrev">GumballZ</span><span id="ownPrev"></span></span></div>
+      <p class="mini">Khung tròn: nhân vật nằm gọn trong vòng tròn. Màu tên đổi theo lựa chọn bên dưới.</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">🖼️ Khung</h2>
+      <div class="lk-grid" id="frames"></div>
+      <h2>✍️ Màu tên</h2>
+      <div class="lk-grid" id="names" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))"></div>
+      <h2>🎉 Khi thắng</h2>
+      <div class="fxrow" id="fxs"></div>
+      <p class="mini">Bấm một hiệu ứng để xem thử. Món có 🔒 thì chưa mở – xem điều kiện ở Lộ trình thưởng.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><b>Mẫu có sẵn (31 mẫu)</b><div class="presets" id="presets"></div></div>
+    <div id="rows"></div>
+    <h2>🎁 Lộ trình thưởng</h2>
+    <div class="seg" style="margin-bottom:8px"><button id="segReal" class="on">Số liệu thật của bạn</button><button id="segDemo">Xem thử (60 ván · 25 thắng)</button></div>
+    <p class="mini" id="xpLine"></p><div class="xpbar"><i id="xpFill" style="width:0%"></i></div>
+    <div class="lk-next" id="xpNext" style="margin-bottom:8px"></div>
+    <div class="lk-track" id="track"></div>
+    <p class="mini">Điểm kinh nghiệm = ván × 10 + thắng × 20 (cùng công thức cấp độ). Mốc đầu gần, càng về sau càng xa. Đồ có từ trước 17/11/2026 vẫn mở sẵn.</p>
+  </div>
+</div>
+<script type="module">
+import * as THREE from './lib/three.module.min.js';
+import { OrbitControls } from './lib/OrbitControls.js';
+import { OPTIONS, PRESETS, buildAvatar, portrait } from './js/avatar3d.js?v=2';
+import { GROUPS } from './js/avatar-opts.js';
+import { FRAMES, NAME_COLORS, WIN_FX, TRACK, FRAME_RING, isOpen, lockDesc, charLock, charOpen, trackProgress, statsFromLoad, readAuthFlags, itemLabel } from './js/avatar-rewards.js';
+import { load as loadStats } from './ui/stats.js';
+import { playWin } from './ui/winfx.js';
+const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let cfg = { ...(PRESETS.find(p => p.name === 'Bị cắm sừng') || PRESETS[0]) };
+let selP = PRESETS.findIndex(p => p.name === 'Bị cắm sừng');
+let frame = '', nameColor = '', demo = false;
+const DEMO_ST = { p: 60, w: 25, best: 6, kinds: 12, days: 10, night: true, rank: 0, created: Date.UTC(2026, 5, 1), admin: false };
+function st() { if (demo) return DEMO_ST; const fl = readAuthFlags(); return statsFromLoad(loadStats(), { admin: fl.admin, created: fl.created || 0 }); }
+const view = document.getElementById('view');
+const r = new THREE.WebGLRenderer({ antialias: true, alpha: true }); r.setPixelRatio(Math.min(2, devicePixelRatio)); r.outputColorSpace = THREE.SRGBColorSpace; r.shadowMap.enabled = true; view.appendChild(r.domElement);
+const sc = new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xffffff, 0x88aa77, 1.3)); const d = new THREE.DirectionalLight(0xffffff, 1.8); d.position.set(2, 4, 3); d.castShadow = true; sc.add(d);
+const ground = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.8, 0.08, 40), new THREE.MeshStandardMaterial({ color: '#7bd389' })); ground.position.y = -0.04; ground.receiveShadow = true; sc.add(ground);
+const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 20); cam.position.set(1.0, 1.4, 4.0);
+const ctl = new OrbitControls(cam, r.domElement); ctl.target.set(0, 0.62, 0); ctl.enablePan = false; ctl.minDistance = 2; ctl.maxDistance = 5; ctl.update();
+let av = null; function rebuild() { if (av) sc.remove(av); av = buildAvatar(cfg); sc.add(av); renderUI(); }
+function size() { const w = view.clientWidth, h = view.clientHeight; r.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); } size(); addEventListener('resize', size);
+r.setAnimationLoop(t => { if (av) { av.rotation.y = Math.sin(t / 1400) * 0.5; av.userData.head.rotation.z = Math.sin(t / 500) * 0.05; av.position.y = Math.abs(Math.sin(t / 400)) * 0.03; } ctl.update(); r.render(sc, cam); });
+const LBL = { kind: 'Kiểu', skin: 'Màu da / lông', hair: 'Kiểu tóc', hairColor: 'Màu tóc', hat: 'Nón', outfit: 'Áo', acc: 'Phụ kiện', horns: 'Sừng 😈', color: 'Màu chủ đạo' };
+function optBtn(k, o) {
+  const v = Array.isArray(o) ? o[0] : o, label = Array.isArray(o) ? o[1] : '';
+  const lk = charLock(k, v), open = isOpen(lk, st());
+  const cls = (Array.isArray(o) ? '' : 'sw ') + (cfg[k] === v ? 'on' : '') + (open ? '' : ' lock');
+  const style = Array.isArray(o) ? '' : ` style="background:${o}"`;
+  const title = open ? '' : ` title="🔒 ${esc(lockDesc(lk))}"`;
+  return `<button data-k="${k}" data-v="${v}" class="${cls}"${style}${title} ${open ? '' : 'disabled'}>${open ? esc(label) : '🔒 ' + esc(label)}</button>`;
+}
+function renderUI() {
+  const s = st();
+  document.getElementById('rows').innerHTML = Object.entries(OPTIONS).map(([k, list]) => {
+    const groups = GROUPS[k];
+    if (!groups) return `<div class="row"><b>${LBL[k]}</b><div class="opts">${list.map(o => optBtn(k, o)).join('')}</div></div>`;
+    return `<div class="row"><b>${LBL[k]}</b>${groups.map(([gname, vals]) => `<div class="grp">${esc(gname)}</div><div class="opts">${list.filter(o => vals.includes(Array.isArray(o) ? o[0] : o)).map(o => optBtn(k, o)).join('')}</div>`).join('')}${(() => { const rest = list.filter(o => !groups.flatMap(g => g[1]).includes(Array.isArray(o) ? o[0] : o)); return rest.length ? `<div class="grp">Khác</div><div class="opts">${rest.map(o => optBtn(k, o)).join('')}</div>` : ''; })()}</div>`;
+  }).join('');
+  document.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { cfg[b.dataset.k] = b.dataset.v; selP = -1; rebuild(); });
+  // khung + màu tên + hiệu ứng thắng
+  document.getElementById('frames').innerHTML = FRAMES.map(x => { const open = isOpen(x.lock, s); return `<button type="button" class="lk-card${open ? '' : ' lock'}" data-f="${x.id}" aria-pressed="${frame === x.id}" ${open ? '' : `title="🔒 ${esc(lockDesc(x.lock))}" disabled`}><span class="pf-fr" style="width:54px;height:54px;padding:3px;background:${FRAME_RING[x.id] || 'transparent'}"><span class="pf-av pf-cb" style="width:48px;height:48px"><img src="${portrait(cfg, 96, 'av')}" alt=""></span></span><span>${open ? '' : '🔒 '}${esc(x.name)}</span>${open ? '' : `<small>${esc(lockDesc(x.lock))}</small>`}</button>`; }).join('');
+  document.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { frame = b.dataset.f; renderUI(); });
+  document.getElementById('names').innerHTML = NAME_COLORS.map(x => { const open = isOpen(x.lock, s); return `<button type="button" class="lk-card${open ? '' : ' lock'}" data-n="${x.id}" aria-pressed="${nameColor === x.id}" ${open ? '' : `title="🔒 ${esc(lockDesc(x.lock))}" disabled`}><span class="lk-nm" style="${x.css || ''}">${esc(document.getElementById('nm').value || 'GumballZ')}</span><span>${open ? '' : '🔒 '}${esc(x.name)}</span>${open ? '' : `<small>${esc(lockDesc(x.lock))}</small>`}</button>`; }).join('');
+  document.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { nameColor = b.dataset.n; renderUI(); });
+  document.getElementById('fxs').innerHTML = WIN_FX.map(x => { const open = isOpen(x.lock, s); return `<button type="button" data-fx="${x.id}" class="${open ? '' : 'lock'}" ${open ? '' : `title="🔒 ${esc(lockDesc(x.lock))}" disabled`}>${x.icon} ${esc(x.name)}${open ? '' : ' 🔒'}</button>`; }).join('');
+  document.querySelectorAll('[data-fx]').forEach(b => b.onclick = () => playWin(b.dataset.fx, true));
+  // khung tròn xem trước + tên
+  const ring = frame && FRAME_RING[frame], pad = ring ? 4 : 0, in_ = 84 - pad * 2;
+  document.getElementById('frPrev').innerHTML = ring
+    ? `<span class="pf-fr" style="width:84px;height:84px;padding:${pad}px;background:${ring}"><span class="pf-av pf-cb" style="width:${in_}px;height:${in_}px"><img src="${portrait(cfg, 168, 'av')}" alt=""></span></span>`
+    : `<span class="pf-av pf-cb" style="width:84px;height:84px"><img src="${portrait(cfg, 168, 'av')}" alt=""></span>`;
+  const nc = NAME_COLORS.find(x => x.id === nameColor);
+  document.getElementById('nmPrev').style.cssText = nc ? nc.css : '';
+  document.getElementById('nmPrev').textContent = document.getElementById('nm').value || 'GumballZ';
+  document.getElementById('ownPrev').innerHTML = s.admin ? '<span class="pf-own">👑 Chủ web</span>' : '';
+  // lộ trình thưởng
+  const tp = trackProgress(s);
+  document.getElementById('xpLine').textContent = `Bạn có ${tp.xp} điểm kinh nghiệm – đã mở ${tp.opened}/${tp.total} mốc.`;
+  document.getElementById('xpFill').style.width = Math.min(100, tp.xp / (TRACK[TRACK.length - 1].xp) * 100) + '%';
+  document.getElementById('xpNext').innerHTML = tp.next
+    ? `<div><b>Mốc tiếp theo: ${esc(itemLabel(tp.next.k, tp.next.v))}</b><small>Cần ${tp.next.xp} điểm kinh nghiệm – bạn còn thiếu ${tp.next.xp - tp.xp} điểm</small></div>`
+    : `<div><b>🎉 Đã mở hết 45 mốc!</b><small>Bạn đã sưu tầm đủ đồ trong lộ trình thưởng</small></div>`;
+  document.getElementById('track').innerHTML = tp.items.map(x => `<div class="lk-tr${x.open ? ' ok' : ''}${tp.next && tp.next.i === x.i ? ' nx' : ''}"><span class="n">${x.open ? '✓' : x.i + 1}</span><span class="t">${esc(x.label)}</span><small>${x.xp} XP</small></div>`).join('');
+}
+document.getElementById('nm').addEventListener('input', renderUI);
+document.getElementById('segReal').onclick = () => { demo = false; document.getElementById('segReal').classList.add('on'); document.getElementById('segDemo').classList.remove('on'); renderUI(); };
+document.getElementById('segDemo').onclick = () => { demo = true; document.getElementById('segDemo').classList.add('on'); document.getElementById('segReal').classList.remove('on'); renderUI(); };
+document.getElementById('presets').innerHTML = PRESETS.map((p, i) => { const open = charOpen(p, st()); return `<button data-p="${i}" class="${i === selP ? 'on' : ''}${open ? '' : ' lock'}" ${open ? '' : 'disabled'} title="${open ? esc(p.name) : '🔒 Có món chưa mở khoá'}"><img src="${portrait(p, 96)}" alt="">${open ? esc(p.name) : '🔒 ' + esc(p.name)}</button>`; }).join('');
+document.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { cfg = { ...PRESETS[+b.dataset.p] }; selP = +b.dataset.p; document.querySelectorAll('[data-p]').forEach(x => x.classList.toggle('on', x === b)); rebuild(); });
+rebuild();
+</script></body></html>

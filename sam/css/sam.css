@@ -1,0 +1,43 @@
+/* 🃏 Sâm lốc – giao diện riêng (khung chung ở shared/ui/gamekit.css, lá bài ở shared/ui/deck) */
+:root{--acc:#1d4ed8;--acc2:#38bdf8;--bg:#eef3f8;--line:#e3d9c4;--cw:clamp(50px,13vw,78px)}
+body{background:radial-gradient(900px 500px at 0 -10%,#d6e6ff 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#e3f0dc 0,transparent 60%),var(--bg)}
+.home-card .hero{height:140px;display:flex;justify-content:center;align-items:flex-end;margin-bottom:12px}
+.home-card .hero .dk-card{width:72px;height:101px;border-radius:9px;margin:0 -14px;transform:rotate(var(--rot)) translateY(calc(var(--up,0) * 1px));transform-origin:50% 120%}
+#screen-game.active{display:flex;flex-direction:column;min-height:100dvh}
+.round{font:800 14.5px "Baloo 2",Nunito,sans-serif;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;min-height:42px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.arena{flex:1;display:flex;flex-direction:column;gap:8px;padding:2px 10px max(8px,env(safe-area-inset-bottom));width:100%;max-width:900px;margin:0 auto}
+.dk-card{width:var(--cw);height:calc(var(--cw) * 1.4);border-radius:calc(var(--cw) * .11);flex:none}
+.sm{--cw:clamp(26px,6.4vw,38px)}.sm .dk-card{margin-left:calc(var(--cw) * -.45)}.sm .dk-card:first-child{margin-left:0}
+.seats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.seat{position:relative;background:#fff;border:2px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.seat .who{display:flex;align-items:center;gap:6px;font:800 13.5px Nunito,sans-serif;min-width:0}.seat .who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.seat .who small{color:var(--muted);margin-left:auto;white-space:nowrap}
+.seat.turn{border-color:#1d4ed8;box-shadow:0 0 0 3px #1d4ed822}.seat.away{opacity:.5}.seat.done{background:#f3f7ee}
+.seat .row{display:flex;align-items:center;gap:4px;min-height:calc(clamp(26px,6.4vw,38px) * 1.4)}.seat .row>i{font:800 11px Nunito,sans-serif;font-style:normal;color:var(--muted);width:30px;flex:none}
+.seat .row .dk-card.hot{box-shadow:0 0 0 2.5px #ffd54a,0 0 14px #ffd54a}
+.melds{display:flex;flex-wrap:wrap;gap:4px 10px}.melds>span{display:flex}
+.felt{display:flex;align-items:center;gap:14px;background:radial-gradient(ellipse at 50% 40%,#2b5fa8,#1c3f78);border-radius:22px;padding:10px 14px;box-shadow:inset 0 0 0 4px #ffffff1f;min-height:calc(var(--cw) * 1.4 + 20px)}
+.pile{position:relative;flex:none;--cw:clamp(44px,10vw,64px);width:var(--cw);height:calc(var(--cw) * 1.4)}.pile .cnt{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:#2a2340;color:#fff;font:800 12.5px Nunito,sans-serif;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.tbl{flex:1;min-width:0;color:#fff;font:800 15px/1.35 Nunito,sans-serif;display:flex;align-items:center;gap:12px}.tbl small{display:block;font-weight:700;opacity:.85}
+.tbl .dk-card{--cw:clamp(48px,11vw,70px);box-shadow:0 0 0 3px #ffd54a,0 8px 18px #0006}
+.mine{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;min-height:30px;font:800 12.5px Nunito,sans-serif;color:var(--muted)}.mine .grp{display:flex;align-items:center;gap:4px}
+.msg{min-height:24px;text-align:center;font:800 15px Nunito,sans-serif}.msg small{color:var(--muted);font-weight:700}
+.acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:46px}.acts .btn{flex:0 1 170px;min-height:46px}.acts .u{background:linear-gradient(135deg,#f59e0b,#e0432f);color:#fff;border-color:transparent;animation:tl-u .8s ease-in-out infinite}@keyframes tl-u{50%{transform:scale(1.05)}}
+.hand{display:flex;justify-content:safe center;padding:16px 8px 4px;overflow-x:auto;scrollbar-width:none;min-height:calc(var(--cw) * 1.4 + 22px)}.hand::-webkit-scrollbar{display:none}
+.hand .dk-card{margin-left:calc(var(--cw) * var(--ov,-.4));cursor:pointer;transition:transform .12s;border:0;padding:0}.hand .dk-card:first-child{margin-left:0}
+.hand .dk-card.sel{transform:translateY(-14px);box-shadow:0 0 0 3px #e0432f,0 10px 18px -8px #000a}
+.hand .dk-card.in{box-shadow:0 -4px 0 0 #33b36b}.hand .dk-card.eat{box-shadow:0 -4px 0 0 #f59e0b,0 0 0 2px #f59e0b}.hand .dk-card.no{filter:brightness(.78)}
+.hand .gap{width:calc(var(--cw) * .5);flex:none}
+.sum{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sum li{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:7px 10px;font-weight:800}.sum li .nm{flex:1;min-width:0}.sum li small{display:block;color:var(--muted);font-weight:700}.sum li.win{background:#fff4d6;border-color:#f1cf7a}.sum .chip-d{white-space:nowrap}.sum .chip-d.neg{color:#c9283f}.sum .chip-d.pos{color:#12a66a}
+.guide h3{font-size:17px;margin:12px 0 4px}.guide p,.guide li{font-size:15px}.guide ul{margin:0;padding-left:20px}
+@media (max-width:600px){.seats{grid-template-columns:repeat(2,minmax(0,1fr))}.felt{padding:8px 10px;border-radius:18px}}
+
+.tbl{justify-content:center;flex-wrap:wrap;min-height:calc(var(--cw) * 1.4)}.tbl .played{display:flex;--cw:clamp(44px,10.5vw,66px)}.tbl .played .dk-card{margin-left:calc(var(--cw) * -.5);box-shadow:0 6px 14px #0006}.tbl .played .dk-card:first-child{margin-left:0}
+.seat .tag{font:800 11px Nunito,sans-serif;border-radius:999px;padding:1px 7px;background:#eef;color:#334;white-space:nowrap}.seat .tag.hot{background:#ffe1dc;color:#c0271d}.seat.passed{opacity:.6}
+.seat .backs{display:flex;--cw:clamp(16px,3.6vw,22px)}.seat .backs i{width:var(--cw);height:calc(var(--cw) * 1.4);border-radius:3px;margin-left:calc(var(--cw) * -.6);background:repeating-linear-gradient(45deg,#1d4ed8 0 3px,#3b6fe0 3px 6px);border:1px solid #fff}.seat .backs i:first-child{margin-left:0}
+.hand .dk-card.hint{box-shadow:0 -4px 0 0 #33b36b}
+
+/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#BFAEE366 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#FEE68666 0,transparent 60%),#fff7ef}
+.home-card .hero{background:#FEE686;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;padding:6px 4px}
+.round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}

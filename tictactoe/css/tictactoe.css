@@ -1,0 +1,50 @@
+/* ❌⭕ TicTacToe – bàn 3×3 ô lớn, quân X/O, ghế người chơi. */
+.tt-wrap { max-width: 720px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+/* topbar dùng khung chung của gamekit (.topbar: dính trên cùng) + chỉ giữ lại
+   những gì riêng của game: cho phép xuống dòng, chip về trang chủ là 1 ô flex
+   bình thường (không phải chip nổi absolute — nếu không ở màn hình hẹp nó đè lên tiêu đề) */
+.tt-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.tt-topbar .back-hub { position: static; flex: none; }
+.tt-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.tt-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* ghế người chơi: cùng nhịp với .seat của Bắn Tàu / Cờ Caro / Ô Ăn Quan */
+.seats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.seat b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.seat small { color: #6b6480; font-weight: 700; white-space: nowrap; }
+.seat.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.mark-badge { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 2.5px solid #2a2340; border-radius: 9px; font: 800 19px 'Baloo 2', sans-serif; line-height: 1; }
+.mark-badge.mx { background: #ffe3e6; color: #e0432f; }
+.mark-badge.mo { background: #dceaff; color: #2f6fd6; }
+.tt-hint { text-align: center; font-size: 13px; font-weight: 800; color: #6b6480; margin: 0 0 12px; }
+/* ——— bàn 3×3: ô lớn, dễ bấm trên điện thoại ——— */
+.tt-board { display: grid; grid-template-columns: repeat(3, min(28vw, 120px)); grid-auto-rows: min(28vw, 120px); gap: 10px; justify-content: center; padding: 16px; background: #f7ead0; border: 3px solid #2a2340; border-radius: 22px; box-shadow: 6px 6px 0 #2a2340; }
+.tt-cell { padding: 0; border: 3px solid #2a2340; border-radius: 16px; background: #fdf3d8; font: 800 min(15vw, 64px) 'Baloo 2', sans-serif; line-height: 1; cursor: pointer; color: #2a2340; box-shadow: 3px 3px 0 rgba(42,35,64,.16); }
+.tt-cell:hover { background: #fee686; }
+.tt-cell.x { color: #e0432f; }
+.tt-cell.o { color: #2f6fd6; }
+.tt-cell.last { background: #ffd273; }
+.tt-cell.win { background: #ff9f1c; color: #fff; animation: tt-win .7s ease-in-out infinite; }
+@keyframes tt-win { 0%,100% { box-shadow: 3px 3px 0 rgba(42,35,64,.16), inset 0 0 0 2px #2a2340; } 50% { box-shadow: 3px 3px 0 rgba(42,35,64,.16), inset 0 0 0 2px #2a2340, 0 0 0 5px rgba(255,159,28,.45); } }
+.tt-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 14px; max-height: 170px; overflow: auto; font-size: 14px; }
+.tt-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.tt-log div:last-child { border-bottom: 0; }
+.tt-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* danh sách luật nhanh trong phòng chờ — cùng class với Bắn Tàu / Ô Ăn Quan / Cờ Caro */
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+/* hộp thoại hướng dẫn + nhật ký */
+.guide h3 { margin: 14px 0 6px; font-size: 17px; }
+.guide ul { margin: 0 0 6px; padding-left: 20px; line-height: 1.6; }
+.guide p { line-height: 1.6; }
+.logl { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.logl li { padding: 6px 2px; border-bottom: 1px dashed #e6ddc8; font-weight: 700; }
+.logl li.win { color: #b3232a; }
+@media (max-width: 560px) {
+  .tt-wrap { padding: 8px 8px 80px; }
+  .tt-topbar h1 { font-size: 21px; }
+  .tt-board { gap: 8px; padding: 12px; border-radius: 16px; }
+  .seats { grid-template-columns: 1fr; gap: 6px; }
+  .tt-hint { font-size: 12px; }
+  .round { font-size: 14.5px; }
+}

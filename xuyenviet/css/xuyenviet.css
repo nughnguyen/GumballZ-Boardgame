@@ -1,0 +1,50 @@
+/* 🚂 Tàu Xuyên Việt – giao diện riêng (khung chung ở shared/ui/gamekit.css). Bản đồ dáng chữ S vẽ bằng SVG; tuyến là dãy toa nhỏ, xây rồi thì đổi sang màu người chơi. */
+:root{--acc:#0f766e;--acc2:#f2a51e;--bg:#e8f4f1;--line:#cfe6e0;--ink:#2a2340;
+  --c-r:#e2483d;--c-b:#2f7de1;--c-g:#2fa84f;--c-y:#f2c230;--c-o:#f08a2b;--c-p:#9b59d0;--c-k:#3a3550;--c-w:#f7f4ec;--c-x:#a7b0ba}
+body{background:radial-gradient(900px 480px at 0 -10%,#bfe7df 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#ffe7b8 0,transparent 60%),var(--bg)}
+.home-card .hero{height:120px;display:grid;place-items:center;margin-bottom:10px}.hero svg{height:118px}
+#screen-game.active{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.round{font:800 14px "Baloo 2",Nunito,sans-serif;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;min-height:42px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.arena{flex:1;min-height:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:8px;padding:2px 8px calc(8px + env(safe-area-inset-bottom));width:100%;max-width:980px;margin:0 auto}
+.mapbox{grid-row:1;align-self:start;width:min(68vw,calc((100dvh - 150px) * 144 / 208));aspect-ratio:var(--map-ar,144/208);background:linear-gradient(180deg,#bfe3f2,#9fd3ea);border:2px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
+#map{width:100%;height:100%;display:block;touch-action:manipulation}
+#map .land,.hero .land{fill:#e3efcf;stroke:#7fae6a;stroke-width:.7;stroke-linejoin:round;filter:drop-shadow(0 .6px 0 #5e8f4a)}
+#map .sea,.hero .sea{font:italic 700 4px Nunito,sans-serif;fill:#5b9cc0;text-anchor:middle}
+#map .isl circle,.hero .isl circle{fill:#e3efcf;stroke:#7fae6a;stroke-width:.4}#map .isl text,.hero .isl text{font:700 2.9px Nunito,sans-serif;fill:#3f7fa6;text-anchor:end}
+#map .car{stroke:#2a2340;stroke-width:.35}
+#map .rt.own .car{stroke:#fff;stroke-width:.55;filter:drop-shadow(0 .4px .3px #0007)}#map .rt.own .dot{fill:#fff}#map .rt:not(.own) .car{opacity:.82}
+#map .rt .hit{stroke:transparent;stroke-width:7;stroke-linecap:round;cursor:pointer}
+#map .rt.can .car{animation:xv-p 1.1s infinite}
+#map .rt.last .car{stroke:#ffe26a;stroke-width:.8}
+#map .city circle{fill:#fff;stroke:#2a2340;stroke-width:.7}
+#map .city.goal circle{fill:#ffe26a;stroke:#c2410c;stroke-width:1;animation:xv-p .9s infinite}
+#map .city text{font:800 3.5px Nunito,sans-serif;fill:#2a2340;paint-order:stroke;stroke:#fffc;stroke-width:1.1px;stroke-linejoin:round}
+.side{grid-row:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.seats{display:flex;flex-direction:column;gap:4px}
+.seat{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:2px 6px;background:#fff;border:1.5px solid var(--line);border-left:6px solid var(--pc);border-radius:12px;padding:4px 8px;font:800 13px/1.2 Nunito,sans-serif;min-width:0}
+.seat .nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.seat .pt{font:800 17px "Baloo 2",Nunito,sans-serif;color:var(--pc)}
+.seat small{grid-column:1/-1;color:#6b6480;font-weight:700;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat.turn{box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 30%,transparent)}.seat.away{opacity:.55}
+.market{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.cd{position:relative;min-height:44px;border:2px solid var(--ink);border-radius:10px;background:var(--cc);cursor:pointer;font:800 13px Nunito,sans-serif;color:#fff;display:grid;place-items:center;padding:0;box-shadow:2px 2px 0 var(--ink)}
+.cd.w{color:#2a2340}.cd.L{background:conic-gradient(#e2483d,#f2c230,#2fa84f,#2f7de1,#9b59d0,#e2483d)}.cd.deck{background:repeating-linear-gradient(45deg,#0f766e 0 6px,#115e59 6px 12px)}.cd.tk{background:#fff7e0;color:#7a4300}
+.cd:disabled{opacity:.45;cursor:default;box-shadow:none}
+.msg{font:800 13.5px/1.35 Nunito,sans-serif;text-align:center;min-height:36px;display:grid;place-items:center}.msg small{color:#6b6480;font-weight:700}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.acts .btn{min-height:44px;flex:1;min-width:110px}
+.hand{grid-column:1/-1;display:flex;gap:5px;overflow-x:auto;padding:2px 0;scrollbar-width:none}.hand::-webkit-scrollbar{display:none}
+.hand .hc{flex:1;min-width:34px;max-width:64px;height:46px;border:2px solid var(--ink);border-radius:10px;background:var(--cc);display:grid;place-items:center;font:800 18px "Baloo 2",Nunito,sans-serif;color:#fff;box-shadow:2px 2px 0 var(--ink)}
+.hand .hc.w{color:#2a2340}.hand .hc.L{background:conic-gradient(#e2483d,#f2c230,#2fa84f,#2f7de1,#9b59d0,#e2483d)}.hand .hc.z{opacity:.28;box-shadow:none}
+.hand .lbl{flex:none;align-self:center;font:800 12px Nunito,sans-serif;color:#6b6480;padding:0 4px}
+.tkl{display:flex;flex-direction:column;gap:6px;margin:8px 0}.tkl label,.tkl .t{display:flex;align-items:center;gap:8px;background:#fff7e0;border:1.5px solid #f0d9a0;border-radius:12px;padding:9px 12px;font:800 14.5px Nunito,sans-serif;cursor:pointer}
+.tkl .t.ok{background:#e7f8ee;border-color:#a9e2c0}.tkl b{margin-left:auto;font:800 17px "Baloo 2",Nunito,sans-serif}.tkl input{width:20px;height:20px}
+.res{width:100%;border-collapse:collapse;font:700 14px Nunito,sans-serif}.res td,.res th{padding:5px 6px;text-align:right;border-bottom:1px solid #eee}.res td:first-child,.res th:first-child{text-align:left}.res tr.win td{font-weight:800;background:#fff7e0}
+.pay{display:flex;flex-direction:column;gap:6px;margin:10px 0}.pay button{min-height:48px;border:2px solid var(--ink);border-radius:12px;background:var(--cc);color:#fff;font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}.pay button.w{color:#2a2340}
+@keyframes xv-p{50%{opacity:.5}}
+@media (min-width:760px){.mapbox{width:min(46vw,calc((100dvh - 150px) * 144 / 208))}.side{max-width:360px}.market{grid-template-columns:repeat(4,1fr)}.seat{font-size:14.5px}}
+@media (orientation:landscape) and (max-height:520px){.mapbox{width:calc((100dvh - 70px) * 144 / 208)}.arena{grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}.hand{grid-column:3;grid-row:1;flex-wrap:wrap;align-content:flex-start;overflow:auto}.hand .hc{flex:0 0 44px}}
+@media (prefers-reduced-motion:reduce){#map .rt.can .car,#map .city.goal circle{animation:none}}
+
+/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#BFAEE366 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#FFD27366 0,transparent 60%),#fff7ef}
+.home-card .hero{background:#BFAEE3;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;height:auto;padding:8px 4px}
+.round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}

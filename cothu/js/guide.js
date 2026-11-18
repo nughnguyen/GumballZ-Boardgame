@@ -1,0 +1,47 @@
+// 📖 Hướng dẫn Cờ Thú – nội dung hộp "Cách chơi" trong game, đồng thời là nguồn
+// để tools/guide/make.mjs sinh trang huong-dan/index.html (chạy trên máy dev).
+export const GUIDE_HTML = `<div class="guide"><h2>📖 Cách chơi Cờ Thú</h2>
+<p><b>Cờ Thú</b> (Jungle – Đấu Thú Kỳ) là trò cờ 2 người trên bàn 7×9 ô: <b>Đỏ đi trước</b>, <b>Xanh đi sau</b>, mỗi bên có 8 con vật. Mục tiêu: <b>vào được hang của đối thủ</b> hoặc <b>ăn hết 8 quân địch</b> thì thắng.</p>
+<h3>1. Quân và thứ bậc — con mạnh ăn con yếu</h3>
+<ul>
+<li>8 con vật xếp theo hạng từ thấp tới cao: <b>🐀 Chuột 1 · 🐱 Mèo 2 · 🐶 Chó 3 · 🐺 Sói 4 · 🐆 Báo 5 · 🐅 Hổ 6 · 🦁 Sư tử 7 · 🐘 Voi 8</b>.</li>
+<li>Con mạnh ăn được con yếu hơn hoặc bằng hạng mình: Sư tử ăn được Hổ trở xuống, Chó ăn được Mèo và Chuột… <b>Cùng hạng thì ăn được nhau</b>.</li>
+<li>Ngoại lệ nổi tiếng: <b>Chuột (hạng 1) ăn được Voi (hạng 8)</b> — nhưng ngược lại <b>Voi KHÔNG ăn được Chuột</b>.</li>
+</ul>
+<h3>2. Cách đi và ăn quân</h3>
+<ul>
+<li>Mỗi lượt đi <b>1 ô ngang hoặc dọc</b> (không đi chéo). Đi vào ô có quân địch thì <b>ăn quân đó</b> nếu đủ hạng — quân bị ăn biến mất khỏi bàn.</li>
+<li><b>Không được ăn quân mình</b>, không được đi vào ô đã có quân mình.</li>
+<li>Bấm vào 1 quân của mình để xem các ô đi được (chấm xanh = đi thường, viền đỏ = ăn được quân địch).</li>
+</ul>
+<h3>3. Sông — chỉ Chuột bơi được, Hổ với Sư tử nhảy qua</h3>
+<ul>
+<li>Giữa bàn có <b>2 con sông</b> (ô xanh, mỗi sông 2×3 ô). <b>Chỉ Chuột được vào sông</b> — các con khác không được bước xuống nước.</li>
+<li><b>Hổ và Sư tử nhảy qua sông</b> trong 1 nước: nhảy ngang hoặc nhảy dọc, miễn là <b>mọi ô sông trên đường đều trống</b>. Nếu có Chuột đang bơi chặn đường thì không nhảy được.</li>
+<li><b>Chuột trong sông chỉ ăn được Chuột khác trong sông</b> — không ăn được quân nào trên bờ. Chuột trên bờ cũng <b>không ăn được Chuột trong sông</b>.</li>
+</ul>
+<h3>4. Bẫy — quân đứng trong bẫy địch thì yếu như không</h3>
+<ul>
+<li>Mỗi bên có <b>3 bẫy</b> quanh hang của mình. Quân địch bước vào bẫy của bạn thì <b>hạng thành 0</b> — quân nào của bạn cũng ăn được nó, kể cả Chuột.</li>
+<li><b>Bẫy của mình không làm yếu quân mình</b> — quân mình đứng trong bẫy nhà vẫn giữ nguyên hạng.</li>
+<li>Mẹo: dụ quân mạnh của địch vào bẫy rồi ăn bằng quân yếu — đổi 1 quân nhỏ lấy 1 quân to!</li>
+</ul>
+<h3>5. Hang và thắng — vào hang địch là thắng ngay</h3>
+<ul>
+<li>Mỗi bên có 1 <b>hang</b> ở giữa hàng cuối của mình (ô vàng có cờ). <b>Không được vào hang của mình</b>.</li>
+<li><b>Đi vào hang địch thì thắng ngay</b>, không cần ăn hết quân. Vì vậy phải luôn để ý thủ hang nhà: đừng để quân địch lọt tới gần hang!</li>
+<li><b>Ăn hết 8 quân địch cũng thắng.</b> Nếu 1 bên hết nước đi (bị chặn hết) thì cũng thua.</li>
+</ul>
+<h3>6. Chế độ chơi &amp; Máy AI</h3>
+<ul>
+<li><b>🌐 Chơi online:</b> bấm <b>🌐 Online</b> ở màn hình chính rồi <b>Tạo phòng online</b> — gửi mã phòng 5 ký tự (hoặc link mời) cho bạn; bạn nhập mã rồi bấm <b>Vào</b>. Mỗi nước đi đều đồng bộ cho cả 2 bên. Nếu đối thủ mất kết nối thì máy sẽ đi thay sau vài giây; chủ phòng rời thì phòng giải tán.</li>
+<li><b>Đấu với Máy:</b> bạn cầm Đỏ đi trước, máy cầm Xanh. Máy <b>Dễ</b> thỉnh thoảng đánh bừa (30% đánh ngẫu nhiên); máy <b>Khó</b> biết ăn quân to, tiến về hang, tránh bẫy và thủ hang. Lưu ý: máy chỉ chơi ở mức cơ bản, chưa mạnh như người chơi giỏi.</li>
+<li><b>2 Người chơi:</b> 2 người ngồi chung 1 máy, thay phiên nhau đi quân.</li>
+</ul>
+<h3>7. Mẹo cho người mới</h3>
+<ul>
+<li><b>Chuột là quân quý nhất dù hạng thấp nhất:</b> nó bơi được qua sông và ăn được Voi — giữ Chuột lại để rình Voi địch.</li>
+<li><b>Voi mạnh nhưng sợ Chuột:</b> đừng để Voi đi một mình gần Chuột địch, và đừng để Chuột địch bơi tới gần Voi.</li>
+<li><b>Khai cuộc:</b> đưa Hổ, Sư tử ra giữa bàn để kiểm soát sông; Báo, Sói đi 2 cánh.</li>
+<li>Luôn để 1 quân mạnh gần hang nhà để thủ — chỉ cần địch lọt vào hang là thua ngay dù bạn đang hơn quân.</li>
+</ul></div>`;

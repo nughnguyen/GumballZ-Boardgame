@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mèo Nổ online – né bom cùng hội bạn | GumballZ Boardgame</title>
+<link rel="canonical" href="https://gumballzgames.vercel.app/meono/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GumballZ Boardgame">
+<meta property="og:url" content="https://gumballzgames.vercel.app/meono/">
+<meta property="og:title" content="Mèo Nổ – chơi online cùng hội bạn | GumballZ Boardgame">
+<meta property="og:description" content="Bốc bài hồi hộp: né Mèo Nổ, gỡ bom rồi nhét lại cho đứa khác, hô KHÔNG! đúng lúc 💥 Bấm link là vào chơi, không cần cài đặt.">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/meono.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Mèo Nổ: game bài né bom tiếng Việt chơi online cùng bạn bè, có bot.">
+<link rel="icon" href="../favicon.svg?v=1" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=1"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/meono.css?v=10">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=17">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+<div class="bg-paws" aria-hidden="true"></div>
+
+<!-- TRANG CHỦ -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=1" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero" id="hero"></div>
+    <h1 class="logo" translate="no">Mèo <span>Nổ</span></h1>
+    <p class="tag">Bốc bài, né bom, chơi xấu bạn thân. Ai còn sống cuối cùng thì thắng 💣🐱</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <div class="btn-col">
+      <button class="btn big pri" id="btn-create">✨ Tạo phòng online</button>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocapitalize="characters"><button class="btn" id="btn-join">Vào</button></div>
+      <button class="btn big" id="btn-offline">🤖 Chơi với bot</button>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Hướng dẫn</button>
+      <button class="chip" id="btn-news-home">📝 Có gì mới</button>
+      <button class="chip" id="btn-music-home">🎵 Nhạc</button>
+      <button class="home-cat mascot m-sleep" id="home-cat" aria-label="Mèo đang ngủ – chạm để vuốt ve"></button>
+    </div>
+    <p class="note">Bản fan-made phi thương mại, lấy cảm hứng từ lối chơi “mèo nổ”. Tên lá, hình vẽ, chữ đều tự sáng tạo.</p>
+  </div>
+</section>
+
+<!-- SẢNH -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip sm" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <button class="btn" id="btn-addbot">＋ Thêm bot</button>
+      </div>
+      <div class="panel">
+        <h3>Tuỳ chỉnh</h3>
+        <div id="opts" class="opts"></div>
+        <div id="deck-info" class="deck-info"></div>
+      </div>
+    </div>
+    <button class="btn big pri" id="btn-start">▶ Bắt đầu</button>
+    <p class="wait" id="wait-msg"><span class="lobby-cat" id="lobby-cat"></span>Đang chờ chủ phòng bắt đầu…</p>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <header class="topbar">
+    <button class="chip" id="btn-leave" aria-label="Rời ván">←</button>
+    <div class="title-tag">💣 Mèo Nổ</div>
+    <div class="tools">
+      <select id="speed" class="chip" title="Tốc độ hiệu ứng" aria-label="Tốc độ hiệu ứng"></select>
+      <button class="chip" id="speed-btn" title="Tốc độ hiệu ứng (bấm để đổi)" aria-label="Tốc độ hiệu ứng">⚡</button>
+      <button class="chip" id="btn-prob" title="Gợi ý xác suất bom">🎲</button>
+      <button class="chip" id="btn-music" title="Nhạc nền">🎵</button>
+      <input type="range" id="vol" min="0" max="1" step="0.05" title="Âm lượng nhạc" aria-label="Âm lượng nhạc">
+      <button class="chip" id="btn-mute" title="Âm thanh">🔊</button>
+      <button class="chip" id="btn-guide" title="Hướng dẫn">📖</button>
+      <button class="chip" id="btn-news" title="Có gì mới" aria-label="Có gì mới">📝</button>
+      <button class="chip" id="btn-log" title="Nhật ký">📜</button>
+    </div>
+  </header>
+  <div class="table" id="table">
+    <div class="opps" id="opps"></div>
+    <div class="center" id="center">
+      <div class="pile deck" id="deck" role="button" aria-label="Chồng bài">
+        <div class="mcard back"><div class="back-art">🐾</div></div><div class="mcard back"><div class="back-art">🐾</div></div><div class="mcard back top"><div class="back-art">🐾</div></div>
+        <span class="cnt" id="deck-cnt"></span>
+      </div>
+      <button class="mascot m-sleep" id="mascot" aria-label="Mèo canh bài – chạm để vuốt ve"></button>
+      <div class="pile discard" id="discard"></div>
+    </div>
+    <div class="deco deco-yarn" aria-hidden="true"></div><div class="deco deco-fish" aria-hidden="true"></div>
+    <div class="meter" id="meter"></div>
+  </div>
+  <div class="strip" id="strip"></div>
+  <div class="me" id="me">
+    <div class="clockbar" id="clockbar"><i></i></div>
+    <div class="actions" id="actions"></div>
+    <div class="hand" id="hand"></div>
+  </div>
+  <aside class="log" id="log"><h4>Nhật ký <button class="chip sm" id="btn-log-close" aria-label="Đóng">✕</button></h4><ol id="log-list"></ol></aside>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<div id="fx-layer"></div>
+<script type="module" src="js/main.js?v=105"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=67"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

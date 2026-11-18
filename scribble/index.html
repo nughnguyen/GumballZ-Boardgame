@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Scribble it! – vẽ đoán online cùng hội bạn | GumballZ Boardgame</title>
+<link rel="canonical" href="https://gumballzgames.vercel.app/scribble/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GumballZ Boardgame">
+<meta property="og:url" content="https://gumballzgames.vercel.app/scribble/">
+<meta property="og:title" content="Scribble it! – chơi online cùng hội bạn | GumballZ Boardgame">
+<meta property="og:description" content="Vẽ bậy – đoán bừa: Đoán hình kiểu skribbl và Tam sao thất bản kiểu Gartic Phone 😂 Bấm link là vào chơi, không cần cài đặt.">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/scribble.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Game vẽ – đoán hình tiếng Việt chơi online cùng bạn bè: Đoán hình và Tam sao thất bản.">
+<meta name="theme-color" content="#fff8e8">
+<link rel="icon" href="../favicon.svg?v=1" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=1"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@500;600;700;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/scribble.css?v=9">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=17">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <!-- nét "tay run": làm méo nhẹ viền khung cho giống vẽ tay -->
+  <filter id="wob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="4.5"/></filter>
+  <filter id="wob-s" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="8"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>
+</svg>
+<div class="paper-bg" aria-hidden="true"></div>
+
+<!-- TRANG CHỦ -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=1" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card"><i class="spiral" aria-hidden="true"></i>
+    <div class="doodles" aria-hidden="true">
+      <svg viewBox="0 0 320 110" class="hero-svg">
+        <path class="dl d1" d="M18 82c18-40 40-62 58-50s-16 46 8 44 30-52 46-60"/>
+        <circle class="dl d2" cx="196" cy="44" r="22"/>
+        <path class="dl d3" d="M188 40h0M204 40h0M186 52c6 8 14 8 20 0"/>
+        <path class="dl d4" d="M250 86l14-44 14 44-38-28h48z"/>
+        <g class="pencil"><path d="M226 98l58-58 12 12-58 58-16 4z" fill="#ffd21f" stroke="#1f2340" stroke-width="4" stroke-linejoin="round"/><path d="M222 114l4-16 12 12z" fill="#f6d2a8" stroke="#1f2340" stroke-width="4" stroke-linejoin="round"/><path d="M284 40l8-8 12 12-8 8z" fill="#ef2b3a" stroke="#1f2340" stroke-width="4" stroke-linejoin="round"/></g>
+      </svg>
+    </div>
+    <h1 class="logo" translate="no"><span class="l1">Scribble</span> <span class="l2">it!</span></h1>
+    <p class="tag">Vẽ bậy – đoán bừa – cười xỉu 🤣</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <div class="btn-col">
+      <button class="btn big pri" id="btn-create">✨ Tạo phòng online</button>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off" aria-label="Mã phòng"><button class="btn" id="btn-join">Vào</button></div>
+      <div class="solo-row"><button class="btn ghost" id="btn-practice">✏️ Vẽ thử</button><button class="btn ghost" id="btn-solo" title="Tự vẽ một đoạn hoạt hình 3–12 khung, không cần mạng">🧑‍🎨 Hoạt hình 1 mình</button></div>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Hướng dẫn</button>
+      <button class="chip news-btn" id="btn-news-home">📝 Có gì mới</button>
+      <button class="chip" id="btn-music-home">🎵 Nhạc</button>
+      <button class="chip snd-btn" id="btn-sound-home">🔊 Âm thanh</button>
+    </div>
+    <p class="note">Bản fan-made phi thương mại. Chơi vui là chính, vẽ xấu là mười 🖍️</p>
+  </div>
+</section>
+
+<!-- SẢNH -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip sm" id="btn-copy">Chép link mời</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel note-y taped">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <p class="hint-txt" id="lobby-tip"></p>
+      </div>
+      <div class="panel lined taped t2">
+        <h3>Chế độ</h3>
+        <div id="modes" class="modes"></div>
+        <div id="settings" class="settings"></div>
+      </div>
+    </div>
+    <div class="lobby-foot">
+      <button class="btn big pri" id="btn-start">▶ Bắt đầu</button>
+      <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu… ✏️</p>
+    </div>
+  </div>
+</section>
+
+<!-- ĐOÁN HÌNH -->
+<section id="screen-game" class="screen game">
+  <header class="topbar">
+    <button class="ic" id="g-leave" aria-label="Rời ván"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.8 5.2c-2.9 2.2-5.8 4.4-8.8 6.9 2.9 2.4 5.9 4.7 8.9 7.1"/><path d="M6.4 12.1c4.4-.4 8.8.1 13.3-.2"/></svg></button>
+    <div class="hintbox"><small id="g-cap">Vòng 1/3</small><div class="mask" id="g-hint"></div></div>
+    <div class="timer" id="g-timer"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="bg"/><circle cx="22" cy="22" r="19" class="fg" id="g-ring"/></svg><b id="g-secs">–</b></div>
+    <span class="rx-slot" id="g-rx"></span>
+    <button class="ic snd-btn" id="g-sound" aria-label="Âm thanh & nhạc"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.1 9.4c1.5-.2 3-.2 4.5 0L13 5.3c.4 4.5.3 9 .1 13.5l-4.6-4.1c-1.5.2-3 .1-4.4-.2-.3-1.7-.3-3.4 0-5.1z"/><path class="wv" d="M16.3 9.1c1.2 1.8 1.3 4 .1 5.9"/><path class="wv" d="M18.9 6.5c2.5 3.3 2.6 7.8 0 11.1"/><path class="x" d="M16.4 9.3c1.5 1.8 3 3.7 4.5 5.5M20.8 9.1c-1.4 1.9-2.9 3.9-4.3 5.8"/></svg></button>
+    <button class="ic wide-only news-btn" id="g-news" aria-label="Có gì mới" title="📝 Có gì mới"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 3.9c3.6-.2 7.2-.2 10.8.1.4 5.4.3 10.8 0 16.1-3.6.3-7.2.3-10.8 0-.4-5.4-.4-10.8 0-16.2z"/><path d="M9 8.5h6.1M9 12.1h6.2M9 15.6h3.6"/></svg></button>
+    <button class="ic wide-only" id="g-guide" aria-label="Hướng dẫn"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 5.6c2.9-.7 5.7-.4 8.1 1.3 2.4-1.7 5.2-2 8.1-1.2.2 4.2.1 8.4 0 12.6-2.9-.7-5.7-.4-8.1 1.3-2.4-1.6-5.2-1.9-8.1-1.3-.2-4.2-.2-8.5 0-12.7z"/><path d="M12 6.9c.2 4 .1 8 0 12"/></svg></button>
+  </header>
+  <div class="stage">
+    <div class="board-col">
+      <div class="board-wrap" id="g-board"><div class="overlay" id="g-overlay" hidden></div></div>
+      <div class="tool-slot" id="g-tools"></div>
+    </div>
+    <aside class="players" id="g-players"></aside>
+    <div class="chat">
+      <ol class="chat-log" id="g-chat" aria-live="polite"></ol>
+      <form class="chat-in" id="g-form" autocomplete="off"><input id="g-input" maxlength="100" placeholder="Gõ đáp án ở đây…" enterkeyhint="send" aria-label="Khung chat"><button class="btn sm pri" aria-label="Gửi">➤</button></form>
+    </div>
+  </div>
+</section>
+
+<!-- TAM SAO THẤT BẢN -->
+<section id="screen-gartic" class="screen game">
+  <header class="topbar">
+    <button class="ic" id="t-leave" aria-label="Rời ván"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.8 5.2c-2.9 2.2-5.8 4.4-8.8 6.9 2.9 2.4 5.9 4.7 8.9 7.1"/><path d="M6.4 12.1c4.4-.4 8.8.1 13.3-.2"/></svg></button>
+    <div class="hintbox"><small id="t-cap">Bước 1/4</small><div class="steps" id="t-steps"></div></div>
+    <div class="timer" id="t-timer"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" class="bg"/><circle cx="22" cy="22" r="19" class="fg" id="t-ring"/></svg><b id="t-secs">–</b></div>
+    <span class="rx-slot" id="t-rx"></span>
+    <button class="ic snd-btn" id="t-sound" aria-label="Âm thanh & nhạc"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.1 9.4c1.5-.2 3-.2 4.5 0L13 5.3c.4 4.5.3 9 .1 13.5l-4.6-4.1c-1.5.2-3 .1-4.4-.2-.3-1.7-.3-3.4 0-5.1z"/><path class="wv" d="M16.3 9.1c1.2 1.8 1.3 4 .1 5.9"/><path class="wv" d="M18.9 6.5c2.5 3.3 2.6 7.8 0 11.1"/><path class="x" d="M16.4 9.3c1.5 1.8 3 3.7 4.5 5.5M20.8 9.1c-1.4 1.9-2.9 3.9-4.3 5.8"/></svg></button>
+    <button class="ic wide-only news-btn" id="t-news" aria-label="Có gì mới" title="📝 Có gì mới"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 3.9c3.6-.2 7.2-.2 10.8.1.4 5.4.3 10.8 0 16.1-3.6.3-7.2.3-10.8 0-.4-5.4-.4-10.8 0-16.2z"/><path d="M9 8.5h6.1M9 12.1h6.2M9 15.6h3.6"/></svg></button>
+    <button class="ic wide-only" id="t-guide" aria-label="Hướng dẫn"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 5.6c2.9-.7 5.7-.4 8.1 1.3 2.4-1.7 5.2-2 8.1-1.2.2 4.2.1 8.4 0 12.6-2.9-.7-5.7-.4-8.1 1.3-2.4-1.6-5.2-1.9-8.1-1.3-.2-4.2-.2-8.5 0-12.7z"/><path d="M12 6.9c.2 4 .1 8 0 12"/></svg></button>
+  </header>
+  <div class="tbody">
+    <div class="t-play" id="t-play">
+      <div class="t-prompt" id="t-prompt"></div>
+      <div class="board-wrap" id="t-board"></div>
+      <div class="tool-slot" id="t-tools"></div>
+      <form class="t-text" id="t-form" autocomplete="off"><input id="t-input" maxlength="120" enterkeyhint="done" aria-label="Câu của bạn"><button type="button" class="btn sm" id="t-dice" title="Gợi ý ngẫu nhiên">🎲</button></form>
+      <button class="btn big pri" id="t-done">Xong ✓</button>
+    </div>
+    <div class="t-wait" id="t-wait" hidden></div>
+    <div class="t-reveal" id="t-reveal" hidden></div>
+  </div>
+</section>
+
+<!-- VẼ THỬ -->
+<section id="screen-practice" class="screen game">
+  <header class="topbar">
+    <button class="ic" id="p-leave" aria-label="Về trang chủ"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.8 5.2c-2.9 2.2-5.8 4.4-8.8 6.9 2.9 2.4 5.9 4.7 8.9 7.1"/><path d="M6.4 12.1c4.4-.4 8.8.1 13.3-.2"/></svg></button>
+    <div class="hintbox"><small>Vẽ thử một mình</small><div class="pword" id="p-word"></div></div>
+    <button class="ic" id="p-next" title="Từ khác" aria-label="Từ khác"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.1 4.6c4.7-.5 9.3-.4 14 .1.5 4.8.4 9.7.1 14.6-4.7.4-9.4.4-14.1 0-.5-4.9-.5-9.8 0-14.7z"/><path class="dot" d="M8.7 8.5h.1M15.4 8.7h.1M12 12.1h.1M8.6 15.5h.1M15.5 15.4h.1"/></svg></button>
+    <button class="ic" id="p-save" title="Lưu PNG" aria-label="Lưu ảnh"><svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.1c.2 3.7.1 7.4.1 11.1"/><path d="M7.4 11c1.6 1.4 3.1 2.9 4.7 4.4 1.5-1.6 3-3.1 4.6-4.5"/><path d="M4.4 16.4c-.1 1.1 0 2.2.2 3.3 4.9.3 9.8.3 14.7-.1.2-1 .2-2.1.1-3.2"/></svg></button>
+  </header>
+  <div class="tbody">
+    <div class="board-wrap" id="p-board"></div>
+    <div class="tool-slot" id="p-tools"></div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="snd-pop" id="snd-pop" hidden><button class="chip" id="sp-sfx">🔊 Hiệu ứng</button><button class="chip" id="sp-music">🎵 Nhạc nền</button><button class="chip news-btn" id="sp-news">📝 Có gì mới</button></div>
+<div class="toast" id="toast" role="status"></div>
+<div id="fx-layer"></div>
+<script type="module" src="js/main.js?v=101"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=67"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

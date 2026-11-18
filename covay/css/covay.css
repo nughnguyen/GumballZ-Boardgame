@@ -1,0 +1,80 @@
+/* ⚫⚪ Cờ Vây – bàn gỗ, quân đặt ở giao điểm, ghế Đen/Trắng, tính điểm. */
+.cv-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+/* topbar dùng khung chung của gamekit (.topbar: dính trên cùng) + chỉ giữ lại
+   những gì riêng của game: cho phép xuống dòng, chip về trang chủ là 1 ô flex
+   bình thường (không phải chip nổi absolute — nếu không ở màn hình hẹp nó đè lên tiêu đề) */
+.cv-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.cv-topbar .back-hub { position: static; flex: none; }
+.cv-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.cv-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* ghế người chơi: cùng nhịp với .seat của Bắn Tàu / .oq-seat của Ô Ăn Quan */
+.seats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.seat b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.seat small { color: #6b6480; font-weight: 700; white-space: nowrap; }
+.seat.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.mark-badge { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 2.5px solid #2a2340; border-radius: 50%; font: 800 15px 'Baloo 2', sans-serif; line-height: 1; }
+.mark-badge.mb { background: #2a2340; color: #fff; }
+.mark-badge.mw { background: #fff; color: #2a2340; }
+/* thanh công cụ xem bàn */
+.cv-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.cv-toolbar .sp { flex: 1; }
+.cv-hint { font-size: 13px; font-weight: 800; color: #6b6480; }
+.zoom-label { font-weight: 800; font-size: 13px; min-width: 44px; text-align: center; }
+/* ——— khung xem bàn: giữ + trượt, nhấn nhanh để đặt quân ——— */
+.cv-viewport { position: relative; height: min(72vh, 620px); min-height: 340px; overflow: hidden; border: 3px solid #2a2340; border-radius: 22px; box-shadow: 6px 6px 0 #2a2340; background: #c89b5e; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.cv-viewport.grabbing { cursor: grabbing; }
+.cv-board { position: absolute; left: 0; top: 0; transform-origin: 0 0; display: grid; will-change: transform; background: #e8bd7d; }
+.cv-cell { position: relative; width: 34px; height: 34px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+/* đường kẻ ngang/dọc qua tâm giao điểm (đường biên chạy tới mép bàn như bàn thật) */
+.cv-cell::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: #6b4a22; }
+.cv-cell::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: #6b4a22; }
+.cv-cell.axis::before, .cv-cell.axis::after { display: none; }
+.cv-cell.axis { background: #d9a960; color: #6b4a22; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: default; }
+.cv-cell.axis.corner { background: #cfa15c; }
+.cv-cell.hoshi .dot { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #4a2f14; z-index: 1; }
+.stone { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; z-index: 2; box-shadow: 2px 3px 4px rgba(0,0,0,.45); }
+.stone.b { background: radial-gradient(circle at 35% 30%, #555, #1a1a1a 55%, #000); border: 1px solid #000; }
+.stone.w { background: radial-gradient(circle at 35% 30%, #fff, #ececec 55%, #c4c4c4); border: 1px solid #8a8a8a; }
+.stone.last::after { content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #e0432f; box-shadow: 0 0 0 1.5px #fff; }
+.stone.dead { opacity: .45; filter: grayscale(.4); }
+.dead-x { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; font: 800 20px 'Baloo 2', sans-serif; color: #b3232a; text-shadow: 0 0 3px #fff, 0 0 3px #fff; pointer-events: none; }
+/* xem trước quân khi di chuột qua giao điểm trống (màu theo lượt đang đánh) */
+.ghost { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; z-index: 2; opacity: 0; pointer-events: none; }
+.cv-board.can-play.tm-b .cv-cell.empty:hover .ghost { opacity: .5; background: radial-gradient(circle at 35% 30%, #555, #1a1a1a 55%, #000); }
+.cv-board.can-play.tm-w .cv-cell.empty:hover .ghost { opacity: .55; background: radial-gradient(circle at 35% 30%, #fff, #ececec 55%, #c4c4c4); border: 1px solid #8a8a8a; }
+/* hàng nút trong ván: bỏ lượt / xin thua / chốt điểm */
+.cv-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.cv-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+/* bảng tính điểm */
+.cv-score { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px 14px; margin-top: 12px; }
+.cv-score h3 { margin: 0 0 8px; font-size: 17px; text-align: center; }
+.cv-score table { width: 100%; border-collapse: collapse; font-weight: 700; font-size: 14px; }
+.cv-score td, .cv-score th { padding: 5px 6px; border-bottom: 1px dashed #e6ddc8; text-align: right; }
+.cv-score td:first-child, .cv-score th:first-child { text-align: left; }
+.cv-score tr.total td { font-size: 16px; border-bottom: 0; color: #b3232a; }
+.cv-score tr.win td { background: #fff3c4; }
+.cv-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.cv-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.cv-log div:last-child { border-bottom: 0; }
+.cv-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* danh sách luật nhanh trong phòng chờ — cùng class với Bắn Tàu / Ô Ăn Quan */
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+/* hộp thoại hướng dẫn + nhật ký */
+.guide h3 { margin: 14px 0 6px; font-size: 17px; }
+.guide ul { margin: 0 0 6px; padding-left: 20px; line-height: 1.6; }
+.guide p { line-height: 1.6; }
+.logl { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.logl li { padding: 6px 2px; border-bottom: 1px dashed #e6ddc8; font-weight: 700; }
+.logl li.win { color: #b3232a; }
+.score-lines { text-align: left; line-height: 1.7; font-weight: 700; }
+.score-lines .big { font-size: 17px; }
+@media (max-width: 560px) {
+  .cv-wrap { padding: 8px 8px 80px; }
+  .cv-topbar h1 { font-size: 21px; }
+  .cv-viewport { height: 62vh; min-height: 300px; border-radius: 16px; }
+  .seats { grid-template-columns: 1fr; gap: 6px; }
+  .cv-hint { font-size: 12px; }
+  .round { font-size: 14.5px; }
+}

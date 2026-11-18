@@ -1,0 +1,130 @@
+/* 🚢 Bắn Tàu – giao diện lưới biển + tàu + hiệu ứng. Neobrutalism GumballZ: viền mực 3px, shadow nhẹ. */
+:root { --ink: #2a2340; --sea: #7cc4ee; --sea2: #a8dcf5; --sea-deep: #3f8fd2; }
+.topbar { background: #fff7ef; box-shadow: 0 3px 0 rgba(42, 35, 64, .1); }
+.topbar .round { font: 800 16px "Baloo 2", Nunito, sans-serif; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arena { max-width: 1080px; margin: 0 auto; padding: 10px 14px 40px; }
+.seats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.seat { display: flex; align-items: center; gap: 8px; background: #fffdf5; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42, 35, 64, .16); font-weight: 800; color: var(--ink); }
+.seat.on { background: #ffd273; }
+.seat small { font-weight: 700; color: #6b5f7a; }
+.boards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.boards.shake { animation: bt-shake .5s ease; }
+@keyframes bt-shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-6px, 3px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, -2px); } 80% { transform: translate(3px, 2px); } }
+.board-wrap { background: #fffdf5; border: 3px solid var(--ink); border-radius: 18px; padding: 12px; box-shadow: 4px 4px 0 rgba(42, 35, 64, .16); min-width: 0; }
+.board-wrap.dim { opacity: .75; }
+.board-wrap h3 { margin: 0 0 10px; font: 800 17px "Baloo 2", Nunito, sans-serif; color: var(--ink); }
+.board-wrap h3 small { font: 700 13px Nunito, sans-serif; color: #6b5f7a; }
+.ship-grid { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); grid-template-rows: repeat(10, minmax(0, 1fr)); aspect-ratio: 1 / 1; position: relative; gap: 2px; background: var(--sea-deep); border: 3px solid var(--ink); border-radius: 10px; padding: 3px; min-width: 0; }
+/* lớp phủ vẽ tàu + dấu bắn: cùng lưới 10×10 với .ship-grid nên khớp đúng từng ô */
+.ship-layer, .mark-layer { position: absolute; inset: 0; z-index: 2; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); grid-template-rows: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 3px; pointer-events: none; }
+.mark-layer { z-index: 3; }
+.mark-layer span { display: grid; place-items: center; font: 800 14px/1 Nunito, sans-serif; }
+.mark-layer .mk-hit { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .55); }
+.mark-layer .mk-miss { color: #2f7fc4; }
+.mark-layer .mk-trap { font-size: 12px; }
+.ship-svg { position: relative; min-width: 0; min-height: 0; }
+.ship-svg svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3)); }
+.axis-left { display: grid; grid-template-rows: repeat(10, 1fr); }
+.board-wrap { display: grid; grid-template-columns: 20px 1fr; grid-template-rows: auto 1fr auto; }
+.board-wrap h3 { grid-column: 1 / -1; }
+.board-wrap .axis-left { grid-column: 1; grid-row: 2; align-items: center; }
+.board-wrap .axis-left span, .axis-bottom span { display: grid; place-items: center; font: 800 12px Nunito, sans-serif; color: #6b5f7a; }
+.board-wrap .ship-grid { grid-column: 2; grid-row: 2; }
+.board-wrap .axis-bottom { grid-column: 2; grid-row: 3; display: grid; grid-template-columns: repeat(10, 1fr); margin-top: 4px; }
+.board-wrap .tray { grid-column: 1 / -1; }
+.cell { border: 0; border-radius: 4px; background: linear-gradient(145deg, var(--sea2), var(--sea)); color: #fff; font: 800 13px/1 Nunito, sans-serif; cursor: pointer; padding: 0; display: grid; place-items: center; transition: transform .08s, filter .12s; min-width: 0; min-height: 0; }
+.cell:hover { filter: brightness(1.12); transform: scale(1.06); }
+.cell.pv-ok { box-shadow: inset 0 0 0 2px #1d9e57; background: linear-gradient(145deg, #b8f5cf, #6fd99b); }
+.cell.pv-bad { box-shadow: inset 0 0 0 2px #d21f2b; background: linear-gradient(145deg, #ffc9c9, #ff9d9d); }
+.cell.ship { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .25), inset 0 2px 0 rgba(255, 255, 255, .35); }
+.sh-carrier { background: linear-gradient(145deg, #f0604a, #c93324); }
+.sh-battleship { background: linear-gradient(145deg, #4a9ad8, #2a6ea8); }
+.sh-cruiser { background: linear-gradient(145deg, #2cc98a, #0d8a55); }
+.sh-submarine { background: linear-gradient(145deg, #9a7bff, #5b34d6); }
+.sh-destroyer { background: linear-gradient(145deg, #d9a521, #9c6f04); }
+.cell.hit, .cell.sunk { background: radial-gradient(circle at 50% 40%, #ff7a5c, #d21f2b); color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .4); animation: bt-hit .35s ease; }
+.cell.sunk { box-shadow: inset 0 0 0 2px #ffd273; }
+.cell.miss { background: #eef7fd; color: #3f8fd2; }
+.cell.void { background: #f3e9dc; color: #2a2340; }
+.cell.reveal-ship { background: #fec5e6; color: #c0263b; box-shadow: inset 0 0 0 2px #c0263b; }
+.cell.reveal-water { background: #eef7fd; color: #3f8fd2; box-shadow: inset 0 0 0 2px #3f8fd2; }
+.cell.scanned { box-shadow: inset 0 0 0 2px #7b5cff; }
+.cell.aim { filter: brightness(1.25); outline: 2px solid #ffd273; outline-offset: -2px; }
+.cell.boom { animation: bt-boom .55s ease; }
+.cell.splash { animation: bt-splash .5s ease; }
+@keyframes bt-boom { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.35); filter: brightness(1.8) saturate(1.6); } 100% { transform: scale(1); } }
+@keyframes bt-splash { 0% { transform: scale(1); } 40% { transform: scale(1.2); background: #fff; } 100% { transform: scale(1); } }
+@keyframes bt-hit { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
+.board-wrap.sweep .ship-grid { animation: bt-sweep .9s ease; }
+@keyframes bt-sweep { 0% { filter: brightness(1); } 30% { filter: brightness(1.35) hue-rotate(-25deg); } 100% { filter: brightness(1); } }
+/* khay tàu lúc xếp */
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+.tray-ship { display: flex; align-items: center; gap: 8px; border: 3px solid var(--ink); border-radius: 12px; background: #fff; padding: 6px 9px; cursor: grab; font: 800 14px/1.2 "Baloo 2", Nunito, sans-serif; color: var(--ink); box-shadow: 3px 3px 0 rgba(42, 35, 64, .16); text-align: left; touch-action: none; user-select: none; -webkit-user-select: none; }
+.tray-ship:active { cursor: grabbing; }
+.tray-ship.dragging { opacity: .45; }
+.tray-ship.sel { background: #ffd273; }
+.tray-ship.done { opacity: .55; }
+.tray-ship .t-art { flex: none; width: 40px; display: grid; place-items: center; }
+.tray-ship .t-art svg { width: 100%; height: auto; display: block; overflow: visible; }
+.tray-ship .t-nm { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tray-ship .t-nm small { display: block; font: 700 11px Nunito, sans-serif; color: #6b5f7a; }
+/* bóng tàu theo tay khi kéo thả */
+.drag-ghost { position: fixed; z-index: 9999; pointer-events: none; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .35)); }
+.drag-ghost svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.drag-ghost::after { content: ""; position: absolute; inset: -4px; border: 2px dashed transparent; border-radius: 8px; }
+.drag-ghost.ok::after { border-color: #1d9e57; }
+.drag-ghost.bad { opacity: .8; }
+.drag-ghost.bad::after { border-color: #d21f2b; }
+/* cửa hàng vật phẩm */
+.shop { margin-top: 14px; background: #fffdf5; border: 3px solid var(--ink); border-radius: 18px; padding: 12px 14px; box-shadow: 4px 4px 0 rgba(42, 35, 64, .16); }
+.shop-head { font: 800 16px "Baloo 2", Nunito, sans-serif; color: var(--ink); margin-bottom: 8px; }
+.shop-head .coins { color: #b8860b; }
+.shop-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.shop-item { display: flex; align-items: center; gap: 8px; border: 2px solid var(--ink); border-radius: 12px; padding: 7px 9px; background: #fff; }
+.shop-item.using { background: #fee686; }
+.shop-item .s-ic { font-size: 22px; }
+.shop-item .s-nm { flex: 1; font: 800 14px "Baloo 2", Nunito, sans-serif; color: var(--ink); }
+.shop-item .s-nm small { display: block; font: 700 12px Nunito, sans-serif; color: #6b5f7a; }
+.shop-note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b5f7a; }
+.acts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 14px; }
+.acts .hint { font-weight: 800; color: var(--ink); background: #fee686; border: 3px solid var(--ink); border-radius: 999px; padding: 8px 16px; box-shadow: 3px 3px 0 rgba(42, 35, 64, .16); }
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+.logl { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.logl li { padding: 7px 4px; border-bottom: 1px dashed #e2d4c4; font-weight: 700; color: #4a405c; }
+.logl li.sink, .logl li.win { color: #c0263b; }
+.logl li.trap { color: #7b5cff; }
+@media (max-width: 760px) {
+  .boards { grid-template-columns: 1fr; }
+  .board-wrap h3 { font-size: 15px; }
+}
+
+/* ---------- hiệu ứng nổ / radar / tàu chìm (patch 20261116-13) ---------- */
+/* lớp phủ hiệu ứng chung trên lưới (vòng quét radar, vụ nổ lớn...) */
+.fx-layer { position: absolute; inset: 0; z-index: 4; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); grid-template-rows: repeat(10, minmax(0, 1fr)); gap: 2px; padding: 3px; pointer-events: none; }
+/* 1 ô trúng: nổ nhỏ nhanh (💥 hiện trước, X hiện sau ~450ms) */
+.cell.boom-hit { animation: bt-boom .55s ease; background: radial-gradient(circle at 50% 40%, #ffb14a, #e0432f); }
+/* nổ chìm tàu: nổ LỚN phủ cả con thuyền, cam đỏ, lâu hơn, từng ô nổ lệch nhau */
+.cell.sink-boom { animation: bt-sinkboom .95s ease; background: radial-gradient(circle at 50% 45%, #ffe066, #ff7a1a 45%, #d21f2b); z-index: 5; }
+@keyframes bt-sinkboom { 0% { transform: scale(1); filter: brightness(1); } 25% { transform: scale(1.7); filter: brightness(2) saturate(1.8); } 60% { transform: scale(1.35); filter: brightness(1.5); } 100% { transform: scale(1); } }
+/* nổ bom hạt nhân: vàng chanh → cam, khác nổ thường (đỏ) và nổ chìm tàu (cam đỏ) */
+.cell.nuke-boom { animation: bt-nukeboom .7s ease; background: radial-gradient(circle at 50% 45%, #fff7ae, #ffd21f 40%, #ff8c1a); z-index: 5; }
+@keyframes bt-nukeboom { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.55); filter: brightness(2.2) saturate(1.4); } 100% { transform: scale(1); } }
+.cell.nuke-miss { animation: bt-splash .5s ease; }
+/* quả bom rơi từ trên trời xuống ô mục tiêu */
+.nuke-bomb { position: fixed; z-index: 9998; font-size: 46px; line-height: 1; pointer-events: none; transform: translate(-50%, -50%); animation: bt-bombfall .65s cubic-bezier(.55, 0, 1, 1) forwards; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .35)); }
+@keyframes bt-bombfall { 0% { transform: translate(-50%, -50%) translateY(-160px) rotate(-18deg); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(-50%, -50%) translateY(0) rotate(8deg); opacity: 1; } }
+/* vòng quét radar trên vùng 3×3: quét xoay + vòng lan ra, rồi các ô có thuyền sáng lên */
+.radar-sweep { position: relative; border-radius: 50%; background: conic-gradient(from 0deg, rgba(123, 92, 255, .55), rgba(123, 92, 255, .08) 90deg, transparent 120deg); animation: bt-radarspin .9s linear; border: 2px solid rgba(123, 92, 255, .7); box-shadow: 0 0 0 2px rgba(123, 92, 255, .25), inset 0 0 18px rgba(123, 92, 255, .35); }
+@keyframes bt-radarspin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.radar-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #7b5cff; animation: bt-radarring .9s ease-out forwards; }
+@keyframes bt-radarring { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+/* ô radar đã lộ là có thuyền: sáng hồng, nhấp nháy nhẹ tới khi bị bắn */
+.cell.radar-reveal { background: linear-gradient(145deg, #ffd0e8, #fec5e6); box-shadow: inset 0 0 0 2px #c0263b; animation: bt-radarpulse 1.1s ease-in-out infinite; }
+@keyframes bt-radarpulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25); } }
+/* tàu chìm: cháy đen, gãy nghiêng, bốc khói (dùng cho cả lưới mình và lưới mục tiêu) */
+.ship-svg.sunk, .ship-svg.wreck { opacity: 1; }
+.ship-svg.sunk svg, .ship-svg.wreck svg { filter: grayscale(.6) brightness(.45) sepia(.5) drop-shadow(0 2px 2px rgba(0, 0, 0, .45)); transform: rotate(-2deg); }
+.ship-svg.wreck { animation: bt-wreck-in .5s ease; }
+@keyframes bt-wreck-in { 0% { opacity: 0; transform: scale(.85); } 100% { opacity: 1; transform: scale(1); } }
+.wreck-smoke { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); font-size: 15px; line-height: 1; animation: bt-smoke 1.6s ease-in-out infinite; pointer-events: none; }
+@keyframes bt-smoke { 0% { transform: translate(-50%, 0) scale(.8); opacity: .9; } 50% { transform: translate(-50%, -7px) scale(1.15); opacity: .55; } 100% { transform: translate(-50%, -12px) scale(.8); opacity: .9; } }

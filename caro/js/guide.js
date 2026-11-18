@@ -1,0 +1,42 @@
+// 📖 Hướng dẫn Cờ Caro – nội dung hộp "Cách chơi" trong game, đồng thời là nguồn
+// để tools/guide/make.mjs sinh trang huong-dan/index.html (chạy trên máy dev).
+export const GUIDE_HTML = `<div class="guide"><h2>📖 Cách chơi Cờ Caro</h2>
+<p><b>⚠️ Caro KHÔNG phải TicTacToe!</b> TicTacToe chỉ có bàn 3×3 và thắng khi xếp được <b>3 quân</b> liên tiếp — còn <b>Cờ Caro chơi trên bàn lớn 30×30 ô</b> (900 ô), 2 người <b>X (đi trước)</b> và <b>O</b> luân phiên đặt quân, và chỉ thắng khi xếp được <b>5 quân liên tiếp trở lên</b> theo hàng ngang, dọc hoặc chéo. 3 hay 4 quân liên tiếp chưa thắng gì cả — muốn thắng phải tính đường dài, chặn nước của đối thủ và phản công trên cả bàn lớn.</p>
+<h3>1. Luật thắng — 5 quân liên tiếp trở lên</h3>
+<ul>
+<li>Thắng khi có <b>5 quân liên tiếp trở lên</b> theo hàng ngang, dọc hoặc chéo (chéo \\ hoặc chéo /).</li>
+<li><b>6 quân trở lên cũng thắng</b> — không có luật "6 quân thì không tính" như một số biến thể khác.</li>
+<li><b>5 quân thắng ngay cả khi 2 đầu đều bị chặn</b> (2 đầu đã có quân đối thủ hoặc sát mép bàn).</li>
+<li><b>4 quân chưa thắng</b> — kể cả 4 quân mở cả 2 đầu. Đừng dừng lại ở 4, phải lên 5 mới được tính.</li>
+<li><b>Hòa</b> khi bàn đầy 900 ô mà không ai đủ 5 quân (rất hiếm, nhưng luật có ghi).</li>
+<li>Nước đi không hợp lệ: đặt vào ô đã có quân, đặt ngoài bàn, hoặc đặt khi chưa tới lượt.</li>
+</ul>
+<h3>2. Cách xem bàn 30×30 — giữ và trượt</h3>
+<ul>
+<li>Bàn 30×30 không vừa màn hình nên game cho bạn <b>1 khung xem</b>: <b>giữ chuột (hoặc ngón tay) và trượt</b> để di chuyển góc nhìn quanh bàn — kéo tới đâu, bàn trôi tới đó.</li>
+<li><b>Nhấn nhanh 1 cái (không kéo)</b> thì <b>đặt quân</b> vào ô đó. Kéo xa hơn khoảng 8 điểm ảnh thì chỉ trượt bàn, <b>không đặt quân</b> — nên cứ kéo thoải mái, không sợ đặt nhầm.</li>
+<li>Nút <b>＋ / －</b> để phóng to / thu nhỏ bàn; <b>lăn chuột</b> trên bàn cũng zoom. Nút <b>⤢ Vừa màn hình</b> thu cả bàn lại cho vừa khung; nút <b>🎯 Quân mới</b> đưa góc nhìn về đúng ô vừa đánh.</li>
+<li>Ô vừa đánh có viền vàng nổi bật; 5 quân thắng được tô sáng cả dãy.</li>
+<li>Trên điện thoại, bàn mặc định hiển thị vừa đủ số ô để chơi được — kéo để xem tiếp các góc khác của bàn.</li>
+</ul>
+<h3>3. Chiến thuật cơ bản — chặn và phản công</h3>
+<ul>
+<li><b>Chặn là bắt buộc:</b> đối thủ có 4 quân liên tiếp (chỉ cần 1 nước nữa là thắng) thì phải chặn ngay, không chặn là thua ở nước sau.</li>
+<li><b>3 quân mở 2 đầu rất nguy hiểm:</b> đối thủ xếp 3 quân mà 2 đầu đều trống thì nước sau họ lên 4 mở — phải chặn 1 đầu ngay khi thấy.</li>
+<li><b>Đánh 2 đầu cùng lúc:</b> xếp quân sao cho tạo ra 2 đường 4 cùng lúc — đối thủ chỉ chặn được 1 đầu, đầu còn lại bạn thắng.</li>
+<li><b>Đừng chỉ phòng thủ:</b> vừa chặn vừa tạo đường riêng cho mình; ai tạo được "4 mở" trước thường là người thắng.</li>
+<li><b>Chú ý cả bàn:</b> bàn 30×30 rất rộng — đối thủ có thể âm thầm xếp 3–4 quân ở 1 góc xa trong lúc bạn mải đánh ở góc khác. Thỉnh thoảng trượt bàn ra xem toàn cục.</li>
+</ul>
+<h3>4. Chế độ chơi &amp; Máy AI</h3>
+<ul>
+<li><b>🌐 Chơi online:</b> bấm <b>🌐 Online</b> ở màn hình chính rồi <b>Tạo phòng online</b> — gửi mã phòng 5 ký tự (hoặc link mời) cho bạn; bạn nhập mã rồi bấm <b>Vào</b>. Chủ phòng bấm <b>Bắt đầu chơi</b> trong phòng chờ. Mỗi nước đi đều đồng bộ cho cả 2 bên. Nếu đối thủ mất kết nối thì máy sẽ đi thay sau vài giây; chủ phòng rời thì phòng giải tán.</li>
+<li><b>Đấu với Máy:</b> bạn cầm X đi trước, máy cầm O. Máy <b>Dễ</b> chọn nước ngẫu nhiên trong các nước tạm được, thỉnh thoảng đánh lệch; máy <b>Khó</b> luôn chặn nước thắng của bạn, luôn đánh nước thắng của mình và chọn nước điểm cao nhất (ưu tiên 4 mở, 3 mở).</li>
+<li><b>2 Người chơi:</b> 2 người ngồi chung 1 máy, thay phiên nhau đặt quân.</li>
+</ul>
+<h3>5. Mẹo chơi</h3>
+<ul>
+<li>Nước đầu nên đánh gần giữa bàn — từ giữa dễ tỏa ra nhiều hướng nhất.</li>
+<li>Khi đã có 2–3 quân, đánh tiếp ngay cạnh để kéo dài đường, đừng nhảy lung tung.</li>
+<li>Thấy đối thủ có 2 quân kề nhau mà 2 đầu trống thì chặn 1 đầu trước khi họ lên 3 mở.</li>
+<li>Cuối ván, bàn càng đầy càng dễ "đụng" đường thắng — kiểm tra kỹ trước mỗi nước đi.</li>
+</ul></div>`;

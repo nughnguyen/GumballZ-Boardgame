@@ -1,0 +1,55 @@
+// 📖 Hướng dẫn Cờ Vây – nội dung hộp "Cách chơi" trong game, đồng thời là nguồn
+// để tools/guide/make.mjs sinh trang huong-dan/index.html (chạy trên máy dev).
+export const GUIDE_HTML = `<div class="guide"><h2>📖 Cách chơi Cờ Vây</h2>
+<p><b>Cờ Vây</b> là trò cờ vây bắt (Go) 2 người chơi trên bàn gỗ có kẻ ô: <b>Đen đi trước</b>, <b>Trắng đi sau</b>, luân phiên đặt quân vào các <b>giao điểm</b> (chỗ 2 đường kẻ cắt nhau — không phải đặt vào ô vuông như Cờ Caro). Mục tiêu: <b>vây được càng nhiều đất càng tốt</b> và ăn quân của đối thủ. Ai nhiều điểm hơn khi hết ván thì thắng.</p>
+<h3>1. Khí và ăn quân — luật quan trọng nhất</h3>
+<ul>
+<li><b>Quân kề nhau</b> (chung cạnh, không tính chéo) cùng màu tạo thành 1 <b>nhóm</b>. <b>Khí</b> của 1 nhóm là số giao điểm trống kề với nhóm đó.</li>
+<li>Nhóm nào <b>hết khí</b> (không còn ô trống nào kề) thì <b>bị ăn</b>: toàn bộ quân của nhóm đó bị gỡ khỏi bàn, đối thủ được tính là đã bắt được từng đó quân.</li>
+<li>Ví dụ: 1 quân Đen đứng 1 mình giữa bàn có 4 khí (4 ô trống 4 phía). Trắng đặt quân vào cả 4 ô đó thì quân Đen hết khí và bị ăn.</li>
+<li>Quân đã đặt <b>không di chuyển</b> — chỉ có đặt thêm quân mới, hoặc bị ăn thì mất đi.</li>
+</ul>
+<h3>2. Cấm tự sát — không được đặt quân vào chỗ chết</h3>
+<ul>
+<li>Không được đặt quân vào chỗ mà sau khi đặt, nhóm quân mới của mình <b>không còn khí nào</b> — trừ khi nước đó <b>ăn được quân đối thủ</b> (ăn xong thì nhóm mình lại có khí).</li>
+<li>Ví dụ: 1 ô trống mà 4 phía đều là quân Trắng — Đen đặt vào đó mà không ăn được quân Trắng nào thì đó là nước tự sát, game không cho đánh.</li>
+</ul>
+<h3>3. Luật ko — không được đánh lại ngay 1 nước vừa ăn</h3>
+<ul>
+<li>Có 1 hình cờ đặc biệt gọi là <b>ko</b>: Đen ăn 1 quân Trắng, bàn cờ thành hình A; Trắng mà đánh lại ngay đúng ô đó thì ăn lại 1 quân Đen và bàn trở về đúng hình cũ — cứ thế đánh qua đánh lại mãi không dứt.</li>
+<li>Luật ko: <b>sau khi đối thủ vừa ăn 1 quân ở hình ko, bạn không được đánh lại ngay</b> ô đó — phải đánh chỗ khác 1 nước trước (gọi là "đe ko"), rồi mới được quay lại ăn.</li>
+<li>Trong game, nước phạm luật ko sẽ bị từ chối và báo rõ lý do.</li>
+</ul>
+<h3>4. Bỏ lượt và hết ván — tính điểm</h3>
+<ul>
+<li>Khi thấy bàn đã ổn định, không còn nước nào đáng đánh, bạn bấm <b>⏭️ Bỏ lượt</b>. Nếu <b>cả 2 bên cùng bỏ lượt 2 lần liên tiếp</b> thì ván kết thúc, chuyển sang <b>tính điểm</b>.</li>
+<li>Cũng có thể bấm <b>🏳️ Xin thua</b> để nhận thua ngay (đối thủ thắng luôn).</li>
+<li><b>Tính điểm kiểu Trung Quốc:</b> mỗi bên được <b>số quân còn trên bàn</b> + <b>số ô trống mình bao được (đất)</b>. <b>Trắng được cộng thêm 7,5 điểm (komi)</b> vì đi sau. Ai nhiều điểm hơn thì thắng — nhờ komi 7,5 nên không bao giờ hòa. Đất trống ở giữa bàn chưa được vây kín thì không tính cho bên nào — chỉ vùng trống được bao kín hoàn toàn mới là đất.</li>
+<li>Trong lúc tính điểm, bạn có thể <b>bấm vào 1 nhóm quân để đánh dấu nhóm đó là quân chết</b> (nhóm chết bị gỡ khỏi bàn, tính là tù binh của đối thủ). Đánh dấu xong thì bấm <b>✅ Chốt điểm</b>. Nếu thấy đánh dấu chưa đúng, bấm <b>↩️ Đánh tiếp</b> để quay lại đánh.</li>
+</ul>
+<h3>5. Kích thước bàn — 9×9, 13×13, 19×19</h3>
+<ul>
+<li><b>9×9</b> — bàn nhỏ, ván nhanh (~15–20 phút), hợp với người mới tập chơi.</li>
+<li><b>13×13</b> — bàn vừa, vừa đủ chiến thuật mà không quá dài.</li>
+<li><b>19×19</b> — bàn chuẩn thi đấu, ván dài và sâu nhất.</li>
+<li>Chủ phòng chọn kích thước bàn trong phòng chờ khi chơi online; khi đấu máy hoặc 2 người chung máy thì chọn ở màn hình chính.</li>
+</ul>
+<h3>6. Cách xem bàn — giữ và trượt</h3>
+<ul>
+<li>Bàn 19×19 không vừa màn hình nên game cho bạn <b>1 khung xem</b>: <b>giữ chuột (hoặc ngón tay) và trượt</b> để di chuyển góc nhìn quanh bàn; <b>nhấn nhanh 1 cái (không kéo)</b> thì <b>đặt quân</b> vào giao điểm đó. Kéo xa hơn khoảng 8 điểm ảnh thì chỉ trượt bàn, <b>không đặt quân</b>.</li>
+<li>Nút <b>＋ / －</b> để phóng to / thu nhỏ bàn; <b>lăn chuột</b> trên bàn cũng zoom. Nút <b>⤢ Vừa màn hình</b> thu cả bàn lại cho vừa khung; nút <b>🎯 Quân mới</b> đưa góc nhìn về đúng quân vừa đánh.</li>
+<li><b>Di chuột qua giao điểm trống</b> sẽ thấy quân mờ xem trước (màu của người đang tới lượt). Quân vừa đánh có chấm đỏ ở giữa; các điểm sao trên bàn được đánh dấu bằng chấm đen nhỏ.</li>
+</ul>
+<h3>7. Chế độ chơi &amp; Máy AI</h3>
+<ul>
+<li><b>🌐 Chơi online:</b> bấm <b>🌐 Online</b> ở màn hình chính rồi <b>Tạo phòng online</b> — gửi mã phòng 5 ký tự (hoặc link mời) cho bạn; bạn nhập mã rồi bấm <b>Vào</b>. Chủ phòng chọn kích thước bàn trong phòng chờ rồi bấm <b>Bắt đầu chơi</b>. Mỗi nước đi đều đồng bộ cho cả 2 bên. Nếu đối thủ mất kết nối thì máy sẽ đi thay sau vài giây; chủ phòng rời thì phòng giải tán.</li>
+<li><b>Đấu với Máy:</b> bạn cầm Đen đi trước, máy cầm Trắng. Máy <b>Dễ</b> thỉnh thoảng đánh bừa (30% đánh ngẫu nhiên); máy <b>Khó</b> biết ăn quân, cứu nhóm đang bị chiếu, chiếu ngược đối thủ và tránh tự đưa mình vào thế chết. Lưu ý: máy chỉ chơi ở mức cơ bản, chưa mạnh như AI Cờ Vây chuyên nghiệp.</li>
+<li><b>2 Người chơi:</b> 2 người ngồi chung 1 máy, thay phiên nhau đặt quân.</li>
+</ul>
+<h3>8. Mẹo cho người mới</h3>
+<ul>
+<li>Chơi bàn <b>9×9</b> trước cho quen tay — luật giống hệt bàn lớn mà ván nhanh hơn nhiều.</li>
+<li>Khai cuộc nên đánh ở <b>góc bàn</b> trước (điểm sao 3–4), rồi mới lan ra cạnh và giữa — góc dễ vây đất nhất vì đã có sẵn 2 mép bàn làm "tường".</li>
+<li>Luôn để ý <b>khí của nhóm mình</b>: nhóm chỉ còn 1 khí là đang bị "chiếu" — phải chạy (nối thêm khí) hoặc ăn lại đối thủ ngay.</li>
+<li>Đừng cố ăn mọi quân: có những quân đối thủ cố tình "thí" để dụ bạn đánh vào chỗ chết — nhìn cả bàn trước khi đuổi theo.</li>
+</ul></div>`;

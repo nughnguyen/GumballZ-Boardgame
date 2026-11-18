@@ -1,0 +1,335 @@
+/* 🎨 Giao diện Neo-Brutalism GumballZ – lớp theme dùng chung (nạp qua shell.css).
+   Palette duy nhất: #FFD273 vàng đậm · #FEE686 vàng nhạt · #FEC5E6 hồng · #DEB5D7 tím nhạt · #BFAEE3 oải hương.
+   Mực/viền: #2a2340. Nền: #fff7ef. Shadow NHẸ duy nhất: lệch tối đa 3px, mờ rgba(42,35,64,.16).
+   Phạm vi: trang chủ, shell chung, header, sảnh/lobby, nút, dialog chung + CHROME màn chơi (nút/chip/topbar/panel-log).
+   KHÔNG đụng bàn chơi, lá bài, quân cờ, hình trong game, engine/bot/net (typhu/css, scene3d, css riêng từng game giữ nguyên). */
+:root{
+  /* --- token màu (dùng --y1/--y2/--p1/--p2/--p3 làm tên ngắn, --neo-* giữ tương thích cũ) --- */
+  --y1:#FFD273; --y2:#FEE686; --p1:#FEC5E6; --p2:#DEB5D7; --p3:#BFAEE3;
+  --ink:#2a2340; --bg:#fff7ef; --muted:#7b7391; --card:#fff;
+  --neo-y1:#FFD273; --neo-y2:#FEE686; --neo-pink:#FEC5E6; --neo-mauve:#DEB5D7; --neo-lav:#BFAEE3;
+  --neo-ink:#2a2340; --neo-bg:#fff7ef;
+  /* --- bóng nhẹ: tối đa 3px 3px 0 rgba(42,35,64,.16) --- */
+  --sh:3px 3px 0 rgba(42,35,64,.16); --sh-sm:2px 2px 0 rgba(42,35,64,.16);
+  --neo-sh:3px 3px 0 rgba(42,35,64,.16); --neo-sh-sm:2px 2px 0 rgba(42,35,64,.16);
+  /* --- bo góc --- */
+  --r-lg:20px; --r-md:16px; --r-sm:12px; --r-pill:999px;
+  --neo-r:16px; --neo-r-sm:12px;
+  /* --- thang chữ: Baloo 2 (tiêu đề/nút) + Nunito (nội dung) --- */
+  --font-head:"Baloo 2",Nunito,sans-serif; --font-body:Nunito,system-ui,sans-serif;
+  --fs-xs:12.5px; --fs-sm:14px; --fs-md:16px; --fs-lg:20px; --fs-xl:24px; --fs-2xl:32px;
+  --lh-tight:1.1; --lh-base:1.5;
+}
+
+/* ---------- shell chung: nút về trang chủ + màn hình chờ ---------- */
+body a.gumballz-chip{border:2.5px solid var(--neo-ink)!important;border-radius:var(--neo-r-sm)!important;background:var(--neo-y2)!important;box-shadow:var(--neo-sh-sm)!important}
+body a.gumballz-chip:hover{transform:translate(-1px,-1px)}
+body a.gumballz-chip:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)!important}
+body #gumballz-splash{background:var(--neo-y2)}
+body #gumballz-splash b::after{background:linear-gradient(90deg,var(--neo-pink),var(--neo-y1),var(--neo-lav))}
+body :focus-visible{outline:3px solid var(--neo-ink);outline-offset:2px}
+
+/* ---------- trang chủ: nền, thanh trên, dải hero gọn ---------- */
+body::before{background:radial-gradient(46vmax 46vmax at 4% 2%,#FEC5E655,transparent 72%),radial-gradient(46vmax 46vmax at 98% 8%,#FFD27366,transparent 72%),radial-gradient(46vmax 46vmax at 6% 98%,#DEB5D766,transparent 72%),radial-gradient(46vmax 46vmax at 96% 96%,#BFAEE366,transparent 72%)}
+.nav{background:var(--neo-y2);border-bottom:3px solid var(--neo-ink)}
+.nav.stuck{box-shadow:0 4px 0 rgba(42,35,64,.12)}
+.links a,.links button{border-radius:var(--neo-r-sm)}
+.links a:hover,.links button:hover{background:var(--neo-pink)}
+.btn-main{background:var(--neo-y1);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh)}
+.btn-main:hover{transform:translate(-1px,-1px);filter:none;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+.btn-main:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
+.btn-sub{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+.btn-sub:hover{transform:translate(-1px,-1px)}
+.btn-sub:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
+.online{background:var(--neo-pink);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+.setbtn{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+
+/* ---------- trang chủ: nút tin tức, bộ lọc, chip hot, thử thách ---------- */
+.news{background:var(--neo-pink);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+.news.alt{background:var(--neo-lav);color:var(--neo-ink)}
+.news.alt2{background:var(--neo-mauve);color:var(--neo-ink)}
+.news.alt3{background:#fff;color:var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+.filter{background:#fffdf5;border:3px solid var(--neo-ink);border-radius:999px;padding:5px;box-shadow:var(--neo-sh-sm)}
+.filter button{border-radius:999px}
+.filter button[aria-pressed="true"]{background:var(--neo-y1);color:var(--neo-ink);border-color:var(--neo-ink);box-shadow:2px 2px 0 rgba(42,35,64,.25)}
+.hot-chip{background:#fff;border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm)}
+.hot-chip i{background:var(--neo-y1);color:var(--neo-ink);border:2px solid var(--neo-ink)}
+.hot-chip small{color:var(--neo-ink)}
+.daily{background:#fff;border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm)}
+.daily em{background:var(--neo-y1);color:var(--neo-ink);border:2px solid var(--neo-ink)}
+.lobby-cta{background:var(--neo-lav);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh)}
+.psel select{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+.newtag{background:var(--neo-pink);color:var(--neo-ink);border:2px solid var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+.play.resume{background:var(--neo-pink);color:var(--neo-ink)}
+
+/* ---------- trang chủ: các ô game – nền phẳng theo palette, viền mực, shadow nhẹ ---------- */
+.tile{border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--neo-sh)}
+.tile:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+.tile .info{background:#fff;color:var(--neo-ink);border-top:3px solid var(--neo-ink)}
+.tile .info h2,.tile h2{color:var(--neo-ink);text-shadow:none}
+.tile .info p{color:#4c4365}
+.tile .tags i{background:var(--neo-y2);color:var(--neo-ink);border:2px solid var(--neo-ink);border-radius:8px}
+.tile .play{background:var(--neo-ink);color:var(--neo-y2);border:3px solid var(--neo-ink);border-radius:10px;box-shadow:var(--neo-sh-sm)}
+/* ---------- trang chủ: nền ô game – màu phẳng theo palette, xoay vòng 5 màu, chữ mực trên nền trắng ---------- */
+.tile.bang{background:var(--neo-mauve)}
+.tile.uno{background:var(--neo-pink)}
+.tile.typhu{background:var(--neo-y1)}
+.tile.scribble{background:var(--neo-mauve)}
+.tile.meono{background:var(--neo-y1)}
+.tile.tamquoc{background:var(--neo-lav)}
+.tile.masoi{background:var(--neo-mauve)}
+.tile.camel{background:var(--neo-y2)}
+.tile.cangua{background:var(--neo-pink)}
+.tile.tienlen{background:var(--neo-y1)}
+.tile.catte{background:var(--neo-y2)}
+.tile.bacao{background:var(--neo-mauve)}
+.tile.xidach{background:var(--neo-lav)}
+.tile.poker{background:var(--neo-y1)}
+.tile.solitaire{background:var(--neo-y2)}
+.tile.cotuong{background:var(--neo-y1)}
+.tile.thathaythach{background:var(--neo-y2)}
+.tile.baitan{background:var(--neo-pink)}
+.tile.loto{background:var(--neo-y1)}
+.tile.covua{background:var(--neo-lav)}
+.tile.tala{background:var(--neo-y2)}
+.tile.cholon{background:var(--neo-pink)}
+.tile.tusac{background:var(--neo-mauve)}
+.tile.bantau{background:var(--neo-lav)}
+.tile.oanquan{background:var(--neo-y1)}
+.tile.caro{background:var(--neo-y2)}
+.tile.tictactoe{background:var(--neo-pink)}
+.tile.memory{background:var(--neo-mauve)}
+.tile.covay{background:var(--neo-y1)}
+.tile.cothu{background:var(--neo-y2)}
+.tile.ranvathang{background:var(--neo-pink)}
+.tile.sam{background:var(--neo-lav)}
+.tile.daochinh{background:var(--neo-mauve)}
+.tile.xiecthu{background:var(--neo-y1)}
+.tile.cuuho{background:var(--neo-y2)}
+.tile.khaihoang{background:var(--neo-pink)}
+.tile.xuyenviet{background:var(--neo-lav)}
+.tile.noitu{background:var(--neo-y1)}
+.tile.baucua{background:var(--neo-y2)}
+.tile.soon{border:3px dashed var(--neo-ink);background:var(--neo-y2);border-radius:20px;box-shadow:var(--neo-sh-sm)}
+.foot{border-top:3px solid var(--neo-ink)}
+.ng-box{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+.ng-head{background:var(--neo-y1);color:var(--neo-ink);border-bottom:3px solid var(--neo-ink)}
+.ng-head span{color:var(--neo-ink)}
+.ng-item{border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+.ng-item i{background:var(--neo-ink);color:var(--neo-y2)}
+.ng-ic{border:2px solid var(--neo-ink)}
+
+/* ---------- sảnh / lobby dùng chung (gamekit) – chỉ màn hình chờ + lobby, không đụng ván chơi ---------- */
+.home-card{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--neo-sh)}
+.home-card .logo span{background:none;-webkit-background-clip:initial;background-clip:initial;-webkit-text-fill-color:var(--neo-ink);color:var(--neo-ink)}
+.home-card .btn,.lobby .btn,.start-bar .btn,.modal-box .btns .btn{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+.home-card .btn.pri,.lobby .btn.pri,.start-bar .btn.pri,.modal-box .btns .btn.pri{background:var(--neo-y1);color:var(--neo-ink)}
+.home-card .btn.dark,.lobby .btn.dark{background:var(--neo-ink);color:var(--neo-y2)}
+.home-card .btn:hover,.lobby .btn:hover{filter:none;transform:translate(-1px,-1px)}
+.home-card .btn:active,.lobby .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
+.home-card .chip,.lobby .chip{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+.home-card .chip.on,.lobby .chip.on{background:var(--neo-ink);color:var(--neo-y2)}
+.home-card input,.home-card select,.home-card textarea,.lobby input,.lobby select,.lobby textarea{border:2.5px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+.home-card input:focus,.home-card select:focus,.home-card textarea:focus,.lobby input:focus{border-color:var(--neo-ink);box-shadow:0 0 0 3px var(--neo-pink)}
+.lobby .panel{background:#fff;border:3px solid var(--neo-ink);border-radius:18px;box-shadow:var(--neo-sh-sm)}
+.lobby .code-box{background:var(--neo-y2);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+.lobby .code-box b{color:var(--neo-ink)}
+.lobby .plist li{background:#fff;border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+.lobby .seg button{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+.lobby .seg button[aria-pressed="true"]{background:var(--neo-ink);color:var(--neo-y2)}
+.modal-box{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+.toast{background:var(--neo-ink);color:var(--neo-y2);border:2px solid var(--neo-y2)}
+
+/* ---------- Cờ Tỷ Phú: CHỈ màn hình chủ + sảnh (không đụng #screen-game, bàn 3D, lá bài) ---------- */
+#screen-home .home-card{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--neo-sh)}
+#screen-home .logo{color:var(--neo-ink);text-shadow:none}
+#screen-home .logo small{color:var(--neo-ink)}
+#screen-home .btn,#screen-lobby .btn{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+#screen-home .btn.pri,#screen-lobby .btn.pri{background:var(--neo-y1);color:var(--neo-ink)}
+#screen-home .btn.green,#screen-lobby .btn.green{background:var(--neo-y2);color:var(--neo-ink)}
+#screen-home .btn.gold,#screen-lobby .btn.gold{background:var(--neo-pink);color:var(--neo-ink)}
+#screen-home .btn.blue,#screen-lobby .btn.blue{background:var(--neo-lav);color:var(--neo-ink)}
+#screen-home .btn.red,#screen-lobby .btn.red{background:var(--neo-pink);color:var(--neo-ink)}
+#screen-home .btn.ghost,#screen-lobby .btn.ghost{background:var(--neo-mauve);color:var(--neo-ink)}
+#screen-home .btn:hover,#screen-lobby .btn:hover{transform:translate(-1px,-1px);filter:none}
+#screen-home .btn:active,#screen-lobby .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
+#screen-home .chip,#screen-lobby .chip{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
+#screen-home .chip.on,#screen-lobby .chip.on{background:var(--neo-ink);color:var(--neo-y2)}
+#screen-home .me-av{background:var(--neo-y2);border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm)}
+#screen-home #name,#screen-home .join-row input,#screen-lobby input{border:2.5px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+#screen-home #name:focus,#screen-home .join-row input:focus{border-color:var(--neo-ink);box-shadow:0 0 0 3px var(--neo-pink)}
+#screen-lobby .panel{background:#fff;border:3px solid var(--neo-ink);border-radius:18px;box-shadow:var(--neo-sh-sm)}
+#screen-lobby .code-box{background:var(--neo-pink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+#screen-lobby .code-box b{color:var(--neo-ink)}
+#screen-lobby .plist li{background:#fff;border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+#screen-lobby .plist li .x{border:2px solid var(--neo-ink);border-radius:10px}
+#screen-lobby .opt .seg button{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+#screen-lobby .opt .seg button[aria-pressed="true"],#screen-lobby .opt .seg button.on{background:var(--neo-ink);color:var(--neo-y2)}
+
+/* ---------- dialog chung (dialog.js / feedback.js chèn style lúc chạy) ---------- */
+body .dg-box{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+body .dg-box input{border:2.5px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+body .dg-box input:focus{border-color:var(--neo-ink);box-shadow:0 0 0 3px var(--neo-pink)}
+body .dg-b{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+body .dg-b.ok{background:var(--neo-y1);color:var(--neo-ink)}
+body .dg-b.danger{background:var(--neo-pink);color:var(--neo-ink)}
+body .dg-b.ghost{background:var(--neo-mauve);color:var(--neo-ink)}
+body .dg-toast{background:var(--neo-ink);color:var(--neo-y2);border:2px solid var(--neo-y2)}
+body .fb-box{background:#fff;border:3px solid var(--neo-ink);border-radius:20px;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+body .fb-box select,body .fb-box textarea,body .fb-box input{border:2.5px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+body .fb-chips button{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+body .fb-chips button[aria-pressed="true"]{background:var(--neo-ink);color:var(--neo-y2)}
+body .fb-send{background:var(--neo-y1);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+body .fb-tip{background:var(--neo-y2);border:2px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
+body .fb-qr{border:3px solid var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+body .fb-x{border:2.5px solid var(--neo-ink)}
+
+@media (max-width:560px){
+  .tile{border-radius:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .tile:hover,.btn-main:hover,.btn-sub:hover{transform:none}
+}
+
+/* ===== Bố cục mới 15/11/2026 (v2): trang chủ theo nhóm + sảnh chờ/lobby/chat/dialog/cài đặt =====
+   Chỉ đổi phần ngoài + màn hình chờ/lobby. KHÔNG đụng #screen-game, bàn cờ/bài/token/xúc xắc,
+   không đụng file css riêng của từng game. Các rule dưới đây đều giới hạn vào trang chủ,
+   #screen-home, #screen-lobby, .lobby, .st-*, .brc-*, .dg-*, .bn-*, .pf-*, .lb-*, .fb-*. */
+
+/* ---------- trang chủ: topbar gọn + thanh lọc dính ---------- */
+.nav-in{padding:6px 16px}
+.wm{font-size:24px}
+
+
+/* thanh công cụ chọn game – dính dưới topbar */
+.sec-head{position:sticky;top:54px;z-index:40;background:#fff7ef;border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm);padding:8px 12px;margin-bottom:14px}
+
+
+/* chân trang dạng thẻ */
+/* ---------- chân trang kiểu GumballZ Hub: viền trên 3px, nền kem, thanh dưới vàng ---------- */
+body .foot{background:#fffdf5;border-top:3px solid var(--neo-ink);border-radius:0;box-shadow:none;padding:28px 0 0;margin:32px -16px -32px}
+body .foot-top{grid-template-columns:1.4fr .7fr 1.6fr .9fr .9fr;gap:28px;padding:0 20px;max-width:1180px;margin:0 auto}
+body .foot-brand p{margin:12px 0 0}
+body .foot-name{font:800 21px/1.15 "Baloo 2",Nunito,sans-serif;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+body .foot-name em{font-style:normal;background:var(--neo-y1);border-radius:6px;padding:1px 8px;margin-left:2px;box-shadow:var(--neo-sh-sm)}
+body .foot h3{color:var(--neo-ink)}
+body .foot nav a{font-size:14.5px}
+/* cột Luật chơi: 15 link chia 2 cột để footer gọn còn ~1 nửa chiều cao */
+body .foot nav.foot-luat{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;align-content:start}
+body .foot nav.foot-luat h3{grid-column:1/-1}
+body .foot-note{margin:18px auto 0;padding:0 20px;max-width:1180px}
+body .foot-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;background:var(--neo-y1);border-top:2px solid var(--neo-ink);margin-top:16px;padding:12px 20px;font:800 13px Nunito,sans-serif;color:var(--neo-ink)}
+
+/* ---------- màn hình chờ / lobby (gamekit + typhu) ---------- */
+#screen-home{padding-top:56px}
+.home-card{width:min(480px,100%)}
+.home-card .logo small{display:block;font-size:16px;color:#4c4365;margin-top:6px}
+.home-card .home-tools .chip{min-height:44px}
+.home-card .join-row input{background:var(--neo-y2)}
+.lobby{max-width:900px}
+.lobby .panel h3{border-bottom:3px solid var(--neo-ink);padding-bottom:8px}
+.lobby .code-box b{font-size:26px;letter-spacing:4px}
+.lobby .plist li.host{border-color:var(--neo-ink);background:var(--neo-y2)}
+.start-bar .btn{max-width:560px}
+.lobby .opt{border-top:3px dashed var(--neo-mauve);padding-top:10px}
+
+/* ---------- chat trong phòng (roomchat.js chèn CSS lúc chạy → cần !important) ---------- */
+body .brc-box{background:#fff!important;border:3px solid var(--neo-ink)!important;border-radius:18px!important;box-shadow:var(--neo-sh)!important}
+body .brc-head{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border-bottom:3px solid var(--neo-ink)!important}
+body .brc-head button{background:#fff!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
+body .brc-m{background:#fff!important;border:2px solid var(--neo-ink)!important;border-radius:12px!important;box-shadow:var(--neo-sh-sm)!important}
+body .brc-m.me{background:var(--neo-pink)!important}
+body .brc-m small{color:var(--neo-ink)!important}
+body .brc-form{background:#fff!important;border-top:3px solid var(--neo-ink)!important}
+body .brc-form input{border:2.5px solid var(--neo-ink)!important;background:#fff!important}
+body .brc-form input:focus{border-color:var(--neo-ink)!important;box-shadow:0 0 0 3px var(--neo-pink)!important}
+body .brc-form button{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border:3px solid var(--neo-ink)!important;border-radius:12px!important;width:44px!important;height:44px!important}
+body .brc-tab{background:var(--neo-y2)!important;border:3px solid var(--neo-ink)!important;border-left:0!important;border-radius:0 14px 14px 0!important;box-shadow:var(--neo-sh-sm)!important}
+body .brc-tab b{background:var(--neo-pink)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
+body .brc-peek{background:var(--neo-ink)!important}
+
+/* ---------- sảnh chung (lobby.js) ---------- */
+body .lb-col{background:#fff!important;border:3px solid var(--neo-ink)!important;border-radius:18px!important;box-shadow:var(--neo-sh-sm)!important}
+body .lb-h{border-bottom:3px solid var(--neo-ink)!important}
+body .lb-chips button{border:3px solid var(--neo-ink)!important;border-radius:12px!important}
+body .lb-chips button[aria-pressed="true"]{background:var(--neo-ink)!important;color:var(--neo-y2)!important}
+body .lb-room{border:3px solid var(--neo-ink)!important;border-radius:14px!important;box-shadow:var(--neo-sh-sm)!important}
+body .lb-room:hover{border-color:var(--neo-ink)!important;background:var(--neo-y2)!important}
+body .lb-room .go{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
+body .lb-b{background:#fff!important;border:2px solid var(--neo-ink)!important;border-radius:12px!important}
+body .lb-m.me .lb-b{background:var(--neo-pink)!important}
+body .lb-in input{border:2.5px solid var(--neo-ink)!important}
+body .lb-in input:focus{border-color:var(--neo-ink)!important;box-shadow:0 0 0 3px var(--neo-pink)!important}
+body .lb-in button{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border:3px solid var(--neo-ink)!important;border-radius:12px!important;box-shadow:var(--neo-sh-sm)!important}
+body .lb-tabs{background:var(--neo-y2)!important;border:3px solid var(--neo-ink)!important;border-radius:999px!important}
+body .lb-mod{background:#fff!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)!important}
+body .lb-mod > header button.x{border:3px solid var(--neo-ink)!important;background:var(--neo-y2)!important}
+
+/* ---------- hộp "Có gì mới" (news.js) ---------- */
+body .gumballz-news .bn-box{background:#fff!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)!important}
+body .gumballz-news .bn-hd{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border-bottom:3px solid var(--neo-ink)!important}
+body .gumballz-news .bn-x{border:3px solid var(--neo-ink)!important;background:var(--neo-y2)!important}
+body .gumballz-news .bn-tabs button{border:3px solid var(--neo-ink)!important;border-radius:12px!important}
+body .gumballz-news .bn-tabs button.on{background:var(--neo-ink)!important;color:var(--neo-y2)!important}
+body .gumballz-news .bn-tag{background:var(--neo-y2)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
+body .gumballz-news .bn-new{background:var(--neo-pink)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
+body .gumballz-news .bn-it{border:3px solid var(--neo-ink)!important;border-radius:14px!important;padding:12px!important;margin:10px 0!important;box-shadow:var(--neo-sh-sm)!important}
+
+/* ---------- hồ sơ (profile.js) ---------- */
+body .pf-box{background:#fff!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)!important}
+body .pf-x{border:3px solid var(--neo-ink)!important;background:var(--neo-y2)!important}
+body .pf-bar{background:var(--neo-y2)!important;border:2px solid var(--neo-ink)!important}
+body .pf-bar i{background:var(--neo-y1)!important}
+body .pf-nums div{border:3px solid var(--neo-ink)!important;border-radius:14px!important;box-shadow:var(--neo-sh-sm)!important}
+body .pf-a{border:3px solid var(--neo-ink)!important;border-radius:14px!important}
+body .pf-a.yes{background:var(--neo-y2)!important}
+body .pf-pick button[aria-pressed="true"]{border-color:var(--neo-ink)!important}
+body .pf-col button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--neo-ink)!important}
+
+@media (max-width:860px){
+  .sec-head{top:56px}
+  .foot{padding:18px 14px}
+}
+@media (max-width:480px){
+}
+
+/* ===== v3 15/11/2026: chrome màn chơi – CHỈ màu/viền/shadow/font, KHÔNG đụng vị trí/kích thước/bàn chơi/lá bài/quân cờ =====
+   Nút .btn/.chip và topbar/panel-log ở mọi game. BỎ QUA: .banner (chữ kết quả ván), .timer (đồng hồ),
+   .color-pick (màu là luật chơi), .ucard/.card (lá bài), .pc (lá bài/quân cờ ở Ba Cào/Cát tê/Cờ tướng),
+   .pc.turn (vòng báo lượt), .gchip (chip tiền),
+   theme tối của Ma Sói/BANG (nền tối + chữ sáng – chỉ đổi viền, không đổi nền/chữ). */
+body .btn{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
+body .btn.pri{background:var(--neo-y1);color:var(--neo-ink)}
+body .btn.green{background:var(--neo-y2);color:var(--neo-ink)}
+body .btn.blue{background:var(--neo-lav);color:var(--neo-ink)}
+body .btn.gold{background:var(--neo-y1);color:var(--neo-ink)}
+body .btn.yellow{background:var(--neo-y1);color:var(--neo-ink)}
+body .btn.red{background:var(--neo-pink);color:var(--neo-ink)}
+body .btn.ghost{background:var(--neo-mauve);color:var(--neo-ink)}
+body .btn.dark{background:var(--neo-ink);color:var(--neo-y2)}
+body .btn:hover{filter:none;transform:translate(-1px,-1px)}
+body .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
+body .chip{background:#fff;color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:12px;box-shadow:var(--neo-sh-sm)}
+body .chip.on{background:var(--neo-ink);color:var(--neo-y2)}
+body .topbar{border-bottom:3px solid var(--neo-ink)}
+body .log{border-left:3px solid var(--neo-ink);box-shadow:-3px 0 0 rgba(42,35,64,.16)}
+body .log h4{border-bottom:3px solid var(--neo-ink)}
+body .round-tag{border:2.5px solid var(--neo-ink)}
+body .act{border:3px solid var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+body .act .mini{border:2px solid var(--neo-ink)}
+body .act .dice-r{border:2px solid var(--neo-ink)}
+body .mode-tag{border:2.5px solid var(--neo-ink)}
+body .target-list button{background:#fff;color:var(--neo-ink);border:2.5px solid var(--neo-ink);border-radius:12px;box-shadow:var(--neo-sh-sm)}
+body .close-x{border:2.5px solid var(--neo-ink);border-radius:10px;background:var(--neo-y2);color:var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+
+@media (max-width:860px){
+  body .foot{padding-top:28px}
+  body .foot-top{grid-template-columns:1fr 1fr}
+  body .foot-brand{grid-column:1/-1}
+  body .foot-luat{grid-column:1/-1}
+  body .foot-name{font-size:19px}
+}
+@media (max-width:480px){
+  body .foot-top{grid-template-columns:1fr 1fr}
+  body .foot-bottom{font-size:12px}
+}

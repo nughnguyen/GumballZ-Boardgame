@@ -1,0 +1,77 @@
+/* 🏝️ Đảo Khai Hoang – giao diện riêng (khung chung ở shared/ui/gamekit.css). Bàn là hòn đảo 19 ô lục giác vẽ bằng SVG giữa biển. */
+:root{--acc:#0e7490;--acc2:#f2a51e;--bg:#e6f4f6;--line:#cbe4e8;--ink:#2a2340;
+  --t-w:#6fb57c;--t-b:#e6ab7c;--t-g:#f3dc7a;--t-f:#c4e89a;--t-o:#c5ced6;--t-d:#f1e2ba}
+body{background:radial-gradient(900px 480px at 0 -10%,#b9e6ee 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#ffe7b8 0,transparent 60%),var(--bg)}
+.home-card .hero{height:150px;display:grid;place-items:center;margin-bottom:6px}.hero svg{height:150px}
+#screen-game.active{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.round{font:800 14px "Baloo 2",Nunito,sans-serif;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;min-height:42px;display:flex;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.arena{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 8px calc(8px + env(safe-area-inset-bottom));width:100%;max-width:1180px;margin:0 auto}
+.mapbox{position:relative;flex:none;width:min(100%,calc(100dvh - 350px));min-width:250px;aspect-ratio:110/104;background:radial-gradient(circle at 50% 50%,#bfe9f5 0 52%,#9fd6ec 100%);border:2px solid var(--ink);border-radius:18px;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
+#map{width:100%;height:100%;display:block;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.isle polygon{fill:#f6e9c4;stroke:#f6e9c4;stroke-width:5;stroke-linejoin:round;filter:drop-shadow(0 .8px 0 #d9c48b)}
+.hex>polygon{stroke:#fff8;stroke-width:.7;stroke-linejoin:round}
+.t-w>polygon,.t-w.st,.tc.t-w,.hc.t-w,.port .t-w{fill:var(--t-w);background:var(--t-w)}.t-b>polygon,.tc.t-b,.hc.t-b,.st.t-b,.port .t-b{fill:var(--t-b);background:var(--t-b)}
+.t-g>polygon,.tc.t-g,.hc.t-g,.st.t-g,.port .t-g{fill:var(--t-g);background:var(--t-g)}.t-f>polygon,.tc.t-f,.hc.t-f,.st.t-f,.port .t-f{fill:var(--t-f);background:var(--t-f)}
+.t-o>polygon,.tc.t-o,.hc.t-o,.st.t-o,.port .t-o{fill:var(--t-o);background:var(--t-o)}.t-d>polygon{fill:var(--t-d)}.st.t-w{background:var(--t-w)}.port .t-x{fill:#fff}
+.hex.hit>polygon{stroke:#fff;stroke-width:1.6;filter:brightness(1.08)}
+.tok circle:first-child{fill:#fffaf0;stroke:var(--ink);stroke-width:.4}.tok text{font:800 3.5px "Baloo 2",Nunito,sans-serif;text-anchor:middle;fill:var(--ink)}.tok .pip{fill:var(--ink)}
+.tok.hot text{fill:#d42a2a}.tok.hot .pip{fill:#d42a2a}
+.storm>circle:first-child{fill:#fffaf0;stroke:#d42a2a;stroke-width:.6}.storm path,.storm .hd{fill:#2a2340}
+.port path{fill:none;stroke:#9a6b3c;stroke-width:.7;stroke-dasharray:1.1 .9}.port circle{stroke:var(--ink);stroke-width:.4}.port text{font:800 2.3px Nunito,sans-serif;text-anchor:middle;fill:var(--ink)}.port{cursor:pointer}
+.road line{stroke:var(--ink);stroke-width:2.7;stroke-linecap:round}.road .c{stroke-width:1.7}.road.last line:first-child{stroke:#ffe26a}
+.bd{stroke:#fff;stroke-width:.55;stroke-linejoin:round;paint-order:stroke;filter:drop-shadow(0 .5px .2px #000a)}.bd.last{stroke:#ffe26a;stroke-width:.9}
+.tg{fill:#fff;fill-opacity:.75;stroke:var(--ink);stroke-width:.6;stroke-dasharray:1.2 .8;cursor:pointer;animation:kh-p 1s infinite}
+line.tg{stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:.9;filter:drop-shadow(0 0 .6px var(--ink))}
+.tg.up{fill:#ffe26a;fill-opacity:.5}.tg.sto{fill:#3a3550;fill-opacity:.18;stroke:#3a3550}
+.dice{position:absolute;left:8px;top:8px;display:flex;align-items:center;gap:4px;pointer-events:none}
+.die{width:26px;height:26px;background:#fff;border:2px solid var(--ink);border-radius:7px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:3px;box-shadow:1.5px 1.5px 0 var(--ink)}.die i{width:4px;height:4px;border-radius:50%;background:var(--ink);place-self:center}
+.dice b{font:800 17px "Baloo 2",Nunito,sans-serif;background:var(--ink);color:#fff;border-radius:999px;min-width:26px;height:26px;display:grid;place-items:center;padding:0 6px}
+.side{flex:1;min-height:0;width:100%;max-width:520px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.seats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.seat{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1px 6px;background:#fff;border:1.5px solid var(--line);border-left:6px solid var(--pc);border-radius:12px;padding:3px 8px;font:800 13px/1.2 Nunito,sans-serif;min-width:0}
+.seat .nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.seat .pt{font:800 17px "Baloo 2",Nunito,sans-serif;color:var(--pc)}.seat .pt i{font-size:11px;font-style:normal;margin-left:1px}
+.seat small{grid-column:1/-1;color:#6b6480;font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat.turn{box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 30%,transparent)}
+.hand{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.hc{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:50px;border:2px solid var(--ink);border-radius:12px;box-shadow:2px 2px 0 var(--ink);font:800 12px Nunito,sans-serif;color:var(--ink);padding:2px 0}
+.hc .ri{width:20px;height:20px}.hc b{position:absolute;right:3px;top:0;font:800 17px "Baloo 2",Nunito,sans-serif}.hc small{font-size:10.5px;font-weight:800;line-height:1}
+.hc.z{opacity:.4;box-shadow:none}.hc.dev{background:#fff;cursor:pointer;font-size:17px}
+.ri{width:18px;height:18px;vertical-align:-4px;flex:none}.bg{display:inline-flex;align-items:center;font-weight:800;margin:0 1px}
+.msg{font:800 13.5px/1.4 Nunito,sans-serif;text-align:center;min-height:40px}.msg small{color:#6b6480;font-weight:700}
+.acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.acts .btn{min-height:48px;min-width:0;padding:4px 6px}.acts .btn.big{grid-column:1/-1;min-height:54px}
+.acts>.btn:only-child,.acts>.wait{grid-column:1/-1}.acts>.btn:first-child:nth-last-child(2),.acts>.btn:first-child:nth-last-child(2)~.btn{grid-column:span 3}
+.bld{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1.15}.bld span{white-space:nowrap}.bld small{font-size:11px;font-weight:800;opacity:.85}.bld .ri{width:14px;height:14px;vertical-align:-3px}
+.bld.on{background:var(--ink);color:#fff}.bld.on .ri{filter:drop-shadow(0 0 1px #fff)}
+.stp,.tcs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:6px 0}
+.st{display:flex;flex-direction:column;align-items:center;border:2px solid var(--ink);border-radius:12px;padding:4px 2px;font:800 11.5px Nunito,sans-serif}.st .ri{width:22px;height:22px}
+.st div{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:100%;padding:0 3px}.st b{grid-column:1/-1;grid-row:1;text-align:center;font:800 19px/1.1 "Baloo 2",Nunito,sans-serif}
+.st button{width:100%;height:34px;border:1.5px solid var(--ink);border-radius:8px;background:#fff;font:800 17px Nunito,sans-serif;cursor:pointer;padding:0;color:var(--ink)}.st button:disabled{opacity:.35}
+.tc{display:flex;flex-direction:column;align-items:center;gap:1px;border:2px solid var(--ink);border-radius:12px;padding:6px 2px;font:800 11.5px Nunito,sans-serif;cursor:pointer;color:var(--ink);min-height:56px}.tc .ri{width:24px;height:24px}
+.tc[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink);transform:translateY(-1px)}.tc:disabled{opacity:.35;cursor:default}
+.modal-box h3{margin:12px 0 2px;font:800 16px "Baloo 2",Nunito,sans-serif}.hint{color:#6b6480;font:700 12.5px Nunito,sans-serif;margin:2px 0}.lbl{font:800 12.5px Nunito,sans-serif;color:#6b6480;margin-top:6px}
+.pick{display:flex;flex-direction:column;gap:6px;margin:10px 0}.pick .btn{min-height:50px;border-left:6px solid var(--pc);justify-content:flex-start;gap:8px}
+.cardrow{display:flex;align-items:center;gap:10px;background:#fff7e0;border:1.5px solid #f0d9a0;border-radius:12px;padding:8px 10px;margin:6px 0}.cardrow .ci{font-size:24px}.cardrow div{flex:1;min-width:0}.cardrow b{font:800 15px "Baloo 2",Nunito,sans-serif;display:block}
+.cardrow small{color:#5d5670;font:700 12.5px/1.3 Nunito,sans-serif}.cardrow.fresh{opacity:.75;border-style:dashed}.cardrow .btn{min-height:42px}
+.res{width:100%;border-collapse:collapse;font:700 14px Nunito,sans-serif}.res td,.res th{padding:5px 6px;text-align:right;border-bottom:1px solid #eee}.res td:first-child,.res th:first-child{text-align:left}.res tr.win td{font-weight:800;background:#fff7e0}
+.guide .ri{width:16px;height:16px}
+@keyframes kh-p{50%{opacity:.45}}@keyframes kh-spin{to{transform:rotate(360deg)}}
+/* máy tính / điện thoại xoay ngang: đảo bên trái, bảng điều khiển bên phải */
+@media (min-width:760px),(orientation:landscape) and (max-height:520px){
+  .arena{flex-direction:row;align-items:flex-start;justify-content:center;gap:12px}
+  .mapbox{width:min(54vw,calc((100dvh - 76px) * 110 / 104))}.side{max-width:400px;height:100%}
+}
+@media (orientation:landscape) and (max-height:520px){.seats{grid-template-columns:1fr 1fr}.seat small{display:none}.hc{min-height:42px}.acts .btn{min-height:44px}}
+@media (prefers-reduced-motion:reduce){.tg,.storm{animation:none}}
+
+/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#FEE68666 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#BFAEE366 0,transparent 60%),#fff7ef}
+.home-card .hero{background:#FEE686;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;height:auto;padding:8px 4px}
+.round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+
+/* xúc xắc 3D (model GLB) trong góc bản đồ */
+#dice [hidden]{display:none!important}
+/* overlay xúc xắc lăn giữa bàn (che giữa bản đồ ~1.7s mỗi nước đổ, không chặn click) */
+.dice-ov{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;pointer-events:none}
+.dice-ov.show{display:flex}
+.dice-ov .gl-holder{filter:drop-shadow(0 10px 8px rgba(42,35,64,.35))}
+#dice .dice2d{display:flex;align-items:center;gap:4px}

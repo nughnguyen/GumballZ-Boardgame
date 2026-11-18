@@ -1,0 +1,93 @@
+/* 🪀 Ô Ăn Quan – bàn gỗ nhìn từ trên xuống, đá Quan/Dân, huy hiệu số. */
+.oq-wrap { max-width: 980px; margin: 0 auto; padding: 10px 12px 90px; }
+/* topbar dùng khung chung của gamekit (.topbar: dính trên cùng) + chỉ giữ lại
+   những gì riêng của game: cho phép xuống dòng, chip về trang chủ là 1 ô flex
+   bình thường (không phải chip nổi absolute — nếu không ở màn hình hẹp nó đè lên tiêu đề) */
+.oq-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.oq-topbar .back-hub { position: static; flex: none; }
+.oq-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.oq-topbar .sp { flex: 1; }
+/* ghế người chơi: cùng nhịp với .seat của Bắn Tàu (nền kem, viền mực 3px, bóng mờ) */
+.oq-seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); margin: 10px 0; }
+.oq-seat.off { opacity: .55; }
+.oq-seat .av { font-size: 30px; line-height: 1; }
+.oq-seat .who { flex: 1; min-width: 0; }
+.oq-seat .who b { font-size: 16px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oq-seat .who small { color: #6b6480; font-weight: 700; }
+.oq-seat .bag { display: flex; gap: 8px; align-items: center; font-weight: 800; font-size: 14px; }
+.oq-seat .bag .bq { background: #ffd273; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 9px; }
+.oq-seat .bag .bd { background: #fee686; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 9px; }
+.oq-seat .bag .debt { background: #fec5e6; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 9px; }
+.oq-seat.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.oq-seat.turn .who small::after { content: ' · 👉 đang đi'; color: #b3232a; }
+
+/* ——— Bàn cờ ——— */
+.oq-board-wrap { position: relative; }
+.oq-board { position: relative; display: grid; grid-template-columns: 1.35fr repeat(5, 1fr) 1.35fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 14px; border: 3px solid #2a2340; border-radius: 22px; box-shadow: 6px 6px 0 #2a2340;
+  background:
+    repeating-linear-gradient(93deg, rgba(0,0,0,.05) 0 2px, transparent 2px 26px),
+    repeating-linear-gradient(87deg, rgba(255,255,255,.06) 0 3px, transparent 3px 34px),
+    linear-gradient(160deg, #c98d54, #a96f3c 55%, #8a5a2e);
+}
+.oq-board.sprite-board { background-size: cover; background-position: center; }
+.oq-cell { position: relative; min-height: 108px; border-radius: 16px; background: radial-gradient(ellipse at 50% 42%, #7a4a26, #5d3517 78%); border: 2px solid rgba(42,35,64,.55); box-shadow: inset 0 6px 14px rgba(0,0,0,.5), inset 0 -2px 6px rgba(255,220,160,.25); cursor: default; }
+.oq-cell.mandarin { min-height: 0; border-radius: 130px 16px 16px 130px; }
+.oq-cell.mandarin.right { border-radius: 16px 130px 130px 16px; }
+.oq-cell[data-c="0"] { grid-area: 1 / 1 / 3 / 2; }
+.oq-cell[data-c="6"] { grid-area: 1 / 7 / 3 / 8; }
+.oq-cell[data-c="1"] { grid-area: 1 / 2; } .oq-cell[data-c="2"] { grid-area: 1 / 3; }
+.oq-cell[data-c="3"] { grid-area: 1 / 4; } .oq-cell[data-c="4"] { grid-area: 1 / 5; }
+.oq-cell[data-c="5"] { grid-area: 1 / 6; }
+.oq-cell[data-c="11"] { grid-area: 2 / 2; } .oq-cell[data-c="10"] { grid-area: 2 / 3; }
+.oq-cell[data-c="9"] { grid-area: 2 / 4; } .oq-cell[data-c="8"] { grid-area: 2 / 5; }
+.oq-cell[data-c="7"] { grid-area: 2 / 6; }
+.oq-cell.playable { cursor: pointer; }
+.oq-cell.playable:hover { outline: 3px solid rgba(255,210,115,.9); outline-offset: 1px; }
+.oq-cell.selected { outline: 3px solid #ffd273; outline-offset: 2px; box-shadow: inset 0 6px 14px rgba(0,0,0,.5), 0 0 0 4px rgba(255,210,115,.45); }
+.oq-cell.eat-flash { animation: oq-eat .55s ease; }
+.oq-cell.neighbor { cursor: pointer; outline: 3px solid #2e8b57; outline-offset: 1px; animation: oq-nb 1s ease-in-out infinite; }
+@keyframes oq-nb { 0%,100% { box-shadow: inset 0 6px 14px rgba(0,0,0,.5), 0 0 0 0 rgba(46,139,87,.45); } 50% { box-shadow: inset 0 6px 14px rgba(0,0,0,.5), 0 0 0 6px rgba(46,139,87,.25); } }
+@keyframes oq-eat { 0% { outline: 4px solid #ff4d6d; outline-offset: 2px; } 100% { outline: 0 solid transparent; } }
+.oq-stones { position: absolute; inset: 6px; }
+.oq-stone { position: absolute; width: 15px; height: 15px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4ead6, #cfc0a0 55%, #8f7d5c);
+  box-shadow: 0 2px 3px rgba(0,0,0,.55), inset 0 -2px 3px rgba(0,0,0,.35); }
+.oq-stone.quan { width: 26px; height: 26px; z-index: 2;
+  background: radial-gradient(circle at 35% 30%, #ff8f8f, #c2232e 55%, #7d1019);
+  box-shadow: 0 0 0 2px #ffd273, 0 3px 5px rgba(0,0,0,.6), inset 0 -3px 5px rgba(0,0,0,.4); }
+.oq-stone.quan::after { content: '★'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ffd273; font-size: 13px; }
+.oq-stone.sprite { background-size: cover; background-position: center; box-shadow: 0 2px 3px rgba(0,0,0,.55); }
+.oq-stone.sprite.quan { box-shadow: 0 0 0 2px #ffd273, 0 3px 5px rgba(0,0,0,.6); }
+.oq-stone.sprite.quan::after { content: none; }
+/* Huy hiệu số — nhỏ, sắc nét, luôn hiển thị đúng số quân trong ô */
+.oq-badge { position: absolute; top: -9px; right: -6px; z-index: 5; min-width: 24px; height: 24px; padding: 0 6px; display: flex; align-items: center; justify-content: center; background: #2a2340; color: #fff; border: 2px solid #ffd273; border-radius: 999px; font-size: 13px; font-weight: 800; line-height: 1; box-shadow: 2px 2px 0 rgba(42,35,64,.6); pointer-events: none; }
+.oq-badge.quan { background: #b3232a; }
+.oq-cell-label { position: absolute; left: 8px; bottom: 4px; font-size: 10px; font-weight: 800; color: rgba(255,240,210,.75); letter-spacing: .4px; pointer-events: none; }
+/* bàn tay bốc đá — SVG tự vẽ, đi theo từng bước rải/ăn để dễ theo dõi */
+.oq-hand { position: absolute; width: 76px; height: 63px; margin: -32px 0 0 -38px; z-index: 40; pointer-events: none; transition: left .3s ease, top .3s ease; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
+.oq-hand svg { display: block; width: 100%; height: 100%; }
+.oq-hand-badge { position: absolute; top: -10px; right: -8px; z-index: 2; min-width: 26px; height: 26px; padding: 0 6px; display: flex; align-items: center; justify-content: center; background: #2a2340; color: #ffd273; border: 2px solid #ffd273; border-radius: 999px; font-size: 14px; font-weight: 800; line-height: 1; box-shadow: 2px 2px 0 rgba(42,35,64,.6); }
+/* bong bóng gợi ý khi đang bốc đá — hiện gần ô đã bốc */
+.oq-hint { position: absolute; z-index: 30; max-width: 320px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px; box-shadow: 4px 4px 0 #2a2340; font-weight: 800; font-size: 13.5px; line-height: 1.35; text-align: center; pointer-events: none; }
+.oq-hint.warn { background: #fec5e6; }
+.oq-status { text-align: center; font-weight: 800; font-size: 15px; margin: 12px 0 4px; min-height: 22px; }
+.oq-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.oq-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.oq-log div:last-child { border-bottom: 0; }
+.oq-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* danh sách luật nhanh trong phòng chờ — cùng class với Bắn Tàu */
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+@media (max-width: 560px) {
+  .oq-cell { min-height: 74px; }
+  .oq-board { gap: 5px; padding: 9px; border-radius: 16px; }
+  .oq-stone { width: 11px; height: 11px; }
+  .oq-stone.quan { width: 19px; height: 19px; }
+  .oq-stone.quan::after { font-size: 10px; }
+  .oq-badge { min-width: 20px; height: 20px; font-size: 11px; top: -8px; right: -4px; }
+  .oq-seat { padding: 6px 9px; }
+  .oq-seat .av { font-size: 24px; }
+  .oq-hand { width: 60px; height: 50px; margin: -25px 0 0 -30px; }
+  .oq-hand-badge { min-width: 22px; height: 22px; font-size: 12px; top: -8px; right: -6px; }
+  .oq-hint { font-size: 12px; padding: 7px 10px; max-width: 260px; }
+  .oq-topbar h1 { font-size: 21px; }
+}

@@ -1,0 +1,28 @@
+{
+  // Máy chủ phòng chơi GumballZ – Cloudflare Workers + Durable Objects (SQLite)
+  "name": "gumballz-rooms",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  // deploy mặc định lên workers.dev
+  // địa chỉ dự phòng gumballz-rooms.<tài khoản>.workers.dev – dùng khi tên miền riêng gặp sự cố
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOM", "class_name": "Room" },
+      { "name": "INBOX", "class_name": "Inbox" },
+      { "name": "USERS", "class_name": "Users" },
+      { "name": "LOBBY", "class_name": "Lobby" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["Room", "Inbox"] },
+    { "tag": "v2", "new_sqlite_classes": ["Users", "Lobby"] }
+  ],
+  "observability": { "enabled": true, "head_sampling_rate": 0.05 }, // chỉ ghi log 5% lượt gọi: gói Free giới hạn số dòng log mỗi ngày (hết thì chỉ ngừng ghi log, web vẫn chạy)
+  // CF_ACCOUNT: mã tài khoản Cloudflare (không phải bí mật) – cùng secret CF_API_TOKEN (quyền Account Analytics: Read, đặt trên Cloudflare, KHÔNG để trong repo) cho trang Quản trị đọc số thật.
+  // PLAN: "free" (gói miễn phí, hạn mức theo ngày) hoặc "paid" (gói Workers Paid 5 USD/tháng) – để trang Quản trị tính % hạn mức cho đúng
+  // Client ID đăng nhập Google (công khai, không phải bí mật) – Google Cloud project GumballZ Boardgame
+  "vars": { "PLAN": "free", "CF_ACCOUNT": "488909236cf354be94bdcbdb3174d7da", "GOOGLE_CLIENT_ID": "667756452930-tdjt52r5hrm646553n3tqbmn3kb2h5et.apps.googleusercontent.com" },
+  // giữ biến/mật khẩu đặt trên trang Cloudflare khi deploy lại từ GitHub
+  "keep_vars": true
+}

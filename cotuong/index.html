@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cờ tướng – chơi online cùng bạn bè | GumballZ Boardgame</title>
+<link rel="canonical" href="https://gumballzgames.vercel.app/cotuong/">
+<meta name="description" content="Cờ tướng chơi online với bạn, 2 người chung máy hoặc đấu máy 4 mức từ Dễ tới Đại sư. Có cờ thế để luyện. Miễn phí, không cần cài đặt.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="GumballZ Boardgame">
+<meta property="og:url" content="https://gumballzgames.vercel.app/cotuong/">
+<meta property="og:title" content="Cờ tướng – chơi online cùng bạn bè | GumballZ Boardgame">
+<meta property="og:description" content="Đấu cờ tướng với bạn bè hoặc với máy (4 mức, có Đại sư). Bấm link là vào bàn, không cần cài đặt.">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/cotuong.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=1" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=1"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&family=LXGW+WenKai+TC:wght@700&family=Yuji+Syuku&family=Noto+Sans+TC:wght@900&family=Cactus+Classical+Serif&family=Iansui&family=Chiron+GoRound+TC:wght@900&display=swap&text=%E5%B8%A5%E4%BB%95%E7%9B%B8%E4%BF%A5%E5%82%8C%E7%82%AE%E5%85%B5%E5%B0%87%E5%A3%AB%E8%B1%A1%E8%BB%8A%E9%A6%AC%E7%A0%B2%E5%8D%92%E6%A5%9A%E6%B2%B3%E6%BC%A2%E7%95%8C" rel="stylesheet" crossorigin><!-- phông chữ Hán cho quân cờ: 7 kiểu, chỉ tải đúng 18 chữ cần dùng và chỉ tải kiểu đang chọn -->
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=4">
+<link rel="stylesheet" href="css/cotuong.css?v=11">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=17">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- TRANG CHỦ -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=1" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/cotuong.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Cờ <span>tướng</span></h1>
+    <p class="tag">Xe, Pháo, Mã ra trận – chiếu bí là thắng ♟️</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <div class="btn-col">
+      <button class="btn big pri" id="btn-offline">🤖 Đấu với máy / 2 người chung máy</button>
+      <button class="btn big" id="btn-create">✨ Tạo phòng online</button>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      <button class="btn big daily" id="btn-daily">📅 Cờ thế hôm nay</button>
+      <button class="btn big" id="btn-puzzle">🧩 Cờ thế – luyện chiếu bí</button>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Luật chơi</button>
+      <button class="chip" id="btn-news-home" data-news="cotuong">📝 Có gì mới</button>
+    </div>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Hai kỳ thủ <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật bàn</h3>
+        <div id="opts"></div>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start">♟️ Vào bàn cờ</button></div>
+  </div>
+</section>
+
+<!-- BÀN CỜ -->
+<section id="screen-game" class="screen">
+  <header class="topbar">
+    <button class="chip ic" id="btn-leave" title="Rời ván" aria-label="Rời ván">←</button>
+    <div class="turn" id="turn" aria-live="polite"></div>
+    <span class="sp"></span>
+    <div class="tools">
+      <button class="chip ic" id="btn-style" title="Giao diện bàn cờ" aria-label="Giao diện bàn cờ">🎨</button>
+      <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+      <button class="chip ic" id="btn-moves" title="Biên bản nước đi" aria-label="Biên bản nước đi">📜</button>
+      <button class="chip ic" id="btn-guide" title="Luật chơi" aria-label="Luật chơi">📖</button>
+    </div>
+  </header>
+  <div class="arena">
+    <div class="pbar top" id="p-top"></div>
+    <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Bàn cờ tướng"></div></div>
+    <div class="pbar bottom" id="p-bot"></div>
+    <div class="acts" id="acts"></div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=78"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=67"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>
