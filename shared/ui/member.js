@@ -16,8 +16,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const CSS = `.mb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
 .mb-rank{display:flex;align-items:center;gap:8px;margin:0 0 4px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,#fff6dc,#ffe09e);color:#7a4300;font:800 14px Nunito,sans-serif}
 .mb-tts{display:flex;flex-wrap:wrap;gap:6px}.mb-tts .pf-tt{font-size:13px;padding:4px 11px}
-.mb-achs{display:flex;flex-wrap:wrap;gap:6px}.mb-achs span{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1.5px solid #f0e2d2;border-radius:999px;padding:3px 10px;font:800 12.5px Nunito,sans-serif}
-.mb-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mb-acts button{flex:1;min-width:130px;min-height:46px;border:0;border-radius:999px;font:800 15px "Baloo 2",Nunito,sans-serif;cursor:pointer;background:#f0e6da;color:#2a2340}
+.mb-achs{display:flex;flex-wrap:wrap;gap:6px}.mb-achs span{display:inline-flex;align-items:center;gap:5px;background:#FFFDF9;border:1.5px solid #f0e2d2;border-radius:999px;padding:3px 10px;font:800 12.5px Nunito,sans-serif}
+.mb-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mb-acts button{flex:1;min-width:130px;min-height:46px;border:0;border-radius:999px;font:800 15px "Baloo 2",Nunito,sans-serif;cursor:pointer;background:#f0e6da;color:#4A3E5C}
 .mb-acts .pri{background:linear-gradient(120deg,#ff4d6a,#ff8a3d);color:#fff}.mb-acts .dm{background:#eafaf1;color:#147a44;box-shadow:inset 0 0 0 1.5px #bce8cf}.mb-acts button:disabled{opacity:.6;cursor:default}
 .mb-load{padding:40px 10px;text-align:center;color:#6b5f7a;font-weight:800}
 .pf-ov.pf-shown,.pf-ov.pf-shown .pf-box{animation:none}`;

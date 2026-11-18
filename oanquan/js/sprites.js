@@ -30,12 +30,20 @@ function chromaKey(img, sx, sy, sw, sh) {
   return c.toDataURL('image/png');
 }
 export async function loadSprites(base = 'img/') {
+  /* Thử 2 ảnh đá rời TRƯỚC (đang có sẵn) để không 404; chỉ thử spritesheet
+     khi thiếu đá — sheet chứa thêm ảnh bàn cờ, là dự phòng cho bàn. */
+  const out = { board: null, stoneDan: null, stoneQuan: null, used: 'stones' };
+  let any = false;
+  for (const [key, file] of [['stoneDan', 'stone-dan.png'], ['stoneQuan', 'stone-quan.png']]) {
+    try { const one = await loadImage(base + file); out[key] = chromaKey(one, 0, 0, one.naturalWidth, one.naturalHeight); any = true; } catch (e) {}
+  }
+  if (any) return out;
   try {
     const img = await loadImage(base + 'spritesheet.png');
     const w = img.naturalWidth, h = img.naturalHeight;
     if (w < 60 || h < 60) return null;
     const boardH = Math.round(h * 2 / 3);
-    const out = { board: null, stoneDan: null, stoneQuan: null, used: 'sheet' };
+    out.used = 'sheet';
     try { out.board = chromaKey(img, 0, 0, w, boardH); } catch (e) { out.board = null; }
     const stoneH = h - boardH, half = Math.round(w / 2);
     try { out.stoneDan = chromaKey(img, 0, boardH, half, stoneH); } catch (e) {}
@@ -47,12 +55,7 @@ export async function loadSprites(base = 'img/') {
     if (!out.board && !out.stoneDan && !out.stoneQuan) return null;
     return out;
   } catch (e) {
-    /* không có spritesheet.png → thử 2 ảnh đá rời, không có nữa thì CSS/SVG */
-    const out = { board: null, stoneDan: null, stoneQuan: null, used: 'stones' };
-    let any = false;
-    for (const [key, file] of [['stoneDan', 'stone-dan.png'], ['stoneQuan', 'stone-quan.png']]) {
-      try { const one = await loadImage(base + file); out[key] = chromaKey(one, 0, 0, one.naturalWidth, one.naturalHeight); any = true; } catch (e) {}
-    }
-    return any ? out : null;
+    /* không có spritesheet.png lẫn ảnh đá rời → CSS/SVG */
+    return null;
   }
 }

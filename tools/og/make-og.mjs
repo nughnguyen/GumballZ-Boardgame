@@ -27,12 +27,12 @@ for (const x of games) {
   await hub.evaluate(g => { document.getElementById('ogbox')?.remove(); const box = document.createElement('div'); box.id = 'ogbox'; box.append(document.querySelector(`.grid .tile[data-game="${g}"]`).cloneNode(true)); document.body.append(box); }, x.g);
   await hub.waitForTimeout(200);
   const thumb = (await hub.locator('#ogbox .tile').screenshot({ type: 'png' })).toString('base64');
-  await page.setContent(`<!doctype html><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&family=Bevan&display=swap" rel="stylesheet">
-  <style>*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:Nunito,sans-serif;color:#2a2340;display:flex;gap:44px;padding:56px;
-  background:radial-gradient(circle at 6% 8%,#ffc7d4 0,transparent 40%),radial-gradient(circle at 92% 12%,#ffe3a8 0,transparent 42%),radial-gradient(circle at 88% 96%,#bcd3ff 0,transparent 44%),#fff7ee}
-  img{width:440px;height:520px;border-radius:30px;box-shadow:0 24px 50px -20px #2a2340aa;flex:none}.r{display:flex;flex-direction:column;padding-top:10px;min-width:0;flex:1}
-  h1{font:800 66px/1.02 'Baloo 2'}p{font:800 27px/1.4 Nunito;color:#4a405c;margin-top:14px}.t{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.t i{font:900 21px Nunito;font-style:normal;background:#2a2340;color:#fff;border-radius:999px;padding:6px 16px}
-  .cta{margin-top:22px;font:800 25px Nunito;color:#ff4d5e}.logo{margin-top:auto;align-self:flex-end;font:800 44px 'Baloo 2';display:flex;gap:10px;align-items:center}</style>
+  await page.setContent(`<!doctype html><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&family=Bevan&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:Nunito,sans-serif;color:#1B1425;display:flex;gap:44px;padding:56px;
+  background:radial-gradient(circle at 6% 8%,#FFC9E2 0,transparent 40%),radial-gradient(circle at 92% 12%,#FFEB99 0,transparent 42%),radial-gradient(circle at 88% 96%,#CFC4FF 0,transparent 44%),#FFF6E3}
+  img{width:440px;height:520px;border-radius:30px;box-shadow:0 24px 50px -20px rgba(27,20,37,.66);flex:none}.r{display:flex;flex-direction:column;padding-top:10px;min-width:0;flex:1}
+  h1{font:800 66px/1.02 'Baloo 2'}p{font:800 27px/1.4 Nunito;color:#6E6480;margin-top:14px}.t{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.t i{font:900 21px Nunito;font-style:normal;background:#1B1425;color:#fff;border-radius:999px;padding:6px 16px}
+  .cta{margin-top:22px;font:800 25px Nunito;color:#FF4D2E}.logo{margin-top:auto;align-self:flex-end;font:400 44px 'Bungee','Baloo 2';display:flex;gap:10px;align-items:center}</style>
   <img src="data:image/png;base64,${thumb}"><div class="r"><h1 style="${x.g === 'bang' ? "font-family:Bevan;font-size:58px" : ''}">${x.name}</h1><p>${x.desc}</p><div class="t">${x.tags.map(t => `<i>${t}</i>`).join('')}</div>
   <div class="cta">👉 Bấm link là vào chơi cùng hội bạn – không cần cài đặt</div><div class="logo"><img src="${MARK}" style="width:54px;height:54px;border-radius:0;box-shadow:none">GumballZ</div></div>`);
   await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(400);
@@ -46,14 +46,14 @@ if (!want.length || want.includes('hub')) {
     await hub.evaluate(g => { document.getElementById('ogbox')?.remove(); const box = document.createElement('div'); box.id = 'ogbox'; box.append(document.querySelector(`.grid .tile[data-game="${g}"]`).cloneNode(true)); document.body.append(box); }, g);
     await hub.waitForTimeout(150); th.push((await hub.locator('#ogbox .tile').screenshot({ type: 'png' })).toString('base64'));
   }
-  await page.setContent(`<!doctype html><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-  <style>*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:Nunito,sans-serif;color:#2a2340;display:flex;
-  background:radial-gradient(circle at 6% 8%,#ffc7d4 0,transparent 40%),radial-gradient(circle at 92% 12%,#ffe3a8 0,transparent 42%),radial-gradient(circle at 88% 96%,#bcd3ff 0,transparent 44%),radial-gradient(circle at 4% 94%,#c9f0d8 0,transparent 40%),#fff7ee}
-  .l{width:560px;padding:60px 0 56px 64px;display:flex;flex-direction:column}.b{display:flex;align-items:center;gap:14px;font:800 44px/1 'Baloo 2'}.b img{width:78px;height:78px}
-  h1{font:800 51px/1.06 'Baloo 2';letter-spacing:-1px;margin-top:44px;white-space:nowrap}h1 span{background:linear-gradient(90deg,#ff4d6a,#ff7a45 55%,#ffb23d);-webkit-background-clip:text;color:transparent}
-  p{font:800 25px/1.4 Nunito;color:#5d5475;margin-top:18px}.u{margin-top:auto;align-self:flex-start;background:#2a2340;color:#fff;font:800 34px/1 'Baloo 2';padding:14px 30px 16px;border-radius:999px;box-shadow:0 8px 0 #ff4d6a}
+  await page.setContent(`<!doctype html><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;overflow:hidden;font-family:Nunito,sans-serif;color:#1B1425;display:flex;
+  background:radial-gradient(circle at 6% 8%,#FFC9E2 0,transparent 40%),radial-gradient(circle at 92% 12%,#FFEB99 0,transparent 42%),radial-gradient(circle at 88% 96%,#CFC4FF 0,transparent 44%),radial-gradient(circle at 4% 94%,#B8EDE7 0,transparent 40%),#FFF6E3}
+  .l{width:560px;padding:60px 0 56px 64px;display:flex;flex-direction:column}.b{display:flex;align-items:center;gap:14px;font:400 44px/1 'Bungee','Baloo 2'}.b img{width:78px;height:78px}
+  h1{font:800 51px/1.06 'Baloo 2';letter-spacing:-1px;margin-top:44px;white-space:nowrap}h1 span{background:linear-gradient(90deg,#FF4D2E,#FF5CA8 55%,#7C5CFF);-webkit-background-clip:text;color:transparent}
+  p{font:800 25px/1.4 Nunito;color:#6E6480;margin-top:18px}.u{margin-top:auto;align-self:flex-start;background:#1B1425;color:#fff;font:800 34px/1 'Baloo 2';padding:14px 30px 16px;border-radius:999px;box-shadow:0 8px 0 #FF4D2E}
   .r{flex:1;position:relative}.g{position:absolute;left:40px;top:-40px;display:grid;grid-template-columns:repeat(3,200px);gap:18px;transform:rotate(7deg)}
-  .g img{width:200px;height:236px;border-radius:22px;box-shadow:0 18px 34px -16px #2a2340aa}.g img:nth-child(3n+2){transform:translateY(46px)}.g img:nth-child(3n){transform:translateY(-20px)}</style>
+  .g img{width:200px;height:236px;border-radius:22px;box-shadow:0 18px 34px -16px rgba(27,20,37,.66)}.g img:nth-child(3n+2){transform:translateY(46px)}.g img:nth-child(3n){transform:translateY(-20px)}</style>
   <div class="l"><div class="b"><img src="${MARK}">GumballZ Games</div><h1>Board game tiếng Việt.<br><span>Mở link là chơi.</span></h1><p>39 game chơi cùng hội bạn hoặc với bot. Không cần cài app, miễn phí.</p><div class="u">gumballzgames.vercel.app</div></div>
   <div class="r"><div class="g">${th.map(t => `<img src="data:image/png;base64,${t}">`).join('')}</div></div>`);
   await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(500);

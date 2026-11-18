@@ -3,10 +3,15 @@
 // dưới shared/lib/ — chạy offline/localhost, không CDN.
 //
 // Cách dùng:
-//   import { createDiceView } from '../../shared/js/dice3d-gl.js?v=2';
+//   import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 //   const view = await createDiceView(el, { count: 2, diePx: 76 }); // null nếu WebGL/GLB lỗi
+//   const view = await createDiceView(el, { count: 3, model: 'animals' }); // Bầu Cua: mặt con vật
 //   await view.rollTo([3, 5], { duration: 1200 }); // lăn rồi dừng đúng mặt
 //   view.show([3, 5]);                             // đặt mặt ngay, không lăn
+// Model 'dice' (mặc định): mặt chấm số 1–6, mặt đối nhau cộng = 7.
+// Model 'animals' (Bầu Cua): mặt con vật, cùng thứ tự giá trị 1–6:
+//   1 Nai, 2 Bầu, 3 Gà, 4 Cá, 5 Cua, 6 Tôm (khớp SYMS của baucua/js/engine.js).
+//   rollTo() vẫn nhận số 1–6 như cũ — số hiện ra luôn bằng đúng số engine đã đổ.
 // Lúc dừng, mặt hiện số hướng THẲNG về phía camera (người chơi) để đọc rõ,
 // chấm đứng thẳng trên màn hình. rollTo() tự kêu tiếng xúc xắc lăn (Web Audio
 // tổng hợp, qua nút âm lượng SFX chung ở ⚙️ Cài đặt); game có công tắc tiếng
@@ -120,13 +125,14 @@ export function playDiceRattle(durationMs = 1000, { dice = 1 } = {}) {
   } catch (e) { return false; }
 }
 
-let _glbPromise = null;
-export function loadDiceGLB() {
-  if (!_glbPromise) {
-    const url = new URL('../models/dice.glb?v=1', import.meta.url).href;
-    _glbPromise = new GLTFLoader().loadAsync(url).catch(err => { _glbPromise = null; throw err; });
+let _glbPromises = {};
+export function loadDiceGLB(model = 'dice') {
+  const file = model === 'animals' ? 'dice-animals.glb' : 'dice.glb';
+  if (!_glbPromises[file]) {
+    const url = new URL(`../models/${file}?v=1`, import.meta.url).href;
+    _glbPromises[file] = new GLTFLoader().loadAsync(url).catch(err => { delete _glbPromises[file]; throw err; });
   }
-  return _glbPromise;
+  return _glbPromises[file];
 }
 
 // một con xúc xắc trong khung: group đặt vị trí + spin quay/lăn
@@ -143,11 +149,18 @@ export class DiceView {
   // container: phần tử chứa canvas. count: số con tối đa. diePx: cỡ 1 con (px màn hình).
   // w/h: kích thước canvas (px); mặc định vừa đủ count con + chỗ lăn nảy.
   // muted: true | () => true — tắt tiếng lăn của khung này (công tắc tiếng riêng của game).
-  constructor(container, { count = 1, diePx = 72, gapPx = 10, w = 0, h = 0, muted = false } = {}) {
+  // model: 'dice' (mặt chấm số, mặc định) | 'animals' (mặt con vật Bầu Cua).
+  // spin: true = khung chừa chỗ cho lúc lăn (con xúc xắc xoay + nảy, góc chạm tới
+  //   0.87 nửa đường chéo + nảy 0.18); false = chỉ vừa lúc đứng yên (mặt hướng
+  //   camera, nửa rộng 0.5). Mặc định false — game nào lăn thì bật spin:true
+  //   (và tăng diePx để con xúc xắc không bị nhỏ đi).
+  constructor(container, { count = 1, diePx = 72, gapPx = 10, w = 0, h = 0, muted = false, model = 'dice', spin = false } = {}) {
     this.container = container;
     this.count = count;
     this.diePx = diePx;
     this.gapPx = gapPx;
+    this._model = model;
+    this._spin = !!spin;
     this._muted = typeof muted === 'function' ? muted : () => !!muted;
     this._w = w || count * diePx + (count - 1) * gapPx;
     this._h = h || Math.round(diePx * 1.5);
@@ -165,7 +178,7 @@ export class DiceView {
     this.renderer.toneMappingExposure = 1.15;
     const cv = this.renderer.domElement;
     cv.className = 'gl-dice-canvas';
-    cv.style.cssText = `display:block;position:static;width:${this._w}px;height:${this._h}px;max-width:100%;`;
+    cv.style.cssText = `display:block;position:static;width:${this._w}px;height:${this._h}px;max-width:100%;height:auto;`; /* height:auto: khung hẹp hơn canvas thì thu nhỏ theo đúng tỉ lệ, không bóp méo con xúc xắc */
     container.appendChild(cv);
 
     this.scene = new THREE.Scene();
@@ -183,9 +196,9 @@ export class DiceView {
     if (this._ro) this._ro.observe(container);
   }
 
-  // tải GLB (1 lần cho cả web) rồi nhân bản đủ `count` con; đặt mặt ban đầu
+  // tải GLB (1 lần cho cả web, theo từng model) rồi nhân bản đủ `count` con; đặt mặt ban đầu
   async init(values) {
-    const gltf = await loadDiceGLB();
+    const gltf = await loadDiceGLB(this._model);
     for (let i = 0; i < this.count; i++) {
       const d = makeDie(gltf.scene);
       d.spin.quaternion.copy(faceUpQuaternion(values && values[i] ? values[i] : 1));
@@ -207,11 +220,17 @@ export class DiceView {
       d.root.visible = i < this._visible;
       d.root.position.x = (i - (this._visible - 1) / 2) * spread;
     });
-    // khoảng cách camera: vừa chiều cao (cỡ con) vừa chiều ngang (đủ con)
+    // khoảng cách camera: tính theo mặt TRƯỚC của con xúc xắc (gần camera hơn tâm
+    // 0.5 lúc đứng yên, 0.87 lúc lăn) — đo ở tâm sẽ tính thiếu ~30% và con bị
+    // cắt mép trái/phải. TAN_HALF = tan(16°) (fov dọc 32°), K = 1.07 (camera
+    // chếch trên nên tia tới tâm dài hơn d). Sv/Sh: nửa cao/nửa rộng cần thấy,
+    // tính từ tâm con (lăn: góc khối 0.87 + nảy 0.18 + biên 0.1).
+    const TAN_HALF = 0.2867, K = 1.07;
     const aspect = this._w / this._h;
-    const vh = this._h / this.diePx;                    // chiều cao thấy được (đơn vị con)
-    const vw = (this._visible - 1) * spread + 1.35;     // chiều ngang cần (đơn vị con)
-    const d = Math.max(vh, vw / aspect) / 0.63;
+    const R = this._spin ? 0.866 : 0.5;             // điểm gần nhất của con xúc xắc
+    const Sv = this._spin ? 1.15 : 0.6;             // nửa cao cần thấy
+    const Sh = (this._visible - 1) * spread / 2 + (this._spin ? 0.97 : 0.6); // nửa rộng cần thấy
+    const d = (Math.max(Sv, Sh / aspect) / TAN_HALF + R) / K;
     this.camera.position.set(0, d * 0.38, d); /* hơi chính diện hơn (trước 0.45) để mặt số hướng về người chơi đọc rõ */
     this.camera.lookAt(0, -0.02, 0);
     this.camera.aspect = aspect;

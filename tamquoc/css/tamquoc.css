@@ -75,6 +75,7 @@ input:focus{border-color:var(--gold)}
 @media (max-width:720px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:var(--panel);border-radius:22px;padding:16px;box-shadow:var(--shadow);border:1.5px solid #f0dcb4}
 .panel h3{margin:0 0 10px;font-size:22px}.panel h3 small{color:var(--muted);font-size:15px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:10px;background:#fdf3df;border-radius:14px;padding:6px 8px;font-weight:700}
 .plist li small{color:var(--muted);font-weight:600}.plist .off{color:var(--red)}

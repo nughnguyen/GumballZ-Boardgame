@@ -5,7 +5,7 @@
 // window.__gumballzSrvRtt = độ trễ từ máy này tới máy chủ Cloudflare (cfrelay.js đo) – cao thì là mạng của chính mình.
 // Chỉ hiện dải nhắc khi CÓ vấn đề; bình thường không hiện gì. Mỗi máy báo về chủ web tối đa 1 lần/ngày/loại (POST /err, xem ở Quản trị → Lỗi web).
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-const CSS = `.bnm{position:fixed;left:50%;top:max(8px,env(safe-area-inset-top));transform:translateX(-50%);z-index:9050;max-width:min(520px,calc(100vw - 24px));background:#2a2340;color:#fff;border-radius:999px;padding:7px 14px;font:700 13px/1.35 Nunito,system-ui,sans-serif;box-shadow:0 10px 26px -10px #000a;text-align:center;pointer-events:none;animation:bnm-in .25s ease-out}
+const CSS = `.bnm{position:fixed;left:50%;top:max(8px,env(safe-area-inset-top));transform:translateX(-50%);z-index:9050;max-width:min(520px,calc(100vw - 24px));background:#4A3E5C;color:#fff;border-radius:999px;padding:7px 14px;font:700 13px/1.35 Nunito,system-ui,sans-serif;box-shadow:0 10px 26px -10px #000a;text-align:center;pointer-events:none;animation:bnm-in .25s ease-out}
 .bnm[hidden]{display:none}.bnm.warn{background:#8a4b00}.bnm.bad{background:#a01f3a}
 @keyframes bnm-in{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.bnm{animation:none}}`;

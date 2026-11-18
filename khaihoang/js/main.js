@@ -7,7 +7,7 @@ import { botAction } from './bot.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 import { toast } from '../../shared/ui/dialog.js?v=8';
-import { createDiceView } from '../../shared/js/dice3d-gl.js?v=2';
+import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
 const NET = makeNet(DEF);
 const RES = E.RES, RN = E.RES_NAME, HEX_NAME = { w: 'Rừng', b: 'Đồi đất', g: 'Ruộng lúa', f: 'Đồng cỏ', o: 'Núi đá', d: 'Bãi cát' };

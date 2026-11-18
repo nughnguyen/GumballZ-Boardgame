@@ -4,18 +4,18 @@ import { auth } from '../net/api.js?v=27';
 import { promptBox, formBox } from './dialog.js?v=8';
 import { avatarHTML, profileCss, openProfile } from './profile.js?v=44';
 
-const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#fff;color:#2a2340;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
+const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
 .ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
-.ac-menu{position:absolute;z-index:9998;background:#fff;border-radius:14px;box-shadow:0 12px 32px #2a234033;padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
-.ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:#2a2340;font:inherit}.ac-menu button:hover{background:#f6efe6}
+.ac-menu{position:absolute;z-index:9998;background:#FFFDF9;border-radius:14px;box-shadow:0 12px 32px #4A3E5C33;padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
+.ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:#4A3E5C;font:inherit}.ac-menu button:hover{background:#f6efe6}
 .ac-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:14px}
-.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#fffaf3;color:#2a2340;border-radius:22px;padding:18px;box-shadow:0 20px 60px #0006;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#fffaf3;color:#4A3E5C;border-radius:22px;padding:18px;box-shadow:0 20px 60px #0006;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
 .ac-box h2{margin:0 36px 4px 0;font:800 22px/1.2 "Baloo 2",Nunito,sans-serif}
-.ac-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#2a2340}
+.ac-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#4A3E5C}
 .ac-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0e6da;border-radius:999px;padding:4px;margin:10px 0}
-.ac-tabs button{border:0;border-radius:999px;min-height:38px;font:800 14px Nunito,sans-serif;background:none;color:#2a2340;cursor:pointer}.ac-tabs button[aria-pressed=true]{background:#fff;box-shadow:0 2px 6px #0001}
+.ac-tabs button{border:0;border-radius:999px;min-height:38px;font:800 14px Nunito,sans-serif;background:none;color:#4A3E5C;cursor:pointer}.ac-tabs button[aria-pressed=true]{background:#FFFDF9;box-shadow:0 2px 6px #0001}
 .ac-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:#6b5f7a}
-.ac-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:12px;padding:11px 12px;font:600 16px Nunito,sans-serif;background:#fff;color:#2a2340}
+.ac-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:12px;padding:11px 12px;font:600 16px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
 .ac-go{width:100%;margin-top:14px;border:0;border-radius:999px;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:#fff;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);cursor:pointer}.ac-go:disabled{opacity:.6}
 .ac-err{color:#c0263b;font-weight:700;min-height:20px;margin:8px 0 0;font-size:14px}
 .ac-or{display:flex;align-items:center;gap:10px;color:#8a7f96;font-size:13px;margin:14px 0 10px}.ac-or::before,.ac-or::after{content:"";flex:1;height:1.5px;background:#ecdfd0}
@@ -112,7 +112,7 @@ export async function openLogin(mode = 'login') {
 
 function toast(t) {
   css(); const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;background:#2a2340;color:#fff;padding:10px 18px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
+  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;background:#4A3E5C;color:#fff;padding:10px 18px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
   d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2600);
 }
 

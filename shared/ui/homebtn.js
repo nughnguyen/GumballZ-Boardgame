@@ -72,12 +72,12 @@ try {
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:10px 0 4px';
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
-  mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:46px;border:3px solid #2a2340;border-radius:999px;cursor:pointer;font:800 15px "Baloo 2",Nunito,system-ui,sans-serif;color:#2a2340;background:#ffd273;box-shadow:3px 3px 0 rgba(42,35,64,.16);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=52').then(m => m.openMatchmaking(GAME));
+  mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
+  mm.onclick = () => import('./lobby.js?v=53').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
-  b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:46px;border:3px solid #2a2340;border-radius:999px;cursor:pointer;font:800 15px "Baloo 2",Nunito,system-ui,sans-serif;color:#2a2340;background:#fec5e6;box-shadow:3px 3px 0 rgba(42,35,64,.16);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=52').then(m => m.openLobby(GAME));
+  b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
+  b.onclick = () => import('./lobby.js?v=53').then(m => m.openLobby(GAME));
   row.append(mm, b);
   ft.before(row);
   const on = document.createElement('p'); on.innerHTML = '&nbsp;'; on.style.cssText = 'visibility:hidden;text-align:center;margin:4px 0 8px;font:700 13px Nunito,system-ui,sans-serif;opacity:.85';
@@ -97,8 +97,8 @@ function pubToggle() {
   let saved = null; try { saved = sessionStorage.getItem(key); } catch (e) {}
   if (!w) {
     w = document.createElement('label'); w.id = 'gumballz-pub';
-    w.style.cssText = 'display:flex;align-items:center;gap:10px;margin:10px auto;max-width:420px;padding:10px 14px;border-radius:16px;background:#fee686;border:2px solid #2a2340;color:#2a2340;font:700 14px/1.35 Nunito,system-ui,sans-serif;cursor:pointer;text-align:left';
-    w.innerHTML = '<input type="checkbox" style="width:22px;height:22px;flex:none;accent-color:#2a2340"><span><b>🌐 Công khai phòng</b><br><small style="font-weight:600;opacity:.85">Hiện ở Sảnh chung để người lạ vào chơi cùng. Tắt = chỉ ai có mã/link mới vào được.</small></span>';
+    w.style.cssText = 'display:flex;align-items:center;gap:10px;margin:10px auto;max-width:420px;padding:10px 14px;border-radius:16px;background:#FFE3A3;border:2px solid #4A3E5C;color:#4A3E5C;font:700 14px/1.35 Nunito,system-ui,sans-serif;cursor:pointer;text-align:left';
+    w.innerHTML = '<input type="checkbox" style="width:22px;height:22px;flex:none;accent-color:#4A3E5C"><span><b>🌐 Công khai phòng</b><br><small style="font-weight:600;opacity:.85">Hiện ở Sảnh chung để người lạ vào chơi cùng. Tắt = chỉ ai có mã/link mới vào được.</small></span>';
     anchor.after(w);
     w.querySelector('input').onchange = e => { const on = e.target.checked; try { sessionStorage.setItem(key, on ? '1' : '0'); sessionStorage.removeItem('gumballz-pub-next'); } catch (x) {} host.setPublic(on); };
   }

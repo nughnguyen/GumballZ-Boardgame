@@ -37,7 +37,7 @@ body{background:repeating-linear-gradient(90deg,#fde2e4 0 40px,#fff3e6 40px 80px
 @media (max-width:420px){.tn{width:62px;height:86px}.slot .tn{height:108px}.slot .tn .ic{width:54px}.mk .tn .ic{width:36px}}
 @media (prefers-reduced-motion:reduce){.tn.flip,.mk .tn.can{animation:none}}
 
-/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
-body{background:repeating-linear-gradient(90deg,#FEC5E655 0 40px,#fff7ef 40px 80px)}
-.home-card .hero{background:#FEC5E6;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;padding:6px 4px}
+/* ===== Neo-Brutalism GumballZ (18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:repeating-linear-gradient(90deg,#FFB9CF55 0 40px,#FFF8EE 40px 80px)}
+.home-card .hero{background:#FFB9CF;border:3px solid #4A3E5C;border-radius:16px;box-shadow:3px 3px 0 rgba(74,62,92,.13);box-sizing:border-box;padding:6px 4px}
 .round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}

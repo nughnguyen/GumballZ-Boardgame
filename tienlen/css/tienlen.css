@@ -41,7 +41,7 @@ h1,h2,h3,h4,.logo,.btn,.banner b,.game-tag{font-family:"Baloo 2",Nunito,sans-ser
 .hero{height:112px;position:relative;margin:2px 0 0}
 .hero .pc{position:absolute;left:50%;top:8px;--cw:62px;--ch:90px;transform-origin:50% 150%;transform:translateX(-50%) rotate(var(--rot));animation:heroIn .7s backwards}
 @keyframes heroIn{from{opacity:0;transform:translateX(-50%) translateY(30px) rotate(0)}}
-.logo{font-size:50px;line-height:.92;margin:6px 0 2px;font-weight:800;color:var(--red);text-shadow:3px 3px 0 #ffd23f}
+.logo{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:50px;line-height:.92;margin:6px 0 2px;font-weight:800;color:var(--red);text-shadow:3px 3px 0 #ffd23f}
 .logo span{display:block;font-size:22px;color:var(--ink);text-shadow:none;letter-spacing:3px;text-transform:uppercase;margin-top:2px}
 .tag{color:var(--muted);margin:4px 0 14px;font-weight:600}
 .fld{display:block;text-align:left;margin-bottom:12px}.fld span{font-size:13px;color:var(--muted);font-weight:800}
@@ -55,13 +55,16 @@ input:focus{border-color:var(--acc)}
 
 /* ---------- sảnh ---------- */
 #screen-lobby{overflow:auto;padding:14px}
-.lobby{width:min(900px,100%);margin:0 auto}
+.lobby{width:min(900px,100%);margin:0 auto;padding-bottom:96px}
+#btn-start{position:sticky;bottom:10px;z-index:3}
 .lobby-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .code-box{background:#fff;border-radius:16px;padding:6px 12px;box-shadow:var(--shadow);font-weight:800;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.code-box b{font-family:"Baloo 2";font-size:24px;letter-spacing:4px;color:var(--acc)}
+.code-box b{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:24px;letter-spacing:4px;color:var(--acc)}
 .lobby-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:14px;margin-bottom:14px}
 @media (max-width:720px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:var(--panel);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+.panel h3{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+#screen-home .btn.big,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .panel h3{margin:0 0 10px;font-size:22px}
 .plist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:8px;background:#fff8ef;border-radius:14px;padding:6px 8px;font-weight:700}

@@ -8,7 +8,7 @@ import * as fx from './fx.js?v=8';
 import { guideHTML } from './guide.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
-import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=2';
+import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=4';
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

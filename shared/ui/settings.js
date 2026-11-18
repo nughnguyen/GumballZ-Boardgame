@@ -6,28 +6,28 @@ const ROOT = new URL('../../', import.meta.url).href;
 const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'solitaire', 'cotuong', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang'];
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
-const CSS = `.st-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:14px}
-.st-box{width:min(480px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#fff;color:#2a2340;border:3px solid #2a2340;border-radius:20px;padding:18px;box-shadow:5px 5px 0 rgba(42,35,64,.18);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
-.st-box h2{margin:0 36px 10px 0;font:800 22px "Baloo 2",Nunito,sans-serif}
-.st-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:12px;border:3px solid #2a2340;background:#FEE686;font-size:18px;cursor:pointer;color:#2a2340;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
-.st-sec{background:#fff;border-radius:16px;padding:10px 14px;margin:10px 0;border:3px solid #2a2340;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
-.st-sec h3{margin:2px 0 6px;font:800 15px Nunito,sans-serif;color:#2a2340}
+const CSS = `.st-ov{position:fixed;inset:0;z-index:9999;background:rgba(74,62,92,.66);display:grid;place-items:center;padding:14px}
+.st-box{width:min(480px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border:3px solid #4A3E5C;border-radius:20px;padding:18px;box-shadow:3px 3px 0 rgba(74,62,92,.18);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.st-box h2{margin:0 36px 10px 0;font:400 22px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+.st-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:12px;border:3px solid #4A3E5C;background:#FFE3A3;font-size:18px;cursor:pointer;color:#4A3E5C;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
+.st-sec{background:#FFFDF9;border-radius:16px;padding:10px 14px;margin:10px 0;border:3px solid #4A3E5C;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
+.st-sec h3{margin:2px 0 6px;font:800 15px Nunito,sans-serif;color:#4A3E5C}
 .st-row{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
-.st-row span{flex:1}.st-row small{display:block;color:#8a7f96;font-weight:600;font-size:12.5px}
-.st-row input[type=checkbox]{appearance:none;-webkit-appearance:none;width:54px;height:30px;flex:none;margin:0;border:3px solid #2a2340;border-radius:999px;background:#fff;position:relative;cursor:pointer;transition:background .15s}
-.st-row input[type=checkbox]::after{content:"";position:absolute;top:1px;left:2px;width:20px;height:20px;border-radius:50%;background:#2a2340;transition:transform .15s}
-.st-row input[type=checkbox]:checked{background:#FFD273}
+.st-row span{flex:1}.st-row small{display:block;color:#8B7E9E;font-weight:600;font-size:12.5px}
+.st-row input[type=checkbox]{appearance:none;-webkit-appearance:none;width:54px;height:30px;flex:none;margin:0;border:3px solid #4A3E5C;border-radius:999px;background:#FFFDF9;position:relative;cursor:pointer;transition:background .15s}
+.st-row input[type=checkbox]::after{content:"";position:absolute;top:1px;left:2px;width:20px;height:20px;border-radius:50%;background:#4A3E5C;transition:transform .15s}
+.st-row input[type=checkbox]:checked{background:#FFB98A}
 .st-row input[type=checkbox]:checked::after{transform:translateX(24px)}
 .st-vol{display:flex;align-items:center;gap:10px;min-height:44px}
 .st-vol span{flex:none;width:86px;font-weight:800}
-.st-vol input[type=range]{flex:1;min-width:0;accent-color:#ff4d6a}
+.st-vol input[type=range]{flex:1;min-width:0;accent-color:#FFB98A}
 .st-vol b{flex:none;width:44px;text-align:right;font-size:13.5px}
-.st-box input[type=text]{width:100%;box-sizing:border-box;border:2.5px solid #2a2340;border-radius:12px;padding:10px 12px;font:600 16px Nunito,sans-serif}
-.st-box input[type=text]:focus{outline:none;box-shadow:0 0 0 3px #FEC5E6}
-.st-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px 14px;border-radius:12px;border:3px solid #2a2340;background:#fff;color:#2a2340;font:800 14px Nunito,sans-serif;cursor:pointer;text-decoration:none;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
+.st-box input[type=text]{width:100%;box-sizing:border-box;border:2.5px solid #4A3E5C;border-radius:12px;padding:10px 12px;font:600 16px Nunito,sans-serif}
+.st-box input[type=text]:focus{outline:none;box-shadow:0 0 0 3px #FFB9CF}
+.st-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px 14px;border-radius:12px;border:3px solid #4A3E5C;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,sans-serif;cursor:pointer;text-decoration:none;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
 .st-btn:hover{transform:translate(-1px,-1px)}
-.st-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(42,35,64,.16)}
-.st-btn.red{background:#FEC5E6;color:#2a2340;border-color:#2a2340}
+.st-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(74,62,92,.13)}
+.st-btn.red{background:#FFB9CF;color:#4A3E5C;border-color:#4A3E5C}
 .st-acts{display:flex;gap:8px;flex-wrap:wrap}`;
 
 export function openSettings() {
@@ -40,9 +40,9 @@ export function openSettings() {
     <div class="st-sec"><h3>🌐 Ngôn ngữ / Language</h3><div class="st-acts">
       <button class="st-btn" id="st-lang-vi" type="button">🇻🇳 Tiếng Việt</button>
       <button class="st-btn" id="st-lang-en" type="button">🇬🇧 English</button></div>
-      <p style="margin:6px 0 0;font-size:12.5px;color:#8a7f96">Đổi ngôn ngữ sẽ tải lại trang. Câu chưa có bản dịch thì vẫn hiện tiếng Việt.</p></div>
+      <p style="margin:6px 0 0;font-size:12.5px;color:#8B7E9E">Đổi ngôn ngữ sẽ tải lại trang. Câu chưa có bản dịch thì vẫn hiện tiếng Việt.</p></div>
     <div class="st-sec"><h3>👤 Tên của bạn</h3><input type="text" id="st-name" maxlength="20" placeholder="Tên hiện khi vào phòng" value="">
-      <p style="margin:6px 0 0;font-size:12.5px;color:#8a7f96">${u ? 'Đang đăng nhập: ' + esc(u.name) + (u.admin ? ' · 🛠️ quản trị viên' : '') : 'Tự điền sẵn ở mọi game. Đăng nhập để giữ tên trên mọi máy.'}</p></div>
+      <p style="margin:6px 0 0;font-size:12.5px;color:#8B7E9E">${u ? 'Đang đăng nhập: ' + esc(u.name) + (u.admin ? ' · 🛠️ quản trị viên' : '') : 'Tự điền sẵn ở mọi game. Đăng nhập để giữ tên trên mọi máy.'}</p></div>
     <div class="st-sec"><h3>🔊 Âm thanh &amp; cảm giác</h3>
       <label class="st-row"><input type="checkbox" id="st-music" ${musicOn ? 'checked' : ''}><span>Nhạc nền ở mọi game<small>Tắt/bật một lần cho tất cả game (vẫn chỉnh riêng trong từng game được)</small></span></label>
       <label class="st-row"><input type="checkbox" id="st-mute" ${ls.get('gumballz-mute-all') === '1' ? 'checked' : ''}><span>Tắt hết nhạc nền<small>Dùng khi đang ở chỗ cần yên lặng</small></span></label>
@@ -60,7 +60,7 @@ export function openSettings() {
   document.body.append(ov);
   const $ = s => ov.querySelector(s);
   const curLang = ls.get('gumballz-lang') === 'en' ? 'en' : 'vi';
-  const langBtn = $('#st-lang-' + curLang); if (langBtn) langBtn.style.background = '#FFD273';
+  const langBtn = $('#st-lang-' + curLang); if (langBtn) langBtn.style.background = '#FFB98A';
   const setLang = l => { if (l === curLang) return; ls.set('gumballz-lang', l); location.reload(); };
   $('#st-lang-vi').onclick = () => setLang('vi');
   $('#st-lang-en').onclick = () => setLang('en');

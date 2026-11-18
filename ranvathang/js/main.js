@@ -5,7 +5,7 @@
 // từng ô một rồi mới leo thang / trượt rắn (xem animateMove).
 import { createGame, applyAction, viewFor, actors, cellXY, LADDERS, SNAKES, COLORS, GOAL } from './engine.js?v=1';
 import { faceAngles, diceCubeHTML, nextSpinAngles } from './dice3d.js?v=1';
-import { createDiceView } from '../../shared/js/dice3d-gl.js?v=2';
+import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 import { botAction, rollDice } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
@@ -312,8 +312,8 @@ let _glPanel = null, _glOverlay = null;
   if (!scene) return;
   const holder = document.createElement('div'); holder.className = 'gl-holder';
   scene.appendChild(holder);
-  const view = await createDiceView(holder, { count: 1, diePx: 84, w: 120, h: 120, muted: () => !Snd.isSoundOn() });
-  if (view) { _glOverlay = { view }; scene.classList.add('gl-on'); scene.style.width = scene.style.height = '120px'; }
+  const view = await createDiceView(holder, { count: 1, diePx: 110, w: 160, h: 160, muted: () => !Snd.isSoundOn(), spin: true });
+  if (view) { _glOverlay = { view }; scene.classList.add('gl-on'); scene.style.width = scene.style.height = '160px'; }
 })();
 
 function render(v, prev) {

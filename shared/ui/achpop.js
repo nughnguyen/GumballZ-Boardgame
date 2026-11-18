@@ -5,7 +5,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&am
 function css() {
   if (document.getElementById('ap-css')) return;
   const st = document.createElement('style'); st.id = 'ap-css';
-  st.textContent = `.ap-box{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));z-index:2147482500;transform:translate(-50%,-140%);width:min(360px,calc(100vw - 24px));display:flex;gap:12px;align-items:center;padding:12px 16px 12px 12px;border-radius:20px;background:linear-gradient(135deg,#2a2340,#4b3aa0);color:#fff;box-shadow:0 18px 50px -12px #000a,0 0 0 2px #ffd84a inset;font:700 14px/1.35 Nunito,"Be Vietnam Pro",sans-serif;cursor:pointer;transition:transform .42s cubic-bezier(.2,1.4,.4,1),opacity .3s}
+  st.textContent = `.ap-box{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));z-index:2147482500;transform:translate(-50%,-140%);width:min(360px,calc(100vw - 24px));display:flex;gap:12px;align-items:center;padding:12px 16px 12px 12px;border-radius:20px;background:linear-gradient(135deg,#4A3E5C,#4b3aa0);color:#fff;box-shadow:0 18px 50px -12px #000a,0 0 0 2px #ffd84a inset;font:700 14px/1.35 Nunito,"Be Vietnam Pro",sans-serif;cursor:pointer;transition:transform .42s cubic-bezier(.2,1.4,.4,1),opacity .3s}
 .ap-box.in{transform:translate(-50%,0)}.ap-box.out{transform:translate(-50%,-140%);opacity:0}
 .ap-ic{flex:none;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffb23d);box-shadow:0 0 0 3px #fff3,0 0 22px #ffd84a99;animation:ap-pop .6s .15s cubic-bezier(.2,1.6,.4,1) both}
 .ap-t{min-width:0}.ap-t small{display:block;font:800 11.5px Nunito,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#ffd84a}

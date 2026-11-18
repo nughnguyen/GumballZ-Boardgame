@@ -50,6 +50,7 @@ input:focus{border-color:var(--acc)}
 .code-box{background:#fff;border-radius:16px;padding:7px 14px;box-shadow:var(--shadow)}.code-box b{font-family:"Baloo 2";font-size:24px;letter-spacing:4px;color:var(--acc);margin:0 6px}
 .lobby-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;margin-bottom:14px}@media(max-width:720px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:var(--panel);border-radius:22px;padding:14px;box-shadow:var(--shadow)}.panel h3{margin:0 0 8px;font-size:22px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:10px;background:#f3f7ff;border-radius:14px;padding:6px 8px;min-height:48px}
 .plist .av{width:36px;height:36px;border-radius:12px;background:#dfeeff;display:grid;place-items:center;font-size:20px;flex:none}

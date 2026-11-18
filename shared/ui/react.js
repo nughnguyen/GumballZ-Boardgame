@@ -72,23 +72,23 @@ function injectCSS() {
   if (cssDone) return; cssDone = true;
   const st = document.createElement('style'); st.id = 'bgr-css';
   st.textContent = `
-.bgr-btn{position:fixed;right:12px;bottom:12px;z-index:20;width:44px;height:44px;border-radius:50%;border:0;background:#fff;box-shadow:0 8px 20px -8px #2a234088,0 2px 6px #2a234022;font-size:23px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;-webkit-tap-highlight-color:transparent;transition:transform .12s}
+.bgr-btn{position:fixed;right:12px;bottom:12px;z-index:20;width:44px;height:44px;border-radius:50%;border:0;background:#FFFDF9;box-shadow:0 8px 20px -8px #4A3E5C88,0 2px 6px #4A3E5C22;font-size:23px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;-webkit-tap-highlight-color:transparent;transition:transform .12s}
 .bgr-btn:active{transform:scale(.92)}
-.bgr-btn.cd{background:conic-gradient(#7a5cff55 var(--p,0%),#fff 0)}
-.bgr-btn.open{box-shadow:0 0 0 3px #7a5cff,0 8px 20px -8px #2a234088}
-.bgr-panel{position:fixed;z-index:70;background:#fff;border-radius:20px;padding:8px;box-shadow:0 18px 40px -12px #2a2340aa,0 2px 8px #2a234022;width:min(292px,calc(100vw - 16px));font:700 14px/1.25 "Be Vietnam Pro",Nunito,system-ui,sans-serif;color:#2a2340;animation:bgr-in .16s ease-out}
+.bgr-btn.cd{background:conic-gradient(#C9BDF355 var(--p,0%),#fff 0)}
+.bgr-btn.open{box-shadow:0 0 0 3px #C9BDF3,0 8px 20px -8px #4A3E5C88}
+.bgr-panel{position:fixed;z-index:70;background:#FFFDF9;border-radius:20px;padding:8px;box-shadow:0 18px 40px -12px #4A3E5Caa,0 2px 8px #4A3E5C22;width:min(292px,calc(100vw - 16px));font:700 14px/1.25 "Be Vietnam Pro",Nunito,system-ui,sans-serif;color:#4A3E5C;animation:bgr-in .16s ease-out}
 .bgr-panel .em{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .bgr-panel .em button{height:46px;border:0;border-radius:14px;background:#f5f1ff;font-size:26px;cursor:pointer;padding:0}
 .bgr-panel .ph{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
-.bgr-panel .ph button{border:0;border-radius:999px;background:#2a2340;color:#fff;font:800 13px/1 "Be Vietnam Pro",Nunito,sans-serif;padding:0 11px;min-height:36px;cursor:pointer}
+.bgr-panel .ph button{border:0;border-radius:999px;background:#4A3E5C;color:#fff;font:800 13px/1 "Be Vietnam Pro",Nunito,sans-serif;padding:0 11px;min-height:36px;cursor:pointer}
 .bgr-panel button:disabled{opacity:.4;cursor:default}
 .bgr-panel button:not(:disabled):active{transform:scale(.94)}
 .bgr-fly{position:fixed;z-index:80;pointer-events:none;font-size:42px;line-height:1;transform:translate(-50%,-50%);filter:drop-shadow(0 4px 6px #0004);animation:bgr-fly 1.9s ease-out forwards}
-.bgr-fly small{position:absolute;left:50%;top:100%;transform:translateX(-50%);font:800 11px "Be Vietnam Pro",Nunito,sans-serif;background:#2a2340;color:#fff;border-radius:8px;padding:1px 6px;white-space:nowrap}
-.bgr-bub{position:fixed;z-index:80;pointer-events:none;background:#fff;color:#2a2340;border-radius:16px;padding:6px 12px;font:800 14px/1.25 "Be Vietnam Pro",Nunito,sans-serif;box-shadow:0 10px 24px -8px #2a2340aa;white-space:nowrap;transform:translate(-50%,-100%);animation:bgr-bub 2.4s ease-out forwards}
+.bgr-fly small{position:absolute;left:50%;top:100%;transform:translateX(-50%);font:800 11px "Be Vietnam Pro",Nunito,sans-serif;background:#4A3E5C;color:#fff;border-radius:8px;padding:1px 6px;white-space:nowrap}
+.bgr-bub{position:fixed;z-index:80;pointer-events:none;background:#FFFDF9;color:#4A3E5C;border-radius:16px;padding:6px 12px;font:800 14px/1.25 "Be Vietnam Pro",Nunito,sans-serif;box-shadow:0 10px 24px -8px #4A3E5Caa;white-space:nowrap;transform:translate(-50%,-100%);animation:bgr-bub 2.4s ease-out forwards}
 .bgr-bub::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fff}
 .bgr-bub.below{transform:translate(-50%,0)}.bgr-bub.below::after{bottom:auto;top:-6px;border:6px solid transparent;border-top:0;border-bottom-color:#fff}
-.bgr-bub b{color:#7a5cff}
+.bgr-bub b{color:#C9BDF3}
 @keyframes bgr-in{from{opacity:0;transform:translateY(8px) scale(.96)}}
 @keyframes bgr-fly{0%{opacity:0;transform:translate(-50%,-30%) scale(.4)}12%{opacity:1;transform:translate(-50%,-60%) scale(1.25)}25%{transform:translate(-50%,-70%) scale(1) rotate(-8deg)}40%{transform:translate(-50%,-90%) rotate(8deg)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-190%) scale(.9)}}
 @keyframes bgr-bub{0%{opacity:0;margin-top:8px}10%{opacity:1;margin-top:0}82%{opacity:1}100%{opacity:0;margin-top:-10px}}

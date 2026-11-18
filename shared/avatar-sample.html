@@ -1,7 +1,7 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tạo nhân vật – GumballZ Boardgame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/avatar.css">
 <style>
 :root{--ink:#24314d;--muted:#6b7895;--acc:#ff7a1a}
@@ -17,14 +17,14 @@ h2{font-family:"Baloo 2";font-size:22px;margin:18px 0 8px;color:#24314d}
 .btn{border:0;border-radius:14px;padding:10px 16px;font:800 16px Nunito;background:linear-gradient(135deg,#ff9a3d,#ff5a5f);color:#fff;cursor:pointer}
 .row{margin-bottom:10px}.row b{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
-.opts button{border:2px solid #e3e9f5;background:#fff;border-radius:12px;padding:5px 10px;font:700 13px Nunito;cursor:pointer;color:var(--ink)}
+.opts button{border:2px solid #e3e9f5;background:#FFFDF9;border-radius:12px;padding:5px 10px;font:700 13px Nunito;cursor:pointer;color:var(--ink)}
 .opts button.on{border-color:var(--acc);background:#fff3e8;color:#c2510a}
 .opts button.lock{opacity:.45;border-style:dashed;cursor:not-allowed}
 .sw{width:30px;height:30px;border-radius:50%!important;padding:0!important;border:3px solid #fff!important;box-shadow:0 1px 4px #0004}
 .sw.on{outline:3px solid var(--ink);outline-offset:1px}
 .presets{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-top:8px}
 @media(max-width:760px){.presets{grid-template-columns:repeat(6,1fr)}}
-.presets button{border:2px solid #e3e9f5;background:#fff;border-radius:14px;padding:2px;cursor:pointer;font:700 11px Nunito;color:var(--ink)}
+.presets button{border:2px solid #e3e9f5;background:#FFFDF9;border-radius:14px;padding:2px;cursor:pointer;font:700 11px Nunito;color:var(--ink)}
 .presets button img{width:100%;display:block}
 .presets button.on{border-color:var(--acc)}
 .presets button.lock{opacity:.45;border-style:dashed}
@@ -37,11 +37,11 @@ h2{font-family:"Baloo 2";font-size:22px;margin:18px 0 8px;color:#24314d}
 .track{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media(max-width:420px){.track{grid-template-columns:1fr}}
 .fxrow{display:flex;flex-wrap:wrap;gap:8px}
-.fxrow button{border:2px solid #e3e9f5;background:#fff;border-radius:999px;padding:8px 14px;font:800 14px Nunito;cursor:pointer;color:var(--ink)}
+.fxrow button{border:2px solid #e3e9f5;background:#FFFDF9;border-radius:999px;padding:8px 14px;font:800 14px Nunito;cursor:pointer;color:var(--ink)}
 .fxrow button.lock{opacity:.45;border-style:dashed}
 .fxrow button.on{border-color:var(--acc);background:#fff3e8}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{border:2px solid #e3e9f5;background:#fff;border-radius:999px;padding:6px 12px;font:800 13px Nunito;cursor:pointer;color:var(--ink)}
+.seg button{border:2px solid #e3e9f5;background:#FFFDF9;border-radius:999px;padding:6px 12px;font:800 13px Nunito;cursor:pointer;color:var(--ink)}
 .seg button.on{border-color:var(--acc);background:#fff3e8}
 </style></head><body>
 <div class="wrap">

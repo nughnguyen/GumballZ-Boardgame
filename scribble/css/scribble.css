@@ -78,6 +78,7 @@ h2,h3,h4{line-height:1.15}
 @media (max-width:760px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:#fff;border:var(--bd);border-radius:20px;padding:14px 16px;box-shadow:var(--sh2);min-width:0}
 .panel h3{margin:0 0 10px;font-size:23px}.panel h4{margin:16px 0 8px;font-size:17px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .panel h3 small,.panel h4 small{color:var(--muted);font-weight:600;font-size:14px}
 .plist{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:10px;background:#f6f3ff;border:2px solid var(--line);border-radius:12px;padding:5px 8px;font-weight:700;min-height:46px}

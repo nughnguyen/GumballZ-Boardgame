@@ -4,21 +4,21 @@
 //   await promptBox('Tên mới:', { value, placeholder, maxlength, type })     → chuỗi / null
 //   await chooseBox('Làm gì với tin này?', [{ id, label, danger }])           → id / null
 //   await formBox('Đổi mật khẩu', [{ id, label, type, placeholder }])         → { id: giá trị } / null
-const CSS = `.dg-ov{position:fixed;inset:0;z-index:10050;background:#1a1426b3;display:grid;place-items:center;padding:16px;animation:dg-f .16s ease-out;backdrop-filter:blur(3px)}
-.dg-box{width:min(400px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fffaf3;color:#2a2340;border-radius:24px;padding:22px 20px 18px;box-shadow:0 24px 70px #0008;font:600 15.5px/1.5 Nunito,system-ui,sans-serif;animation:dg-p .22s cubic-bezier(.2,1.2,.4,1)}
-.dg-box h2{margin:0 0 6px;font:800 21px/1.25 "Baloo 2",Nunito,sans-serif}
-.dg-box p{margin:0 0 4px;color:#4a405c;white-space:pre-line}
-.dg-box label{display:block;font-weight:800;font-size:13px;margin:12px 0 4px;color:#6b5f7a}
-.dg-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:13px;padding:11px 13px;font:600 16px Nunito,sans-serif;background:#fff;color:#2a2340;outline:none}
-.dg-box input:focus{border-color:#7b61ff;box-shadow:0 0 0 3px #7b61ff33}
+const CSS = `.dg-ov{position:fixed;inset:0;z-index:10050;background:rgba(74,62,92,.7);display:grid;place-items:center;padding:16px;animation:dg-f .16s ease-out;backdrop-filter:blur(3px)}
+.dg-box{width:min(400px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border-radius:24px;padding:22px 20px 18px;box-shadow:0 24px 70px #0008;font:600 15.5px/1.5 Nunito,system-ui,sans-serif;animation:dg-p .22s cubic-bezier(.2,1.2,.4,1)}
+.dg-box h2{margin:0 0 6px;font:400 21px/1.25 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+.dg-box p{margin:0 0 4px;color:#8B7E9E;white-space:pre-line}
+.dg-box label{display:block;font-weight:800;font-size:13px;margin:12px 0 4px;color:#8B7E9E}
+.dg-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:13px;padding:11px 13px;font:600 16px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C;outline:none}
+.dg-box input:focus{border-color:#C9BDF3;box-shadow:0 0 0 3px rgba(201,189,243,.45)}
 .dg-err{color:#c0263b;font-weight:800;font-size:13.5px;min-height:18px;margin-top:6px}
 .dg-acts{display:flex;gap:10px;margin-top:16px}.dg-acts.col{flex-direction:column}
-.dg-b{flex:1;min-height:46px;border-radius:999px;border:1.5px solid #e6d8c8;background:#fff;color:#2a2340;font:800 15.5px "Baloo 2",Nunito,sans-serif;cursor:pointer;padding:6px 16px;transition:transform .1s,filter .15s}
+.dg-b{flex:1;min-height:46px;border-radius:999px;border:1.5px solid #e6d8c8;background:#FFFDF9;color:#4A3E5C;font:400 15.5px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);cursor:pointer;padding:6px 16px;transition:transform .1s,filter .15s}
 .dg-b:hover{filter:brightness(1.04)}.dg-b:active{transform:scale(.97)}
-.dg-b.ok{border:0;color:#fff;background:linear-gradient(90deg,#ff4d6a,#ff9a3d);box-shadow:0 8px 18px -8px #ff4d5ecc}
+.dg-b.ok{border:0;color:#4A3E5C;background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 8px 18px -8px rgba(255,185,138,.8)}
 .dg-b.danger{border:0;color:#fff;background:linear-gradient(90deg,#e0384a,#c0263b);box-shadow:0 8px 18px -8px #c0263bcc}
 .dg-b.ghost{border-color:transparent;background:#f3e9dc}
-.dg-toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10060;background:#2a2340;color:#fff;padding:11px 20px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 10px 28px #0005;max-width:90vw;text-align:center;animation:dg-p .25s cubic-bezier(.2,1.2,.4,1)}
+.dg-toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10060;background:#4A3E5C;color:#fff;padding:11px 20px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 10px 28px #0005;max-width:90vw;text-align:center;animation:dg-p .25s cubic-bezier(.2,1.2,.4,1)}
 @keyframes dg-f{from{opacity:0}}@keyframes dg-p{from{opacity:0;transform:translateY(10px) scale(.96)}}
 @media (prefers-reduced-motion:reduce){.dg-ov,.dg-box,.dg-toast{animation:none}}`;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

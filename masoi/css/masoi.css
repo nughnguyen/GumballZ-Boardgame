@@ -160,6 +160,7 @@ input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #f2c84b33}
 @media (min-width:860px){.lobby-grid{grid-template-columns:1fr 1.25fr}}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow);backdrop-filter:blur(8px);display:flex;flex-direction:column;gap:10px;min-width:0}
 .panel h3{font-size:19px;display:flex;align-items:baseline;gap:8px}.panel h3 small{font:700 13px var(--font);color:var(--muted)}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
 .plist li{display:flex;align-items:center;gap:8px;background:var(--chip);border-radius:12px;padding:5px 6px;min-height:44px;min-width:0}
 .plist li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}

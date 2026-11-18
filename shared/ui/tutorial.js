@@ -3,25 +3,25 @@
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const GAME = location.pathname.replace(/\/+$/, '').split('/').pop();
 const $ = s => document.querySelector(s);
-const CSS = `.gumballz-tut{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:#2a2340cc;opacity:0;transition:opacity .2s;font-family:Nunito,system-ui,sans-serif;color:#2a2340}
+const CSS = `.gumballz-tut{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 10px max(10px,env(safe-area-inset-bottom));background:rgba(74,62,92,.8);opacity:0;transition:opacity .2s;font-family:Nunito,system-ui,sans-serif;color:#4A3E5C}
 .gumballz-tut.on{opacity:1}
-.gumballz-tut .bx{width:min(480px,100%);max-height:100%;display:flex;flex-direction:column;background:#fff7ef;border-radius:26px;box-shadow:0 30px 60px -20px #000a;overflow:hidden}
+.gumballz-tut .bx{width:min(480px,100%);max-height:100%;display:flex;flex-direction:column;background:#FFF8EE;border-radius:26px;box-shadow:0 30px 60px -20px #000a;overflow:hidden}
 .gumballz-tut .hd{display:flex;align-items:center;gap:8px;padding:12px 12px 6px 16px}
-.gumballz-tut .hd b{flex:1;min-width:0;font:800 19px/1.2 "Baloo 2",Nunito,sans-serif}
-.gumballz-tut .hd small{display:block;font:700 12.5px Nunito,sans-serif;color:#7b7391}
-.gumballz-tut .x{flex:none;border:0;background:#2a234012;color:#2a2340;border-radius:999px;min-height:40px;padding:0 14px;font:800 13.5px Nunito,sans-serif;cursor:pointer}
-.gumballz-tut .dots{display:flex;gap:5px;padding:0 16px 8px}.gumballz-tut .dots i{flex:1;height:5px;border-radius:9px;background:#2a23401f;transition:background .2s}.gumballz-tut .dots i.on{background:linear-gradient(90deg,#ff4d6a,#ffb23d)}
+.gumballz-tut .hd b{flex:1;min-width:0;font:400 19px/1.2 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+.gumballz-tut .hd small{display:block;font:700 12.5px Nunito,sans-serif;color:#8B7E9E}
+.gumballz-tut .x{flex:none;border:0;background:rgba(74,62,92,.07);color:#4A3E5C;border-radius:999px;min-height:40px;padding:0 14px;font:800 13.5px Nunito,sans-serif;cursor:pointer}
+.gumballz-tut .dots{display:flex;gap:5px;padding:0 16px 8px}.gumballz-tut .dots i{flex:1;height:5px;border-radius:9px;background:rgba(74,62,92,.12);transition:background .2s}.gumballz-tut .dots i.on{background:linear-gradient(90deg,#FFB98A,#FFE3A3)}
 .gumballz-tut .sl{flex:1;min-height:0;overflow:auto;padding:4px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:10px;touch-action:pan-y}
 .gumballz-tut .sl img{display:block;max-width:100%;width:auto;height:auto;max-height:min(46vh,380px);border-radius:14px;box-shadow:0 4px 14px #0003;background:#0001}
 .gumballz-tut .sl .ic{font-size:86px;line-height:1.1;margin:14px 0 2px}
 .gumballz-tut .sl p{margin:0;font-weight:700;font-size:16.5px;line-height:1.5;text-align:center;text-wrap:pretty}
-.gumballz-tut .sl .no{align-self:center;background:#2a2340;color:#fff;border-radius:999px;padding:2px 12px;font:800 12.5px Nunito,sans-serif}
+.gumballz-tut .sl .no{align-self:center;background:#4A3E5C;color:#fff;border-radius:999px;padding:2px 12px;font:800 12.5px Nunito,sans-serif}
 .gumballz-tut .ft{display:flex;gap:8px;padding:8px 12px 12px;flex-wrap:wrap}
-.gumballz-tut .ft button{min-height:48px;border-radius:999px;border:1.5px solid #ecdfd0;background:#fff;color:#2a2340;font:800 16px "Baloo 2",Nunito,sans-serif;cursor:pointer;padding:0 16px}
-.gumballz-tut .ft .go{flex:1;border:0;color:#fff;background:linear-gradient(120deg,#ff4d6a,#ff7a45 55%,#ffb23d);box-shadow:inset 0 -3px 0 #0000001f}
+.gumballz-tut .ft button{min-height:48px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);cursor:pointer;padding:0 16px}
+.gumballz-tut .ft .go{flex:1;border:0;color:#4A3E5C;background:linear-gradient(120deg,#FFB98A,#FFB9CF 55%,#FFE3A3);box-shadow:inset 0 -3px 0 #0000001f}
 .gumballz-tut .ft .bk:disabled{opacity:.35}
 .gumballz-tut .ft .full{flex-basis:100%}
-.gumballz-tut-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:4px 14px;border-radius:999px;border:0;cursor:pointer;font:800 14px Nunito,system-ui,sans-serif;color:#3a2300;background:linear-gradient(135deg,#ffe27a,#ffb020);box-shadow:0 6px 14px -8px #7a4a00;margin:4px;flex:none;align-self:center;white-space:nowrap}
+.gumballz-tut-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:4px 14px;border-radius:999px;border:0;cursor:pointer;font:800 14px Nunito,system-ui,sans-serif;color:#4A3E5C;background:linear-gradient(135deg,#FFE3A3,#FFB98A);box-shadow:0 6px 14px -8px rgba(74,62,92,.4);margin:4px;flex:none;align-self:center;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.gumballz-tut{transition:none}}`;
 let cssOn = false, open = false, curEl = null;
 const pre = {};
@@ -92,7 +92,7 @@ function init() {
 function askUI() {
   const el = curEl; if (!el) return;
   const sl = el.querySelector('.sl'); if (!sl) return;
-  sl.innerHTML = `<p style="font-size:15px">❓ Hỏi luật – AI trả lời dựa trên hướng dẫn của game này.</p><div style="display:flex;gap:8px;width:100%"><input id="tut-q" type="text" maxlength="240" placeholder="Ví dụ: Khi nào được ăn quân?" style="flex:1;min-width:0;min-height:44px;border:1.5px solid #ecdfd0;border-radius:12px;padding:0 12px;font:700 15px Nunito,sans-serif"><button id="tut-send" type="button" style="flex:none;min-height:44px;border:0;border-radius:12px;background:linear-gradient(120deg,#ff4d6a,#ffb23d);color:#fff;font:800 15px Nunito,sans-serif;padding:0 14px;cursor:pointer">Hỏi</button></div><p id="tut-a" style="font-size:15px;text-align:left"></p>`;
+  sl.innerHTML = `<p style="font-size:15px">❓ Hỏi luật – AI trả lời dựa trên hướng dẫn của game này.</p><div style="display:flex;gap:8px;width:100%"><input id="tut-q" type="text" maxlength="240" placeholder="Ví dụ: Khi nào được ăn quân?" style="flex:1;min-width:0;min-height:44px;border:1.5px solid #ecdfd0;border-radius:12px;padding:0 12px;font:700 15px Nunito,sans-serif"><button id="tut-send" type="button" style="flex:none;min-height:44px;border:0;border-radius:12px;background:linear-gradient(120deg,#FFB98A,#FFE3A3);color:#4A3E5C;font:800 15px Nunito,sans-serif;padding:0 14px;cursor:pointer">Hỏi</button></div><p id="tut-a" style="font-size:15px;text-align:left"></p>`;
   const inp = sl.querySelector('#tut-q'), ans = sl.querySelector('#tut-a');
   const send = async () => {
     const q = inp.value.trim(); if (q.length < 4) { ans.textContent = 'Gõ câu hỏi dài hơn 4 ký tự nha.'; return; }

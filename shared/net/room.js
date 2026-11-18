@@ -37,7 +37,7 @@ function friendsUi() { try { import('../ui/friends.js?v=32').then(m => m.mountPl
 function showNotice(text) {
   try {
     const d = document.createElement('div');
-    d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:#2a2340;color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
+    d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:#4A3E5C;color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
     d.textContent = text; document.body.append(d); setTimeout(() => d.remove(), 3800);
   } catch (e) {}
 }

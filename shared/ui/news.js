@@ -12,24 +12,24 @@ function style() {
   if (css) return; css = true;
   const st = document.createElement('style');
   st.textContent = `
-  .gumballz-news{position:fixed;inset:0;z-index:10000;background:#1b142acc;display:flex;align-items:center;justify-content:center;padding:14px;font:500 15px/1.5 "Be Vietnam Pro",system-ui,sans-serif;animation:gumballzNewsIn .18s}
+  .gumballz-news{position:fixed;inset:0;z-index:10000;background:#1b142acc;display:flex;align-items:center;justify-content:center;padding:14px;font:500 15px/1.5 Nunito,system-ui,sans-serif;animation:gumballzNewsIn .18s}
   @keyframes gumballzNewsIn{from{opacity:0}}
-  .gumballz-news .bn-box{background:#fffdf7;color:#26213a;width:min(560px,100%);max-height:min(86vh,760px);border-radius:20px;box-shadow:0 20px 50px #0007;display:flex;flex-direction:column;overflow:hidden}
-  .gumballz-news .bn-hd{flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid #eee3d0;background:linear-gradient(135deg,#fff1d6,#ffe1ec)}
-  .gumballz-news .bn-hd h2{margin:0;flex:1;font:800 20px "Baloo 2","Be Vietnam Pro",sans-serif}
-  .gumballz-news .bn-x{border:0;background:#fff;border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;box-shadow:0 2px 6px #0002}
+  .gumballz-news .bn-box{background:#FFFDF9;color:#4A3E5C;width:min(560px,100%);max-height:min(86vh,760px);border-radius:20px;box-shadow:0 20px 50px #0007;display:flex;flex-direction:column;overflow:hidden}
+  .gumballz-news .bn-hd{flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid #EFE7D8;background:linear-gradient(135deg,#FFE3A3,#FFB9CF)}
+  .gumballz-news .bn-hd h2{margin:0;flex:1;font:400 20px "Bungee","Baloo 2",Nunito,sans-serif}
+  .gumballz-news .bn-x{border:0;background:#FFFDF9;border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;box-shadow:0 2px 6px #0002}
   .gumballz-news .bn-tabs{flex:none;overflow:visible;display:flex;gap:6px;flex-wrap:wrap;padding:8px 16px 0}
-  .gumballz-news .bn-tabs button{border:1.5px solid #e6dcc8;background:#fff;border-radius:999px;padding:4px 11px;font:700 13px inherit;font-family:inherit;cursor:pointer;color:#26213a}
-  .gumballz-news .bn-tabs button.on{background:#26213a;color:#fff;border-color:#26213a}
+  .gumballz-news .bn-tabs button{border:2px solid #4A3E5C;background:#FFFDF9;border-radius:999px;padding:4px 11px;font:700 13px inherit;font-family:inherit;cursor:pointer;color:#4A3E5C}
+  .gumballz-news .bn-tabs button.on{background:#4A3E5C;color:#fff;border-color:#4A3E5C}
   .gumballz-news .bn-bd{flex:1 1 auto;min-height:0;overflow:auto;padding:6px 16px 18px}
-  .gumballz-news .bn-it{padding:12px 0;border-bottom:1px dashed #e8dcc6}
+  .gumballz-news .bn-it{padding:12px 0;border-bottom:1px dashed rgba(74,62,92,.2)}
   .gumballz-news .bn-it:last-child{border-bottom:0}
-  .gumballz-news .bn-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:#7b7391}
-  .gumballz-news .bn-tag{background:#f3ecff;color:#5b3fc4;border-radius:999px;padding:1px 9px;font-weight:700}
-  .gumballz-news .bn-new{background:#ff4d5e;color:#fff;border-radius:999px;padding:1px 8px;font-weight:800;font-size:11px}
-  .gumballz-news h3{margin:4px 0 4px;font:800 16.5px "Baloo 2","Be Vietnam Pro",sans-serif}
+  .gumballz-news .bn-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:#8B7E9E}
+  .gumballz-news .bn-tag{background:#C9BDF3;color:#4A3E5C;border-radius:999px;padding:1px 9px;font-weight:700}
+  .gumballz-news .bn-new{background:#FFB98A;color:#4A3E5C;border-radius:999px;padding:1px 8px;font-weight:800;font-size:11px}
+  .gumballz-news h3{margin:4px 0 4px;font:800 16.5px "Baloo 2",Nunito,sans-serif}
   .gumballz-news ul{margin:0;padding-left:20px}.gumballz-news li{margin:3px 0}
-  .gumballz-dot{position:relative}.gumballz-dot::after{content:"";position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#ff4d5e;box-shadow:0 0 0 2px #fff}
+  .gumballz-dot{position:relative}.gumballz-dot::after{content:"";position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#FFB98A;box-shadow:0 0 0 2px #fff}
   @media (prefers-reduced-motion: reduce){.gumballz-news{animation:none}}`;
   document.head.appendChild(st);
 }

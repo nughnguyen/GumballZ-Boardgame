@@ -17,16 +17,16 @@ const hhmm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', min
 const INV_RE = /\[invite:([a-z0-9]{2,16}):([A-Z0-9]{5})\]/g;
 
 const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:12px}
-.bf-mod{width:min(760px,100%);height:min(620px,calc(100dvh - 24px));background:#fffaf3;color:#2a2340;border-radius:24px;box-shadow:0 24px 60px #0006;display:flex;flex-direction:column;overflow:hidden;font:600 14.5px/1.4 Nunito,system-ui,sans-serif}
+.bf-mod{width:min(760px,100%);height:min(620px,calc(100dvh - 24px));background:#fffaf3;color:#4A3E5C;border-radius:24px;box-shadow:0 24px 60px #0006;display:flex;flex-direction:column;overflow:hidden;font:600 14.5px/1.4 Nunito,system-ui,sans-serif}
 .bf-mod *{box-sizing:border-box}
-.bf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#fff;border-bottom:1.5px solid #ecdfd0;flex-wrap:wrap}
+.bf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#FFFDF9;border-bottom:1.5px solid #ecdfd0;flex-wrap:wrap}
 .bf-hd h2{margin:0;font:800 20px "Baloo 2",Nunito,sans-serif;flex:1;min-width:140px}
 .bf-tag{border:1.5px solid #ecdfd0;background:#fff6eb;color:#6b5f7a;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
-.bf-x{width:36px;height:36px;border-radius:50%;border:0;background:#f0e6da;color:#2a2340;font-size:17px;cursor:pointer;font-weight:800}
+.bf-x{width:36px;height:36px;border-radius:50%;border:0;background:#f0e6da;color:#4A3E5C;font-size:17px;cursor:pointer;font-weight:800}
 .bf-body{flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr}
 .bf-side{border-right:1.5px solid #ecdfd0;display:flex;flex-direction:column;min-height:0;background:#fff}
 .bf-add{display:flex;gap:6px;padding:10px;border-bottom:1.5px solid #ecdfd0}
-.bf-add input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:7px 12px;font:600 14px Nunito,sans-serif;background:#fff;color:#2a2340}
+.bf-add input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:7px 12px;font:600 14px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
 .bf-add button{flex:none;border:0;border-radius:999px;padding:0 12px;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff;font:800 13.5px Nunito,sans-serif;cursor:pointer}
 .bf-list{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
 .bf-sec{font:800 12px Nunito,sans-serif;color:#8a7f96;text-transform:uppercase;padding:4px 6px 0}
@@ -34,32 +34,32 @@ const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;dis
 .bf-it:hover{border-color:#ffb27a}.bf-it.on{border-color:#ff7a45;background:#fff0e4}
 .bf-av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font:800 15px "Baloo 2",Nunito,sans-serif}
 .bf-it .t{flex:1;min-width:0}
-.bf-it .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;color:#2a2340}
+.bf-it .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;color:#4A3E5C}
 .bf-it .t small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#7b7391;font-size:12px}
 .bf-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 7px;font:800 11.5px Nunito,sans-serif}
 .bf-rbtns{display:flex;gap:4px;flex:none}
 .bf-rbtns button{border:0;border-radius:10px;padding:5px 8px;font:800 12px Nunito,sans-serif;cursor:pointer}
-.bf-rbtns .ok{background:#2fc76f;color:#fff}.bf-rbtns .no{background:#f0e6da;color:#2a2340}
+.bf-rbtns .ok{background:#2fc76f;color:#fff}.bf-rbtns .no{background:#f0e6da;color:#4A3E5C}
 .bf-rm{border:0;background:none;color:#a095ae;font-size:14px;cursor:pointer;padding:4px 6px;border-radius:8px}
 .bf-rm:hover{background:#ffe5e8;color:#c0263b}
 .bf-chat{display:flex;flex-direction:column;min-height:0;background:#fffaf3}
-.bf-chd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fff;border-bottom:1.5px solid #ecdfd0}
-.bf-bk{display:none;border:0;background:#f0e6da;color:#2a2340;border-radius:999px;padding:5px 10px;font:800 13px Nunito,sans-serif;cursor:pointer}
+.bf-chd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#FFFDF9;border-bottom:1.5px solid #ecdfd0}
+.bf-bk{display:none;border:0;background:#f0e6da;color:#4A3E5C;border-radius:999px;padding:5px 10px;font:800 13px Nunito,sans-serif;cursor:pointer}
 .bf-msgs{flex:1;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.bf-m{max-width:82%;align-self:flex-start;background:#fff;border-radius:14px 14px 14px 4px;padding:7px 11px;box-shadow:0 1px 3px #2a234018;overflow-wrap:anywhere}
+.bf-m{max-width:82%;align-self:flex-start;background:#FFFDF9;border-radius:14px 14px 14px 4px;padding:7px 11px;box-shadow:0 1px 3px #4A3E5C18;overflow-wrap:anywhere}
 .bf-m.me{align-self:flex-end;background:#ffe3d2;border-radius:14px 14px 4px 14px}
 .bf-m time{display:block;font-size:11px;color:#8a7f96;margin-top:2px}
 .bf-inv{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:6px 12px;border-radius:12px;background:linear-gradient(90deg,#2fc76f,#20a8a0);color:#fff;text-decoration:none;font:800 13px Nunito,sans-serif}
 .bf-inv:hover{filter:brightness(1.06)}
-.bf-in{display:flex;gap:6px;padding:8px 10px;background:#fff;border-top:1.5px solid #ecdfd0;align-items:center}
-.bf-in input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:8px 13px;font:600 15px Nunito,sans-serif;background:#fff;color:#2a2340}
+.bf-in{display:flex;gap:6px;padding:8px 10px;background:#FFFDF9;border-top:1.5px solid #ecdfd0;align-items:center}
+.bf-in input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:8px 13px;font:600 15px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
 .bf-in button{flex:none;border:0;border-radius:999px;min-height:38px;padding:0 14px;font:800 14px Nunito,sans-serif;cursor:pointer}
 .bf-in .send{background:#ff7a45;color:#fff}.bf-in .inv{background:#eafaf1;color:#147a44;border:1.5px solid #bce8cf}
 .bf-empty{margin:auto;text-align:center;color:#8a7f96;padding:24px 16px}
 .bf-login{padding:28px 20px;text-align:center;margin:auto;max-width:360px}
 .bf-login button{margin-top:12px;border:0;border-radius:999px;padding:11px 22px;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff;font:800 16px "Baloo 2",Nunito,sans-serif;cursor:pointer}
 .bf-pop-bg{position:fixed;inset:0;z-index:10001;background:transparent}
-.bf-pop{position:fixed;z-index:10002;width:min(280px,calc(100vw - 24px));background:#fffaf3;color:#2a2340;border:2px solid #f0dfd0;border-radius:20px;box-shadow:0 14px 36px #0004;padding:12px 14px;font:600 14px/1.4 Nunito,system-ui,sans-serif;animation:bfPop .14s ease-out}
+.bf-pop{position:fixed;z-index:10002;width:min(280px,calc(100vw - 24px));background:#fffaf3;color:#4A3E5C;border:2px solid #f0dfd0;border-radius:20px;box-shadow:0 14px 36px #0004;padding:12px 14px;font:600 14px/1.4 Nunito,system-ui,sans-serif;animation:bfPop .14s ease-out}
 @keyframes bfPop{from{opacity:0;transform:scale(.94) translateY(4px)}to{opacity:1;transform:none}}
 .bf-pop-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .bf-pop-hd .t{flex:1;min-width:0}
@@ -71,7 +71,7 @@ const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;dis
 .bf-pop-btns .pri{background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff}
 .bf-pop-btns .dm{background:#eafaf1;color:#147a44;border:1.5px solid #bce8cf}
 .bf-pop-btns .ok{background:#2fc76f;color:#fff}
-.bf-pop-btns .sub{background:#f0e6da;color:#2a2340}
+.bf-pop-btns .sub{background:#f0e6da;color:#4A3E5C}
 #plist li[data-id],#g-players .pl[data-id],#g-chat b[data-id],.item .by[data-id],.lb li[data-id],.final li[data-id],.pod[data-id],.gains li[data-id],.who li[data-id],#msgs .m b[data-id],.seat .avatar,.seat .av,[data-gumballz-pid]{cursor:pointer}
 @media (max-width:640px){
   .bf-body{grid-template-columns:1fr}
@@ -86,10 +86,10 @@ function css() {
 }
 function toast(t) {
   const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:#2a2340;color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
+  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:#4A3E5C;color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
   d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2600);
 }
-const AV = ['#ff4d5e', '#ff8a3d', '#2fc76f', '#20a8a0', '#3d8bff', '#7a5cff', '#d94dff'];
+const AV = ['#ff4d5e', '#ff8a3d', '#2fc76f', '#20a8a0', '#3d8bff', '#C9BDF3', '#d94dff'];
 const avCol = n => { let h = 0; for (const c of String(n || '?')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AV[h % AV.length]; };
 
 let cachedCount = 0, pollT = 0, cachedList = null, cachedAt = 0;

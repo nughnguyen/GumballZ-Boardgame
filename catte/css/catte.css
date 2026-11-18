@@ -59,19 +59,20 @@ input#name:focus,.join-row input:focus{border-color:var(--pri)}
 
 /* ---------- sảnh ---------- */
 #screen-lobby{overflow:auto;padding:14px}
-.lobby{margin:auto;width:min(860px,100%);display:flex;flex-direction:column;gap:12px;padding-bottom:20px}
+.lobby{margin:auto;width:min(860px,100%);display:flex;flex-direction:column;gap:12px;padding-bottom:96px}
 .lobby-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 .code-box{background:#fff;border-radius:999px;padding:6px 8px 6px 16px;font-weight:700;box-shadow:0 2px 10px -4px #0004;display:flex;align-items:center;gap:8px}
-.code-box b{font-family:"Baloo 2";font-size:24px;letter-spacing:3px;color:var(--pri)}
+.code-box b{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:24px;letter-spacing:3px;color:var(--pri)}
 .lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:720px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:#fffdf8;border-radius:24px;padding:14px 16px;box-shadow:var(--shadow)}
-.panel h3{margin:0 0 8px;font-size:22px}
+.panel h3{margin:0 0 8px;font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:22px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:6px}
-.plist li{display:flex;align-items:center;gap:10px;background:#fff3e4;border-radius:14px;padding:6px 8px;font-weight:700}
+.plist li{display:flex;align-items:center;gap:10px;background:#fff3e4;border-radius:14px;padding:10px 12px;font-weight:700;min-height:56px}
 .plist li span{flex:1;min-width:0}
 .plist .chipn{color:#9a6a00;font-weight:800}
-.plist .x{border:0;background:#fff;border-radius:50%;width:40px;height:40px;cursor:pointer;font-weight:800}
+.plist .x{border:0;background:#fff;border-radius:50%;width:44px;height:44px;cursor:pointer;font-weight:800;flex:none}
 .plist .av{width:36px;height:36px;font-size:18px}
 .opts{display:flex;flex-direction:column;gap:7px}
 .opt{display:flex;gap:10px;align-items:center;background:#fff3e4;border-radius:14px;padding:7px 10px;cursor:pointer}
@@ -79,7 +80,7 @@ input#name:focus,.join-row input:focus{border-color:var(--pri)}
 .opt input[type=checkbox]{width:22px;height:22px;accent-color:var(--pri);flex:none}
 .opt select{border:2px solid #f0dcc6;border-radius:10px;padding:6px;background:#fff;min-height:40px;max-width:46%}
 .wait{text-align:center;color:var(--muted);font-weight:700}
-#btn-start{align-self:center;min-width:220px}
+#btn-start{position:sticky;bottom:10px;z-index:3;width:100%;min-width:0}
 
 /* ---------- lá bài ---------- */
 /* lá bài: mặt/lưng vẽ bằng bộ bài SVG chung (shared/ui/deck) – ở đây chỉ kích thước, bo góc, bóng */

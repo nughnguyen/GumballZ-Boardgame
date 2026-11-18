@@ -15,7 +15,7 @@ export function rotateHint(game, screen = '#screen-game') {
     const n = +ls.get(KEY) || 0; if (n >= 3) return;
     shown = true; ls.set(KEY, String(n + 1));
     el = document.createElement('div'); el.className = 'gumballz-rot'; el.setAttribute('role', 'status');
-    el.innerHTML = `<style>.gumballz-rot{position:fixed;left:50%;top:max(64px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 16px);background:#2a2340;color:#fff;border-radius:999px;padding:7px 8px 7px 14px;box-shadow:0 12px 26px -10px #000a;font:800 13.5px/1.25 Nunito,system-ui,sans-serif;animation:gumballzRot .3s ease-out}
+    el.innerHTML = `<style>.gumballz-rot{position:fixed;left:50%;top:max(64px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 16px);background:#4A3E5C;color:#fff;border-radius:999px;padding:7px 8px 7px 14px;box-shadow:0 12px 26px -10px #000a;font:800 13.5px/1.25 Nunito,system-ui,sans-serif;animation:gumballzRot .3s ease-out}
 .gumballz-rot i{font-style:normal;font-size:18px;display:inline-block;animation:gumballzTilt 1.6s ease-in-out infinite}.gumballz-rot button{flex:none;border:0;cursor:pointer;border-radius:999px;min-height:32px;font:800 13px Nunito,system-ui,sans-serif}
 .gumballz-rot .go{padding:0 12px;color:#fff;background:linear-gradient(120deg,#ff4d6a,#ff7a45 55%,#ffb23d)}.gumballz-rot .x{width:32px;background:#ffffff22;color:#fff}
 @keyframes gumballzRot{from{opacity:0;transform:translate(-50%,-8px)}}@keyframes gumballzTilt{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}

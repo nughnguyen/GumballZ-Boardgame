@@ -62,6 +62,7 @@ input:focus{border-color:var(--acc)}
 @media (max-width:720px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:var(--panel);border-radius:24px;padding:16px;box-shadow:var(--shadow)}
 .panel h3{margin:0 0 10px;font-size:22px}.panel h4{margin:14px 0 8px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:10px;background:#faf6ff;border-radius:14px;padding:6px 8px;font-weight:800}
 .plist li .x{margin-left:auto;border:0;background:#ffe3e6;color:var(--Rd);border-radius:10px;width:40px;height:40px;cursor:pointer;font-weight:900}

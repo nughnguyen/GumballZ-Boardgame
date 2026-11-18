@@ -12,7 +12,7 @@ body{background:radial-gradient(900px 480px at 0 -10%,#dcd6ff 0,transparent 60%)
 .seat .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.seat small{display:block;color:#e2483d;letter-spacing:1px;font-size:12px}
 .seat.turn{border-color:var(--acc);box-shadow:0 0 0 3px #5b4bd633}.seat.out{opacity:.45;filter:grayscale(1)}.seat.away{opacity:.6}
 /* tấm thẻ từ hiện tại: giấy ô ly, tiếng cuối tô đậm vì đó là tiếng phải nối */
-.card{position:relative;background:var(--paper) repeating-linear-gradient(0deg,#0000 0 23px,#cfd8ff 23px 24px),var(--paper);background-blend-mode:multiply;border:2.5px solid var(--ink);border-radius:20px;box-shadow:5px 5px 0 var(--ink);padding:18px 14px 14px;text-align:center}
+.card{position:relative;background:var(--paper) repeating-linear-gradient(0deg,#0000 0 23px,#cfd8ff 23px 24px),var(--paper);background-blend-mode:multiply;border:2.5px solid var(--ink);border-radius:20px;box-shadow:3px 3px 0 var(--ink);padding:18px 14px 14px;text-align:center}
 .card .lbl{font:800 12.5px Nunito,sans-serif;color:#6b5f8a;text-transform:uppercase;letter-spacing:.08em}
 /* chữ của từ dùng Nunito: phông Baloo 2 đặt dấu hỏi trên ô/ơ/â lệch hẳn lên góc phải trông như lỗi (anh báo "hao tổn" 16/11/2026) */
 .card .w{font:800 clamp(34px,11vw,56px)/1.1 Nunito,Nunito,sans-serif;color:var(--ink);overflow-wrap:anywhere}.card .w i{font-style:normal;color:var(--acc);text-decoration:underline wavy var(--acc2) 3px;text-underline-offset:.5em;text-decoration-skip-ink:none;padding-bottom:.28em;display:inline-block;line-height:1.25} /* gạch xa chữ để không dính dấu nặng (ự, ạ…) */
@@ -24,7 +24,7 @@ body{background:radial-gradient(900px 480px at 0 -10%,#dcd6ff 0,transparent 60%)
 .chain{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 4px;align-items:center;padding:2px 0 6px;min-height:34px} /* chuỗi từ xuống dòng thay vì cuộn ngang (anh dặn 16/11/2026) */
 .chain span{flex:none;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;font:700 13px Nunito,sans-serif;white-space:nowrap}.chain span:last-child{border-color:var(--acc);font-weight:800}.chain em{flex:none;font-style:normal;color:#9a92c2}
 .msg{min-height:40px;text-align:center;font:800 15px/1.35 Nunito,sans-serif;display:grid;place-items:center}.msg small{color:var(--muted);font-weight:700}.msg .hint{color:var(--acc)}
-.say{display:flex;align-items:stretch;gap:0;background:#fff;border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:4px 4px 0 var(--ink)}
+.say{display:flex;align-items:stretch;gap:0;background:#fff;border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
 .say .pre{display:grid;place-items:center;padding:0 4px 0 14px;font:800 20px Nunito,Nunito,sans-serif;color:var(--acc);white-space:nowrap}
 .say input{flex:1;min-width:0;border:0;outline:0;font:800 20px Nunito,Nunito,sans-serif;padding:12px 6px;background:none;color:var(--ink)}
 .say .btn{border-radius:0;min-width:84px;min-height:52px;box-shadow:none;margin:0}
@@ -34,7 +34,7 @@ body{background:radial-gradient(900px 480px at 0 -10%,#dcd6ff 0,transparent 60%)
 @media (orientation:landscape) and (max-height:520px){.arena{max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;align-content:start}.seats{grid-column:1/-1}.card{grid-row:2/5;align-self:start}.card .w{font-size:40px}}
 @media (prefers-reduced-motion:reduce){.card.pop,.card .clk.low{animation:none}}
 
-/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
-body{background:radial-gradient(900px 480px at 0 -10%,#BFAEE366 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#DEB5D766 0,transparent 60%),#fff7ef}
-.home-card .hero{background:#BFAEE3;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;padding:6px 4px}
+/* ===== Neo-Brutalism GumballZ (18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#C9BDF366 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#ABE0C666 0,transparent 60%),#FFF8EE}
+.home-card .hero{background:#C9BDF3;border:3px solid #4A3E5C;border-radius:16px;box-shadow:3px 3px 0 rgba(74,62,92,.13);box-sizing:border-box;padding:6px 4px}
 .round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}

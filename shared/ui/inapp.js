@@ -6,10 +6,10 @@ const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return
 if (APP && !(+ls.get('gumballz-inapp-x') > Date.now() - 3 * 864e5)) {
   const ios = /iPhone|iPad|iPod/i.test(ua), url = location.href;
   const bar = document.createElement('div'); bar.className = 'gumballz-inapp'; bar.setAttribute('role', 'status');
-  bar.innerHTML = `<style>.gumballz-inapp{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:95;background:#2a2340;color:#fff;border-radius:18px;padding:12px 40px 12px 14px;box-shadow:0 14px 30px -10px #000a;font:700 13.5px/1.4 Nunito,system-ui,sans-serif;max-width:520px;margin:0 auto}
+  bar.innerHTML = `<style>.gumballz-inapp{position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:95;background:#4A3E5C;color:#fff;border-radius:18px;padding:12px 40px 12px 14px;box-shadow:0 14px 30px -10px #000a;font:700 13.5px/1.4 Nunito,system-ui,sans-serif;max-width:520px;margin:0 auto}
 .gumballz-inapp b{display:block;font-size:15px;margin-bottom:2px}.gumballz-inapp small{display:block;opacity:.8;font-weight:600;margin-top:6px}
 .gumballz-inapp .r{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}.gumballz-inapp a,.gumballz-inapp button.c{flex:1;min-height:40px;border:0;border-radius:999px;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding:0 14px}
-.gumballz-inapp a{background:linear-gradient(120deg,#ff4d6a,#ff7a45 55%,#ffb23d);color:#fff}.gumballz-inapp button.c{background:#ffffff22;color:#fff}
+.gumballz-inapp a{background:linear-gradient(120deg,#FFB98A,#FFE3A3);color:#4A3E5C}.gumballz-inapp button.c{background:#ffffff22;color:#fff}
 .gumballz-inapp .x{position:absolute;right:6px;top:6px;width:32px;height:32px;border:0;border-radius:50%;background:#ffffff22;color:#fff;font:800 14px Nunito,system-ui;cursor:pointer}</style>
 <button class="x" aria-label="Đóng">✕</button><b>📱 Bạn đang mở trong ${APP}</b>Trình duyệt của ${APP} dễ làm game giật, rớt phòng. Mở bằng ${ios ? 'Safari' : 'Chrome'} sẽ mượt hơn nhiều.
 <div class="r"><a href="#" class="o">Mở bằng ${ios ? 'Safari' : 'trình duyệt'}</a><button class="c" type="button">Sao chép link</button></div><small>Không mở được? Bấm dấu <b style="display:inline;font-size:inherit">⋯</b> ở góc trên rồi chọn “Mở bằng trình duyệt”.</small>`;

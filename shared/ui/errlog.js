@@ -11,7 +11,7 @@ let oldShown = false;
 function oldBrowser() {
   if (oldShown || !document.body) return; oldShown = true;
   var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;left:8px;right:8px;top:8px;z-index:99999;background:#2a2340;color:#fff;border-radius:14px;padding:12px 14px;font:700 14px/1.4 Nunito,system-ui,sans-serif;box-shadow:0 10px 30px -8px #000a;text-align:center';
+  d.style.cssText = 'position:fixed;left:8px;right:8px;top:8px;z-index:99999;background:#4A3E5C;color:#fff;border-radius:14px;padding:12px 14px;font:700 14px/1.4 Nunito,system-ui,sans-serif;box-shadow:0 10px 30px -8px #000a;text-align:center';
   d.textContent = '😢 Trình duyệt này hơi cũ nên GumballZ chưa chạy được. Bạn cập nhật Chrome / Safari (hoặc mở bằng trình duyệt khác) rồi vào lại nha!';
   document.body.appendChild(d);
 }

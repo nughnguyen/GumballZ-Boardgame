@@ -65,7 +65,7 @@ body{background:radial-gradient(900px 520px at 0 -10%,#ead9ff 0,transparent 60%)
 .logo .orig{font-size:.45em;color:var(--muted);font-weight:800}
 .cd b em{display:block;font-style:italic;font-weight:700;font-size:.78em;opacity:.85}.guide .rl .en{color:var(--muted);font-weight:700}
 
-/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
-body{background:radial-gradient(900px 480px at 0 -10%,#FFD27366 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#DEB5D766 0,transparent 60%),#fff7ef}
-.home-card .hero{background:#FFD273;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;padding:6px 4px}
+/* ===== Neo-Brutalism GumballZ (18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#FFB98A66 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#ABE0C666 0,transparent 60%),#FFF8EE}
+.home-card .hero{background:#FFB98A;border:3px solid #4A3E5C;border-radius:16px;box-shadow:3px 3px 0 rgba(74,62,92,.13);box-sizing:border-box;padding:6px 4px}
 .round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}

@@ -5,7 +5,7 @@ import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
-import { createDiceView } from '../../shared/js/dice3d-gl.js?v=2';
+import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
 const NET = makeNet(DEF);
 /* quả bầu tự vẽ (không có emoji bầu hồ lô) */
@@ -13,15 +13,16 @@ const BAU = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c-2 0-3 2
 const PIC = { nai: '🦌', bau: BAU, ga: '🐓', ca: '🐟', cua: '🦀', tom: '🦐' }, COL = { nai: '#f6d7a8', bau: '#d9f0c2', ga: '#ffd1c7', ca: '#c9e6fb', cua: '#ffc9a3', tom: '#ffe3ee' };
 const CHIP_COL = { 5: '#12a66a', 10: '#3d8bff', 20: '#c0271d', 50: '#2a2340' }, PCOL = ['#e0432f', '#3d8bff', '#12a66a', '#f59e0b', '#8b5cf6', '#0ea5a4', '#d6336c', '#7a5c3e'];
 const die = k => `<div class="die">${PIC[k]}</div>`;
-// ---------- xúc xắc 3D (model GLB) trong chén ----------
-// 3 con: mặt con vật SYMS[i] ↔ chấm i+1 (nai=1, bầu=2, gà=3, cá=4, cua=5, tôm=6).
+// ---------- xúc xắc 3D (model GLB mặt con vật) trong chén ----------
+// 3 con: mặt con vật SYMS[i] ↔ số i+1 (nai=1, bầu=2, gà=3, cá=4, cua=5, tôm=6).
+// Model riêng shared/models/dice-animals.glb vẽ mặt con vật thật (không phải chấm số).
 // Dưới xúc xắc vẫn ghi tên con vật để đọc kết quả. Hỏng WebGL/GLB thì về 2D như cũ.
 let _glBowl = null, _glBowlFailed = false, _glBowlLast = '';
 $('#bowl').innerHTML = `<div class="gl-wrap" hidden><div class="gl-holder"></div><div class="gl-labels"></div></div><div class="dice2d" hidden></div><div class="cup-wrap"><span class="cup">🥣</span><span>Đặt xu vào ô bạn chọn<br><small style="opacity:.85">Đủ người chốt là lắc</small></span></div>`;
 (async () => {
   const holder = document.querySelector('#bowl .gl-holder');
   if (!holder) return;
-  const view = await createDiceView(holder, { count: 3, diePx: 64, gapPx: 8, muted: () => !sound });
+  const view = await createDiceView(holder, { count: 3, diePx: 88, gapPx: 8, muted: () => !sound, model: 'animals', spin: true });
   if (view) _glBowl = { view }; else _glBowlFailed = true;
 })();
 function showBowlDice(bowl, dice) {

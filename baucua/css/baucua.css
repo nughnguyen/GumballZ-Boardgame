@@ -10,14 +10,14 @@ body{background:radial-gradient(900px 500px at 0 -10%,#ffd5c2 0,transparent 60%)
 .seat{flex:1 0 auto;display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);border-left:6px solid var(--pc);border-radius:12px;padding:5px 10px 5px 8px;font:800 13px/1.2 Nunito,sans-serif;min-width:112px}
 .seat small{display:block;color:var(--muted);font-weight:700}.seat.ok{background:#eefaf1}.seat.away{opacity:.5}.seat .g{font-weight:800}.seat .g.pos{color:#12a66a}.seat .g.neg{color:#c9283f}
 .bowl{display:flex;align-items:center;justify-content:center;gap:10px;min-height:104px;border-radius:22px;background:radial-gradient(ellipse at 50% 40%,#c0271d,#8f1d14);box-shadow:inset 0 0 0 4px #ffffff22;color:#fff;font:800 15px Nunito,sans-serif;text-align:center;padding:10px}
-.die{--d:72px;width:var(--d);height:var(--d);border-radius:calc(var(--d) * .2);background:#fffdf5;border:2px solid #2a2340;box-shadow:0 5px 0 #0004;display:grid;place-items:center;font-size:calc(var(--d) * .6);line-height:1}
+.die{--d:72px;width:var(--d);height:var(--d);border-radius:calc(var(--d) * .2);background:#fffdf5;border:2px solid #2a2340;box-shadow:0 3px 0 #0004;display:grid;place-items:center;font-size:calc(var(--d) * .6);line-height:1}
 .die svg{width:70%;height:70%}.bowl .die{animation:bc-pop .45s cubic-bezier(.3,1.6,.5,1) both}.bowl .die:nth-child(2){animation-delay:.12s}.bowl .die:nth-child(3){animation-delay:.24s}
 .bowl.shake .cup{animation:bc-shake .5s linear infinite}.cup{font-size:54px}
 @keyframes bc-pop{from{transform:scale(.3) rotate(-40deg);opacity:0}}@keyframes bc-shake{25%{transform:translate(-6px,2px) rotate(-8deg)}75%{transform:translate(6px,-2px) rotate(8deg)}}
 @media (prefers-reduced-motion:reduce){.bowl .die,.bowl.shake .cup{animation:none}}
 .msg{min-height:22px;text-align:center;font:800 15px Nunito,sans-serif}.msg small{color:var(--muted);font-weight:700}
 .board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.cell{position:relative;aspect-ratio:1.15;border:2.5px solid #2a2340;border-radius:16px;background:var(--cc);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;cursor:pointer;font:800 15px "Baloo 2",Nunito,sans-serif;color:#2a2340;min-width:0;box-shadow:0 4px 0 #2a234055}
+.cell{position:relative;aspect-ratio:1.15;border:2.5px solid #2a2340;border-radius:16px;background:var(--cc);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;cursor:pointer;font:800 15px "Baloo 2",Nunito,sans-serif;color:#2a2340;min-width:0;box-shadow:0 3px 0 #2a234055}
 .cell .pic{font-size:clamp(38px,11vw,64px);line-height:1}.cell .pic svg{width:clamp(44px,12vw,70px);height:clamp(44px,12vw,70px);display:block}
 .cell:disabled{cursor:default}.cell.hit{box-shadow:0 0 0 4px #ffd54a,0 0 22px #ffd54a;transform:scale(1.03)}.cell.miss{filter:saturate(.35) brightness(.92)}
 .cell .mine{position:absolute;right:5px;top:5px;background:#2a2340;color:#fff;border-radius:999px;padding:1px 8px;font:800 12.5px Nunito,sans-serif}
@@ -30,15 +30,17 @@ body{background:radial-gradient(900px 500px at 0 -10%,#ffd5c2 0,transparent 60%)
 .sum{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
 .sum li{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:7px 10px;font-weight:800}.sum li .nm{flex:1;min-width:0}.sum li.win{background:#fff4d6;border-color:#f1cf7a}
 .guide h3{font-size:17px;margin:12px 0 4px}.guide p,.guide li{font-size:15px}.guide ul{margin:0;padding-left:20px}
-@media (min-width:700px){.board{grid-template-columns:repeat(6,1fr)}.cell{aspect-ratio:.85}}
+/* Bàn cược luôn 3 cột × 2 hàng ở mọi chiều rộng (trước đây desktop ≥700px dồn 6 ô 1 hàng, ô bị kéo mỏng). */
+@media (min-width:700px){.cell{aspect-ratio:1.5}}
 
-/* ===== Neo-Brutalism GumballZ (port 18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
-body{background:radial-gradient(900px 480px at 0 -10%,#FEC5E666 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#FFD27366 0,transparent 60%),#fff7ef}
-.home-card .hero{background:#FEC5E6;border:3px solid #2a2340;border-radius:16px;box-shadow:4px 4px 0 rgba(42,35,64,.16);box-sizing:border-box;padding:6px 4px}
+/* ===== Neo-Brutalism GumballZ (18/11/2026): CHỈ chrome ngoài – nền trang + khung hero màn chủ + viên lượt ở topbar. KHÔNG đụng bàn chơi/lá bài/quân cờ. ===== */
+body{background:radial-gradient(900px 480px at 0 -10%,#FFB9CF66 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#FFB98A66 0,transparent 60%),#FFF8EE}
+.home-card .hero{background:#FFB9CF;border:3px solid #4A3E5C;border-radius:16px;box-shadow:3px 3px 0 rgba(74,62,92,.13);box-sizing:border-box;padding:6px 4px}
 .round{border:2.5px solid #2a2340!important;box-shadow:3px 3px 0 rgba(42,35,64,.16)}
 
 /* xúc xắc 3D (model GLB) trong chén */
 #bowl [hidden]{display:none!important}
 #bowl .gl-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
 #bowl .gl-labels{font:800 14px Nunito,sans-serif;color:#fff}
+#bowl .gl-labels svg{width:1.15em;height:1.15em;vertical-align:-0.2em}
 #bowl .dice2d{display:flex;align-items:center;justify-content:center;gap:10px}

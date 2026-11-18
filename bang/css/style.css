@@ -684,8 +684,8 @@ label { display: block; font-weight: 700; margin: 12px 0 4px; text-align: left; 
 .join-row input { flex: 1; min-width: 0; }
 .join-row .btn { white-space: nowrap; flex: 0 0 auto; }
 #btn-offline { min-height: 44px; font-size: 15px; }
-#screen-home .btn.small, #screen-lobby .btn.small { min-height: 40px; }
-.theme-pick button { min-height: 40px; }
+#screen-home .btn.small, #screen-lobby .btn.small { min-height: 44px; }
+.theme-pick button { min-height: 44px; }
 .g-head .btn { white-space: nowrap; flex: 0 0 auto; }
 /* thông báo nhanh trong ván: hiện ở trên, không che bài trên tay */
 #screen-game.active ~ #toast { top: 62px; bottom: auto; }
@@ -693,7 +693,7 @@ label { display: block; font-weight: 700; margin: 12px 0 4px; text-align: left; 
 .me-right.empty { display: none; }
 /* điện thoại: khối thông tin của mình chiếm đủ bề ngang (không bị dạt sang phải) */
 .me-cards:empty { display: none; }
-@media (max-width: 760px) { .me-left .me-info { flex: 1; } #lobby-players li .btn { min-height: 40px; } #btn-leave { min-height: 40px; padding: 6px 16px; } }
+@media (max-width: 760px) { .me-left .me-info { flex: 1; } #lobby-players li .btn { min-height: 44px; } #btn-leave { min-height: 44px; padding: 6px 16px; } }
 /* điện thoại xoay ngang: thu gọn khu của mình để còn chỗ cho bàn chơi */
 @media (max-height: 500px) and (orientation: landscape) {
   .me { grid-template-columns: auto 1fr auto; gap: 8px; padding: 2px 8px 4px; }
@@ -756,7 +756,7 @@ label { display: block; font-weight: 700; margin: 12px 0 4px; text-align: left; 
 .coach .co-role { font-weight: 600; }
 .coach .co-tip { color: #5b3a10; }
 .coach .pn { font-size: 12px; }
-.newbie-btn { margin: 6px auto 0; display: block; min-height: 40px; }
+.newbie-btn { margin: 6px auto 0; display: block; min-height: 44px; }
 .newbie-btn.on { background: #fff1c4; border-color: #b9852a; }
 .nb-note { font-size: 12px; margin: 4px 0 8px; }
 .tb-opts .nb-lbl { display: none; }
@@ -820,3 +820,7 @@ label { display: block; font-weight: 700; margin: 12px 0 4px; text-align: left; 
 }
 .center.narrow .prompt .inrange, .center.narrow .prompt .co-inline { display: none; }
 @media (max-width: 1100px) { .tb-opts.open #speed-select { max-width: none; width: 100%; padding: 6px 8px; font-size: 14px; } }
+
+/* v2: nút màn hình chính/phòng chờ ≥44px trên mobile */
+#screen-home .btn, #screen-lobby .btn { min-height: 44px; }
+#screen-home .theme-pick button { min-height: 44px; padding: 8px 14px; }

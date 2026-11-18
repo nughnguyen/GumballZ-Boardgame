@@ -59,6 +59,7 @@ input:focus{border-color:var(--acc)}
 @media (max-width:760px){.lobby-grid{grid-template-columns:1fr}}
 .panel{background:var(--panel);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
 .panel h3{margin:0 0 10px;font-size:21px}
+#screen-home .logo,#screen-home .btn.big,#screen-lobby .panel h3,#screen-lobby .code-box b,#screen-lobby #btn-start{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .plist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
 .plist li{display:flex;align-items:center;gap:8px;background:#fbf6ff;border-radius:14px;padding:6px 8px;font-weight:700;min-height:46px}
 .plist li .nm{flex:1;min-width:0;overflow-wrap:anywhere}

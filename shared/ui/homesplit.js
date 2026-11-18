@@ -16,7 +16,7 @@ if (card && !card.classList.contains('hc-split')) {
   #screen-home .hc-split{width:min(880px,calc(100vw - 48px));max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 32px;align-items:center}
   .hc-split .hc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:8px 0}
   .hc-split .hc-right{display:block;min-width:0}
-  .hc-split .hc-ic{display:block;width:150px;height:150px;object-fit:contain;margin:0 auto 6px;filter:drop-shadow(0 10px 18px #2a234033)}
+  .hc-split .hc-ic{display:block;width:150px;height:150px;object-fit:contain;margin:0 auto 6px;filter:drop-shadow(0 10px 18px rgba(74,62,92,.2))}
   .hc-split .hc-right>:first-child{margin-top:0}
   .hc-split.home-box.hc-split.home-box .logo{font-size:clamp(40px,5vw,60px);white-space:nowrap} /* CÀ ĐÙNG!: chữ to, giữ một dòng */
 }`;

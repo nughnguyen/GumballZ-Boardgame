@@ -695,5 +695,5 @@ window.__sol = { get G() { return G; }, get sel() { return sel; }, get busy() { 
 
 // ---------------- khởi động ----------------
 if (load()) { render(); afterStep(true); if (G.won) $('#btn-finish').hidden = true; }
-else { const seen = ls.get('sol-last'); start('klondike', ls.json('sol-opts', {}).klondike || {}, randSeed(), { record: false }); if (!seen) optsBox(true); }
+else { start('klondike', ls.json('sol-opts', {}).klondike || {}, randSeed(), { record: false }); } /* không tự mở hộp tuỳ chọn lúc mới vào (gây chặn trang) — đổi luật ở nút tên game phía trên */
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => G && render());

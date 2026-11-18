@@ -5,7 +5,7 @@
 //   • bấm hình đại diện / tên bạn bè (data-prof) → mở hồ sơ thành viên (shared/ui/member.js).
 // Dùng: import('…/shared/ui/friends-chat.js?v=1') một lần (vd. trong mountAccount) là tự bật; cũng có thể gọi mountFriendsDock() tay.
 // Chỉ cần nạp module này là hiệu lực – không cần sửa friends.js hay account.js ngoài một dòng import.
-const CSS = `.bf-min{display:none;border:0;background:#f0e6da;color:#2a2340;width:34px;height:34px;border-radius:50%;font:800 16px Nunito,sans-serif;cursor:pointer;flex:none}
+const CSS = `.bf-min{display:none;border:0;background:#f0e6da;color:#4A3E5C;width:34px;height:34px;border-radius:50%;font:800 16px Nunito,sans-serif;cursor:pointer;flex:none}
 [data-prof]{cursor:pointer}
 /* một cột ở mọi cỡ màn hình: danh sách ↔ khung chat (nút ← quay lại) */
 #bf-ov .bf-body{grid-template-columns:1fr}
