@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhện — GumballZ Boardgame</title>
+<meta property="og:title" content="Nhện · GumballZ Boardgame">
+<meta property="og:description" content="Xếp bài nhện: xếp dãy K→A cùng chất để thu, đủ 8 dãy thì thắng — chơi đơn, đấu máy, online hoặc chung máy!">
+<meta property="og:image" content="../shared/img/og/nhen.jpg">
+<meta name="description" content="Nhện (Spider Solitaire) — xếp các lá thành dãy K→A cùng chất để thu, đủ 8 dãy thì thắng. Chơi đơn 1/2/4 chất, đua với máy hoặc bạn bè online!">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="css/nhen.css?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+window.GAME_META = { game: 'nhen', name: 'Nhện', gid: 'nhen', color: '#7C5CFF', icon: '🕷️' };
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar nh-topbar">
+    <a class="logo" href="../index.html">🎲 GumballZ</a>
+    <span class="game-name">🕷️ Nhện</span>
+    <span class="spacer"></span>
+    <div class="tools">
+      <button class="btn small" id="btn-guide-top">📖 Luật chơi</button>
+      <button class="btn small" id="btn-sound">🔊 Âm thanh</button>
+      <button class="btn small danger" id="btn-leave">🏠 Về trang chủ</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- MÀN HÌNH TRANG CHỦ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-card">
+        <div class="home-icon">🕷️</div>
+        <h1>Nhện</h1>
+        <p class="tagline">Xếp bài nhện — thu đủ 8 dãy K→A cùng chất là thắng!</p>
+        <p class="desc">Bộ bài 2 bộ 52 lá, 10 cột. Xếp lá hoặc dãy cùng chất giảm dần lên lá lớn hơn 1 bậc. Xếp đủ K→A cùng chất thì dãy tự thu lại (+100 điểm). Chơi đơn 1, 2 hoặc 4 chất — càng nhiều chất càng khó!</p>
+        <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+        <div class="mode-grid nh-mode-grid">
+          <button class="btn big primary" id="btn-solo">🧍 Chơi đơn</button>
+          <button class="btn big" id="btn-vs-bot">🤖 Đấu với máy</button>
+          <button class="btn big" id="btn-online">🌐 Chơi online</button>
+          <button class="btn big" id="btn-local">👥 2 người cùng máy</button>
+        </div>
+        <div class="solo-row" id="solo-row" style="display:none">
+          <label>Độ khó (số chất):
+            <select id="sel-solo-suits">
+              <option value="easy" selected>Dễ — 1 chất (♠)</option>
+              <option value="medium">Vừa — 2 chất (♠♥)</option>
+              <option value="hard">Khó — 4 chất</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-solo">▶ Bắt đầu</button>
+          <p class="hint">Chơi đơn: thu đủ 8 dãy K→A cùng chất thì thắng. Có gợi ý (5 lần) và hoàn tác (10 lần).</p>
+        </div>
+        <div class="bot-row" id="bot-row" style="display:none">
+          <label>Độ khó máy:
+            <select id="sel-level">
+              <option value="easy">Dễ (đi ngẫu nhiên)</option>
+              <option value="hard" selected>Khó (ưu tiên thu dãy, lật lá)</option>
+            </select>
+          </label>
+          <label>Số chất:
+            <select id="sel-suits">
+              <option value="easy">Dễ — 1 chất (♠)</option>
+              <option value="medium" selected>Vừa — 2 chất (♠♥)</option>
+              <option value="hard">Khó — 4 chất</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-bot">▶ Bắt đầu</button>
+          <p class="hint">Đua: ai thu đủ 8 dãy trước thì thắng; hết 180 giây thì so dãy rồi điểm.</p>
+        </div>
+        <div class="room-box" id="room-box" style="display:none">
+          <div class="join-row">
+            <input id="join-code" type="text" placeholder="Nhập mã phòng (VD: ABC12)" maxlength="5">
+            <button class="btn" id="btn-join">Vào phòng</button>
+          </div>
+          <button class="btn primary" id="btn-create">＋ Tạo phòng mới</button>
+          <p class="hint">Chia sẻ mã phòng cho bạn bè để cùng đua Nhện (2–4 người, cùng 1 bộ bài đã xáo).</p>
+        </div>
+        <div class="local-row" id="local-row" style="display:none">
+          <label>Tên người chơi 2:
+            <input id="inp-p2name" maxlength="16" placeholder="Bạn 2" value="Bạn 2">
+          </label>
+          <label>Số chất:
+            <select id="sel-local-suits">
+              <option value="easy">Dễ — 1 chất (♠)</option>
+              <option value="medium" selected>Vừa — 2 chất (♠♥)</option>
+              <option value="hard">Khó — 4 chất</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-local">▶ Bắt đầu</button>
+          <p class="hint">2 người chung 1 máy: thay phiên nhau bấm lá trên bàn của mình. Chỉ tiện trên máy tính.</p>
+        </div>
+        <div class="home-links">
+          <button class="btn small" id="btn-guide">📖 Luật chơi</button>
+          <a class="btn small" href="../luat/nhen.html">📜 Luật chi tiết</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH SẢNH CHỜ -->
+    <section class="screen" id="screen-lobby">
+      <div class="card">
+        <h2>🚪 Sảnh chờ</h2>
+        <p>Mã phòng: <b id="room-code">—</b></p>
+        <div id="code-box" class="code-box"></div>
+        <div class="lobby-actions">
+          <button class="btn" id="btn-copy">📋 Sao chép mã</button>
+          <button class="btn danger" id="btn-leave-lobby">Rời phòng</button>
+        </div>
+        <div id="lobby-list" class="lobby-list"></div>
+        <button class="btn primary big" id="btn-start-online">▶ Bắt đầu ván</button>
+        <p class="hint">Chỉ chủ phòng mới bắt đầu được. Đua cần ít nhất 2 người.</p>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH CHƠI -->
+    <section class="screen" id="screen-game">
+      <div class="nh-stage">
+        <span class="nh-score">⭐ <b id="nh-score">0</b> điểm</span>
+        <span class="nh-runs">🎉 <b id="nh-runs">0/8</b> dãy</span>
+        <span class="nh-stock">🃏 Bài chờ: <b id="nh-stock">50</b></span>
+        <span class="nh-time" id="nh-time"></span>
+        <span class="nh-status" id="nh-status"></span>
+      </div>
+      <div class="nh-main">
+        <div class="nh-side">
+          <div class="nh-panel"><div class="nh-panel-title">Đối thủ</div><div id="nh-opps"></div></div>
+        </div>
+        <div id="nh-boards"></div>
+      </div>
+      <div class="nh-actions">
+        <button class="btn" id="btn-deal">🃏 Chia thêm</button>
+        <button class="btn" id="btn-hint">💡 Gợi ý</button>
+        <button class="btn" id="btn-undo">↩️ Hoàn tác</button>
+        <button class="btn danger" id="btn-resign">🏳️ Xin thua</button>
+      </div>
+      <div class="nh-log" id="nh-log"></div>
+    </section>
+
+    <!-- MÀN HÌNH KẾT THÚC -->
+    <section class="screen" id="screen-end">
+      <div class="card end-card">
+        <h2 id="end-title">🏆 Kết thúc!</h2>
+        <div id="end-body"></div>
+        <div class="end-actions">
+          <button class="btn primary big" id="btn-again">🔄 Chơi lại</button>
+          <a class="btn big" href="../index.html">🏠 Về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gmf"></footer>
+</div>
+
+<div id="modal" class="modal">
+  <div id="modal-box" class="modal-box"></div>
+</div>
+
+<script src="../shared/ui/footer.js?v=9"></script>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>

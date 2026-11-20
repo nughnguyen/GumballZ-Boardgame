@@ -5,7 +5,7 @@
    có mặt trước mọi script khác trong trang (vd. script trang chủ đọc #foot-online).
    Tiền tố đường dẫn tính theo độ sâu của trang: gốc ./, 1 cấp ../, 2 cấp ../../. */
 (function () {
-  var GAME_COUNT = 85;
+  var GAME_COUNT = 86;
 
   var parts = location.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
   if (parts.length && parts[parts.length - 1].indexOf('.') !== -1) parts.pop(); // bỏ tên file nếu có

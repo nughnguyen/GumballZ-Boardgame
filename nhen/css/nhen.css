@@ -1,0 +1,58 @@
+/* 🕷️ Nhện — kiểu riêng (đồng bộ pastel với các game khác) */
+.nh-topbar { flex-wrap: wrap; }
+.nh-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px;
+  padding: 10px 14px; margin: 12px 0; font-weight: 700; color: #4A3E5C;
+}
+.nh-stage .nh-status { color: #8B7E9E; font-weight: 600; }
+.nh-main { display: flex; flex-direction: column; gap: 12px; }
+.nh-side .nh-panel {
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px 12px;
+}
+.nh-panel-title { font-weight: 800; color: #4A3E5C; margin-bottom: 6px; }
+.nh-opp { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.nh-opp:first-child { border-top: none; }
+.nh-board-wrap { background: #2B7A4B; border: 2px solid #4A3E5C; border-radius: 16px; padding: 10px; }
+.nh-board-head, .nh-board-foot {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: space-between;
+  color: #FFFDF9; font-size: 14px; padding: 2px 4px 8px;
+}
+.nh-board { display: flex; gap: 6px; align-items: flex-start; overflow-x: auto; padding-bottom: 4px; }
+.nh-col { flex: 1 1 0; min-width: 58px; display: flex; flex-direction: column; align-items: stretch; }
+.nh-empty {
+  height: 84px; border: 2px dashed rgba(255, 255, 255, 0.55); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255, 255, 255, 0.75); font-size: 22px; font-weight: 800;
+}
+.nh-empty.hint { border-color: #FFE45C; background: rgba(255, 228, 92, 0.25); }
+.nh-card {
+  position: relative; height: 84px; border-radius: 8px; background: #FFFDF9;
+  border: 2px solid #4A3E5C; box-shadow: 0 2px 0 rgba(74, 62, 92, 0.25);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: "Baloo 2", "Nunito", sans-serif; cursor: pointer; user-select: none;
+  margin-top: -58px; touch-action: manipulation;
+}
+.nh-card:first-child { margin-top: 0; }
+.nh-card b { font-size: 22px; line-height: 1; font-weight: 800; }
+.nh-card i { font-size: 20px; line-height: 1; font-style: normal; }
+.nh-card.red { color: #D61F4A; }
+.nh-card.blk { color: #2B2440; }
+.nh-card.back {
+  background: repeating-linear-gradient(45deg, #7C5CFF 0 8px, #5B3EE8 8px 16px);
+  cursor: default;
+}
+.nh-card.sel { outline: 3px solid #FFE45C; outline-offset: 1px; transform: translateY(-2px); }
+.nh-card.hint { outline: 3px solid #00B8A9; outline-offset: 1px; }
+.nh-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.nh-log { font-size: 13px; color: #8B7E9E; min-height: 18px; }
+@media (max-width: 640px) {
+  .nh-topbar { flex-wrap: wrap; }
+  .nh-col { min-width: 32px; }
+  .nh-card { height: 52px; margin-top: -34px; border-width: 1.5px; border-radius: 6px; }
+  .nh-card b { font-size: 14px; }
+  .nh-card i { font-size: 13px; }
+  .nh-empty { height: 52px; font-size: 16px; }
+  .nh-board { gap: 3px; }
+  .nh-board-head, .nh-board-foot { font-size: 12px; }
+}
