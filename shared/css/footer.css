@@ -9,7 +9,7 @@
 .gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:#FACD33;color:#241A38;text-decoration:none;font:400 17px/1.2 "Baloo 2",Nunito,sans-serif;border:2px solid #241A38;box-shadow:4px 4px 0 #241A38;transition:background .15s ease,transform .15s ease,box-shadow .15s ease;box-sizing:border-box}
 .gmf-cta:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #241A38}
 .gmf-cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
-.gmf-in{max-width:1020px;margin:0 auto;padding:36px 18px 10px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px 36px}
+.gmf-in{max-width:1020px;margin:0 auto;padding:40px 18px 18px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px 36px}
 .gmf-logo{display:flex;align-items:center;gap:10px;text-decoration:none;transition:transform .15s ease}
 .gmf-logo:hover{transform:translateY(-2px)}
 .gmf-logo svg{width:56px;height:56px;flex:none;transition:transform .15s ease}
@@ -17,10 +17,12 @@
 .gmf-name{font:800 22px/1.15 "Baloo 2",Nunito,sans-serif;letter-spacing:.5px;color:#FFF8EE}
 .gmf-name em{display:block;font-style:normal;font-size:11px;letter-spacing:5px;color:#241A38;background:#FACD33;border-radius:999px;padding:2px 10px;margin-top:4px;width:max-content}
 .gmf-brand p{margin:14px 0 16px;font-size:14px;font-weight:700;color:#DCD5EE;max-width:340px}
-.gmf-chips{display:flex;flex-wrap:wrap;gap:8px}
-.gmf-chips a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:#FFFDF9;border:2px solid #241A38;box-shadow:2px 2px 0 #241A38;text-decoration:none;font-size:14px;font-weight:800;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
+.gmf-chips{display:flex;flex-wrap:wrap;gap:10px}
+.gmf-chips a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:#FFFDF9;color:#241A38;border:2px solid #241A38;box-shadow:2px 2px 0 #241A38;text-decoration:none;font-size:14px;font-weight:800;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
 .gmf-chips a:hover{background:#2EC5B6;transform:translate(-1px,-1px);box-shadow:3px 3px 0 #241A38}
 .gmf-chips a:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #241A38}
+.gmf-chips a.donate{background:#FACD33}
+.gmf-chips a.donate:hover{background:#FFD94D}
 /* Nút mạng xã hội kiểu Uiverse Juanes200122/horrible-stingray-49 (chỉ thu nhỏ
    100px → 64px cho vừa footer; hiệu ứng giữ nguyên: 2 vạch ngang trên/dưới
    co lại khi hover, 2 vạch dọc 2 bên mọc lên thành khung, icon + vạch đổi
@@ -50,7 +52,9 @@
 .gmf h3{margin:4px 0 8px;font:800 14px/1.3 "Baloo 2",Nunito,sans-serif;color:#fff;letter-spacing:.5px;display:inline-block;background:#FF5A60;border-radius:999px;padding:4px 12px}
 .gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative;color:#FFF8EE}
 .gmf nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:2px;background:#FACD33;transform:scaleX(0);transform-origin:bottom right;transition:transform .25s ease-out}.gmf nav a:hover::after{transform:scaleX(1);transform-origin:bottom left}
-.gmf-bot{max-width:1020px;margin:14px auto 0;padding:12px 18px 20px;border-top:1px solid #5A4E7A;display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:#DCD5EE}
+.gmf-bot{max-width:1020px;margin:14px auto 0;padding:16px 18px 22px;border-top:1px solid #5A4E7A;display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:#DCD5EE}
+/* .gmf-note: chỉ còn dùng ở footer tĩnh của các trang hướng dẫn (huong-dan/),
+   component footer đã bỏ dòng disclaimer nên không còn render span này nữa. */
 .gmf-note{flex-basis:100%;font-size:12.5px;font-weight:600;color:#DCD5EE}
-@media(max-width:760px){.gmf-band-in{flex-direction:column;align-items:flex-start;gap:16px}.gmf-cta{width:100%}.gmf-in{grid-template-columns:1fr 1fr}.gmf-brand{grid-column:1/-1}}
+@media(max-width:760px){.gmf-band-in{flex-direction:column;align-items:flex-start;gap:16px}.gmf-cta{width:100%}.gmf-in{grid-template-columns:1fr 1fr;row-gap:30px}.gmf-brand{grid-column:1/-1}}
 @media(max-width:430px){.gmf-band h2{font-size:24px}.gmf-in{grid-template-columns:1fr}}

@@ -105,10 +105,6 @@ $('#btn-chest').addEventListener('click', () => {
   }, 750);
 });
 
-$('#btn-profile').addEventListener('click', () => {
-  import('../../shared/ui/profile.js?v=46').then(m => m.openProfile());
-});
-
 profileCss();
 draw();
 addEventListener('gumballz-wallet', draw);

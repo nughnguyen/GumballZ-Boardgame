@@ -22,40 +22,18 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="48x48"><link rel="icon" href="/shared/img/brand/icon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="/shared/img/brand/icon-192.png" type="image/png" sizes="192x192"><link rel="icon" href="./favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="./shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="./manifest.webmanifest?v=7"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/css/home.css?v=8">
+<link rel="stylesheet" href="shared/css/home.css?v=9">
 <link rel="stylesheet" href="./shared/ui/shell.css?v=19">
 <link rel="stylesheet" href="shared/css/daily.css?v=2">
 <link rel="stylesheet" href="./shared/css/footer.css?v=5">
+<link rel="stylesheet" href="shared/css/topbar.css?v=1">
+<link rel="stylesheet" href="shared/css/page-trans.css?v=1">
 </head>
 <body>
 <div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
 <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
-<header class="nav" id="nav">
-  <div class="nav-in">
-    <a class="brand" href="./" aria-label="GumballZ Boardgame – trang chủ"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="mark" aria-hidden="true">
-<rect x="4" y="4" width="56" height="56" rx="16" fill="#FACD33" stroke="#241A38" stroke-width="3"/>
-<circle cx="32" cy="35" r="16" fill="#FF5A60" stroke="#241A38" stroke-width="3"/>
-<path d="M22 24 Q25 21 29 20.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>
-<circle cx="25.5" cy="31" r="2.6" fill="#241A38"/>
-<circle cx="38.5" cy="31" r="2.6" fill="#241A38"/>
-<path d="M25 38 Q32 44.5 39 38" fill="none" stroke="#241A38" stroke-width="3" stroke-linecap="round"/>
-<path d="M14 18 Q18 12 25 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>
-<circle cx="48" cy="15" r="4.5" fill="#B9A6FF" stroke="#241A38" stroke-width="2.5"/>
-<circle cx="49" cy="49" r="3.5" fill="#2EC5B6" stroke="#241A38" stroke-width="2.5"/>
-</svg>
-<span class="wm">GumballZ<small>Boardgame</small></span></a>
-    <form class="nav-search" id="nav-search" role="search"><input id="gq-top" type="search" placeholder="🔎 Tìm game…" aria-label="Tìm game theo tên" autocomplete="off"></form>
-    <nav class="links" aria-label="Điều hướng">
-      <a href="./" class="active" aria-current="page">Trang chủ</a>
-      <a href="sanh/">Sảnh chung</a>
-      <a href="shop/">Cửa hàng</a>
-      <button type="button" data-rank>Xếp hạng</button>
-      <button type="button" id="btn-prof-nav">Hồ sơ</button>
-      <button type="button" data-donate>Ủng hộ</button>
-    </nav>
-    <div class="acct"><a class="xupill" id="btn-xu" href="shop/" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="profbtn" id="btn-prof" type="button" aria-label="Hồ sơ và thành tích" title="Hồ sơ & thành tích"></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.900 2.900l-.1-.1a1.700 1.700 0 0 0-1.800-.300 1.700 1.700 0 0 0-1 1.500V21a2 2 0 1 1-4 0v-.100a1.700 1.700 0 0 0-1.100-1.500 1.700 1.700 0 0 0-1.800.300l-.100.100a2 2 0 1 1-2.900-2.900l.100-.100a1.700 1.700 0 0 0 .300-1.800 1.700 1.700 0 0 0-1.500-1H3a2 2 0 1 1 0-4h.100a1.700 1.700 0 0 0 1.500-1.100 1.700 1.700 0 0 0-.300-1.800l-.100-.100a2 2 0 1 1 2.900-2.900l.100.100a1.700 1.700 0 0 0 1.800.300H9a1.700 1.700 0 0 0 1-1.500V3a2 2 0 1 1 4 0v.100a1.700 1.700 0 0 0 1 1.500 1.700 1.700 0 0 0 1.800-.300l.100-.100a2 2 0 1 1 2.900 2.900l-.100.100a1.700 1.700 0 0 0-.300 1.800V9a1.700 1.700 0 0 0 1.500 1H21a2 2 0 1 1 0 4h-.100a1.700 1.700 0 0 0-1.500 1z"/></svg></button><span id="acct"></span></div>
-  </div>
-</header>
+<div id="topbar"></div>
+<script src="shared/ui/topbar.js?v=1"></script>
 <main>
 <div class="hero">
   <section class="playzone" aria-label="Vào phòng nhanh">
@@ -584,21 +562,15 @@
     <section class="hot" id="hot" hidden><h2>🔥 Đang hot</h2><div class="hot-carousel"><button type="button" class="hot-nav prev" id="hot-prev" aria-label="Xem game hot trước đó">‹</button><div class="hot-row" id="hot-row"></div><button type="button" class="hot-nav next" id="hot-next" aria-label="Xem game hot tiếp theo">›</button></div></section>
   </section>
 <footer class="gmf"></footer>
-<script src="./shared/ui/footer.js?v=16"></script>
+<script src="./shared/ui/footer.js?v=17"></script>
 </main>
-<nav class="tabbar" aria-label="Điều hướng chính">
-  <button type="button" data-home aria-current="page">🏠<span>Trang chủ</span></button>
-  <a href="sanh/">🌐<span>Sảnh</span></a>
-  <button type="button" data-rank>🏆<span>Xếp hạng</span></button>
-  <button type="button" id="btn-prof-m">👤<span>Hồ sơ</span></button>
-</nav>
 <script>
 // tên game dài (vd. "Tiến Lên miền Nam") thì thu nhỏ cho vừa 1 dòng
 function fitTitles(){document.querySelectorAll('#games-grid .tile .info h2').forEach(h=>{h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);while(h.scrollWidth>h.clientWidth&&f>22){f-=1;h.style.fontSize=f+'px'}})}
 addEventListener('load',fitTitles);addEventListener('resize',()=>{clearTimeout(fitTitles.t);fitTitles.t=setTimeout(fitTitles,120)});document.fonts&&document.fonts.ready.then(fitTitles);
 </script>
 <script type="module" src="shared/ui/feedback.js?v=34"></script>
-<script type="module">import { mountAccount } from "./shared/ui/account.js?v=49"; import { mountOnline } from "./shared/net/presence.js?v=26"; mountAccount(document.getElementById("acct")); mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import("./shared/ui/profile.js?v=46").then(async m => { const st = await import("./shared/ui/stats.js?v=86"); m.profileCss(); const b = document.getElementById("btn-prof"), d = () => { b.innerHTML = m.avatarHTML(42) + `<span class="lv">${st.level().lv}</span>`; }; d(); addEventListener("gumballz-avatar", d); addEventListener("gumballz-stats", d); b.onclick = () => m.openProfile(); const bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = () => m.openProfile(); const bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = () => m.openProfile(); }); import("./shared/ui/wallet.js?v=1").then(w => { const x = document.getElementById("btn-xu"), dx = () => { if (x) x.querySelector("b").textContent = w.fmt(w.balance()); }; dx(); addEventListener("gumballz-wallet", dx); }); document.getElementById("btn-set").onclick = () => import("./shared/ui/settings.js?v=47").then(m => m.openSettings()); import('./shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());</script>
+<script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());</script>
 <script type="module">
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const json = k => { try { return JSON.parse(ls.get(k)); } catch (e) { return null; } };
@@ -610,10 +582,7 @@ import { mountDaily } from './shared/js/daily.js?v=1'; mountDaily(document.getEl
 // ô game ra khỏi màn hình thì dừng hoạt ảnh (cuộn nhẹ hơn, đỡ tốn pin)
 if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('asleep', !e.isIntersecting)), { rootMargin: '120px' }); $$('.tile').forEach(t => io.observe(t)); }
 // thanh trên đổ bóng khi cuộn
-const nav = $('#nav'), onScroll = () => nav.classList.toggle('stuck', scrollY > 8); addEventListener('scroll', onScroll, { passive: true }); onScroll();
 $$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=56').then(m => m.openMatchmaking()));
-$$('[data-rank]').forEach(b => b.onclick = () => import('./shared/ui/leaderboard.js?v=32').then(m => m.openLeaderboard()));
-$$('[data-home]').forEach(b => b.onclick = () => scrollTo({ top: 0, behavior: 'smooth' }));
 // ▶ Vào lại ván: game nào còn phiên dở (gumballz-session-<game>, xem shared/net/room.js) thì hiện nút
 const FRESH = 3 * 3600e3; let resumeGame = null;
 tiles.forEach(tile => {
@@ -789,11 +758,12 @@ $$('.shelf-all').forEach(x => x.onclick = () => { cat = x.dataset.c; applyFilter
 $('#pf').onchange = e => { pf = e.target.value; applyFilter(); };
 const gqTop = $('#gq-top');
 if (gqTop) { gqTop.oninput = () => { applyFilter(); }; $('#nav-search').onsubmit = e => { e.preventDefault(); applyFilter(); $('#games').scrollIntoView({ behavior: 'smooth' }); }; }
+const _q = new URLSearchParams(location.search).get('q'); if (_q && gqTop) gqTop.value = _q;
 applyFilter();
+if (_q) document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
 </script>
 <script type="module" async src="./shared/ui/feel.js?v=53"></script>
 <script>/* số game ở trang chủ tự đếm từ danh sách ô game (không hard-code) */try{var b=document.getElementById("nGames"),k=new Set([].map.call(document.querySelectorAll("[data-game]"),function(t){return t.dataset.game}));if(b&&k.size)b.textContent=k.size}catch(e){}</script>
-<script src="shared/js/rive/rive.js?v=1"></script>
-<script src="shared/js/rive-cards.js?v=2"></script>
+<script src="shared/ui/page-trans.js?v=1"></script>
 </body>
 </html>

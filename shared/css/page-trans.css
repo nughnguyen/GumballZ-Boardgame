@@ -1,0 +1,11 @@
+/* Hiệu ứng chuyển tab chính (dùng với shared/ui/page-trans.js).
+   Trang mới hiện lên bằng fade-in + trượt nhẹ từ dưới lên (~250ms, ease-out);
+   trang cũ mờ dần nhờ class .page-leave do JS thêm khi bấm link (~180ms).
+   Chỉ nạp ở 3 trang tab chính (Trang chủ, Sảnh chung, Cửa hàng). */
+body{animation:pageIn .25s ease-out}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+body.page-leave{opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease}
+@media (prefers-reduced-motion:reduce){
+  body{animation:none}
+  body.page-leave{transition:none}
+}
