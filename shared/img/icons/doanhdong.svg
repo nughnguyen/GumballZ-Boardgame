@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="4" y="4" width="112" height="112" rx="18" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- mặt nạ hài -->
+  <path d="M28 42 Q28 78 52 78 Q76 78 76 42 L76 38 L28 38 Z" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="3"/>
+  <circle cx="42" cy="52" r="4" fill="#4A3E5C"/>
+  <circle cx="62" cy="52" r="4" fill="#4A3E5C"/>
+  <path d="M42 64 Q52 72 62 64" fill="none" stroke="#4A3E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- mặt nạ bi (nhỏ, góc phải dưới) -->
+  <path d="M70 74 Q70 100 88 100 Q106 100 106 74 L106 70 L70 70 Z" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="2.5"/>
+  <circle cx="80" cy="82" r="3" fill="#4A3E5C"/>
+  <circle cx="96" cy="82" r="3" fill="#4A3E5C"/>
+  <path d="M80 92 Q88 86 96 92" fill="none" stroke="#4A3E5C" stroke-width="2" stroke-linecap="round"/>
+</svg>

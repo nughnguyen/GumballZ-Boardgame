@@ -1,0 +1,54 @@
+/* 🎭 Đoán Hành Động — pastel, đồng bộ shell game */
+:root { --dd-ink: #4A3E5C; --dd-muted: #8B7E9E; --dd-butter: #FFE3A3; --dd-peach: #FFB98A; --dd-mint: #ABE0C6; --dd-lav: #C9BDF3; --dd-pink: #FFB9CF; --dd-card: #FFFDF9; }
+.dd-topbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dd-topbar .spacer { flex: 1; }
+.dd-stage { text-align: center; margin: 12px 0 4px; }
+.dd-stage .round-pill { display: inline-block; background: var(--dd-lav); color: var(--dd-ink); border: 2px solid var(--dd-ink); border-radius: 999px; padding: 4px 14px; font-weight: 800; font-size: 14px; box-shadow: 2px 2px 0 var(--dd-ink); }
+.dd-timer { font-size: 34px; font-weight: 900; color: var(--dd-ink); margin: 6px 0; }
+.dd-timer.low { color: #E5484D; animation: dd-pulse 1s infinite; }
+@keyframes dd-pulse { 50% { transform: scale(1.08); } }
+.dd-wordbox { background: var(--dd-butter); border: 3px solid var(--dd-ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--dd-ink); padding: 18px 14px; text-align: center; margin: 12px 0; }
+.dd-wordbox .lbl { font-size: 13px; color: var(--dd-muted); font-weight: 700; }
+.dd-wordbox .word { font-size: 34px; font-weight: 900; color: var(--dd-ink); margin: 4px 0; }
+.dd-wordbox .cat { display: inline-block; background: #fff; border: 2px solid var(--dd-ink); border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 13px; }
+.dd-wordbox.covered { background: var(--dd-lav); }
+.dd-wordbox.covered .word { filter: blur(0); font-size: 26px; }
+.dd-act { font-size: 20px; font-weight: 800; color: var(--dd-ink); text-align: center; background: var(--dd-mint); border: 3px solid var(--dd-ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--dd-ink); padding: 18px 14px; margin: 12px 0; line-height: 1.5; }
+.dd-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.dd-opt { background: var(--dd-card); border: 3px solid var(--dd-ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--dd-ink); padding: 14px 8px; font-size: 17px; font-weight: 800; color: var(--dd-ink); cursor: pointer; }
+.dd-opt:disabled { opacity: .55; cursor: default; }
+.dd-opt.right { background: var(--dd-mint); }
+.dd-opt.wrong { background: var(--dd-pink); }
+.dd-guess-row { display: flex; gap: 8px; margin: 12px 0; }
+.dd-guess-row input { flex: 1; min-width: 0; border: 3px solid var(--dd-ink); border-radius: 12px; padding: 10px 12px; font-size: 16px; font-family: inherit; background: #fff; }
+.dd-log { background: var(--dd-card); border: 3px solid var(--dd-ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--dd-ink); padding: 10px 12px; margin: 12px 0; max-height: 220px; overflow-y: auto; }
+.dd-log .lg { padding: 4px 0; border-bottom: 1px dashed #E5DDF5; font-size: 14px; }
+.dd-log .lg:last-child { border-bottom: 0; }
+.dd-guess-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed #E5DDF5; font-size: 15px; }
+.dd-guess-item .who { font-weight: 800; }
+.dd-guess-item .txt { flex: 1; }
+.dd-guess-item .ok { color: #1F9D55; font-weight: 900; }
+.dd-guess-item .no { color: #E5484D; font-weight: 900; }
+.dd-guess-item .btn-confirm { border: 2px solid var(--dd-ink); background: var(--dd-mint); border-radius: 8px; font-weight: 900; padding: 4px 10px; cursor: pointer; box-shadow: 2px 2px 0 var(--dd-ink); }
+.dd-players { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.dd-player { background: #fff; border: 2px solid var(--dd-ink); border-radius: 12px; padding: 6px 10px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 var(--dd-ink); }
+.dd-player.me { background: var(--dd-butter); }
+.dd-player.actor { outline: 3px solid var(--dd-peach); }
+.dd-player .pts { color: #7C5CFF; }
+.dd-reveal { text-align: center; padding: 10px 0; }
+.dd-reveal .big-word { font-size: 30px; font-weight: 900; color: var(--dd-ink); }
+.dd-reveal .res { font-size: 18px; font-weight: 800; margin: 6px 0; }
+.dd-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+.dd-progress { height: 10px; background: #EFE9F7; border: 2px solid var(--dd-ink); border-radius: 999px; overflow: hidden; margin: 8px 0; }
+.dd-progress > div { height: 100%; background: var(--dd-peach); }
+@media (max-width: 640px) {
+  .dd-topbar { flex-wrap: wrap; }
+  .dd-wordbox .word { font-size: 28px; }
+  .dd-opts { grid-template-columns: 1fr 1fr; }
+  .dd-guess-row { flex-wrap: wrap; }
+}
+.dd-cover { position: fixed; inset: 0; background: rgba(27, 20, 37, .92); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.dd-cover-card { background: var(--dd-card); border: 3px solid var(--dd-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--dd-ink); padding: 28px 22px; text-align: center; max-width: 420px; }
+.dd-cover-icon { font-size: 52px; }
+.dd-cover-card h3 { margin: 8px 0; color: var(--dd-ink); }
+.dd-cover-card p { color: var(--dd-muted); font-weight: 700; }

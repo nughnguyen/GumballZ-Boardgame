@@ -1186,5 +1186,9 @@ export const TUT = {
  "haithat1gia": {
   "name": "2 Thật 1 Giả",
   "steps": []
+ },
+ "doanhdong": {
+  "name": "Đoán Hành Động — GumballZ Boardgame",
+  "steps": []
  }
 };

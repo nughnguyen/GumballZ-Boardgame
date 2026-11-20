@@ -43,6 +43,10 @@
 .gmf-social a.facebook:hover span{background:#3b5998}
 .gmf-social a.zalo:hover{color:#0068ff}
 .gmf-social a.zalo:hover span{background:#0068ff}
+.gmf-social a.discord:hover{color:#5865f2}
+.gmf-social a.discord:hover span{background:#5865f2}
+.gmf-social a.telegram:hover{color:#229ed9}
+.gmf-social a.telegram:hover span{background:#229ed9}
 .gmf h3{margin:4px 0 8px;font:400 14px/1.3 "Bungee","Baloo 2",Nunito,sans-serif;color:#4A3E5C;letter-spacing:.5px;display:inline-block;background:#FFB9CF;border-radius:999px;padding:4px 12px}
 .gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative}
 .gmf nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:2px;background:#4A3E5C;transform:scaleX(0);transform-origin:bottom right;transition:transform .25s ease-out}.gmf nav a:hover::after{transform:scaleX(1);transform-origin:bottom left}
