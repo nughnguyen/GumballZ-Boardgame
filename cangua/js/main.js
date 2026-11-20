@@ -2,10 +2,10 @@
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, CANGUA_PHRASES } from './net.js?v=60';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
-import { COLOR_NAMES, GATE, HOME0, exitOk } from './engine.js?v=3';
-import { Board3D } from './scene3d.js?v=5';
+import { COLOR_NAMES, GATE, HOME0, exitOk } from './engine.js?v=4';
+import { Board3D } from './scene3d.js?v=6';
 import * as fx from './fx.js?v=8';
-import { guideHTML } from './guide.js?v=7';
+import { guideHTML } from './guide.js?v=8';
 import { netStatus } from '../../shared/ui/status.js';
 
 import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=4';
@@ -106,6 +106,7 @@ $('#btn-copy').onclick = () => { const url = inviteUrl($('#room-code').textConte
 // ---------- sảnh ----------
 // [key, tên, lựa chọn, gợi ý, điều kiện hiện]
 const OPTS = [
+  ['fun', '🎉 Ô đặc biệt', [[true, 'Bật'], [false, 'Tắt']], 'Bật: 🛡️ ô an toàn (ô xuất quân + giữa mỗi cạnh) đứng chung được, không bị đá, không chắn đường · 🌀 đáp đúng ô cổng thì được chọn vụt thêm 14 ô (cổng ra có ngựa địch thì đá luôn).'],
   ['dice', '🎲 Số xúc xắc', [[2, '2 con'], [1, '1 con']], 'Mặc định 2 xúc xắc (luật nhà).'],
   ['moveMode', '🧮 Cách đi', [['total', 'Dồn tổng 1 con'], ['split', 'Tách 2 con']], 'Tách: mỗi xúc xắc là 1 nước riêng, đi 2 ngựa khác nhau cũng được.', o => o.dice === 2],
   ['exit2', '🚪 Xuất chuồng', [['d16', 'Đôi hoặc 1+6'], ['any6', 'Đôi hoặc có con 6']], 'Đổ được thì cũng được đổ tiếp.', o => o.dice === 2],
@@ -239,8 +240,9 @@ async function animate(e, v) {
     }
     case 'move': {
       const s = seatOf(v, e.pid), n = e.path.length, ms = (n <= 8 ? 210 : Math.max(110, 1700 / n)) * k();
-      if (e.auto) await previewAuto(s, { kind: 'move', h: e.h, from: e.from, to: e.to, kick: e.kick, dbl: e.v === 0 && e.to > GATE && e.to - e.from === 1 && e.from > GATE }, v, e);
+      if (e.auto) await previewAuto(s, { kind: 'move', h: e.h, from: e.from, to: e.to, kick: e.kick, tp: e.tp, dbl: e.v === 0 && e.to > GATE && e.to - e.from === 1 && e.from > GATE }, v, e);
       await B.walk(s, e.h, e.path, ms, pos => { fx.sfx.hop(); if (pos > GATE && pos === e.to) { fx.sfx.home(); } });
+      if (e.tp != null) { fx.sfx.six(); await B.teleport(s, e.h, e.to, 900 * k()); B.floatAt && B.floatAt(B.horsePos(s, e.h), 'Vụt! 🌀 +14', '#7c4dff'); }
       if (e.to >= HOME0 && B.floatAt) B.floatAt(B.horsePos(s, e.h), e.from < HOME0 ? `Lên đích bậc ${e.to - GATE}! 🏁` : `Bậc ${e.to - GATE}`, '#1aa86a');
       break;
     }
@@ -399,6 +401,7 @@ function moveLabel(v, m) {
   const dbl = v.opts.dice === 2 && d.length === 2 && d[0] === d[1] && v.opts.moveMode !== 'split';
   const use = dbl && v.opts.dblHalf === true && m.v ? (m.v === T ? ` <small>(cả đôi ${T})</small>` : ` <small>(nửa đôi ${m.v})</small>`)
     : v.opts.dice === 2 && (v.opts.moveMode === 'split' || m.v !== T) && m.v ? ` <small>(dùng ${m.v})</small>` : '';
+  if (m.tp != null) return `🌀 Ngựa ${m.h + 1} đi ${m.tp - m.from} ô rồi <b>vụt qua cổng</b> +14${use}${kick}${m.kick2 ? ` · đá ${esc(nm(v, m.kick2.pid))}! 🦶` : ''}`;
   if (m.kind === 'out') return `🚪 Xuất chuồng${kick}`;
   if (m.dbl) return `🎲🎲 Ngựa ${m.h + 1} lên bậc ${m.to - GATE} (nhờ đôi)`;
   if (m.to > GATE && m.from <= GATE && v.opts.homeRule !== 'vn') return `🏁 Ngựa ${m.h + 1} đi ${m.to - m.from} → bậc ${m.to - GATE}${use}`;

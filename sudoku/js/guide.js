@@ -34,7 +34,15 @@ export const GUIDE_HTML = `<div class="guide"><h2>📖 Cách chơi Sudoku</h2>
 <li><b>🤖 Đua với máy:</b> cùng 1 câu đố với máy — ai giải xong trước thì thắng. Máy Dễ điền chậm, Máy Khó điền nhanh. Bạn bị loại nếu sai 3 lần.</li>
 <li><b>🌐 Đua online:</b> tạo phòng, gửi mã 5 ký tự cho 1–3 người bạn vào đua cùng 1 câu đố — thanh tiến độ hiện từng người đã điền được bao nhiêu ô, ai về đích trước thì thắng. Người sai 3 lần bị loại, còn lại đua tiếp.</li>
 </ul>
-<h3>6. Mẹo chơi</h3>
+<h3>6. Chế độ Combat ⚔️ (đua 2–4 người)</h3>
+<ul>
+<li><b>Combat mặc định BẬT khi đua 2–4 người</b>, tắt khi chơi đơn; chủ phòng có thể tắt ở phòng chờ bằng công tắc ⚔️ Combat.</li>
+<li>Điền đúng để <b>hoàn thành 1 hàng, 1 cột hoặc 1 khối 3×3</b> thì bạn <b>phủ sương 🌫️ lên 3 ô trống của người đang dẫn đầu</b> trong 9 giây (tối đa 9 ô sương cùng lúc).</li>
+<li>Ô bị sương phủ hiện 🌫️ trên nền sọc xám — <b>không điền đúng được vào ô sương</b>; đoán sai vào ô sương vẫn tính 1 lỗi như bình thường.</li>
+<li>Sương tự tan sau 9 giây; hoàn thành 1 dãy sẽ <b>thổi tan sương của chính mình</b>; gợi ý mở trúng ô sương thì sương ở ô đó cũng tan.</li>
+<li>Thanh trạng thái hiện "🌫️ Sương: N ô · tan sau Xs"; hàng đua hiện ⚔️ số lần tấn công · 🌫️ số ô đang bị sương của từng người.</li>
+</ul>
+<h3>7. Mẹo chơi</h3>
 <ul>
 <li><b>Tìm số "chắc ăn":</b> số nào đã xuất hiện 8 lần thì ô còn lại của nó là đáp án — điền ngay không cần nghĩ.</li>
 <li><b>Quét hàng/cột/khối:</b> chọn 1 số, nhìn 3 khối hàng ngang (hoặc dọc) — ô nào là giao điểm duy nhất còn trống thì điền số đó.</li>

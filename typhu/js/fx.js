@@ -4,7 +4,7 @@ const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return
 const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
 // ---------- cài đặt ----------
-const DEF = { music: 0.45, sfx: 0.8, theme: 'day', quality: coarse || (typeof innerWidth !== 'undefined' && innerWidth < 700) ? 'med' : 'high', effects: !reduced, speed: 'normal', musicOn: false };
+const DEF = { music: 0.45, sfx: 0.8, theme: 'day', quality: coarse || (typeof innerWidth !== 'undefined' && innerWidth < 700) ? 'med' : 'high', effects: !reduced, speed: 'normal', musicOn: false, spin: false }; /* spin: góc máy xoay theo quân (false = bàn đứng yên, mặc định từ 20/11/2026) */
 export const settings = (() => { try { return { ...DEF, ...JSON.parse(ls.get('typhu-settings') || '{}') }; } catch (e) { return { ...DEF }; } })();
 export function saveSettings() { ls.set('typhu-settings', JSON.stringify(settings)); }
 export const SPEEDS = { slow: { k: 1.5, name: 'Chậm' }, normal: { k: 1, name: 'Vừa' }, fast: { k: 0.6, name: 'Nhanh' } };

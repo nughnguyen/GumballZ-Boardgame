@@ -26,7 +26,9 @@
 /* Nút mạng xã hội kiểu Uiverse Juanes200122/horrible-stingray-49 (chỉ thu nhỏ
    100px → 64px cho vừa footer; hiệu ứng giữ nguyên: 2 vạch ngang trên/dưới
    co lại khi hover, 2 vạch dọc 2 bên mọc lên thành khung, icon + vạch đổi
-   sang màu thương hiệu. Zalo không có icon Bootstrap nên vẽ chữ Z. */
+   sang màu thương hiệu. Icon: cả 4 đều là Simple Icons (viewBox 0 0 24 24,
+   fill currentColor) nên cùng 1 họ, cùng kích cỡ — Facebook, Zalo, Discord,
+   Telegram. */
 .gmf-social{display:flex;gap:16px;margin-top:14px}
 .gmf-social a{position:relative;display:block;width:64px;height:64px;line-height:64px;text-align:center;text-decoration:none;color:#FFF8EE;transition:color .5s}
 .gmf-social a svg{vertical-align:middle}
@@ -56,5 +58,22 @@
 /* .gmf-note: chỉ còn dùng ở footer tĩnh của các trang hướng dẫn (huong-dan/),
    component footer đã bỏ dòng disclaimer nên không còn render span này nữa. */
 .gmf-note{flex-basis:100%;font-size:12.5px;font-weight:600;color:#DCD5EE}
+/* Nút về đầu trang (.gmf-top): nút tròn fixed góc phải dưới, vòng tiến độ SVG
+   (đỏ #FF5A60) chạy quanh nút theo % đã cuộn. Đặt bên phải để tránh tab 💬
+   worldchat (fixed bên trái, .wc-tab); trên mobile (≤1150px) nâng lên khỏi
+   thanh tab dưới cùng (tabbar cao ~64px + safe-area). Vòng: r=24 → chu vi
+   C = 2π×24 ≈ 150.8; dashoffset = C×(1 − p) — ở 50% trang offset = C/2
+   nên vòng chạy đúng 1/2 nút. Ẩn khi chưa cuộn (hiện sau ~400px). */
+.gmf-top{position:fixed;right:16px;bottom:20px;z-index:55;width:56px;height:56px;padding:0;border:2px solid #241A38;border-radius:50%;background:#FACD33;color:#241A38;text-align:center;cursor:pointer;box-shadow:4px 4px 0 #241A38;opacity:0;visibility:hidden;transform:translateY(8px) scale(.9);transition:opacity .2s ease,transform .2s ease,visibility .2s,box-shadow .15s ease,background .15s ease}
+.gmf-top.on{opacity:1;visibility:visible;transform:none}
+.gmf-top:hover{background:#FFD94D}
+.gmf-top:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
+.gmf-top:focus-visible{outline:3px solid #2EC5B6;outline-offset:2px}
+.gmf-top-ring{position:absolute;left:-2px;top:-2px;width:56px;height:56px;transform:rotate(-90deg);pointer-events:none}
+.gmf-top-track{fill:none;stroke:rgba(36,26,56,.14);stroke-width:3}
+.gmf-top-prog{fill:none;stroke:#FF5A60;stroke-width:3;stroke-linecap:round}
+.gmf-top-arrow{display:block;font:800 24px/1 "Baloo 2",Nunito,sans-serif;transform:translateY(-1px)}
+@media(max-width:1150px){.gmf-top{bottom:calc(84px + env(safe-area-inset-bottom))}}
+@media (prefers-reduced-motion:reduce){.gmf-top{transition:none}}
 @media(max-width:760px){.gmf-band-in{flex-direction:column;align-items:flex-start;gap:16px}.gmf-cta{width:100%}.gmf-in{grid-template-columns:1fr 1fr;row-gap:30px}.gmf-brand{grid-column:1/-1}}
 @media(max-width:430px){.gmf-band h2{font-size:24px}.gmf-in{grid-template-columns:1fr}}

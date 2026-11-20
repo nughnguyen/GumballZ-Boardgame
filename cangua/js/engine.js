@@ -16,7 +16,10 @@ export const COLOR_NAMES = ['Đỏ', 'Xanh dương', 'Xanh lá', 'Vàng'];
 //          | 'count' (đếm bước cả trong chuồng)
 // dblHalf: đổ đôi được chọn đi cả tổng hoặc một nửa (mặc định bật; ván cũ thiếu khoá này = tắt → chỉ đi nửa khi tổng kẹt)
 // dblUp (chỉ luật 'vn'): đổ đôi thì lên thêm 1 bậc bất kể số · winRule: 'top4' (chiếm bậc 3-4-5-6) | 'home' (cả 4 vào đích)
-export const DEFAULTS = { dice: 2, moveMode: 'total', exit2: 'd16', exit1: '6', noJump: true, homeRule: 'thru', dblHalf: true, dblUp: true, winRule: 'top4', triple: false, playOn: false, turnTime: 0, botLevel: 'normal' };
+export const DEFAULTS = { fun: true, dice: 2, moveMode: 'total', exit2: 'd16', exit1: '6', noJump: true, homeRule: 'thru', dblHalf: true, dblUp: true, winRule: 'top4', triple: false, playOn: false, turnTime: 0, botLevel: 'normal' };
+// 🎉 ô đặc biệt – 🛡️ ô an toàn (ô xuất quân + giữa mỗi cạnh: đứng chung được, không bị đá, không chắn đường)
+//   và 🌀 cổng dịch chuyển (đáp đúng ô cổng thì được CHỌN vụt thêm +14 ô sang cổng kế tiếp; cổng ra có ngựa địch thì đá luôn)
+export const SAFE = new Set([0, 7, 14, 21, 28, 35, 42, 49]), PORTAL = new Set([3, 17, 31, 45]), TP = 14;
 
 let rand = Math.random;
 export function setRandom(f) { rand = f || Math.random; }
@@ -47,6 +50,8 @@ export function createGame(players, opts = {}) {
   return s;
 }
 
+const safeSq = (s, sq) => !!s.opts.fun && SAFE.has(sq);
+export const isSafe = safeSq;
 // ngựa nào đang đứng ở ô tuyệt đối sq (chỉ tính đường đua)
 export function occupant(s, sq) {
   for (const p of s.players) for (let h = 0; h < HORSES; h++) { const pos = p.horses[h]; if (onTrack(pos) && absSq(p.seat, pos) === sq) return { pid: p.id, h }; }
@@ -86,9 +91,9 @@ function horseMove(s, p, h, v) {
   for (let q = pos + 1; q <= to; q++) {
     path.push(q);
     if (q <= GATE) {
-      const occ = occupant(s, absSq(p.seat, q));
-      if (q === to) { if (occ) { if (occ.pid === p.id) return null; kick = occ; } }
-      else if (occ && o.noJump) return null; // "không được nhảy qua đầu"
+      const sq = absSq(p.seat, q), occ = occupant(s, sq), safe = safeSq(s, sq);
+      if (q === to) { if (occ && !safe) { if (occ.pid === p.id) return null; kick = occ; } } /* 🛡️ ô an toàn: đứng chung, không đá */
+      else if (occ && o.noJump && !safe) return null; // "không được nhảy qua đầu" (ngựa đứng ô an toàn không chắn đường)
     } else if (p.horses.includes(q)) return null; // không vượt / chồng ngựa trên đích
   }
   return { h, v, kind: to > GATE ? 'home' : 'track', from: pos, to, path, kick };
@@ -107,7 +112,7 @@ export function legalMoves(s, pid = actorOf(s)) {
   // xuất chuồng: chỉ khi chưa dùng xúc xắc nào của lần đổ này
   if (s.full && exitOk(s, s.dice)) {
     const h = p.horses.indexOf(-1);
-    if (h >= 0) { const occ = occupant(s, absSq(p.seat, 0)); if (!occ || occ.pid !== pid) add({ h, kind: 'out', from: -1, to: 0, path: [0], kick: occ, v: 0, all: true }); }
+    if (h >= 0) { const sq = absSq(p.seat, 0), occ = occupant(s, sq), safe = safeSq(s, sq); if (safe || !occ || occ.pid !== pid) add({ h, kind: 'out', from: -1, to: 0, path: [0], kick: safe ? null : occ, v: 0, all: true }); }
   }
   let trackVals, homeVals;
   if (o.dice === 1) trackVals = homeVals = [L[0]];
@@ -131,7 +136,16 @@ export function legalMoves(s, pid = actorOf(s)) {
   // luật đôi (dồn tổng): tổng không đi được con nào thì được đi 1 con xúc xắc
   if (o.dice === 2 && o.moveMode !== 'split' && !halfOk(s) && s.dice[0] === s.dice[1] && !out.some(m => m.kind !== 'out'))
     for (let h = 0; h < HORSES; h++) if (!homeish(s, p.horses[h])) add(horseMove(s, p, h, s.dice[0]));
+  if (o.fun) for (const m of [...out]) { const t = tpMove(s, p, m); if (t) add(t); } /* 🌀 cổng: thêm lựa chọn vụt đi */
   return out;
+}
+
+/* 🌀 đáp đúng cổng → nước "dịch chuyển" +TP ô (không quá cửa đích; cổng ra có ngựa nhà thì không được, ngựa địch thì đá) */
+function tpMove(s, p, m) {
+  if (m.kind !== 'track' || m.tp || !onTrack(m.to) || !PORTAL.has(absSq(p.seat, m.to))) return null;
+  const to = m.to + TP; if (to > GATE) return null;
+  const occ = occupant(s, absSq(p.seat, to)); if (occ && occ.pid === p.id) return null;
+  return { ...m, to, tp: m.to, kick2: occ || null };
 }
 
 export function finished(s, p) { return p.horses.every(pos => s.opts.winRule === 'home' ? inHome(pos) : pos >= GATE + 3); }
@@ -181,10 +195,12 @@ function afterUse(s, p, justRolled) {
 function doMove(s, p, m, auto) {
   const o = s.opts;
   if (m.kick) kick(s, p, m.kick);
+  if (m.kick2) kick(s, p, m.kick2);
   p.horses[m.h] = m.to;
   if (m.kind === 'out') { ev(s, { t: 'out', pid: p.id, h: m.h, auto }); log(s, `🚪 ${p.name} xuất chuồng 1 con ngựa.`); }
-  else { ev(s, { t: 'move', pid: p.id, h: m.h, from: m.from, to: m.to, path: m.path, v: m.v, auto, kick: m.kick || null }); if (m.to >= HOME0 && m.from < HOME0) log(s, `🏁 ${p.name} đưa 1 ngựa lên đích bậc ${step(m.to)}.`); }
-  if (m.kick) ev(s, { t: 'kick', pid: p.id, h: m.h, vic: m.kick.pid, vh: m.kick.h, at: absSq(p.seat, m.to) });
+  else { ev(s, { t: 'move', pid: p.id, h: m.h, from: m.from, to: m.to, path: m.path, v: m.v, auto, kick: m.kick || null, tp: m.tp ?? null }); if (m.tp != null) log(s, `🌀 ${p.name} chui cổng dịch chuyển vụt thêm ${TP} ô!`); if (m.to >= HOME0 && m.from < HOME0) log(s, `🏁 ${p.name} đưa 1 ngựa lên đích bậc ${step(m.to)}.`); }
+  if (m.kick) ev(s, { t: 'kick', pid: p.id, h: m.h, vic: m.kick.pid, vh: m.kick.h, at: absSq(p.seat, m.tp ?? m.to) });
+  if (m.kick2) ev(s, { t: 'kick', pid: p.id, h: m.h, vic: m.kick2.pid, vh: m.kick2.h, at: absSq(p.seat, m.to) });
   // dùng xúc xắc
   if (m.all || o.dice === 1 || o.moveMode !== 'split') s.left = [];
   else { const i = s.left.indexOf(m.v); if (i >= 0) s.left.splice(i, 1); else s.left = []; }

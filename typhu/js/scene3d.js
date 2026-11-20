@@ -403,7 +403,11 @@ export class Board3D {
   // chế độ bản đồ 🗺️: không tự xoay/đi theo lượt; chuột trái kéo = di bản đồ, chuột phải = xoay (1 ngón kéo = di, 2 ngón = xoay/thu phóng)
   setMapControls(on) { const c = this.controls; if (!c) return; c.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }; /* mọi chế độ: trái di, phải xoay */ c.touches = on ? { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE } : { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }; c.screenSpacePanning = false; }
   home() { this.cam.map = false; this.setMapControls(false); this.cam.pinned = false; this.cam.mode = 'follow'; if (this.cam.focus && this.pawnTile[this.cam.focus] != null) this.camFocusTile = this.pawnTile[this.cam.focus]; this.o.onCamera && this.o.onCamera('follow'); }
-  overview() { const off = this.camera.position.clone().sub(this.controls.target), az = Math.atan2(off.x, off.z); this.cam.overAz = Math.round(az / (Math.PI / 2)) * (Math.PI / 2); this.cam.map = true; this.setMapControls(true); this.cam.pinned = true; this.cam.mode = 'overview'; this.o.onCamera && this.o.onCamera('overview'); }
+  /* góc nhìn toàn bàn CỐ ĐỊNH: ô Bắt đầu luôn ở góc phải dưới như bàn cờ thật (người chơi báo: nút 🗺️ có 4 góc quay, ô bắt đầu lúc chỗ này lúc chỗ khác) */
+  fixedAz() { if (this._faz != null) return this._faz; const p = cellInfo(0); let best = 0, sc = -1e9;
+    for (let k = 0; k < 4; k++) { const az = k * Math.PI / 2, d = p.x * Math.sin(az) + p.z * Math.cos(az), r = p.x * Math.cos(az) - p.z * Math.sin(az), v = d + r; if (v > sc) { sc = v; best = az; } }
+    return (this._faz = best); }
+  overview() { this.cam.overAz = this.fixedAz(); this.cam.map = true; this.setMapControls(true); this.cam.pinned = true; this.cam.mode = 'overview'; this.o.onCamera && this.o.onCamera('overview'); }
   resize() {
     const w = this.el.clientWidth || 1, h = this.el.clientHeight || 1;
     this.renderer.setSize(w, h, false); this.renderer.domElement.style.width = w + 'px'; this.renderer.domElement.style.height = h + 'px';
@@ -418,13 +422,17 @@ export class Board3D {
     if (c.mode === 'follow' && c.focus && this.pawns[c.focus]) {
       // camera đứng chéo phía sau quân (theo chiều đi), nhìn dọc theo hàng ô sắp tới
       const g = this.pawns[c.focus], i = this.camFocusTile ?? this.pawnTile[c.focus] ?? 0, ci = cellInfo(i);
+      if (!this.o.spin || !this.o.spin()) { /* góc máy CỐ ĐỊNH (mặc định từ 20/11/2026, người chơi báo "4 góc quay, ô bắt đầu lúc chỗ này lúc chỗ khác"): bàn không xoay, chỉ lại gần quân đang đi */
+        const t = new THREE.Vector3(g.position.x * 0.8, 0.2, g.position.z * 0.8);
+        return { t, az: this.fixedAz(), pol: portrait ? 0.62 : 0.72, dist: this.closeDist * (portrait ? 1.45 : 1.3) };
+      }
       const az = camAz(i) + (ci.corner ? 0.25 : portrait ? 0.62 : 0.42);
       const dir = new THREE.Vector3(-Math.cos(ci.theta), 0, Math.sin(ci.theta)); // hướng đi dọc cạnh
       const t = new THREE.Vector3(g.position.x * 0.88, 0.2, g.position.z * 0.88).add(dir.multiplyScalar(portrait ? 1.1 : 0.8));
       return { t, az, pol: portrait ? 0.78 : 0.88, dist: this.closeDist };
     }
     const i = this.cam.focus && this.pawnTile[this.cam.focus] != null ? this.pawnTile[this.cam.focus] : 0;
-    const side = Math.round(camAz(i) / (Math.PI / 2)) * (Math.PI / 2);
+    const side = this.fixedAz(); /* cố định, không xoay theo người đang đi */
     return { t: new THREE.Vector3(0, 0, 0), az: c.map && c.overAz != null ? c.overAz : side, pol: portrait ? 0.32 : 0.6, dist: this.overDist };
   }
   snap() { this.updateCamera(1e6); }

@@ -69,8 +69,8 @@
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./account.js?v=50').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: avatar + cấp ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
-  import('./profile.js?v=47').then(function (m) {
-    return import('./stats.js?v=86').then(function (st) {
+  import('./profile.js?v=48').then(function (m) {
+    return import('./stats.js?v=87').then(function (st) {
       m.profileCss();
       var b = document.getElementById('btn-prof');
       var d = function () { b.innerHTML = m.avatarHTML(42) + '<span class="lv">' + st.level().lv + '</span>'; };
@@ -83,7 +83,7 @@
     });
   }).catch(function () {});
   // pill xu: hiện số dư, cập nhật khi ví đổi
-  import('./wallet.js?v=2').then(function (w) {
+  import('./wallet.js?v=3').then(function (w) {
     var x = document.getElementById('btn-xu');
     var dx = function () { if (x) x.querySelector('b').textContent = w.fmt(w.balance()); };
     dx();
@@ -94,7 +94,7 @@
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=47').then(function (m) { m.openSettings(); }).catch(function () {}); };
   // xếp hạng / Trang chủ: nối cho cả nút trên nav (có sẵn lúc parse) lẫn nút
   // ở tab dưới (chèn sau DOMContentLoaded — xem wireTabbar trong addTab).
-  function openRank() { import('./leaderboard.js?v=33').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
+  function openRank() { import('./leaderboard.js?v=34').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
   function goHomeTop() { scrollTo({ top: 0, behavior: 'smooth' }); }
   function wireRankBtn(b) { b.onclick = openRank; }
   function wireHomeBtn(b) { b.onclick = goHomeTop; }
@@ -103,7 +103,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=47').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=48').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;

@@ -46,6 +46,9 @@ export function guideHTML() {
     <li>Không được đứng lên ô có <b>ngựa nhà</b>.</li>
     <li><b>Không được nhảy qua đầu</b> (mặc định bật): trên đường đi không được vượt qua bất kỳ ngựa nào (nhà hay đối thủ). Tắt tuỳ chọn này thì nhảy qua thoải mái, chỉ tính ô dừng.</li>
     <li>Ngựa đã lên đích thì an toàn, không ai đá được.</li></ul>
+  <h3>🎉 Ô đặc biệt (bật sẵn, tắt ở phòng chờ)</h3><ul>
+    <li>🛡️ <b>Ô an toàn</b> – 4 ô xuất quân + ô có hình khiên xanh ở giữa mỗi cạnh: nhiều ngựa <b>đứng chung</b> được, <b>không ai bị đá</b>, và ngựa đứng đó <b>không chắn đường</b> ngựa khác.</li>
+    <li>🌀 <b>Cổng dịch chuyển</b> – 4 vòng tím “CỔNG +14”: đi tới <b>đúng ô cổng</b> thì được <b>chọn</b> vụt thêm 14 ô sang cổng kế tiếp (hoặc đứng lại). Cổng ra có ngựa đối thủ thì <b>đá luôn</b>; có ngựa nhà hoặc quá ô cửa đích thì không vụt được.</li></ul>
   <h3>🏁 Vào chuồng đích (bậc 1–6) – luật nhà mặc định</h3><ul>
     <li><b>Đếm thẳng vào chuồng</b>: bước đi tính liền một mạch, qua ô cửa thì mỗi bước tiếp theo là <b>1 bậc</b>. Tức là <b>số ô còn tới ô cửa + số bậc = số đổ</b>. Đổ dư quá bậc 6 thì không đi được.</li>
     <li>Không được vượt hay đứng đè <b>ngựa nhà trong chuồng</b> – muốn chiếm bậc 3-4-5-6 thì nên cho con đầu vào thẳng bậc 6 trước. Phần đường đua trước cửa vẫn tính luật "không nhảy qua đầu".</li>

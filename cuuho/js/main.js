@@ -1,10 +1,10 @@
 // 🚁 Đội Cứu Hộ – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js. Bản đồ dùng chung hình Việt Nam của Tàu Xuyên Việt.
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=2';
-import * as E from './engine.js?v=2';
+import * as E from './engine.js?v=3';
 import { CITIES, ROUTES } from '../../xuyenviet/js/map.js?v=4';
 import { LAND, LBL, MAP_W, MAP_H } from '../../xuyenviet/js/geo.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);
@@ -26,7 +26,7 @@ function mapSVG(v, o = {}) {
     <g class="isl"><circle cx="${MAP_W + 4}" cy="97" r="1.2"/><circle cx="${MAP_W + 7}" cy="99.5" r=".9"/><circle cx="${MAP_W + 2.5}" cy="101" r=".8"/><text x="${MAP_W + 12}" y="107">QĐ. Hoàng Sa</text>
     <circle cx="${MAP_W + 2}" cy="178" r="1"/><circle cx="${MAP_W + 7}" cy="182" r="1.1"/><circle cx="${MAP_W + 4}" cy="186.5" r=".8"/><circle cx="${MAP_W + 9}" cy="175" r=".8"/><text x="${MAP_W + 12}" y="193">QĐ. Trường Sa</text></g>`;
   const seen = new Set();
-  for (const r of ROUTES) { const key = [r.a, r.b].sort().join(); if (seen.has(key)) continue; seen.add(key); const [ax, ay] = XY(r.a), [bx, by] = XY(r.b); h += `<line class="road" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/>`; }
+  for (const r of ROUTES) { if (r.xv) continue; const key = [r.a, r.b].sort().join(); if (seen.has(key)) continue; seen.add(key); const [ax, ay] = XY(r.a), [bx, by] = XY(r.b); h += `<line class="road" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/>`; }
   for (const k of CITY_IDS) {
     const [x, y] = XY(k), l = LBL[k] || [2.6, 1.2, 'start'], c = CITY_COLOR[k], cub = v ? v.cubes[k] : null, st = v && v.stations.includes(k);
     const cls = ['city', o.can && o.can.has(k) ? 'can' : '', v && (v.burst || []).includes(k) ? 'boom' : '', v && (v.hits || []).includes(k) ? 'hit' : '', o.sel === k ? 'sel' : ''].join(' ');

@@ -1,10 +1,12 @@
 // 🌐 Sảnh chung: phòng công khai + chat (lọc chửi thề ở máy chủ) + báo cáo.
 // mountLobby(el, { game }) – game = null: sảnh tổng (mọi game, kênh chat "Chung" + kênh game đang lọc)
 // openLobby(game) – mở dạng hộp nổi (dùng trong trang game)
-import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=27';
+import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=28';
 export const LV_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ']; /* trùng LEVELS trong stats.js */
 import { openLogin } from './account.js?v=50';
 import { promptBox, chooseBox } from './dialog.js?v=8';
+import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
+import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {
@@ -36,7 +38,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-groups button[aria-pressed=true]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
 .lb-chat[hidden],.lb-friends[hidden],.lb-gc[hidden]{display:none}
 .lb-friends{flex:1;min-height:0;display:flex;flex-direction:column}
-.lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:0;align-content:start;min-height:160px}
+.lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:0;align-content:start;min-height:0}
 .lb-room{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:14px 4px;text-decoration:none;color:inherit}
 .lb-room:hover{background:#FFF8EE}
 .lb-room .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-room .t{flex:1;min-width:0}.lb-room b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -47,7 +49,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-inv small{color:var(--mut)}.lb-inv .go{flex:none;background:#2EC5B6;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:3px 3px 0 #241A38}
 .lb-empty a,.lb-new{color:#2f5fd0}
 .lb-chat{display:flex;flex-direction:column;min-height:0;flex:1}
-.lb-msgs{flex:1;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px}
+.lb-msgs{flex:1;min-height:0;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 .lb-m{display:flex;gap:8px;align-items:flex-start;position:relative}
 .lb-m:not(.me) .lb-av,.lb-m:not(.me) .lb-n{cursor:pointer}
 .lb-m:not(.me) .lb-n:hover{text-decoration:underline}
@@ -55,11 +57,33 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-b{background:#f6efe6;border-radius:4px 14px 14px 14px;padding:6px 10px;max-width:calc(100% - 70px);word-wrap:break-word;overflow-wrap:anywhere}
 .lb-m.me{flex-direction:row-reverse}.lb-m.me .lb-b{background:#ffe9d6;border-radius:14px 4px 14px 14px}
 .lb-n{font-weight:800;font-size:13px}.lb-n .v{color:#2f9e5b}.lb-n time{font-weight:600;color:var(--mut);font-size:11.5px;margin-left:6px}
+.lb-modb{display:inline-block;padding:0 7px;border-radius:999px;background:linear-gradient(135deg,#dff3ff,#9fd4ff);color:#0b4a7a;font-size:11px;font-weight:800}
+.lb-ownb{position:relative;overflow:hidden;display:inline-block;padding:0 8px 0 6px;border-radius:999px;background:linear-gradient(135deg,#3a1030,#7a1630 45%,#241A38);color:#ffd84a;font-size:11px;font-weight:900;box-shadow:inset 0 0 0 1.5px #ffcf3d,0 2px 10px -3px #ff7a45cc}
+.lb-ownb i{font-style:normal;display:inline-block;animation:lb-oc 2.8s ease-in-out infinite}
+.lb-ownb::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-120%);animation:lb-os 3s ease-in-out infinite}
+.lb-own{position:relative}
+.lb-own::after{content:"✦";position:absolute;right:-.7em;top:-.35em;font-size:.7em;color:#ffb23d;-webkit-text-fill-color:#ffb23d;animation:lb-ot 2s ease-in-out infinite}
+@keyframes lb-oc{0%,60%,100%{transform:none}70%{transform:rotate(-12deg) translateY(-2px)}82%{transform:rotate(9deg)}}
+@keyframes lb-os{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+@keyframes lb-ot{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+@media (prefers-reduced-motion:reduce){.lb-ownb i,.lb-ownb::after,.lb-own::after{animation:none}.lb-ownb::after{display:none}}
+/* ✨ đồ Nitro trong chat (2026-11-21): khung avatar quanh chữ cái, tên gradient chạy, tin nhắn phát sáng */
+.lb-avfr{display:inline-grid;place-items:center;border-radius:50%;padding:2px;flex:none;position:relative}
+.lb-avfr.fr-anim{background:none}
+.lb-avfr.fr-anim::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ring);animation:fr-spin 3.5s linear infinite}
+.lb-avfr.fr-anim>.lb-av{position:relative;z-index:1}
+.lb-avfr.fr-glow{animation:fr-glow 1.8s ease-in-out infinite}
+.lb-m-hot .lb-b{box-shadow:0 0 0 2px #FACD33,0 0 14px rgba(255,90,96,.45)}
+@keyframes nc-slide{to{background-position:200% 0}}
+.nc-anim{animation:nc-slide 2.8s linear infinite}
+@keyframes fr-spin{to{transform:rotate(360deg)}}
+@keyframes fr-glow{0%,100%{box-shadow:0 0 0 2px #ff6a1f,0 0 10px 2px #ff9a1f88}50%{box-shadow:0 0 0 3px #ffd23d,0 0 18px 6px #ff6a1f66}}
+@media (prefers-reduced-motion:reduce){.nc-anim,.lb-avfr.fr-anim::before,.lb-avfr.fr-glow{animation:none}}
 .lb-rp{border:0;background:none;cursor:pointer;opacity:.35;font-size:15px;padding:4px;align-self:center;min-width:32px;min-height:32px}.lb-rp:hover,.lb-rp:focus-visible{opacity:1}
-.lb-in{display:flex;gap:8px;padding:10px 12px;border-top:1.5px solid var(--line);align-items:flex-end;flex-wrap:wrap}
+.lb-in{display:flex;gap:8px;padding:10px 12px;border-top:1.5px solid var(--line);align-items:flex-end;flex-wrap:wrap;flex:none}
 .lb-in input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;font:600 16px Nunito,sans-serif;color:var(--ink);background:#fff}
 .lb-in button{border:0;border-radius:999px;min-height:44px;padding:0 16px;font:400 15px var(--font-display,"Baloo 2",Nunito,sans-serif);background:var(--ink);color:#fff;cursor:pointer}
-.lb-who{width:100%;font-size:12.5px;color:var(--mut);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lb-who{width:100%;font-size:12.5px;color:var(--mut);display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:none}
 .lb-who input{flex:0 1 150px;padding:5px 10px;font-size:14px;border-radius:10px}
 .lb-who a{color:#2f5fd0;cursor:pointer}
 .lb-fr{margin-left:auto;border:1.5px solid #ecdfd0;background:#fff6eb;color:#241A38;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
@@ -74,7 +98,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-mm-bar button{border:0;border-radius:999px;padding:5px 11px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
 .lb-mm-bar .go-host{background:#241A38;color:#fff}
 .lb-mm-bar .go-cancel{background:#FFFDF9;color:#7a6f8c;border:1px solid #e0d2c2}
-.lb-rule{font-size:12px;color:var(--mut);padding:0 12px 8px}
+.lb-rule{font-size:12px;color:var(--mut);padding:0 12px 8px;flex:none}
 .lb-err{font-size:13px;color:#c0263b;padding:0 12px;min-height:0}
 .lb-tabs{display:none}
 @media (max-width:760px){
@@ -83,7 +107,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
  .lb-tabs button{border:0;border-radius:999px;min-height:42px;font:800 15px Nunito,sans-serif;background:none;color:var(--ink);cursor:pointer}
  .lb-tabs button[aria-pressed=true]{background:#FFFDF9;box-shadow:0 2px 6px #0001}
  .lb[data-tab=rooms] .lb-col.c{display:none}.lb[data-tab=chat] .lb-col.r{display:none}
- .lb-msgs{min-height:120px}
+ .lb-msgs{min-height:0}
  .lb-col.c .lb-h{display:none} /* điện thoại: đã có tab "💬 Chat" ở trên nên bỏ tiêu đề cột cho rộng chỗ */
  .lb-rule{font-size:12px;margin:2px 12px}
 }
@@ -94,13 +118,13 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-mod .lb{flex:1;min-height:0}.lb-mod .lb-col{min-height:0}
 /* Scribble có sẵn lớp .lb (bảng điểm) của riêng nó → gỡ khung/độ rộng lạ khỏi sảnh */
 .lb[data-tab]{width:auto;max-width:none;background:none;border:0;border-radius:0;padding:0;margin:0}`;
-function css() { if (document.getElementById('lb-css')) return; const s = document.createElement('style'); s.id = 'lb-css'; s.textContent = CSS; document.head.append(s); }
+function css() { ensureSkCSS(); if (document.getElementById('lb-css')) return; const s = document.createElement('style'); s.id = 'lb-css'; s.textContent = CSS; document.head.append(s); }
 const COLORS = ['#ff4d5e', '#ff9a3d', '#2fc76f', '#3d8bff', '#7b61ff', '#20b2aa', '#e05297', '#c58a1a'];
 const colorOf = s => COLORS[[...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORS.length];
 
 export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(location.search), tab = 'rooms' } = {}) {
   css();
-  let filter = game || 'all', grp = game ? 'game' : 'world', selGame = game || null, ch = selGame || 'all', rooms = [], me = null, ws = null, wait = 1000, dead = false, msgs = { [ch]: [] };
+  let filter = game || 'all', grp = game ? 'game' : 'world', selGame = game || null, ch = selGame || 'all', rooms = [], roomsReady = false, chatReady = false, me = null, ws = null, wait = 1000, dead = false, msgs = { [ch]: [] };
   let mmState = null, mmStat = { n: 0, byGame: {} }, mmLowT = 0;
   const chans = () => { const s = new Set(['all']); if (game) s.add(game); if (selGame) s.add(selGame); if (filter !== 'all') s.add(filter); return [...s]; };
   const tab0 = tab === 'chat' ? 'chat' : 'rooms';
@@ -113,14 +137,14 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       </div>
       <div class="lb-mm-slot"></div>
       ${game ? '' : `<div class="lb-chips-w"><button type="button" class="lb-arr" data-sc="-1" aria-label="Cuộn trái" hidden>‹</button><div class="lb-chips lb-gf"><button data-g="all" aria-pressed="true">Tất cả</button>${Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button data-g="${k}" aria-pressed="false">${e} ${n}</button>`).join('')}</div><button type="button" class="lb-arr" data-sc="1" aria-label="Cuộn phải" hidden>›</button></div>`}
-      <div class="lb-rooms"></div></section>
+      <div class="lb-rooms">${skRooms(3)}</div></section>
     <section class="lb-col c"><div class="lb-h"><h3>💬 Chat</h3></div>
       <div class="lb-groups" role="tablist"><button type="button" data-grp="world" aria-pressed="true">🌐 Thế giới</button><button type="button" data-grp="game" aria-pressed="false">🎮 Trong game</button><button type="button" data-grp="friends" aria-pressed="false">🤝 Bạn bè</button></div>
       <div class="lb-chips lb-gc" hidden></div>
-      <div class="lb-chat"><div class="lb-msgs" aria-live="polite"></div>
+      <div class="lb-chat"><div class="lb-msgs" aria-live="polite">${skChat(3)}</div>
       <p class="lb-rule">💛 Nói chuyện lịch sự nha – từ bậy tự bị che. Bấm vào tên/avatar để kết bạn, 🚩 để báo cáo.</p><p class="lb-err"></p>
       <form class="lb-in"><div class="lb-who"></div><input maxlength="300" placeholder="Nhắn gì đó…" enterkeyhint="send" aria-label="Tin nhắn"><button type="submit">Gửi</button></form></div>
-      <div class="lb-friends" hidden></div></section></div>`;
+      <div class="lb-friends" hidden>${skRooms(3)}</div></section></div>`;
   const $ = s => el.querySelector(s), root = $('.lb');
   $('.lb-tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; root.dataset.tab = b.dataset.tab; el.querySelectorAll('.lb-tabs button').forEach(x => x.setAttribute('aria-pressed', x === b)); if (b.dataset.tab === 'chat') scrollEnd(); };
   if (!game) {
@@ -175,9 +199,10 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=33').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=34').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
+    if (!roomsReady) return; /* chưa có danh sách phòng từ máy chủ: giữ skeleton */
     const list = rooms.filter(r => filter === 'all' || r.game === filter);
     el.querySelector('.lb-tabs .n').textContent = list.length;
     $('.lb-rooms').innerHTML = list.length ? list.map(r => { const [e, n] = GAME_INFO[r.game] || ['🎲', r.game]; return `<a class="lb-room" href="${ROOT}${r.game}/?room=${r.code}"><span class="e">${e}</span><span class="t"><b>${esc(n)} · phòng của ${esc(r.host)}</b><small>Mã ${r.code} · ${r.n} người trong phòng</small></span><span class="go">Vào</span></a>`; }).join('')
@@ -188,7 +213,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   const mountFriends = () => {
     if (friendsPanel || friendsLoading) return;
     friendsLoading = true;
-    import('./friends.js?v=33').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
+    import('./friends.js?v=34').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
   };
   const drawGroups = () => { el.querySelectorAll('.lb-groups button').forEach(b => b.setAttribute('aria-pressed', b.dataset.grp === grp)); };
   const drawGameChips = () => { const gc = $('.lb-gc'); gc.hidden = grp !== 'game'; if (grp !== 'game') return; gc.innerHTML = Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button type="button" data-g="${k}" aria-pressed="${k === selGame}">${e} ${n}</button>`).join(''); };
@@ -203,15 +228,17 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   const setGrp = g => { grp = g; if (grp === 'world') ch = 'all'; else if (grp === 'game' && selGame) ch = selGame; drawChatArea(); };
   $('.lb-groups').onclick = e => { const b = e.target.closest('button'); if (!b) return; setGrp(b.dataset.grp); };
   $('.lb-gc').onclick = e => { const b = e.target.closest('button'); if (!b) return; selGame = b.dataset.g; ch = selGame; drawChatArea(); join(); };
-  const msgHTML = m => { const mine = !!me && m.who === me.who; const body = m.kind === 'invite' ? `<a class="lb-inv" href="${ROOT}${esc(m.game || '')}/?room=${esc(m.code || '')}"><span class="e">${esc((GAME_INFO[m.game] || ['🎲'])[0])}</span><span class="t"><b>${esc((GAME_INFO[m.game] || ['', m.game])[1] || m.game)} · phòng của ${esc(m.name)}</b><small>Mã phòng ${esc(m.code)} · đang chờ người chơi</small></span><span class="go">▶ Vào phòng</span></a>` : esc(m.text); return `<div class="lb-m${mine ? ' me' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span><div class="lb-b"><div class="lb-n">${esc(m.name)}${m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : ''}<time>${hhmm(m.ts)}</time></div>${body}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
+  const blk = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
+  const msgHTML = m => { if (m.who && m.who.startsWith('u:') && blk().includes(+m.who.slice(2))) return ''; /* 🚫 người mình đã chặn */ const mine = !!me && m.who === me.who; const av = m.av && typeof m.av === 'object' ? m.av : {}; const fa = frameAnim(av.f), ring = av.f && FRAME_RING[av.f]; const hot = nameAnim(av.n) || fa; /* ✨ đồ động kiểu Nitro: tên gradient chạy / khung xoay-phát sáng → tin nhắn phát sáng */ const body = m.kind === 'invite' ? `<a class="lb-inv" href="${ROOT}${esc(m.game || '')}/?room=${esc(m.code || '')}"><span class="e">${esc((GAME_INFO[m.game] || ['🎲'])[0])}</span><span class="t"><b>${esc((GAME_INFO[m.game] || ['', m.game])[1] || m.game)} · phòng của ${esc(m.name)}</b><small>Mã phòng ${esc(m.code)} · đang chờ người chơi</small></span><span class="go">▶ Vào phòng</span></a>` : esc(m.text); const avEl = ring ? `<span class="lb-avfr${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span></span>` : `<span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span>`; return `<div class="lb-m${mine ? ' me' : ''}${hot ? ' lb-m-hot' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}">${avEl}<div class="lb-b"><div class="lb-n"><span class="${nameAnim(av.n) ? 'nc-anim' : ''}${m.v === 2 ? ' lb-own' : ''}" style="${nameCss(av.n)}">${esc(m.name)}</span>${m.v === 2 ? ' <span class="lb-ownb"><i>👑</i> Chủ web</span>' : m.v === 3 ? ' <span class="lb-modb">🛡️ Mod</span>' : m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : ''}<time>${hhmm(m.ts)}</time></div>${body}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
   const scrollEnd = () => { const b = $('.lb-msgs'); b.scrollTop = b.scrollHeight; };
-  const drawMsgs = () => { if (grp === 'game' && !selGame) { $('.lb-msgs').innerHTML = '<div class="lb-empty">👆 Chọn 1 game ở trên để xem kênh chat của game đó nha!</div>'; return; } const l = msgs[ch] || []; $('.lb-msgs').innerHTML = l.length ? l.map(msgHTML).join('') : '<div class="lb-empty">Chưa ai nói gì… mở lời trước đi nè 👋</div>'; scrollEnd(); };
+  const drawMsgs = () => { if (!chatReady && !(grp === 'game' && !selGame)) return; /* chưa có lịch sử chat: giữ skeleton */ if (grp === 'game' && !selGame) { $('.lb-msgs').innerHTML = '<div class="lb-empty">👆 Chọn 1 game ở trên để xem kênh chat của game đó nha!</div>'; return; } const l = msgs[ch] || []; $('.lb-msgs').innerHTML = l.length ? l.map(msgHTML).join('') : '<div class="lb-empty">Chưa ai nói gì… mở lời trước đi nè 👋</div>'; scrollEnd(); };
   let frN = 0;
   const syncFr = () => { const b = $('.lb-fr b'); if (b) b.textContent = frN ? (frN > 9 ? '9+' : frN) : ''; };
   const drawWho = () => {
     const u = auth.user();
-    $('.lb-who').innerHTML = (u ? `<span>Chat với tên <b>${esc(u.name)}</b> <span style="color:#2f9e5b">✓</span></span>` : `<span>Tên: <input class="lb-nm" maxlength="20" value="${esc(myName() || 'Khách')}" aria-label="Tên của bạn"> · <a class="lb-login">Đăng nhập</a> để có dấu ✓</span>`) + `<button type="button" class="lb-fr">🤝 Bạn bè<b>${frN ? (frN > 9 ? '9+' : frN) : ''}</b></button>`;
-    const nm = $('.lb-nm'); if (nm) nm.onchange = () => { try { localStorage.setItem('gumballz-name', nm.value.trim().slice(0, 20)); } catch (e) {} hello(); };
+    $('.lb-who').innerHTML = (u ? `<span>Chat với tên <b>${esc(u.name)}</b> <span style="color:#2f9e5b">✓</span></span>` : `<span>🔑 <a class="lb-login">Đăng nhập</a> để chat trong Sảnh – chưa đăng nhập vẫn xem tin được.</span>`) + `<button type="button" class="lb-fr">🤝 Bạn bè<b>${frN ? (frN > 9 ? '9+' : frN) : ''}</b></button>`;
+    const inp = $('.lb-in > input'), sb = $('.lb-in > button[type=submit]'); /* khách: khoá ô nhập, bấm vào thì mở đăng nhập */
+    if (inp) { inp.disabled = !u; inp.placeholder = u ? 'Nhắn gì đó…' : 'Đăng nhập để chat…'; } if (sb) sb.textContent = u ? 'Gửi' : 'Đăng nhập';
     const lg = $('.lb-login'); if (lg) lg.onclick = () => openLogin();
     const fb = $('.lb-fr'); if (fb) fb.onclick = () => setGrp('friends');
   };
@@ -222,7 +249,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       if (row && !row.classList.contains('me')) {
         const who = row.dataset.who || '', name = row.dataset.name || '';
         const uid = who.startsWith('u:') ? +who.slice(2) : 0;
-        import('./friends.js?v=33').then(m => m.showPlayerCard({ uid, name }, whoHit));
+        import('./friends.js?v=34').then(m => m.showPlayerCard({ uid, name }, whoHit));
         return;
       }
     }
@@ -238,7 +265,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     send({ t: 'report', id, reason });
   };
   $('.lb-in').onsubmit = e => {
-    e.preventDefault(); const inp = $('.lb-in > input'), t = inp.value.trim(); if (!t) return;
+    e.preventDefault(); if (!auth.user()) { openLogin(); return; } const inp = $('.lb-in > input'), t = inp.value.trim(); if (!t) return;
     if (!ws || ws.readyState !== 1) { err('Đang nối lại máy chủ, đợi xíu nha…'); return; }
     send({ t: 'chat', ch, text: t }); inp.value = ''; inp.focus();
   };
@@ -258,13 +285,13 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     ws.onmessage = ev => {
       if (ev.data === 'pong') return; let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
       if (m.t === 'me') { me = m; drawMsgs(); }
-      else if (m.t === 'rooms') { rooms = m.list || []; drawRooms(); }
+      else if (m.t === 'rooms') { rooms = m.list || []; roomsReady = true; drawRooms(); }
       else if (m.t === 'mm_stat') { mmStat = { n: m.n || 0, byGame: m.byGame || {} }; if (mmState && mmStat.n >= 2) mmState.low = false; drawMm(); }
       else if (m.t === 'mm_pairing') { clearTimeout(mmLowT); if (mmState) { mmState.pairing = true; mmState.low = false; mmState.game = m.game || mmState.game; mmState.host = m.host; drawMm(); } }
       else if (m.t === 'mm_host') { clearTimeout(mmLowT); mmState = null; hostNow(m.game); }
       else if (m.t === 'mm_found') { clearTimeout(mmLowT); mmState = null; location.href = `${ROOT}${m.game}/?room=${m.code}`; }
-      else if (m.t === 'hist') { msgs[m.ch] = m.msgs; if (m.ch === ch) drawMsgs(); }
-      else if (m.t === 'msg') { const l = msgs[m.m.ch] = msgs[m.m.ch] || []; l.push(m.m); if (l.length > 120) l.shift(); if (m.m.ch === ch && grp !== 'friends' && !(grp === 'game' && !selGame)) { const box = $('.lb-msgs'); const near = box.scrollHeight - box.scrollTop - box.clientHeight < 120; if (l.length === 1) drawMsgs(); else { box.insertAdjacentHTML('beforeend', msgHTML(m.m)); if (near) scrollEnd(); } } }
+      else if (m.t === 'hist') { msgs[m.ch] = m.msgs; chatReady = true; if (m.ch === ch) drawMsgs(); }
+      else if (m.t === 'msg') { const l = msgs[m.m.ch] = msgs[m.m.ch] || []; l.push(m.m); if (l.length > 120) l.shift(); if (m.m.ch === ch && grp !== 'friends' && !(grp === 'game' && !selGame)) { chatReady = true; const box = $('.lb-msgs'); const near = box.scrollHeight - box.scrollTop - box.clientHeight < 120; if (l.length === 1 || box.querySelector('.sk')) drawMsgs(); else { box.insertAdjacentHTML('beforeend', msgHTML(m.m)); if (near) scrollEnd(); } } }
       else if (m.t === 'del') { for (const k in msgs) msgs[k] = msgs[k].filter(x => x.id !== m.id); el.querySelector(`.lb-m[data-id="${m.id}"]`)?.remove(); }
       else if (m.t === 'err') err(m.msg);
       else if (m.t === 'ok') err(m.msg);
@@ -276,7 +303,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   }
   const offFr = e => { frN = (e.detail && e.detail.count) || 0; syncFr(); };
   addEventListener('gumballz-friends', offFr);
-  import('./friends.js?v=33').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=34').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
   const off = auth.onChange(() => { drawWho(); hello(); });
   drawRooms(); drawChatArea(); drawWho(); drawMm(); connect();
   if (autoMatch) setTimeout(() => startMm(game || filter), 60);

@@ -7,8 +7,8 @@ import {
   setData, TILES, GROUPS, GROUP_LIST, STATION_RENT, money, rentOf, canBuild, canSell, canMortgage, canUnmortgage, houseCost, mortgageValue,
   unmortgageCost, travelOk, buildBlock, tradable, tradeError, buybackPrice, netWorth, tilesOf, ownsGroup, JAIL_FINE, MAX_TRADES, isProp,
   tradeImpact, tradeSideValue, planRaise, raiseSummary, TEAM_ICON, TEAM_NAME } from './engine.js?v=66';
-import { Board3D, THEMES } from './scene3d.js?v=56';
-import * as fx from './fx.js?v=54';
+import { Board3D, THEMES } from './scene3d.js?v=57';
+import * as fx from './fx.js?v=55';
 import { guideHTML } from './guide.js?v=64';
 import { OPTIONS, PRESETS, buildAvatar, portrait } from '../../shared/js/avatar3d.js';
 import * as THREE from '../../shared/lib/three.module.min.js';
@@ -151,6 +151,7 @@ function openSettings() {
     <div class="set-row"><b>✨ Hiệu ứng hình ảnh</b>${seg('effects', [[true, 'Bật'], [false, 'Tắt']], v => B && B.setEffects(v))}</div>
     <div class="set-row"><b>🌇 Chủ đề</b>${seg('theme', Object.entries(THEMES).map(([k, t]) => [k, t.name]), v => B && B.setTheme(v))}</div>
     <div class="set-row"><b>🖥️ Chất lượng 3D</b>${seg('quality', [['low', 'Thấp'], ['med', 'Vừa'], ['high', 'Cao']], v => B && B.setQuality(v))}</div>
+    <div class="set-row"><b>🎥 Góc máy</b>${seg('spin', [[false, 'Bàn đứng yên'], [true, 'Xoay theo quân']])}</div>
     <div class="set-row"><b>⏩ Tốc độ hoạt ảnh</b>${seg('speed', [['slow', 'Chậm'], ['normal', 'Vừa'], ['fast', 'Nhanh']])}</div>
     <p class="note">Máy yếu / điện thoại nóng: chọn chất lượng Thấp. Cài đặt được lưu trên máy này.</p>
     <div class="mbtns">${btn('modal', '📖 Hướng dẫn luật', () => openGuide(), 'ghost')}${btn('modal', '🧭 Xem lại hướng dẫn', () => replayTour(), 'ghost')}</div>`, '', 'settings');
@@ -297,6 +298,7 @@ async function ensureBoard() {
   try {
     B = new Board3D($('#game3d'), {
       tiles: TILES, groups: GROUPS, quality: settings.quality, theme: settings.theme, effects: settings.effects,
+      spin: () => !!settings.spin,
       onCell: i => { fx.sfx.click(); if (myTravel() && !busy) travelTap(i); else openTile(i); },
       onCamera: m => { $('#btn-home-cam').classList.toggle('on', m === 'free'); $('#btn-overview').classList.toggle('on', m === 'overview'); },
     });
@@ -355,12 +357,16 @@ function applyView(v) {
 
 // ---------- hoạt ảnh từng sự kiện ----------
 const k = () => fx.S();
+/* tab ẩn mà tới lượt: nháy tiêu đề trang cho dễ thấy, quay lại tab thì thôi */
+let ttlT = 0, ttl0 = document.title; function turnTitle(on) { clearInterval(ttlT); document.title = ttl0; if (!on || !document.hidden) return; let f = 0; ttlT = setInterval(() => { document.title = (f = !f) ? '🎲 Tới lượt bạn!' : ttl0; }, 900); }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) turnTitle(false); });
 async function animate(e, v) {
   const pc = id => P(v, id) ? P(v, id).color : '#ff7a1a';
   switch (e.t) {
     case 'turn': {
       B.setTurn(e.pid); B.follow(e.pid); fx.sfx.turn();
       if (isMine(e.pid)) fx.banner(multiLocal(v) ? `Lượt ${nm(v, e.pid)}!` : 'Tới lượt bạn!', 'gold sm');
+      if (isMine(e.pid) && !multiLocal(v)) { try { dispatchEvent(new Event('gumballz-myturn')); } catch (er) {} turnTitle(true); }
       await sleep(200 * k()); break;
     }
     case 'roll': {

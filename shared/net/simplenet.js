@@ -9,9 +9,9 @@
 //     botNames: [...], allowLocal: true,                      // allowLocal: cho thêm "người chơi cùng máy" (chuyền tay)
 //   });
 // Người chơi cùng máy (local) và bot do máy chủ phòng điều khiển: hành động của họ gửi qua net.actAs(id, a).
-import { RoomHost, RoomClient, token, session } from './room.js?v=51';
+import { RoomHost, RoomClient, token, session } from './room.js?v=52';
 import { specBanner } from '../ui/spectate.js?v=8';
-import { watch } from '../ui/stats.js?v=86';
+import { watch } from '../ui/stats.js?v=87';
 export { session };
 import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=1';
 const HB_MS = 2500, STALL_MS = 8000, AWAY_MS = 8000;

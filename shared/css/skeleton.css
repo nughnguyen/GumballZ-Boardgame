@@ -1,0 +1,23 @@
+/* 💀 Skeleton loading dùng chung (xem shared/ui/skeleton.js).
+   Khối xám + shimmer chạy ngang. Skeleton tái dùng class layout thật của từng
+   component (.room-card, .hot-card, .card, .rk-row, .lb-m…) nên khớp khung nội
+   dung thật, không giật layout khi nội dung về.
+   Tôn trọng prefers-reduced-motion: tắt shimmer, chỉ khối xám tĩnh. */
+.sk{--sk-bg:#EAE2D2;--sk-hi:#F7F1E6;display:block;position:relative;overflow:hidden;background:var(--sk-bg);border-radius:8px;flex:none}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,var(--sk-hi) 50%,transparent 100%);background-size:200% 100%;animation:sk-shim 1.3s linear infinite}
+@keyframes sk-shim{from{background-position:180% 0}to{background-position:-80% 0}}
+@media (prefers-reduced-motion:reduce){.sk::after{animation:none;display:none}}
+.sk-line{height:12px;border-radius:6px}
+.sk-circle{border-radius:50%}
+.sk-pill{border-radius:999px}
+.sk-lines{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;width:100%}
+/* Hàng phòng (trang chủ #rooms-list + sảnh .lb-rooms): khớp .room-card/.lb-room – tròn 40 + 2 dòng + pill */
+.sk-room{display:flex;align-items:center;gap:12px;min-width:0;padding:14px 4px;min-height:58px;border-bottom:2px dashed #E5DCC8}
+.sk-room:last-child{border-bottom:0}
+.sk-player{display:flex;align-items:center;gap:10px;min-height:56px;padding:5px 8px;border-radius:14px;background:#f3f7ff;list-style:none}
+/* Dòng bảng tỉ lệ (shop #drop-table li) */
+.sk-drop{display:flex;align-items:center;gap:8px;padding:6px 0;list-style:none}
+.sk-drop .sk-line{flex:1}
+/* Bong bóng chat skeleton: dùng .lb-b thật (nền + bo góc) chỉ thay ruột bằng khối xám */
+.sk-bubble{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.sk-bubble .sk-line{max-width:100%}

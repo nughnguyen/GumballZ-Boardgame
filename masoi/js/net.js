@@ -1,8 +1,8 @@
 // Lớp mạng Ma Sói: chủ phòng giữ state + đồng hồ quản trò, người vào chỉ gửi action. Kết nối dùng chung shared/net/room.js
 import { createGame, applyAction, viewFor, actors, timeout, phaseMs, DEFAULT_OPTS, presetRoles, roleList, ROLES, MAX_PLAYERS, MIN_PLAYERS, P, isWolfRole } from './engine.js?v=11';
 import { botAction, botDayPlan, botWolfLine, botGhostLine, botLastWords } from './bot.js?v=10';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=51';
-import { API } from '../../shared/net/api.js?v=27';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=52';
+import { API } from '../../shared/net/api.js?v=28';
 /* 🤖 bot Ma Sói biết nói: POST /ai/masoi (server/src/ai.js masoiLine) – tắt hay hết trần thì tự nghỉ một lúc, bot dùng câu có sẵn */
 let aiOff = 0;
 async function aiLine(s, b, hint, code) {
@@ -19,7 +19,7 @@ async function aiLine(s, b, hint, code) {
 }
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=86';
+import { watch } from '../../shared/ui/stats.js?v=87';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 // câu chọc riêng của Ma Sói (bảng thả emoji – shared/ui/react.js)

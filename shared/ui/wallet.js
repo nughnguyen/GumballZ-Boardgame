@@ -62,6 +62,19 @@ export const COSMETICS = {
     { id: 'saobang', name: 'Khung Sao Băng', price: 0, chest: true },
     { id: 'keongot', name: 'Khung Kẹo Ngọt', price: 0, chest: true },
     { id: 'hoanggia', name: 'Khung Hoàng Gia', price: 0, chest: true, rare: true },
+    /* 🛍️ thêm 2026-11-21: khung thường bán bằng xu */
+    { id: 'anhdao', name: 'Khung Anh Đào', price: 200, shop: true },
+    { id: 'saoxanh', name: 'Khung Sao Xanh', price: 200, shop: true },
+    { id: 'bienxanh', name: 'Khung Biển Xanh', price: 150, shop: true },
+    { id: 'hoanghon', name: 'Khung Hoàng Hôn', price: 250, shop: true },
+    { id: 'mattrang', name: 'Khung Mặt Trăng', price: 200, shop: true },
+    { id: 'rungthong', name: 'Khung Rừng Thông', price: 150, shop: true },
+    { id: 'camvang', name: 'Khung Cam Vàng', price: 150, shop: true },
+    { id: 'timsen', name: 'Khung Tím Sen', price: 200, shop: true },
+    /* ✨ khung động kiểu Nitro: chỉ mở ra từ rương (cực hiếm), anim: 'spin' = viền xoay, 'glow' = phát sáng */
+    { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', price: 0, chest: true, rare: true, anim: 'spin' },
+    { id: 'luachay', name: 'Khung Lửa Cháy', price: 0, chest: true, rare: true, anim: 'glow' },
+    { id: 'vangxoay', name: 'Khung Vàng Xoay', price: 0, chest: true, rare: true, anim: 'spin' },
   ],
   colors: [
     { id: 'ngoc', name: 'Xanh Ngọc', price: 150, shop: true },
@@ -69,6 +82,21 @@ export const COSMETICS = {
     { id: 'chanh', name: 'Vàng Chanh', price: 200, shop: true },
     { id: 'song', name: 'Sóng Biển', price: 0, chest: true },
     { id: 'daquang', name: 'Dạ Quang', price: 0, chest: true },
+    /* 🛍️ thêm 2026-11-21: màu tên thường bán bằng xu */
+    { id: 'hongsam', name: 'Hồng Sẫm', price: 150, shop: true },
+    { id: 'camchay', name: 'Cam Cháy', price: 150, shop: true },
+    { id: 'xanhreu', name: 'Xanh Rêu', price: 150, shop: true },
+    { id: 'duong', name: 'Xanh Dương', price: 150, shop: true },
+    { id: 'cham', name: 'Xanh Chàm', price: 150, shop: true },
+    { id: 'nau', name: 'Nâu Đất', price: 150, shop: true },
+    { id: 'xam', name: 'Xám Đá', price: 150, shop: true },
+    { id: 'vomo', name: 'Vàng Mơ', price: 200, shop: true },
+    { id: 'luc', name: 'Xanh Lục', price: 150, shop: true },
+    { id: 'do', name: 'Đỏ Tươi', price: 150, shop: true },
+    /* ✨ tên động kiểu Nitro: gradient chạy trên chữ — chỉ mở ra từ rương (cực hiếm), anim: 1 = chạy gradient */
+    { id: 'cauvongchay', name: 'Cầu Vồng Chạy', price: 0, chest: true, rare: true, anim: 1 },
+    { id: 'vanglaplanh', name: 'Vàng Lấp Lánh', price: 0, chest: true, rare: true, anim: 1 },
+    { id: 'timxanhchay', name: 'Tím Xanh Chạy', price: 0, chest: true, rare: true, anim: 1 },
   ],
   backs: [
     { id: 'hongphan', name: 'Hồng Phấn', price: 200, shop: true },
@@ -76,17 +104,36 @@ export const COSMETICS = {
     { id: 'timbiec', name: 'Tím Biếc', price: 0, chest: true },
     { id: 'vangchanh', name: 'Vàng Chanh', price: 0, chest: true },
   ],
+  /* 🎏 banner hồ sơ: 3 loại thường bán bằng xu, 2 loại động chỉ mở rương (cực hiếm) */
+  banners: [
+    { id: 'bnhoanghon', name: 'Banner Hoàng Hôn', price: 200, shop: true },
+    { id: 'bnbienxanh', name: 'Banner Biển Xanh', price: 200, shop: true },
+    { id: 'bnsaodem', name: 'Banner Sao Đêm', price: 200, shop: true },
+    { id: 'bncauvong', name: 'Banner Cầu Vồng Chạy', price: 0, chest: true, rare: true, anim: 1 },
+    { id: 'bnvangchay', name: 'Banner Vàng Chảy', price: 0, chest: true, rare: true, anim: 1 },
+  ],
 };
 export const cosmeticById = (kind, id) => (COSMETICS[kind] || []).find(x => x.id === id) || null;
-export const widOf = (kind, id) => (kind === 'frame' ? 'frame:' : kind === 'color' ? 'color:' : 'back:') + id;
-/* ---------- rương gacha: 100 xu/lần, chủ yếu đồ trang trí, vật phẩm hỗ trợ nhẹ — không pay-to-win ---------- */
+export const widOf = (kind, id) => (kind === 'frame' ? 'frame:' : kind === 'color' ? 'color:' : kind === 'banner' ? 'banner:' : 'back:') + id;
+/* ---------- rương gacha: 100 xu/lần, chủ yếu đồ trang trí — không pay-to-win ----------
+   Bảng rớt mới (2026-11-21): BỎ vật phẩm hỗ trợ khỏi rương (chỉ mua trong trận Bắn Tàu);
+   thêm hạng động kiểu Nitro (tên động / khung động / banner động) với tỉ lệ CỰC HIẾM:
+   mỗi món động <1% (mỗi nhóm 1% chia đều cho các món trong nhóm), tổng hạng động 3%.
+   Giải tiền XU giữ nguyên +50/+100/+200 (tổng 35%).
+   Kỳ vọng xu mỗi rương: tiền mặt 0,15×50+0,12×100+0,08×200 = 35,5 xu; hoàn trùng tối đa
+   (đã có hết đồ trang trí: 65% × 20 xu) = 13 xu → EV xu tối đa 48,5 xu < giá 100 xu.
+   Người mới (chưa trùng món nào): EV xu = 35,5 xu. Rương luôn là hố đốt xu, không lãi xu. */
 export const CHEST_TABLE = [
-  { w: 40, kind: 'frame', pool: ['bongbong', 'saobang', 'keongot'], label: 'Khung avatar trong rương' },
-  { w: 20, kind: 'color', pool: ['song', 'daquang'], label: 'Màu tên trong rương' },
-  { w: 15, kind: 'back', pool: ['timbiec', 'vangchanh'], label: 'Mặt sau lá bài trong rương' },
-  { w: 15, kind: 'item', pool: ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu'], label: 'Vật phẩm hỗ trợ' },
-  { w: 5, kind: 'frame', pool: ['hoanggia'], label: 'Khung Hoàng Gia (hiếm)' },
-  { w: 5, kind: 'xu', amount: 50, label: 'Hoàn 50 xu' },
+  { w: 32, kind: 'frame', pool: ['bongbong', 'saobang', 'keongot'], label: 'Khung avatar trong rương' },
+  { w: 16, kind: 'color', pool: ['song', 'daquang'], label: 'Màu tên trong rương' },
+  { w: 10, kind: 'back', pool: ['timbiec', 'vangchanh'], label: 'Mặt sau lá bài trong rương' },
+  { w: 4, kind: 'frame', pool: ['hoanggia'], label: 'Khung Hoàng Gia (hiếm)' },
+  { w: 1, kind: 'color', pool: ['cauvongchay', 'vanglaplanh', 'timxanhchay'], label: 'Tên động kiểu Nitro (CỰC HIẾM)', rare: true },
+  { w: 1, kind: 'frame', pool: ['cauvongxoay', 'luachay', 'vangxoay'], label: 'Khung động kiểu Nitro (CỰC HIẾM)', rare: true },
+  { w: 1, kind: 'banner', pool: ['bncauvong', 'bnvangchay'], label: 'Banner động kiểu Nitro (CỰC HIẾM)', rare: true },
+  { w: 15, kind: 'xu', amount: 50, label: '🪙 +50 xu' },
+  { w: 12, kind: 'xu', amount: 100, label: '🪙 +100 xu' },
+  { w: 8, kind: 'xu', amount: 200, label: '🪙 +200 xu' },
 ];
 export function rollChest(rng = Math.random) {
   const total = CHEST_TABLE.reduce((n, e) => n + e.w, 0); let r = rng() * total;
@@ -109,7 +156,7 @@ export function openChest(rng = Math.random) {
 export function snapshot() {
   const w = loadWallet();
   const inv = {}; for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) if (num(w.inv[k]) > 0) inv[k] = num(w.inv[k]);
-  return { xu: num(w.xu), inv, own: [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back):[a-z]{2,14}$/.test(x)))].slice(0, 200), eq: { back: String(w.eq.back || '').slice(0, 14) }, dbl: num(w.dbl), chest: num(w.chest), at: num(w.at) };
+  return { xu: num(w.xu), inv, own: [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back|banner):[a-z]{2,14}$/.test(x)))].slice(0, 200), eq: { back: String(w.eq.back || '').slice(0, 14) }, dbl: num(w.dbl), chest: num(w.chest), at: num(w.at) };
 }
 /* nhận ví từ máy chủ: chỉ nhận khi bản máy chủ mới hơn bản trên máy này (ai mới hơn thì thắng) */
 export function adoptServer(wal) {
@@ -117,7 +164,7 @@ export function adoptServer(wal) {
   const cur = loadWallet(); if (num(wal.at) <= num(cur.at)) return false;
   const w = blank(); w.xu = num(wal.xu, 1e7);
   w.inv = {}; if (wal.inv && typeof wal.inv === 'object') for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) w.inv[k] = Math.min(999, num(wal.inv[k]));
-  w.own = Array.isArray(wal.own) ? [...new Set(wal.own.filter(x => typeof x === 'string' && /^(frame|color|back):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
+  w.own = Array.isArray(wal.own) ? [...new Set(wal.own.filter(x => typeof x === 'string' && /^(frame|color|back|banner):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
   w.eq = { back: typeof (wal.eq && wal.eq.back) === 'string' ? wal.eq.back.slice(0, 14) : '' };
   w.dbl = Math.min(99, num(wal.dbl)); w.chest = Math.min(1e5, num(wal.chest)); w.at = num(wal.at);
   ls.set(KEY, JSON.stringify(w)); emit(); return true;

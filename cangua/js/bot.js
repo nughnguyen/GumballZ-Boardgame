@@ -1,9 +1,10 @@
 // Bot cờ cá ngựa: ưu tiên đá ngựa, xuất chuồng, lên đích, né chỗ nguy hiểm. 3 mức: easy / normal / hard.
-import { P, absSq, onTrack, inHome, GATE, HOME0, TRACK, occupant, exitOk } from './engine.js?v=3';
+import { P, absSq, onTrack, inHome, GATE, HOME0, TRACK, occupant, exitOk, isSafe } from './engine.js?v=3';
 
 // xác suất (thô) 1 ô tuyệt đối bị ngựa đối thủ đá ở lượt sau
 function threat(s, me, sq, ignore = null) {
   const o = s.opts; let risk = 0;
+  if (isSafe(s, sq)) return 0; /* 🛡️ ô an toàn: không ai đá được */
   const reach = o.dice === 1 ? { 1: 1 / 6, 2: 1 / 6, 3: 1 / 6, 4: 1 / 6, 5: 1 / 6, 6: 1 / 6 }
     : { 2: 1 / 36, 3: 2 / 36, 4: 3 / 36, 5: 4 / 36, 6: 5 / 36, 7: 6 / 36, 8: 5 / 36, 9: 4 / 36, 10: 3 / 36, 11: 2 / 36, 12: 1 / 36 };
   for (const p of s.players) {
@@ -43,6 +44,7 @@ export function scoreMove(s, pid, m, level = 'normal') {
   let sc = 0;
   const worth = pos => pos < 0 ? 0 : 10 + pos * 0.9;
   if (m.kick) { const v = P(s, m.kick.pid); sc += 70 + v.horses[m.kick.h] * 1.3; }
+  if (m.kick2) { const v = P(s, m.kick2.pid); sc += 70 + v.horses[m.kick2.h] * 1.3; }
   if (m.kind === 'out') sc += 48 - me.horses.filter(x => onTrack(x)).length * 6;
   if (m.kind === 'home' && me && s.opts.homeRule === 'thru') sc += thruHome(s, me, m);
   else if (m.kind === 'home') sc += m.from <= GATE ? 55 : 22 + (m.to - HOME0) * 3;

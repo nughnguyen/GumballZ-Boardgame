@@ -2,7 +2,7 @@
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=4';
 import * as E from './engine.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);

@@ -22,19 +22,32 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="48x48"><link rel="icon" href="/shared/img/brand/icon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="/shared/img/brand/icon-192.png" type="image/png" sizes="192x192"><link rel="icon" href="./favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="./shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="./manifest.webmanifest?v=7"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/css/home.css?v=10">
-<link rel="stylesheet" href="./shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="shared/css/home.css?v=11">
+<link rel="stylesheet" href="shared/css/skeleton.css?v=1">
+<link rel="stylesheet" href="./shared/ui/shell.css?v=20">
 <link rel="stylesheet" href="shared/css/daily.css?v=2">
-<link rel="stylesheet" href="./shared/css/footer.css?v=6">
+<link rel="stylesheet" href="./shared/css/footer.css?v=7">
 <link rel="stylesheet" href="shared/css/topbar.css?v=1">
 <link rel="stylesheet" href="shared/css/page-trans.css?v=1">
 </head>
 <body>
-<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
 <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
 <div id="topbar"></div>
 <script src="shared/ui/topbar.js?v=1"></script>
 <main>
+<style id="lgcss">
+.lgcard{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 14px;border:2px solid #241A38;border-radius:16px;background:#FFFDF9;box-shadow:4px 4px 0 #241A38}
+.lgcard[hidden]{display:none}
+.lg-i{flex:none;width:46px;height:46px;display:grid;place-items:center;border:2px solid #241A38;border-radius:14px;background:#FACD33;font-size:24px}
+.lg-t{flex:1;min-width:0}.lg-t b{display:block;font:800 16.5px/1.25 "Baloo 2",Nunito,sans-serif;color:#241A38}.lg-t small{display:block;color:#8B7E9E;font-size:13.5px;line-height:1.4}
+.lg-b{display:flex;gap:8px;flex:none}
+.lg-b button{min-height:44px;border:2px solid #241A38;border-radius:999px;padding:0 16px;font:800 14.5px Nunito,sans-serif;cursor:pointer;background:#FFFDF9;color:#241A38}
+.lg-b .go{background:#FF5A60;color:#fff}
+@media (max-width:640px){.lgcard{flex-wrap:wrap}.lg-b{width:100%}.lg-b .go{flex:1}}
+</style>
+<!-- 🔑 Thẻ mời đăng nhập cho khách quay lại: không chặn cửa, "Để sau" = im 7 ngày. Hiện ngay lúc tải (không giật trang). -->
+<div class="lgcard" id="lgcard" hidden><span class="lg-i" aria-hidden="true">🔑</span><div class="lg-t"><b>Đăng nhập để chơi trọn vẹn hơn</b><small>Kết bạn, nhắn tin, chat ở Sảnh, giữ cấp độ + thành tích trên mọi máy. Có nút Google, chỉ vài giây.</small></div><div class="lg-b"><button type="button" class="go" id="lg-go">Đăng nhập / Đăng ký</button><button type="button" id="lg-no">Để sau</button></div></div>
+<script>try{var _a=JSON.parse(localStorage.getItem('gumballz-auth')||'null');if(!(_a&&_a.token)&&localStorage.getItem('gumballz-visited')&&Date.now()-(+localStorage.getItem('gumballz-lgcard')||0)>7*864e5)document.getElementById('lgcard').hidden=false;if(!localStorage.getItem('gumballz-visited'))localStorage.setItem('gumballz-visited',String(Date.now()))}catch(e){}</script>
 <div class="hero">
   <section class="playzone" aria-label="Vào phòng nhanh">
     <p class="hero-kicker">Board game tiếng Việt</p>
@@ -65,7 +78,7 @@
 </div>
   <section class="rooms-sec" id="rooms" aria-label="Phòng đang mở">
     <div class="rooms-top"><h2>Phòng đang mở<small id="rooms-n"></small></h2><a class="rooms-all" href="sanh/">Sảnh chung →</a></div>
-    <div class="rooms-list" id="rooms-list"></div>
+    <div class="rooms-list" id="rooms-list"><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div></div>
     <p class="rooms-empty" id="rooms-empty">Đang xem có phòng nào mở không…</p>
   </section>
   <div class="sec-head" id="games">
@@ -559,10 +572,10 @@
   <p class="empty-filter" id="empty-filter">Chưa có game nào hợp với lựa chọn này – thử đổi bộ lọc nha.</p>
   <section class="daily-hot">
     <div class="daily" id="daily" hidden></div>
-    <section class="hot" id="hot" hidden><h2>🔥 Đang hot</h2><div class="hot-carousel"><button type="button" class="hot-nav prev" id="hot-prev" aria-label="Xem game hot trước đó">‹</button><div class="hot-row" id="hot-row"></div><button type="button" class="hot-nav next" id="hot-next" aria-label="Xem game hot tiếp theo">›</button></div></section>
+    <section class="hot" id="hot"><h2>🔥 Đang hot</h2><div class="hot-carousel"><button type="button" class="hot-nav prev" id="hot-prev" aria-label="Xem game hot trước đó">‹</button><div class="hot-row" id="hot-row"><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div></div><button type="button" class="hot-nav next" id="hot-next" aria-label="Xem game hot tiếp theo">›</button></div></section>
   </section>
 <footer class="gmf"></footer>
-<script src="./shared/ui/footer.js?v=17"></script>
+<script src="./shared/ui/footer.js?v=18"></script>
 </main>
 <script>
 // tên game dài (vd. "Tiến Lên miền Nam") thì thu nhỏ cho vừa 1 dòng
@@ -570,7 +583,7 @@ function fitTitles(){document.querySelectorAll('#games-grid .tile .info h2').for
 addEventListener('load',fitTitles);addEventListener('resize',()=>{clearTimeout(fitTitles.t);fitTitles.t=setTimeout(fitTitles,120)});document.fonts&&document.fonts.ready.then(fitTitles);
 </script>
 <script type="module" src="shared/ui/feedback.js?v=34"></script>
-<script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());</script>
+<script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=2').then(m => m.mountWorldChat());</script>
 <script type="module">
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const json = k => { try { return JSON.parse(ls.get(k)); } catch (e) { return null; } };
@@ -579,10 +592,17 @@ const tiles = $$('#games-grid .tile[data-game]');
 tiles.forEach((t, i) => t.style.setProperty('--i', i));
 // 📅 Thử thách hôm nay (4 việc: Cờ thế + Giải đố Cờ vua + thắng 2 game theo ngày)
 import { mountDaily } from './shared/js/daily.js?v=1'; mountDaily(document.getElementById('daily'));
+// 🔑 thẻ mời đăng nhập (khách quay lại): bấm → hộp đăng nhập; đăng nhập xong / Để sau → ẩn
+{ const c = document.getElementById('lgcard');
+  if (c && !c.hidden) {
+    document.getElementById('lg-go').onclick = () => import('./shared/ui/account.js?v=50').then(m => m.openLogin());
+    document.getElementById('lg-no').onclick = () => { c.hidden = true; try { localStorage.setItem('gumballz-lgcard', String(Date.now())); } catch (e) {} };
+    addEventListener('gumballz-auth', () => { try { if (JSON.parse(localStorage.getItem('gumballz-auth') || 'null')) c.hidden = true; } catch (e) {} });
+  } }
 // ô game ra khỏi màn hình thì dừng hoạt ảnh (cuộn nhẹ hơn, đỡ tốn pin)
 if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('asleep', !e.isIntersecting)), { rootMargin: '120px' }); $$('.tile').forEach(t => io.observe(t)); }
 // thanh trên đổ bóng khi cuộn
-$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=56').then(m => m.openMatchmaking()));
+$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=58').then(m => m.openMatchmaking()));
 // ▶ Vào lại ván: game nào còn phiên dở (gumballz-session-<game>, xem shared/net/room.js) thì hiện nút
 const FRESH = 3 * 3600e3; let resumeGame = null;
 tiles.forEach(tile => {
@@ -625,19 +645,19 @@ hero(resumeGame || today, resumeGame ? '▶ Chơi tiếp nè' : 'Nổi bật hô
 // 🏷️ Nhãn HOT trên ô game đang đông nhất (theo số người chơi thật)
 function hotBadges(top) { tiles.forEach(t => { const on = top.includes(t.dataset.game); let b = t.querySelector('.badge.hot'); if (on && !b && !t.querySelector('.badge.new')) { b = document.createElement('span'); b.className = 'badge hot'; b.textContent = '🔥 HOT'; t.append(b); } else if (!on && b) b.remove(); }); }
 // 🚪 Phòng đang mở + ô nhập mã phòng ngay trang chủ (khỏi phải vào Sảnh hay chọn game trước)
-import('./shared/net/api.js?v=27').then(({ API }) => {
+import('./shared/net/api.js?v=28').then(({ API }) => {
   const LVN = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ'];
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const tileOf = g => tiles.find(t => t.dataset.game === g);
   async function loadRooms() {
     if (document.hidden) return;
-    let list = []; try { list = (await (await fetch(API() + '/lobby/rooms')).json()).list || []; } catch (e) { return; }
+    let list = []; try { list = (await (await fetch(API() + '/lobby/rooms')).json()).list || []; } catch (e) { $('#rooms-list').innerHTML = ''; const em0 = $('#rooms-empty'); em0.hidden = false; em0.innerHTML = 'Không tải được phòng đang mở – vào <a href="sanh/">Sảnh chung</a> xem thử nha.'; return; }
     list = list.filter(r => tileOf(r.game)).sort((a, b) => b.n - a.n || b.created - a.created);
     $('#rooms-n').textContent = list.length ? `${list.length} phòng công khai` : '';
     $('#rooms-list').innerHTML = list.slice(0, 8).map(r => { const t = tileOf(r.game); return `<a class="room-card" href="${r.game}/?room=${r.code}"><img src="shared/img/icons/${r.game}.svg" alt="" onerror="this.remove()"><span><b>${esc(t.querySelector('h2').textContent)}</b><small>Mã ${r.code} · ${r.n} người trong phòng</small></span><em>Vào</em></a>`; }).join('');
     const em = $('#rooms-empty'); em.hidden = !!list.length && list.length <= 8;
     em.innerHTML = list.length > 8 ? `<a href="sanh/">Xem cả ${list.length} phòng ở Sảnh chung ▶</a>` : 'Chưa có phòng công khai nào đang mở 🥲 Bấm <a href="#" data-mm>⚡ Tìm trận nhanh</a> hoặc chọn game rồi tạo phòng nha.';
-    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=56').then(m => m.openMatchmaking()); };
+    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=58').then(m => m.openMatchmaking()); };
   }
   loadRooms(); setInterval(loadRooms, 30000); document.addEventListener('visibilitychange', loadRooms);
   const inp = $('#code-in'), msg = $('#code-msg'), btn = $('#codebox button');
@@ -682,6 +702,7 @@ function hotAutoStart() {
   hotAutoStop();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!hotRow.children.length || $('#hot').hidden || document.hidden) return;
+  if (hotRow.querySelector('.sk')) return; /* còn skeleton: chưa có thẻ thật, chưa tự cuộn */
   hotTimer = setInterval(hotAutoStep, 4000);
 }
 function hotAutoStop() { if (hotTimer) { clearInterval(hotTimer); hotTimer = null; } }
@@ -701,6 +722,7 @@ hotRow.addEventListener('pointerdown', e => {
   const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); if (moved) hotRow.addEventListener('click', stop, true); };
   addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
 });
+let hotFilled = false; /* đã có game hot thật: skeleton được thay, không chạy fallback nữa */
 function live(lv) {
   const games = (lv && lv.games) || {}, hide = ls.get('gumballz-hide-online') === '1';
   tiles.forEach(t => { const n = games[t.dataset.game] || 0, l = t.querySelector('.livetag'); l.classList.toggle('on', n > 0 && !hide); l.textContent = n + ' đang chơi'; });
@@ -709,10 +731,11 @@ function live(lv) {
   if (top.length && !hide) {
     $('#hot').hidden = false;
     $('#hot-row').innerHTML = top.map(([g, n], i) => hotCard(g, i, `🟢 ${n} người đang chơi`)).join('');
+    hotFilled = true;
     hotNav();
     hotAutoStart();
     if (!resumeGame) hero(top[0][0], '🔥 Đang hot nhất');
-  } else if (!top.length && !hide && $('#hot').hidden) hotFallback();
+  } else if (!top.length && !hide && !hotFilled) hotFallback();
 }
 addEventListener('gumballz-live', e => live(e.detail)); if (window.__gumballzLive) live(window.__gumballzLive);
 // 🔥 Game hot lên trên cùng: nếu không có số người chơi trực tiếp (chưa ai chơi / mất kết nối máy chủ),
@@ -720,13 +743,15 @@ addEventListener('gumballz-live', e => live(e.detail)); if (window.__gumballzLiv
 function hotFallback() {
   if (ls.get('gumballz-hide-online') === '1') return;
   const picks = FEATURED.map(g => tiles.find(t => t.dataset.game === g)).filter(Boolean);
-  if (!picks.length || !$('#hot').hidden) return;
+  if (!picks.length || hotFilled) return;
   $('#hot-row').innerHTML = picks.map((t, i) => hotCard(t.dataset.game, i, '⭐ Nổi bật')).join('');
+  hotFilled = true;
   $('#hot').hidden = false;
   hotNav();
   hotAutoStart();
 }
 setTimeout(hotFallback, 4000);
+if (ls.get('gumballz-hide-online') === '1') $('#hot').hidden = true; /* đã tắt hiển thị online: ẩn phần hot luôn, skeleton không ở lại */
 // Lọc: loại game + số người (hiện game có khoảng số người giao với khoảng đã chọn)
 const RANGES = { all: [1, 99], '1': [1, 1], '2': [2, 2], '4-7': [4, 7], '8+': [8, 99] };
 let cat = ls.get('gumballz-hub-cat') || 'all', pf = ls.get('gumballz-hub-filter') || 'all';
@@ -764,7 +789,7 @@ if (_q) document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
 </script>
 <script src="shared/js/rive/rive.js?v=1"></script>
 <script type="module" src="shared/js/rive-tiles.js?v=1"></script>
-<script type="module" async src="./shared/ui/feel.js?v=53"></script>
+<script type="module" async src="./shared/ui/feel.js?v=54"></script>
 <script>/* số game ở trang chủ tự đếm từ danh sách ô game (không hard-code) */try{var b=document.getElementById("nGames"),k=new Set([].map.call(document.querySelectorAll("[data-game]"),function(t){return t.dataset.game}));if(b&&k.size)b.textContent=k.size}catch(e){}</script>
 <script src="shared/ui/page-trans.js?v=1"></script>
 </body>

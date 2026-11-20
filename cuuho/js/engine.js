@@ -16,7 +16,7 @@ const REGION = {
 export const CITY_COLOR = {}; for (const c of COLORS) for (const k of REGION[c]) CITY_COLOR[k] = c;
 export const CITY_IDS = Object.keys(CITIES).filter(k => CITY_COLOR[k]);
 export const NB = {}; for (const k of CITY_IDS) NB[k] = new Set();
-for (const r of ROUTES) if (NB[r.a] && NB[r.b]) { NB[r.a].add(r.b); NB[r.b].add(r.a); }
+for (const r of ROUTES) if (!r.xv && NB[r.a] && NB[r.b]) { NB[r.a].add(r.b); NB[r.b].add(r.a); }
 for (const k of CITY_IDS) NB[k] = [...NB[k]];
 export const cityName = k => (CITIES[k] || [k])[0];
 

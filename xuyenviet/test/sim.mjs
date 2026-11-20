@@ -1,7 +1,7 @@
 // node xuyenviet/test/sim.mjs – kiểm luật Tàu Xuyên Việt + cho máy đấu máy.
 import * as E from '../js/engine.js'; import { botAction } from '../js/bot.js'; import { ROUTES, TICKETS, CITIES, shortest } from '../js/map.js';
 let ok = 0, bad = 0; const t = (n, c) => { if (c) ok++; else { bad++; console.log('❌', n); } };
-t('28 thành phố, 48 tuyến, 30 vé', Object.keys(CITIES).length === 28 && ROUTES.length === 48 && TICKETS.length === 30);
+t('28 thành phố, 53 tuyến (5 tuyến đôi / đường vòng), 30 vé', Object.keys(CITIES).length === 28 && ROUTES.length === 53 && TICKETS.length === 30);
 t('mọi tuyến nối 2 thành phố có thật', ROUTES.every(r => CITIES[r.a] && CITIES[r.b] && r.n >= 1 && r.n <= 6));
 t('bản đồ liền một khối', Object.keys(CITIES).every(c => c === 'hanoi' || shortest('hanoi', c)));
 t('vé Hà Nội – TP.HCM có điểm', TICKETS[0].pts > 15);

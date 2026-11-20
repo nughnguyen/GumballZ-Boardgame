@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cửa hàng — mua đồ bằng xu | GumballZ Boardgame</title>
-<meta name="description" content="Cửa hàng GumballZ: mua vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và mở rương Gacha bằng xu ảo kiếm được khi chơi game. Tiền ảo, không nạp, không rút.">
+<meta name="description" content="Cửa hàng GumballZ: mua khung avatar, màu tên, banner hồ sơ, lưng bài và mở rương Gacha bằng xu ảo kiếm được khi chơi game. Tiền ảo, không nạp, không rút.">
 <link rel="canonical" href="https://gumballzgames.vercel.app/shop/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cửa hàng GumballZ — mua đồ bằng xu">
-<meta property="og:description" content="Vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và rương Gacha — mua bằng xu ảo kiếm được khi chơi game.">
+<meta property="og:description" content="Khung avatar, màu tên, banner hồ sơ, lưng bài và rương Gacha — mua bằng xu ảo kiếm được khi chơi game.">
 <meta property="og:url" content="https://gumballzgames.vercel.app/shop/">
 <meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og.jpg?v=8">
 <meta name="twitter:card" content="summary_large_image">
@@ -16,13 +16,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
-<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
-<link rel="stylesheet" href="css/shop.css?v=3">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
+<link rel="stylesheet" href="css/shop.css?v=4">
+<link rel="stylesheet" href="../shared/css/skeleton.css?v=1">
 <link rel="stylesheet" href="../shared/css/topbar.css?v=1">
 <link rel="stylesheet" href="../shared/css/page-trans.css?v=1">
 </head>
 <body>
-<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
 
 <div id="topbar"></div>
 <script src="../shared/ui/topbar.js?v=1"></script>
@@ -36,22 +36,19 @@
     </div>
   </header>
 
-  <div class="shop-filter" role="group" aria-label="Lọc theo danh mục">
-    <button type="button" data-f="all" aria-pressed="true">Tất cả</button><button type="button" data-f="items" aria-pressed="false">Vật phẩm hỗ trợ</button><button type="button" data-f="chest" aria-pressed="false">Rương Gacha</button><button type="button" data-f="frames" aria-pressed="false">Khung đại diện</button><button type="button" data-f="colors" aria-pressed="false">Màu tên</button><button type="button" data-f="backs" aria-pressed="false">Lưng bài</button>
-  </div>
-
-  <section class="shop-sec" id="sec-items">
-    <h2>Vật phẩm hỗ trợ</h2>
-    <p class="sec-note">Mua sẵn để trong kho ví, dùng trong game khi cần. Vật phẩm Bắn Tàu: vào trận bấm “📦 Kho” để lấy, không tốn xu trong trận.</p>
-    <div class="grid" id="grid-items"></div>
-  </section>
-
-  <section class="shop-sec" id="sec-chest">
+  <section class="shop-sec shop-sec-chest" id="sec-chest">
+    <span class="chest-badge">🎁 HOT · Mở là có quà</span>
     <h2>Rương Gacha</h2>
+    <p class="sec-note">Rương ở ngay đầu cửa hàng — mở 1 lần là trúng đồ trang trí, hoặc <b>tiền xu trực tiếp tới +200 xu</b> — may mắn thì ra đồ động kiểu Nitro cực hiếm.</p>
     <div class="chest-card">
-      <div class="chest-box" id="chest-box" aria-hidden="true">🎁</div>
+      <div class="chest-stage" id="chest-stage">
+        <div class="chest-box" id="chest-box" aria-hidden="true">🎁</div>
+        <canvas id="chest-cv-idle" class="chest-cv" width="200" height="200" aria-hidden="true" hidden></canvas>
+        <canvas id="chest-cv-open" class="chest-cv" width="200" height="200" aria-hidden="true" hidden></canvas>
+        <div class="chest-confetti" id="chest-confetti" aria-hidden="true"></div>
+      </div>
       <div class="chest-info">
-        <p><b>100 xu</b> / lần mở — ngẫu nhiên 1 món: đa số là đồ trang trí, đôi khi là vật phẩm hỗ trợ. Không pay-to-win: rương không cho đồ làm bạn mạnh hơn người khác.</p>
+        <p><b>100 xu</b> / lần mở — trúng đồ trang trí hoặc <b>tiền xu trực tiếp (+50 / +100 / +200 xu)</b>. Tỉ lệ rơi công khai ở bảng dưới.</p>
         <button type="button" class="btn-open" id="btn-chest">🎁 Mở rương · 100 xu</button>
         <p class="chest-count" id="chest-count"></p>
         <p class="chest-result" id="chest-result" role="status"></p>
@@ -59,27 +56,37 @@
     </div>
     <details class="drops">
       <summary>📋 Bảng tỉ lệ rơi (xem trước khi mở)</summary>
-      <ul id="drop-table"></ul>
-      <p class="drop-note">Mở trúng đồ trang trí đã có → hoàn lại 20 xu.</p>
+      <ul id="drop-table"><li class="sk-drop" aria-hidden="true"><i class="sk sk-pill" style="width:44px;height:18px"></i><i class="sk sk-line" style="width:72%;height:12px"></i></li><li class="sk-drop" aria-hidden="true"><i class="sk sk-pill" style="width:44px;height:18px"></i><i class="sk sk-line" style="width:72%;height:12px"></i></li><li class="sk-drop" aria-hidden="true"><i class="sk sk-pill" style="width:44px;height:18px"></i><i class="sk sk-line" style="width:72%;height:12px"></i></li><li class="sk-drop" aria-hidden="true"><i class="sk sk-pill" style="width:44px;height:18px"></i><i class="sk sk-line" style="width:72%;height:12px"></i></li></ul>
+      <p class="drop-note">Mở trúng đồ trang trí đã có → hoàn lại 20 xu. Kỳ vọng tiền mặt: ~36 xu/rương — mở rương luôn tốn xu, không cày lãi được.</p>
     </details>
   </section>
+
+  <div class="shop-filter" role="group" aria-label="Lọc theo danh mục">
+    <button type="button" data-f="all" aria-pressed="true">Tất cả</button><button type="button" data-f="chest" aria-pressed="false">Rương Gacha</button><button type="button" data-f="frames" aria-pressed="false">Khung đại diện</button><button type="button" data-f="colors" aria-pressed="false">Màu tên</button><button type="button" data-f="banners" aria-pressed="false">Banner hồ sơ</button><button type="button" data-f="backs" aria-pressed="false">Lưng bài</button>
+  </div>
 
   <section class="shop-sec" id="sec-frames">
     <h2>Khung đại diện</h2>
     <p class="sec-note">Mua xong bấm “Mặc” là khung hiện ngay ở hồ sơ, thanh trên và trong phòng chơi (trên máy của bạn).</p>
-    <div class="grid" id="grid-frames"></div>
+    <div class="grid" id="grid-frames"><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div></div>
   </section>
 
   <section class="shop-sec" id="sec-colors">
     <h2>Màu tên</h2>
     <p class="sec-note">Đổi màu tên hiển thị của bạn ở hồ sơ và trong phòng chơi (trên máy của bạn).</p>
-    <div class="grid" id="grid-colors"></div>
+    <div class="grid" id="grid-colors"><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div></div>
+  </section>
+
+  <section class="shop-sec" id="sec-banners">
+    <h2>Banner hồ sơ</h2>
+    <p class="sec-note">Dải màu trên đầu Hồ sơ của bạn — mua xong bấm “Dùng” là banner hiện ngay ở hồ sơ.</p>
+    <div class="grid" id="grid-banners"><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div></div>
   </section>
 
   <section class="shop-sec" id="sec-backs">
     <h2>Lưng bài</h2>
     <p class="sec-note">Lưng bài mới áp dụng cho mọi game bài dùng bộ bài chung (Tiến Lên, Sâm, Phỏm, Xì Dách…).</p>
-    <div class="grid" id="grid-backs"></div>
+    <div class="grid" id="grid-backs"><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div><div class="card" aria-hidden="true"><i class="sk sk-block" style="height:86px;border-radius:12px"></i><i class="sk sk-line" style="width:64%;height:15px"></i><i class="sk sk-line" style="width:92%;height:12px"></i><i class="sk sk-line" style="width:78%;height:12px"></i><i class="sk sk-pill" style="width:88px;height:20px"></i><i class="sk sk-block" style="height:44px;border-radius:12px"></i></div></div>
   </section>
 
   <section class="shop-sec">
@@ -87,17 +94,18 @@
       <summary>ℹ️ Ví xu hoạt động thế nào?</summary>
       <ul>
         <li>Chơi 1 ván bất kỳ: <b>+2 xu</b>; thắng ván đó: <b>+10 xu</b> nữa. Ván thắng có dùng “Nhân đôi xu” thì được +20 xu cho ván đó.</li>
-        <li>Tài khoản mới bắt đầu với <b>100 xu</b> — đủ mở 1 rương hoặc mua 3 vật phẩm hỗ trợ.</li>
+        <li>Tài khoản mới bắt đầu với <b>100 xu</b> — đủ mở 1 rương.</li>
         <li>Xu chỉ là tiền ảo trong web: <b>không nạp bằng tiền thật, không rút, không đổi ra tiền thật</b>. Xu lưu trên máy của bạn; ai đăng nhập thì xu đồng bộ theo tài khoản.</li>
-        <li>Đồ đã mua nằm trong kho ví của bạn. Vật phẩm Bắn Tàu mua ở đây rồi vào trận bấm “📦 Kho” để lấy, không tốn thêm xu trong trận.</li>
-        <li>Rương Gacha chỉ cho đồ trang trí và vật phẩm hỗ trợ nhẹ — không có đồ làm bạn mạnh hơn người khác (không pay-to-win).</li>
+        <li>Đồ đã mua nằm trong kho ví của bạn. Vật phẩm Bắn Tàu chỉ mua bằng xu trong trận; đồ đã mua trước đây vẫn dùng được trong trận bằng nút “📦 Kho”.</li>
+        <li>Rương Gacha chỉ cho đồ trang trí — không có đồ làm bạn mạnh hơn người khác (không pay-to-win). May mắn thì mở ra đồ động kiểu Nitro (tên động, khung động, banner động) với tỉ lệ cực hiếm, mỗi món dưới 1%.</li>
       </ul>
     </details>
   </section>
   <p class="shop-foot"><a href="../">← Về trang chủ</a> · <a href="../luat/">Luật chơi</a></p>
 </main>
 <script type="module" src="../shared/ui/feedback.js?v=34"></script>
-<script type="module" src="js/shop.js?v=3"></script>
+<script src="../shared/js/rive/rive.js"></script>
+<script type="module" src="js/shop.js?v=4"></script>
 <script src="../shared/ui/page-trans.js?v=1"></script>
 </body>
 </html>

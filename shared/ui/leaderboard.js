@@ -1,12 +1,13 @@
 // 🏆 Bảng xếp hạng toàn server GumballZ: lọc theo Tất cả game hoặc từng game, xếp theo Điểm XP / Ván thắng / Chuỗi thắng.
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
-import { auth, leaderboard } from '../net/api.js?v=27';
-import { GAME_NAMES } from './stats.js?v=86';
-import { AVATARS, avatarHTML, safeAv } from './profile.js?v=47';
+import { auth, leaderboard } from '../net/api.js?v=28';
+import { GAME_NAMES } from './stats.js?v=87';
+import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, modBadge, ownName } from './profile.js?v=48';
 import { openLogin } from './account.js?v=50';
 import { syncNow } from './sync.js?v=45';
-import { ALL_TITLES, GAME_WINS } from '../titles.js?v=3';
+import { ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
+import { ensureSkCSS, skRanks, skPodium } from './skeleton.js?v=1'; /* 💀 skeleton loading: bục top 3 + hàng xếp hạng tới khi máy chủ trả dữ liệu */
 const titleHow = t => { if (!t) return ''; if (t.id && String(t.id).startsWith('g-')) { const g = String(t.id).slice(2); return `Thắng ${GAME_WINS} ván ${GAME_NAMES[g] || g}`; } const f = ALL_TITLES.find(x => x.id === t.id); return f ? f.desc : (t.desc || ''); };
 
 const BG = ['#ff7a8a,#ffb23d', '#7b61ff,#3d8bff', '#2fc76f,#8fe3a8', '#ff9a3d,#ffd166', '#ff5fa2,#b06bff', '#3dc7d6,#3d8bff'];
@@ -57,6 +58,7 @@ const CSS = `
 `;
 
 function injectCss() {
+  ensureSkCSS();
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);
@@ -94,7 +96,7 @@ export function openLeaderboard(initialGame = 'all') {
       <option value="all">Tất cả game</option>
       ${Object.entries(GAME_NAMES).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('')}
     </select></div>
-    <div class="rk-list"><div class="rk-empty">⏳ Đang tải bảng xếp hạng…</div></div>
+    <div class="rk-list">${skPodium()}${skRanks(5)}</div>
     <div class="rk-ft"></div>
   </div>`;
   document.body.append(ov);
@@ -116,7 +118,7 @@ export function openLeaderboard(initialGame = 'all') {
     const listEl = $('.rk-list'), ftEl = $('.rk-ft');
     const u = auth.user();
     if (loading) {
-      listEl.innerHTML = '<div class="rk-empty">⏳ Đang tải bảng xếp hạng…</div>';
+      listEl.innerHTML = skPodium() + skRanks(5);
       ftEl.innerHTML = '<span>Đang đồng bộ dữ liệu…</span>';
       return;
     }
@@ -131,7 +133,7 @@ export function openLeaderboard(initialGame = 'all') {
     } else {
       /* bục top 3 (thứ tự hiển thị: hạng 2 – hạng 1 – hạng 3), các hạng 4+ là danh sách thường */
       const pdVal = r => by === 'streak' ? `${r.best} ván` : by === 'wins' ? `${r.w} thắng` : `${r.xp} XP`;
-      const pd = r => { const isMe = u && r.id === u.id; return `<div class="rk-pd rk-p${r.rank}${isMe ? ' me' : ''}" data-uid="${r.id}" data-uname="${esc(r.username || '')}" data-name="${esc(r.name)}"><span class="rk-pno">#${r.rank}</span>${avFor(r)}<b class="rk-pnm">${esc(r.name)}</b><span class="rk-pval">${pdVal(r)}</span></div>`; };
+      const pd = r => { const isMe = u && r.id === u.id; return `<div class="rk-pd rk-p${r.rank}${isMe ? ' me' : ''}" data-uid="${r.id}" data-uname="${esc(r.username || '')}" data-name="${esc(r.name)}"><span class="rk-pno">#${r.rank}</span>${avFor(r)}<b class="rk-pnm${nameClass(r.av && r.av.n)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</b><span class="rk-pval">${pdVal(r)}</span></div>`; };
       const top3 = list.slice(0, 3), rest = list.slice(3);
       const podium = top3.length ? `<div class="rk-podium">${[top3[1], top3[0], top3[2]].filter(Boolean).map(pd).join('')}</div>` : '';
       listEl.innerHTML = podium + rest.map(r => {
@@ -142,7 +144,7 @@ export function openLeaderboard(initialGame = 'all') {
           <span class="rk-no">#${r.rank}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span>${esc(r.name)}</span>${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#B9A6FF;color:#241A38">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${modBadge(r.mod)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#B9A6FF;color:#241A38">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-sub">${subVal}</div>
           </div>
           <div class="rk-val"><b>${mainVal}</b><small>${by === 'xp' ? `🔥 chuỗi ${r.best}` : `⭐ ${r.xp} XP`}</small></div>
@@ -178,7 +180,7 @@ export function openLeaderboard(initialGame = 'all') {
     const row = e.target.closest('.rk-row,.rk-pd');
     if (row) { /* bấm một dòng / một khối bục: mở hồ sơ công khai của người đó (trong hồ sơ có nút kết bạn / nhắn tin) */
       const uid = +row.dataset.uid || 0;
-      if (uid) import('./member.js?v=1').then(m => m.openMember(uid));
+      if (uid) import('./member.js?v=2').then(m => m.openMember(uid));
     }
   });
 

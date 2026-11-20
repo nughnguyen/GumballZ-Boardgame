@@ -22,7 +22,8 @@ function fillUp(s, rnd) { for (let guard = 0; guard < 4; guard++) { while (s.up.
     if (s.up.filter(c => c === 'L').length >= 3 && s.deck.length + s.discard.length >= 5) { s.discard.push(...s.up); s.up = []; continue; } break; } } /* 3 đầu máy ngửa: dẹp cả 5 lá, lật lại */
 const note = (s, t) => { s.log.push(t); if (s.log.length > 30) s.log.shift(); };
 export const curId = s => (s.players[s.turn] || {}).id;
-export const routeFree = (s, id) => s.owner[id] === undefined;
+/* tuyến còn xây được: chưa ai xây, và tuyến đôi kia (nếu có) chưa bị chiếm – 4–5 người thì tuyến đôi mở cho người khác, không cho cùng một người */
+export const routeFree = (s, id, pid) => { if (s.owner[id] !== undefined) return false; const t = ROUTES[id].tw; if (t == null || s.owner[t] === undefined) return true; return s.players.length >= 4 && pid !== undefined && s.owner[t] !== pid; };
 /* các cách trả thẻ để xây tuyến r với bài `hand`: [{ color, locos }] (dùng càng ít đầu máy càng tốt cho mỗi màu) */
 export function payOptions(hand, r) {
   const cnt = c => hand.filter(x => x === c).length, L = cnt('L'), out = [];
@@ -88,7 +89,7 @@ export function applyAction(s, pid, a, rnd = Math.random) {
   }
   if (a.type === 'claim') {
     const r = ROUTES[a.route | 0]; if (!r || a.route !== r.id) return { ok: false, reason: 'Tuyến lạ.' };
-    if (!routeFree(s, r.id)) return { ok: false, reason: 'Tuyến này có chủ rồi.' };
+    if (!routeFree(s, r.id, pid)) return { ok: false, reason: s.owner[r.id] === undefined ? (s.players.length < 4 ? 'Tuyến đôi: bàn dưới 4 người chỉ xây được một trong hai.' : 'Không được xây cả hai tuyến đôi.') : 'Tuyến này có chủ rồi.' };
     if (p.trains < r.n) return { ok: false, reason: `Bạn chỉ còn ${p.trains} toa, tuyến này cần ${r.n}.` };
     const opt = payOptions(p.hand, r).find(o => o.color === a.color); if (!opt) return { ok: false, reason: 'Không đủ thẻ màu đó.' };
     s.seq++; let needC = r.n - opt.locos, needL = opt.locos; const keep = [];

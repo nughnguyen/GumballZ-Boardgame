@@ -3,7 +3,8 @@ import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import * as E from './engine.js?v=1';
 import { botAction, botWants, think, mateIn, MATE } from './ai.js?v=1';
 import { PUZZLES } from './puzzles.js?v=2';
-import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { DAILY, START as D_START } from './daily.js?v=1';
+import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox } from '../../shared/ui/dialog.js?v=6';
 
 const NET = makeNet({
@@ -181,7 +182,7 @@ $('#btn-3d').onclick = () => { want3d = !want3d; ls.set('covua-3d', want3d ? '1'
 $('#acts').addEventListener('click', e => click(e)); $('#msg').addEventListener('click', e => click(e));
 function click(e) {
   const b = e.target.closest('button[data-a]'), v = ui.view; if (!b || !v) return; const k = b.dataset.a;
-  if (k === 'again') { const h = ui.net.raw; if (v.puzzle) return startPuzzle(PUZZLES.find(p => p.id === v.puzzle.id), !!v.puzzle.daily); h.restart(); h.setOpt('first', v.players[0].side === 'w' ? 'guest' : 'host'); h.start(); return; }
+  if (k === 'again') { const h = ui.net.raw; if (v.puzzle) return v.puzzle.daily ? startPuzzle(dailyPz(v.puzzle.daily), v.puzzle.daily) : startPuzzle(PUZZLES.find(p => p.id === v.puzzle.id)); h.restart(); h.setOpt('first', v.players[0].side === 'w' ? 'guest' : 'host'); h.start(); return; }
   if (k === 'lobby') { if (v.puzzle) { ui.leave(); openPuzzles(); } else ui.net.raw.restart(); return; }
   const a = actor(v); if (!a) return;
   ui.actAs(a.id, { type: k });
@@ -195,7 +196,19 @@ $('#btn-eval').onclick = () => { wantEval = !wantEval; ls.set('covua-eval', want
 // ---------- kết thúc ván ----------
 /* 🗓️ Giải đố hằng ngày: mỗi ngày (giờ Việt Nam) một bài cờ thế, giống nhau cho mọi người; đếm chuỗi ngày giải liên tiếp trên máy này */
 const dayVN = (off = 0) => new Date(Date.now() + 7 * 3600e3 + off * 864e5).toISOString().slice(0, 10);
-const dailyPz = () => { let h = 0; for (const ch of dayVN()) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PUZZLES[h % PUZZLES.length]; };
+/* từ 20/11/2026: lịch cố định trong daily.js (Lichess, khó dần từ thứ Hai tới Chủ nhật); trước đó: bài chọn theo ngày từ kho cũ */
+const dayIdx = k => Math.round((Date.parse(k + 'T00:00:00Z') - Date.parse(D_START + 'T00:00:00Z')) / 864e5);
+const dailyPz = (k = dayVN()) => { if (k >= D_START) { const i = dayIdx(k); return DAILY[((i % DAILY.length) + DAILY.length) % DAILY.length]; } let h = 0; for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return PUZZLES[h % PUZZLES.length]; };
+const ARCH0 = '2026-11-16'; /* ngày đầu có giải đố hằng ngày */
+const doneDays = () => { try { return JSON.parse(ls.get('covua-dd')) || {}; } catch (e) { return {}; } };
+const WD = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+const dmy = k => k.split('-').reverse().slice(0, 2).join('/');
+function openArchive() { /* 📚 các ngày trước: xem lại / giải bù (không tính chuỗi ngày) */
+  const dd = doneDays(), days = []; for (let i = 0; i < 400; i++) { const k = dayVN(-i); if (k < ARCH0) break; days.push(k); }
+  ui.openModal(`<h2>📚 Giải đố các ngày</h2><p style="text-align:center;color:var(--muted)">Thứ Hai dễ nhất → Chủ nhật khó nhất. Giải bù ngày cũ không tính vào chuỗi 🔥.</p><div class="pz-grid">${days.map(k => { const p = dailyPz(k), wd = WD[new Date(k + 'T00:00:00Z').getUTCDay()]; return `<button type="button" data-day="${k}" class="${dd[k] ? 'done' : ''}">${dd[k] ? '✅' : k === dayVN() ? '🗓️' : '🧩'} ${dmy(k)}${k === dayVN() ? ' · hôm nay' : ''}<small>${wd} · chiếu bí ${p.n} nước${p.r ? ` · ⭐${p.r}` : ''}</small></button>`; }).join('')}</div><div class="btns"><button class="btn" id="m-close">Đóng</button></div>`);
+  $('#m-close').onclick = ui.closeModal;
+  $('.pz-grid').onclick = e => { const b = e.target.closest('[data-day]'); if (b) { ui.closeModal(); startPuzzle(dailyPz(b.dataset.day), b.dataset.day); } };
+}
 const daily = () => { try { return JSON.parse(ls.get('covua-daily')) || {}; } catch (e) { return {}; } };
 const streakNow = () => { const d = daily(); return d.last === dayVN() || d.last === dayVN(-1) ? d.streak || 0 : 0; };
 function drawDaily() { const b = $('#btn-daily'); if (!b) return; const d = daily(), done = d.last === dayVN(), st = streakNow(); b.innerHTML = `🗓️ Giải đố hôm nay${done ? ' ✅' : ''}${st ? ` <small style="font-weight:800;opacity:.85">🔥 ${st} ngày</small>` : ''}`; }
@@ -204,11 +217,12 @@ function onEnd(v) {
   if (!v.puzzle) return;
   const ok = v.winner === 'host' && Math.ceil(v.nMoves / 2) <= v.puzzle.n;
   if (ok) { const d = solved(); d[v.puzzle.id] = 1; ls.set('covua-pz', JSON.stringify(d)); }
+  if (ok && v.puzzle.daily) { const dd = doneDays(); dd[v.puzzle.daily] = 1; ls.set('covua-dd', JSON.stringify(dd)); }
   const isDaily = v.puzzle.daily && v.puzzle.daily === dayVN(); let st = 0;
   if (ok && isDaily) { const d = daily(); if (d.last !== dayVN()) { d.streak = d.last === dayVN(-1) ? (d.streak || 0) + 1 : 1; d.best = Math.max(d.best || 0, d.streak); d.last = dayVN(); ls.set('covua-daily', JSON.stringify(d)); } st = d.streak; drawDaily(); }
   setTimeout(() => { if (ui.view !== v) return; const i = PUZZLES.findIndex(p => p.id === v.puzzle.id), next = PUZZLES[i + 1];
-    ui.openModal(`<h2>${ok ? '🎉 Chính xác!' : '😅 Chưa đúng rồi'}</h2><p style="text-align:center">${ok ? `Bạn đã chiếu bí trong ${Math.ceil(v.nMoves / 2)} nước.${isDaily ? ` <b>🔥 Chuỗi ${st} ngày</b> – mai quay lại giải bài mới nha.` : ''}` : `Bài này cần chiếu bí trong ${v.puzzle.n} nước. Thử lại nha – có thể bật 💡 để xem gợi ý.`}</p><div class="btns">${ok && isDaily ? '' : ok && next ? '<button class="btn pri" id="m-next">Bài kế ▶</button>' : '<button class="btn pri" id="m-again">🔁 Thử lại</button>'}<button class="btn" id="m-close">Đóng</button></div>`);
-    $('#m-close').onclick = ui.closeModal; if ($('#m-next')) $('#m-next').onclick = () => { ui.closeModal(); startPuzzle(next); }; if ($('#m-again')) $('#m-again').onclick = () => { ui.closeModal(); startPuzzle(PUZZLES[i], !!v.puzzle.daily); };
+    ui.openModal(`<h2>${ok ? '🎉 Chính xác!' : '😅 Chưa đúng rồi'}</h2><p style="text-align:center">${ok ? `Bạn đã chiếu bí trong ${Math.ceil(v.nMoves / 2)} nước.${isDaily ? ` <b>🔥 Chuỗi ${st} ngày</b> – mai quay lại giải bài mới nha.` : ''}` : `Bài này cần chiếu bí trong ${v.puzzle.n} nước. Thử lại nha – có thể bật 💡 để xem gợi ý.`}</p><div class="btns">${v.puzzle.daily ? (ok ? '<button class="btn pri" id="m-arch">📚 Giải đố các ngày</button>' : '<button class="btn pri" id="m-again">🔁 Thử lại</button><button class="btn" id="m-arch">📚 Ngày khác</button>') : ok && next ? '<button class="btn pri" id="m-next">Bài kế ▶</button>' : '<button class="btn pri" id="m-again">🔁 Thử lại</button>'}<button class="btn" id="m-close">Đóng</button></div>`);
+    $('#m-close').onclick = ui.closeModal; if ($('#m-next')) $('#m-next').onclick = () => { ui.closeModal(); startPuzzle(next); }; if ($('#m-again')) $('#m-again').onclick = () => { ui.closeModal(); v.puzzle.daily ? startPuzzle(dailyPz(v.puzzle.daily), v.puzzle.daily) : startPuzzle(PUZZLES[i]); }; if ($('#m-arch')) $('#m-arch').onclick = () => { ui.closeModal(); openArchive(); };
   }, 700);
 }
 
@@ -219,12 +233,14 @@ function openPuzzles() {
   $('#m-close').onclick = ui.closeModal;
   $('.pz-grid').onclick = e => { const b = e.target.closest('[data-pz]'); if (b) { ui.closeModal(); startPuzzle(PUZZLES.find(p => p.id === b.dataset.pz)); } };
 }
-function startPuzzle(pz, isDaily = false) {
+function startPuzzle(pz, dayKey = false) { /* dayKey: true = hôm nay, 'YYYY-MM-DD' = ngày cũ (giải bù), false = cờ thế thường */
   if (!pz) return; if (ui.net) ui.leave(); const h = ui.startHost(true, true);
-  h.addBot({ level: 'hard' }); h.start({ first: 'host', setup: pz.fen, puzzle: { id: pz.id, name: isDaily ? `Giải đố ngày ${dayVN().split('-').reverse().join('/')}` : `Cờ thế – bài ${PUZZLES.indexOf(pz) + 1}`, n: pz.n, fen: pz.fen, daily: isDaily ? dayVN() : undefined } });
+  const day = dayKey === true ? dayVN() : (typeof dayKey === 'string' ? dayKey : null);
+  h.addBot({ level: 'hard' }); h.start({ first: 'host', setup: pz.fen, puzzle: { id: pz.id, name: day ? `Giải đố ngày ${day.split('-').reverse().join('/')}` : `Cờ thế – bài ${PUZZLES.indexOf(pz) + 1}`, n: pz.n, fen: pz.fen, daily: day || undefined } });
 }
 $('#btn-puzzle').onclick = openPuzzles;
 $('#btn-daily').onclick = () => startPuzzle(dailyPz(), true); drawDaily();
+if ($('#btn-arch')) $('#btn-arch').onclick = openArchive;
 if (/[?&]daily=1/.test(location.search)) { history.replaceState(null, '', location.pathname); setTimeout(() => startPuzzle(dailyPz(), true), 300); } /* vào từ ô Thử thách hôm nay ở trang chủ */
 
 function openGuide() {

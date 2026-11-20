@@ -4,7 +4,7 @@ let pass = 0, fail = 0;
 const t = (name, f) => { try { f(); pass++; } catch (e) { fail++; console.log('✗', name, '-', e.message); } };
 const eq = (a, b, m = '') => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${m} mong ${JSON.stringify(b)}, nhận ${JSON.stringify(a)}`); };
 const ok = (c, m = 'sai') => { if (!c) throw new Error(m); };
-const G = (n = 2, o = {}) => createGame(Array.from({ length: n }, (_, i) => ({ id: 'p' + i, name: 'P' + i })), o);
+const G = (n = 2, o = {}) => createGame(Array.from({ length: n }, (_, i) => ({ id: 'p' + i, name: 'P' + i })), { fun: false, ...o });
 const roll = (s, d, pid = s.players[s.turn].id) => applyAction(s, pid, { type: 'roll', force: d });
 
 t('ghế 2 người đối diện, 3, 4 người', () => { eq(G(2).players.map(p => p.seat), [0, 2]); eq(G(3).players.map(p => p.seat), [0, 1, 2]); eq(G(4).players.map(p => p.seat), [0, 1, 2, 3]); });
@@ -165,4 +165,17 @@ t('không nhảy qua đầu ngựa (cả lúc vào chuồng)', () => {
   ok(!(s.moves || []).some(m => m.h === 0), 'ngựa sau bị chặn bởi ngựa trước');
 });
 t('sai lượt / sai giai đoạn bị từ chối', () => { const s = G(); ok(!applyAction(s, 'p1', { type: 'roll' }).ok); ok(!applyAction(s, 'p0', { type: 'move', h: 0 }).ok); });
+// 🎉 ô đặc biệt (fun): ô an toàn đứng chung + không chắn đường, cổng dịch chuyển
+{
+  const s = G(2, { fun: true }); const [a, b] = s.players;
+  a.horses[0] = 3; b.horses[0] = (7 - b.seat * 14 + 56) % 56; /* ngựa b đứng ô an toàn abs 7 */
+  s.dice = [2, 2]; s.left = [2, 2]; s.full = true;
+  const ms = legalMoves(s, a.id);
+  console.log(ms.some(m => m.h === 0 && m.to === 7 && !m.kick) ? '✓' : '✗', 'fun: đáp ô an toàn có ngựa địch → đứng chung, không đá');
+  a.horses[0] = 5; s.dice = [3, 3]; s.left = [3, 3]; s.full = true;
+  console.log(legalMoves(s, a.id).some(m => m.h === 0 && m.to === 11) ? '✓' : '✗', 'fun: ngựa ở ô an toàn không chắn đường');
+  a.horses[0] = 0; b.horses[0] = (17 - b.seat * 14 + 56) % 56; s.dice = [1, 2]; s.left = [1, 2]; s.full = true;
+  const t = legalMoves(s, a.id).find(m => m.h === 0 && m.tp === 3);
+  console.log(t && t.to === 17 && t.kick2 && t.kick2.pid === b.id ? '✓' : '✗', 'fun: đáp cổng 🌀 → được chọn vụt +14, cổng ra có địch thì đá');
+}
 console.log(`rules: ${pass} đạt, ${fail} lỗi`); if (fail) process.exit(1);

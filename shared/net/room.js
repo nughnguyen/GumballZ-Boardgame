@@ -8,12 +8,13 @@ import { peerOptions, keepAlive } from './ice.js';
 import { RelayHost, relayConnect } from './relay.js';
 import { FbHost, fbConnect, fbEnabled } from './fbrelay.js';
 import { CfHost, cfConnect, cfEnabled, cfClaim } from './cfrelay.js?v=16';
-import { announceRoom, auth, myLevel } from './api.js?v=27';
+import { announceRoom, auth, myLevel } from './api.js?v=28';
 import { unthrottleTimers } from './bgtimers.js?v=1'; /* ⏱️ hẹn giờ qua Web Worker để chủ phòng chuyển tab không làm bàn giật */
 /* 👑 vé chủ web (server/src/vip.js): vipCached/vipPass do shared/net/api.js cung cấp (worker client thêm, key 'gumballz-vp').
-   Nạp động + dự phòng rỗng để room.js vẫn chạy được nếu api.js chưa có 2 hàm đó. */
-let vipCached = () => null, vipPass = async () => null;
-import('./api.js?v=27').then(m => { if (typeof m.vipCached === 'function') vipCached = m.vipCached; if (typeof m.vipPass === 'function') vipPass = m.vipPass; }).catch(() => {});
+   🪪 vé tài khoản: idCached/idPass – gửi kèm khi vào phòng để máy chủ áp lệnh cấm / danh sách chặn.
+   Nạp động + dự phòng rỗng để room.js vẫn chạy được nếu api.js chưa có các hàm đó. */
+let vipCached = () => null, vipPass = async () => null, idCached = () => '', idPass = async () => '';
+import('./api.js?v=28').then(m => { if (typeof m.vipCached === 'function') vipCached = m.vipCached; if (typeof m.vipPass === 'function') vipPass = m.vipPass; if (typeof m.idCached === 'function') idCached = m.idCached; if (typeof m.idPass === 'function') idPass = m.idPass; }).catch(() => {});
 
 // 💬 Chat trong phòng (shared/ui/roomchat.js): chạy ngay ở lớp kết nối nên game nào cũng có, không phải sửa từng game.
 //   người chơi → chủ phòng : {t:'__chat', text}
@@ -23,7 +24,7 @@ const NO_CHAT = ['masoi', 'scribble', 'giandiep'];
 const gameOf = ns => String(ns || '').replace(/^gumballz-/, '');
 const chatOn = ns => !NO_CHAT.includes(gameOf(ns));
 const chatText = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, 140);
-function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=37').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
+function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=38').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
 const chatBuf = []; /* tin gần đây – để hộp chat nạp xong muộn vẫn có đủ */
 function chatEmit(m) { if (m.reset) chatBuf.length = 0; else { chatBuf.push(m); if (chatBuf.length > 40) chatBuf.shift(); } try { dispatchEvent(new CustomEvent('gumballz-chat', { detail: m })); } catch (e) {} }
 
@@ -33,7 +34,7 @@ function peersEmit(peers) {
 }
 function netUi(g) { try { import('../ui/netmeter.js?v=4').then(m => m.mountNetMeter(g)).catch(() => {}); } catch (e) {} }
 function netEmit(d) { try { dispatchEvent(new CustomEvent('gumballz-net', { detail: d })); } catch (e) {} }
-function friendsUi() { try { import('../ui/friends.js?v=33').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
+function friendsUi() { try { import('../ui/friends.js?v=34').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
 function showNotice(text) {
   try {
     const d = document.createElement('div');
@@ -423,7 +424,7 @@ export class RoomClient {
     peersEmit([]);
     try { window.__gumballzOpenSeats = []; window.__gumballzSit = null; } catch (e) {}
     friendsUi();
-    this._offAuth = auth.onChange(u => { if (!this.dead && this.id) this.send({ t: '__id', uid: u ? u.id : 0, uname: u ? u.username : '', vp: vipCached() }); });
+    this._offAuth = auth.onChange(u => { if (!this.dead && this.id) { this.send({ t: '__id', uid: u ? u.id : 0, uname: u ? u.username : '', vp: vipCached(), ip: idCached() }); if (u) idPass().then(p => { if (p && !this.dead && this.id) this.send({ t: '__id', uid: u.id, uname: u.username || '', vp: vipCached(), ip: p }); }); } });
     this.modes = opts.cfExtra ? ['cf'] /* phòng máy chủ giữ ván: chỉ đi đường Cloudflare */ : /[?&]relay=1/.test(location.search) ? ['mqtt'] : /[?&]p2p=1/.test(location.search) ? ['p2p'] : [...(cfEnabled() ? ['cf'] : []), ...(fbEnabled() ? ['fb'] : []), 'p2p', 'mqtt'];
     this.mi = 0;
     if (this.modes.includes('p2p')) this.initPeer();
@@ -537,7 +538,7 @@ export class RoomClient {
     this.conn = conn;
     clearTimeout(this.joinTimer);
     this.joinTimer = setTimeout(() => { if (!this.id && conn === this.conn) { if (mode === 'cf') this._hostGone = !!conn.wasOpen; /* nối được máy chủ mà chủ phòng không đáp */ this.next(); } }, mode === 'p2p' ? 7000 : mode === 'cf' ? 8000 : 12000);
-    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(); conn.send({ t: 'join', token: token(), uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...this.o.joinMsg() }); if (u && u.admin && u.id === 1) vipPass().then(p => { if (p && p !== vp && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js */
+    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(), ip = idCached(); conn.send({ t: 'join', token: token(), uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...(ip ? { ip } : {}), ...this.o.joinMsg() }); if (u) Promise.all([u.admin && u.id === 1 ? vipPass() : vp, idPass()]).then(([p, q]) => { if ((p !== vp || q !== ip) && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p || '', ip: q || '' }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js · 🪪 vé tài khoản */
     conn.on('data', msg => {
       if (conn !== this.conn || !msg) return;
       this.lastSeen = Date.now();
@@ -569,7 +570,7 @@ export class RoomClient {
         try { window.__gumballzSrvRoom = !!msg.srv; } catch (e) {} /* phòng do máy chủ giữ ván: cờ chủ web chỉ tin khi có máy chủ kiểm vé */
         if (this.bak && this.bak.myPid !== msg.id) { this.bak.myPid = msg.id; this.saveBak(); }
         if (!msg.tookSeat) {
-          try { window.__gumballzRoom = { game: gameOf(this.o.ns), code: () => this.code, alive: () => !this.dead && !!this.id, myId: () => this.id || this.myPid, kick: pid => { try { this.conn && this.conn.send({ t: '__kick', pid }); } catch (e) {} return true; } }; } catch (e) {} /* kick: chỉ có tác dụng khi mình là người tạo phòng ở phòng máy chủ giữ ván (máy chủ tự kiểm) */
+          try { window.__gumballzRoom = { reId: () => { const u = auth.user(); if (u && !this.dead && this.id) idPass().then(p => this.send({ t: '__id', uid: u.id, uname: u.username || '', vp: vipCached(), ip: p || '' })); }, game: gameOf(this.o.ns), code: () => this.code, alive: () => !this.dead && !!this.id, myId: () => this.id || this.myPid, kick: pid => { try { this.conn && this.conn.send({ t: '__kick', pid }); } catch (e) {} return true; } }; } catch (e) {} /* kick: chỉ có tác dụng khi mình là người tạo phòng ở phòng máy chủ giữ ván (máy chủ tự kiểm) */
           if (chatOn(this.o.ns)) chatUi({ game: gameOf(this.o.ns), host: false, send: t => this.send({ t: '__chat', text: chatText(t) }), history: () => chatBuf.slice(), alive: () => !this.dead && !!this.id });
         }
         clearTimeout(this.joinTimer); this.id = msg.id; this.tries = 0; this.wasIn = true;

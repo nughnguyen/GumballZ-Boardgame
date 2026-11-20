@@ -57,6 +57,6 @@ export function bindVolumeRows(root) {
   for (const k of ['music', 'sfx']) {
     const el = root.querySelector('#st-v' + k); if (!el) continue;
     el.oninput = () => { volume.set(k, el.value); const n = root.querySelector('#st-v' + k + '-n'); if (n) n.textContent = el.value + '%'; };
-    el.onchange = () => { if (k === 'sfx') import('../ui/feel.js?v=53').then(m => m.uiTick && m.uiTick(true)).catch(() => {}); }; /* thả tay thì kêu thử một tiếng */
+    el.onchange = () => { if (k === 'sfx') import('../ui/feel.js?v=54').then(m => m.uiTick && m.uiTick(true)).catch(() => {}); }; /* thả tay thì kêu thử một tiếng */
   }
 }

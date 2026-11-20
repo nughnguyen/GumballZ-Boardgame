@@ -14,7 +14,7 @@ import { GUIDE_HTML } from './guide.js?v=1';
 import { BOT_NAMES, PALETTE, BRUSH_SIZES } from './words.js?v=1';
 import { Sfx } from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, cleanName, avatar } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, cleanName, avatar } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet({

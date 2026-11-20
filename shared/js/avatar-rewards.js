@@ -76,6 +76,18 @@ export const FRAMES = [
   { id: 'saobang', name: 'Khung Sao Băng', chest: true },
   { id: 'keongot', name: 'Khung Kẹo Ngọt', chest: true },
   { id: 'hoanggia', name: 'Khung Hoàng Gia', chest: true },
+  /* 🛍️ thêm 2026-11-21 (kiểu Nitro): khung thường bán bằng xu + khung động chỉ mở rương (cực hiếm) */
+  { id: 'anhdao', name: 'Khung Anh Đào', shop: 200 },
+  { id: 'saoxanh', name: 'Khung Sao Xanh', shop: 200 },
+  { id: 'bienxanh', name: 'Khung Biển Xanh', shop: 150 },
+  { id: 'hoanghon', name: 'Khung Hoàng Hôn', shop: 250 },
+  { id: 'mattrang', name: 'Khung Mặt Trăng', shop: 200 },
+  { id: 'rungthong', name: 'Khung Rừng Thông', shop: 150 },
+  { id: 'camvang', name: 'Khung Cam Vàng', shop: 150 },
+  { id: 'timsen', name: 'Khung Tím Sen', shop: 200 },
+  { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', chest: true, anim: 'spin' },
+  { id: 'luachay', name: 'Khung Lửa Cháy', chest: true, anim: 'glow' },
+  { id: 'vangxoay', name: 'Khung Vàng Xoay', chest: true, anim: 'spin' },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -85,6 +97,8 @@ export const FRAME_RING = {
   vang: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)', tim: 'conic-gradient(#b06bff,#ff5fa2,#6a35e0,#ff5fa2,#b06bff)', owner: 'conic-gradient(#ff3d5a,#ffd84a,#ff7a45,#fff2b3,#ff3d5a)', kimcuong: 'conic-gradient(#e8fbff,#7fd8ff,#ffffff,#b9a8ff,#e8fbff,#7fd8ff,#ffffff)',
   sanho: 'linear-gradient(135deg,#ff8a7a,#ff5fa2,#ffb23d)', rungxanh: 'linear-gradient(135deg,#2a9d5c,#0b4a3c,#7fe0a4)', bacha: 'linear-gradient(135deg,#a8e6cf,#5ec8a8,#d0f0e4)', timmong: 'conic-gradient(#b06bff,#ff5fa2,#6a35e0,#c9bdf3,#b06bff)',
   bongbong: 'radial-gradient(circle at 30% 30%,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,#fff 0 1.5px,transparent 2.5px),linear-gradient(135deg,#7fd8ff,#3d8bff,#b9a8ff)', saobang: 'linear-gradient(135deg,#1b1440,#4b3aa0,#ff9a3d)', keongot: 'conic-gradient(#ff9ecf,#ffb23d,#ffe066,#ff9ecf)', hoanggia: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3,#e0a612,#ffd84a)',
+  anhdao: 'linear-gradient(135deg,#ffb7c5,#ff5fa2,#ffd6ea)', saoxanh: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 70% 65%,#fff 0 1.2px,transparent 1.8px),linear-gradient(135deg,#0b3d66,#2ec5b6,#7fd8ff)', bienxanh: 'linear-gradient(135deg,#1f5fd6,#2ec5b6,#7fd8ff)', hoanghon: 'linear-gradient(135deg,#ff9a3d,#ff4d6a,#b06bff)', mattrang: 'radial-gradient(circle at 68% 28%,#fff 0 6px,transparent 7px),linear-gradient(135deg,#e8ebf2,#9aa0b2,#ffffff)', rungthong: 'linear-gradient(135deg,#14532d,#2a9d5c,#a7f3d0)', camvang: 'linear-gradient(135deg,#ff9a3d,#ffd84a,#ff6a1f)', timsen: 'conic-gradient(#e9d5ff,#b06bff,#ff5fa2,#e9d5ff)',
+  cauvongxoay: 'conic-gradient(#ff4d6a,#ffb23d,#ffe066,#2fc76f,#3d8bff,#8a5cff,#ff4d6a)', luachay: 'conic-gradient(#ff3d3d,#ff9a1f,#ffd23d,#ff6a1f,#ff3d3d)', vangxoay: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [
@@ -104,7 +118,39 @@ export const NAME_COLORS = [
   { id: 'chanh', name: 'Vàng Chanh', shop: 200, css: 'color:#a16207' },
   { id: 'song', name: 'Sóng Biển', chest: true, css: 'background:linear-gradient(90deg,#0e7490,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent' },
   { id: 'daquang', name: 'Dạ Quang', chest: true, css: 'background:linear-gradient(90deg,#15803d,#65a30d,#ca8a04);-webkit-background-clip:text;background-clip:text;color:transparent' },
+  /* 🛍️ thêm 2026-11-21: màu tên thường bán bằng xu */
+  { id: 'hongsam', name: 'Hồng Sẫm', shop: 150, css: 'color:#b3124f' },
+  { id: 'camchay', name: 'Cam Cháy', shop: 150, css: 'color:#c2410c' },
+  { id: 'xanhreu', name: 'Xanh Rêu', shop: 150, css: 'color:#3f6212' },
+  { id: 'duong', name: 'Xanh Dương', shop: 150, css: 'color:#1d4ed8' },
+  { id: 'cham', name: 'Xanh Chàm', shop: 150, css: 'color:#3730a3' },
+  { id: 'nau', name: 'Nâu Đất', shop: 150, css: 'color:#7c2d12' },
+  { id: 'xam', name: 'Xám Đá', shop: 150, css: 'color:#475569' },
+  { id: 'vomo', name: 'Vàng Mơ', shop: 200, css: 'color:#b45309' },
+  { id: 'luc', name: 'Xanh Lục', shop: 150, css: 'color:#15803d' },
+  { id: 'do', name: 'Đỏ Tươi', shop: 150, css: 'color:#dc2626' },
+  /* ✨ tên động kiểu Nitro: gradient chạy trên chữ — chỉ mở ra từ rương (cực hiếm), anim: 1 = chạy gradient */
+  { id: 'cauvongchay', name: 'Cầu Vồng Chạy', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#d4202f,#d97706,#16834a,#1f5fd6,#7c3aed,#d4202f);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
+  { id: 'vanglaplanh', name: 'Vàng Lấp Lánh', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#b8780a,#ffd84a,#fff2b3,#e0a612,#b8780a);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
+  { id: 'timxanhchay', name: 'Tím Xanh Chạy', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#6a35e0,#3d8bff,#2ec5b6,#b06bff,#6a35e0);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
 ];
+
+/* 🎏 banner hồ sơ kiểu Nitro: dải màu trên đầu hộp Hồ sơ (trường b trong nhân vật).
+   shop = bán bằng xu; chest = chỉ mở ra từ rương (cực hiếm); anim: 1 = gradient chạy. */
+export const BANNERS = [
+  { id: '', name: 'Không banner' },
+  { id: 'bnhoanghon', name: 'Hoàng Hôn', shop: 200, css: 'linear-gradient(90deg,#ff9a3d,#ff4d6a,#b06bff)' },
+  { id: 'bnbienxanh', name: 'Biển Xanh', shop: 200, css: 'linear-gradient(90deg,#1f5fd6,#2ec5b6,#7fd8ff)' },
+  { id: 'bnsaodem', name: 'Sao Đêm', shop: 200, css: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),linear-gradient(135deg,#4b3aa0,#1b1440,#2ec5b6)' },
+  { id: 'bncauvong', name: 'Cầu Vồng Chạy', chest: true, anim: 1, css: 'linear-gradient(90deg,#ff4d6a,#ffb23d,#ffe066,#2fc76f,#3d8bff,#8a5cff,#ff4d6a)' },
+  { id: 'bnvangchay', name: 'Vàng Chảy', chest: true, anim: 1, css: 'linear-gradient(90deg,#b8780a,#ffd84a,#fff2b3,#e0a612,#b8780a)' },
+];
+/* tiện ích: css + có động không của màu tên / banner / khung theo id (dùng ở hồ sơ, xếp hạng, chat, cửa hàng) */
+export const nameCss = n => { const c = NAME_COLORS.find(x => x.id && x.id === n); return c ? c.css || '' : ''; };
+export const nameAnim = n => { const c = NAME_COLORS.find(x => x.id && x.id === n); return !!(c && c.anim); };
+export const bannerCss = b => { const x = BANNERS.find(x => x.id && x.id === b); return x ? x.css || '' : ''; };
+export const bannerAnim = b => { const x = BANNERS.find(x => x.id && x.id === b); return !!(x && x.anim); };
+export const frameAnim = f => { const x = FRAMES.find(x => x.id && x.id === f); return x ? x.anim || '' : ''; };
 /* hiệu ứng khi thắng ván (chỉ hiện trên máy mình) – hình ở shared/ui/winfx.js */
 export const WIN_FX = [
   { id: 'giay', name: 'Pháo giấy', icon: '🎉' },
@@ -129,7 +175,7 @@ export const TRACK = [
   ['acc', 'guitar'], ['outfit', 'ninja'], ['hat', 'pirate'], ['outfit', 'pirate'], ['acc', 'sword'], ['outfit', 'cape'], ['hat', 'wizard'], ['outfit', 'robe'],
   ['acc', 'flag'], ['outfit', 'astronaut'], ['hat', 'astro'], ['outfit', 'knight'], ['outfit', 'dino'],
 ].map(([k, v], i) => ({ k, v, xp: Math.round(30 * (i + 1) + 2.2 * i * i) }));
-export const xpOf = s => (s ? (+s.p || 0) * 10 + (+s.w || 0) * 20 : 0);
+export const xpOf = s => (s ? (s.xp != null ? +s.xp || 0 : (+s.p || 0) * 10 + (+s.w || 0) * 20) : 0);
 TRACK.forEach((r, i) => { UNLOCK['r' + i] = { desc: `Mốc thưởng ${i + 1} (${r.xp} điểm kinh nghiệm)`, ok: s => xpOf(s) >= r.xp }; });
 export const charLock = (k, v) => (CHAR_LOCKS[k] && CHAR_LOCKS[k][v]) || (() => { const i = TRACK.findIndex(r => r.k === k && r.v === v); return i < 0 ? '' : 'r' + i; })();
 
@@ -149,8 +195,8 @@ export function trackProgress(st) {
 /* ---------- lọc "diện mạo" theo những gì đã mở khoá (máy chủ gọi trước khi trả cho người khác) ---------- */
 export function cleanLook(av, st) {
   if (!av || typeof av !== 'object') return null;
-  const fr = FRAMES.find(x => x.id === av.f && x.id), nc = NAME_COLORS.find(x => x.id === av.n && x.id);
-  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && isOpen(fr.lock, st) ? fr.id : '', n: nc && isOpen(nc.lock, st) ? nc.id : '' };
+  const fr = FRAMES.find(x => x.id === av.f && x.id), nc = NAME_COLORS.find(x => x.id === av.n && x.id), bn = BANNERS.find(x => x.id === av.b && x.id);
+  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && isOpen(fr.lock, st) ? fr.id : '', n: nc && isOpen(nc.lock, st) ? nc.id : '', b: bn ? bn.id : '' };
   if (av.ch && typeof av.ch === 'object') { const ch = cleanChar(av.ch), base = cleanChar({}); for (const k of Object.keys(ch)) { const l = charLock(k, ch[k]); if (l && !isOpen(l, st)) ch[k] = k === 'hat' || k === 'acc' || k === 'horns' ? 'none' : base[k]; } out.ch = ch; }
   return out;
 }

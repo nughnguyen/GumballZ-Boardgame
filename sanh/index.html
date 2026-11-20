@@ -42,14 +42,14 @@ h1 span{color:var(--ink)}
 #lobby{flex:1;min-height:0;display:flex;flex-direction:column}
 #lobby .lb{flex:1;min-height:0}
 @media (max-width:760px){main{gap:8px;padding-bottom:10px}.sub{display:none}h1{font-size:30px}} /* điện thoại: gọn phần đầu để chat/phòng có nhiều chỗ */
+@media (max-height:720px){.sub{display:none}h1{font-size:30px}main{gap:8px}} /* màn thấp: gọn phần đầu để ô nhập chat không bị kẹt dưới đáy */
 </style>
-<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
-<link rel="stylesheet" href="../shared/css/footer.css?v=6">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
+<link rel="stylesheet" href="../shared/css/footer.css?v=7">
 <link rel="stylesheet" href="../shared/css/topbar.css?v=1">
 <link rel="stylesheet" href="../shared/css/page-trans.css?v=1">
 </head>
 <body>
-<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
 <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
 <div id="topbar"></div>
 <script src="../shared/ui/topbar.js?v=1"></script>
@@ -84,12 +84,12 @@ h1 span{color:var(--ink)}
   </div>
 </main>
 <script type="module">
-import { mountLobby, GAME_INFO, openMatchmaking } from '../shared/ui/lobby.js?v=56';
+import { mountLobby, GAME_INFO, openMatchmaking } from '../shared/ui/lobby.js?v=58';
 import { mountOnline } from '../shared/net/presence.js?v=26';
 mountOnline(document.getElementById('online'));
 const g = new URLSearchParams(location.search).get('game');
 const L = mountLobby(document.getElementById('lobby'), {});
-import('../shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());
+import('../shared/ui/worldchat.js?v=2').then(m => m.mountWorldChat());
 if (g) setTimeout(() => document.querySelector(`.lb-gf button[data-g="${CSS.escape(g)}"]`)?.click(), 0);
 /* panel Tạo phòng mới: chọn game → tạo phòng công khai (?public=1&autohost=1) hoặc tìm trận nhanh cho game đó */
 const cpGame = document.getElementById('cp-game');
@@ -100,9 +100,9 @@ document.getElementById('cp-create').onclick = () => { cpSave(); location.href =
 document.getElementById('cp-mm').onclick = () => { cpSave(); openMatchmaking(cpGame.value); };
 </script>
 <footer class="gmf"></footer>
-<script src="../shared/ui/footer.js?v=17"></script>
+<script src="../shared/ui/footer.js?v=18"></script>
 <script type="module" src="../shared/ui/feedback.js?v=34"></script>
-<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+<script type="module" async src="../shared/ui/feel.js?v=54"></script>
 <script src="../shared/ui/page-trans.js?v=1"></script>
 </body>
 </html>

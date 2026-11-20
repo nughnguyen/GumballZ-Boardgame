@@ -9,7 +9,7 @@ h1,h2,h3,h4,.logo,.btn,.banner,.round-tag{font-family:"Baloo 2",Nunito,sans-seri
 .cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
 .cloud::before{width:100px;height:100px;left:30px;top:-50px}.cloud::after{width:80px;height:80px;left:110px;top:-35px}
 .c1{top:8%;left:-260px}.c2{top:24%;left:-260px;transform:scale(.7);animation-duration:95s;animation-delay:-40s}.c3{top:62%;left:-260px;transform:scale(.5);animation-duration:120s;animation-delay:-80s}
-@keyframes cloud{to{left:110vw}}
+@keyframes cloud{to{translate:calc(110vw + 260px) 0}} /* translate thay left: không bắt trình duyệt tính lại bố cục mỗi khung hình */
 .screen{position:fixed;inset:0;display:none;z-index:1}.screen.active{display:flex}
 
 .btn{border:0;border-radius:14px;padding:9px 16px;min-height:44px;background:#fff;box-shadow:var(--shadow),inset 0 -4px 0 #0000001a;font-weight:800;font-size:17px;cursor:pointer;transition:transform .12s,filter .12s;line-height:1.15}

@@ -7,6 +7,8 @@ import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../net/joinlink.
 import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứng (gumballz-vol-*) */
 import { netStatus } from './status.js';
 import { confirmBox } from './dialog.js?v=8';
+import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */
+ensureSkCSS();
 export const $ = s => document.querySelector(s);
 export const $$ = s => [...document.querySelectorAll(s)];
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -18,7 +20,8 @@ export const avatar = (name, size = 36) => { let h = 0; for (const ch of name) h
 export function gameKit({ game, net: N, onLobby, onState, offline }) {
   const { Host, Client, Remote, srvMode, loadSnapshot, session } = N;
   const ui = { net: null, isHost: false, myId: null, lobby: null, view: null, code: '' };
-  ui.show = id => $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  const skelLobby = () => { const pl = $('#plist') || $('#players'); if (!pl || pl.querySelector('.sk') || pl.children.length) return; pl.innerHTML = skPlayers(3, pl.tagName === 'UL' ? 'li' : 'div'); }; /* 💀 skeleton danh sách người chơi: hiện tới khi game vẽ lại #plist/#players */
+  ui.show = id => { $$('.screen').forEach(s => s.classList.toggle('active', s.id === id)); if (id === 'screen-lobby') skelLobby(); };
   let toastT; ui.toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); };
   ui.openModal = (html, cls = '') => { $('#modal-box').className = 'modal-box ' + cls; $('#modal-box').innerHTML = html; $('#modal').classList.add('open'); };
   ui.closeModal = () => $('#modal').classList.remove('open');

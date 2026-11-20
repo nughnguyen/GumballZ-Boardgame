@@ -10,7 +10,7 @@
 //   POST /feedback  {t,msg,game,contact,page}   – góp ý / báo lỗi (lưu SQLite trong Durable Object "Inbox")
 //   GET  /admin                                  – chuyển hướng sang https://gumballzgames.vercel.app/quantri/
 import { cfUsage } from './cfstats.js';
-import { makePass, checkPass } from './vip.js';
+import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
 import { TUT } from '../../shared/tutorials.js';
@@ -97,6 +97,7 @@ export default {
       else if (p[1] === 'act') r = await U.friendAct(tok, d.id, d.act);
       else if (p[1] === 'msgs') r = await U.dmList(tok, d.withId, d.afterId);
       else if (p[1] === 'send') r = await U.dmSend(tok, d.toId, d.text);
+      else if (p[1] === 'block') r = await U.friendBlock(tok, d.id, d.on !== false);
       else return json({ ok: false }, 404, H);
       return json(r, 200, H);
     }
@@ -140,6 +141,7 @@ export default {
     }
     if (p[0] === 'vip') { /* 👑 vé chủ web – server/src/vip.js */
       if (!okOrigin(origin)) return json({ ok: false }, 403); const H = cors(origin);
+      if (p[1] === 'id' && req.method === 'POST') { const tok = bearer(); const me = tok && env.ADMIN_KEY ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || me.banned) return json({ ok: false }, 200, H); return json({ ok: true, p: await makeIdPass(env, me.id) }, 200, H); } /* 🪪 vé tài khoản */
       if (p[1] === 'check') { const u = new URL(req.url); return json({ ok: await checkPass(env, u.searchParams.get('p'), +u.searchParams.get('uid') || 0) }, 200, H); }
       if (p[1] === 'pass' && req.method === 'POST') { const tok = bearer(); const me = tok ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || !me.admin || me.id !== 1 /* tài khoản đầu tiên = chủ web */ || me.banned || !env.ADMIN_KEY) return json({ ok: false }, 200, H); return json({ ok: true, pass: await makePass(env, me.id) }, 200, H); }
       return json({ ok: false }, 404, H);
@@ -284,7 +286,8 @@ export class Room extends DurableObject {
     if (meta) {
       if (this.ctx.getWebSockets().length > MAX_CLIENTS + 1) { srv.send('{"x":"full"}'); srv.close(4003, 'full'); return new Response(null, { status: 101, webSocket: cli }); }
       this.ctx.getWebSockets('c:' + id).filter(w => w !== srv).forEach(w => { try { w.close(4000, 'replaced'); } catch (e) {} });
-      srv.serializeAttachment({ role: 'c', id, g, own: !!ok && ok === meta.ok }); await this.ensureSrv(); await this.liveSync();
+      let ipk = ''; try { const ip = req.headers.get('CF-Connecting-IP') || ''; if (ip) ipk = (await sha(ip + '|gumballz')).slice(0, 16); } catch (e) {} /* IP đã băm (cùng muối với Sảnh) – chủ phòng chặn ai thì chặn cả IP đó trong phòng */
+      srv.serializeAttachment({ role: 'c', id, g, own: !!ok && ok === meta.ok, ...(ipk ? { ipk } : {}) }); await this.ensureSrv(); await this.liveSync();
       return new Response(null, { status: 101, webSocket: cli });
     }
     if (!this.host()) { srv.send('{"x":"nf"}'); srv.close(4004, 'no room'); return new Response(null, { status: 101, webSocket: cli }); }

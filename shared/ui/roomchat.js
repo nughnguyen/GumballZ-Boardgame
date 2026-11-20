@@ -2,11 +2,14 @@
 // shared/net/room.js tự nạp file này khi có phòng online và đưa vào `api`:
 //   { game, host, send(text), history(), alive() }  – tin mới tới qua sự kiện window 'gumballz-chat' ({id, from, text, host, old} hoặc {reset:true}).
 // Giao diện: một "tai" 💬 dính mép trái màn hình (kéo lên xuống được), bấm mở hộp chat; có tin mới khi đang đóng thì hiện chấm đỏ + bong bóng xem nhanh.
-import { auth } from '../net/api.js?v=27';
+import { auth } from '../net/api.js?v=28';
+const blockedIds = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const CSS = `
 .brc-tab{position:fixed;left:0;z-index:25;width:44px;height:46px;border:0;border-radius:0 16px 16px 0;background:#FFFDF9;box-shadow:0 8px 20px -8px rgba(74,62,92,.53),0 2px 6px rgba(74,62,92,.13);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 2px 0 0;touch-action:none;-webkit-tap-highlight-color:transparent}
 .brc-tab[hidden],.brc-box[hidden],.brc-peek[hidden]{display:none}
+/* điện thoại / máy tính bảng: "tai" mép trái đè lên bàn chơi → nút tròn góc trái dưới, đối xứng với nút 😂 góc phải */
+@media (max-width:899px){.brc-tab{top:auto!important;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(var(--gumballz-dock,12px) + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;padding:0;touch-action:manipulation}.brc-peek{top:auto!important;left:calc(64px + env(safe-area-inset-left,0px));bottom:calc(var(--gumballz-dock,12px) + 6px + env(safe-area-inset-bottom,0px));max-width:min(240px,calc(100vw - 136px))}}
 .brc-tab b{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#FFB98A;color:#4A3E5C;font:800 11px/18px Nunito,sans-serif;padding:0 4px;box-sizing:border-box}
 .brc-tab b:empty{display:none}
 .brc-peek{position:fixed;left:50px;z-index:25;max-width:min(260px,calc(100vw - 60px));background:#4A3E5C;color:#fff;border-radius:14px;padding:7px 11px;font:700 13px/1.3 Nunito,sans-serif;box-shadow:0 10px 24px -8px rgba(74,62,92,.66);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:brc-in .2s ease-out}
@@ -15,6 +18,8 @@ const CSS = `
 .brc-head{display:flex;align-items:center;gap:8px;padding:9px 8px 9px 14px;background:linear-gradient(90deg,#FFB98A,#FFB9CF,#FFE3A3);color:#4A3E5C;font:400 15px/1 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .brc-head span{flex:1}
 .brc-head button{width:32px;height:32px;border:0;border-radius:50%;background:#ffffff33;color:#4A3E5C;font-size:16px;cursor:pointer}
+.brc-head .brc-fr{width:auto;border-radius:999px;padding:0 11px;font:800 13px/1 Nunito,sans-serif;position:relative;white-space:nowrap}
+.brc-turn{border:0;min-height:40px;background:#FFD84D;color:#241A38;font:800 14px Nunito,sans-serif;cursor:pointer;animation:brc-tp 1s ease-in-out infinite alternate}@keyframes brc-tp{to{opacity:.7}}
 .brc-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
 .brc-empty{margin:auto;text-align:center;color:#8B7E9E;font-weight:700}
 .brc-m{max-width:86%;align-self:flex-start;background:#FFFDF9;border-radius:14px 14px 14px 4px;padding:6px 10px;box-shadow:0 1px 3px rgba(74,62,92,.09);overflow-wrap:anywhere}
@@ -35,12 +40,39 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.brc-box,.brc-peek{animation:none}}
 `;
 let ui = null;
+/* 📍 điện thoại: nút 💬 ở góc trái dưới – tự nhích lên nếu đè nút / lá bài / ô nhập của game (dò bằng elementsFromPoint, 1,5 giây/lần) */
+const PHONE = matchMedia('(max-width:899px)'), MINE = '.brc-tab,.brc-peek,.bgr-btn,.bgr-panel,#gumballz-spec,.gumballz-chip';
+const HIT = 'button,a[href],input,textarea,select,label,[role=button],[data-id],[data-i],[data-c],[data-pid],[data-bgvn-pid],[data-gumballz-pid],[tabindex]';
+function blocked(x, y, w, h) { /* số điểm bị đè (0 = trống) */
+  const big = innerWidth * innerHeight * .2; let n = 0;
+  const pts = []; for (let cy = y + 22; cy < y + h; cy += 52) pts.push([x + 22, cy], [x + 22, cy - 17], [x + 22, cy + 17], [x + 5, cy], [x + 39, cy]); /* nút tròn 44px: tâm + 4 điểm trong vòng */
+  for (const [px, py] of pts) {
+    for (const el of document.elementsFromPoint(px, py)) {
+      if (el.closest(MINE)) continue; const t = el.closest(HIT) || (/^(IMG|svg|CANVAS|VIDEO)$/.test(el.tagName) || [...el.childNodes].some(c => c.nodeType === 3 && c.nodeValue.trim()) ? el : null); if (!t || t === document.body || t === document.documentElement) continue; /* nút / lá bài / ô nhập, hoặc chữ / hình nhỏ của game */
+      const r = t.getBoundingClientRect(); if (r.width * r.height < big) { n++; break; }
+    }
+  }
+  return n;
+}
+let dockOn = false, dockV = -1;
+function dock() {
+  if (dockOn) return; dockOn = true;
+  setInterval(() => {
+    if (!PHONE.matches || document.hidden) return;
+    const tabs = [...document.querySelectorAll('.brc-tab')].filter(t => !t.hidden && getComputedStyle(t).display !== 'none'); if (!tabs.length) return;
+    const n = tabs.length, H = innerHeight, t0 = tabs[0], sb = parseFloat(getComputedStyle(t0).bottom) - (dockV < 0 ? 12 : dockV) || 0; /* phần vùng an toàn đáy */
+    let pick = 12, best = 99;
+    for (let d = 12; d <= H - 130 - 52 * (n - 1); d += 8) { const bot = H - d - sb, k = blocked(12, bot - 52 * (n - 1) - 44, 44, 52 * (n - 1) + 44); if (k < best) { best = k; pick = d; if (!k) break; } }
+    if (pick !== dockV) { dockV = pick; document.documentElement.style.setProperty('--gumballz-dock', pick + 'px'); }
+  }, 1500);
+}
 function build() {
+  dock();
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
   const tab = document.createElement('button'); tab.className = 'brc-tab'; tab.type = 'button'; tab.setAttribute('aria-label', 'Chat trong phòng'); tab.innerHTML = '💬<b></b>';
   const peek = document.createElement('div'); peek.className = 'brc-peek'; peek.hidden = true;
   const box = document.createElement('div'); box.className = 'brc-box'; box.hidden = true;
-  box.innerHTML = '<div class="brc-head"><span>💬 Chat trong phòng</span><button type="button" aria-label="Đóng">✕</button></div><div class="brc-list" aria-live="polite"></div><form class="brc-form"><input type="text" maxlength="140" placeholder="Nhắn cả phòng…" autocomplete="off" enterkeyhint="send"><button type="submit" aria-label="Gửi">➤</button></form>';
+  box.innerHTML = '<div class="brc-head"><span>💬 Chat phòng</span><button type="button" class="brc-fr brc-iv" title="Mời bạn bè vào phòng · đổi game cả bàn">📨 Mời</button><button type="button" aria-label="Đóng">✕</button></div><div class="brc-list" aria-live="polite"></div><form class="brc-form"><input type="text" maxlength="140" placeholder="Nhắn cả phòng…" autocomplete="off" enterkeyhint="send"><button type="submit" aria-label="Gửi">➤</button></form>';
   document.body.append(tab, peek, box);
   const list = box.querySelector('.brc-list'), inp = box.querySelector('input'), badge = tab.querySelector('b');
   const u = { api: null, tab, box, list, seen: new Set(), unread: 0, peekT: 0 };
@@ -56,6 +88,7 @@ function build() {
   u.add = m => {
     if (m.reset) { u.clear(); return; }
     if (!m.text || (m.id && u.seen.has(m.id))) return; if (m.id) u.seen.add(m.id);
+    if (m.uid && blockedIds().includes(+m.uid)) return; /* 🚫 người mình đã chặn (friends.js lưu 'gumballz-blocked') */
     list.querySelector('.brc-empty')?.remove();
     const mine = u.api && (u.api.host ? !!m.host : !m.host && m.from === (ls.get('gumballz-name') || ''));
     const vip = !!m.vip && !!window.__gumballzSrvRoom; /* 👑 chủ web – cờ do máy chủ phòng kiểm vé (shared/ui/vip.js) */
@@ -66,7 +99,7 @@ function build() {
       const meU = auth.user();
       if (m.uid && (!meU || +m.uid !== meU.id)) {
         const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'brc-add'; ab.textContent = '＋ Kết bạn';
-        ab.onclick = () => import('./friends.js?v=33').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
+        ab.onclick = () => import('./friends.js?v=34').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
         s.appendChild(ab);
       }
       el.appendChild(s);
@@ -86,7 +119,16 @@ function build() {
   tab.addEventListener('pointermove', e => { if (!drag) return; const d = e.clientY - drag.y; if (Math.abs(d) > 6) drag.moved = true; if (drag.moved) place(drag.top + d); });
   const up = () => { if (!drag) return; const moved = drag.moved; drag = null; if (moved) ls.set('gumballz-chat-y', parseFloat(tab.style.top)); else u.open(box.hidden); };
   tab.addEventListener('pointerup', up); tab.addEventListener('pointercancel', () => { drag = null; });
-  box.querySelector('.brc-head button').onclick = () => u.open(false);
+  box.querySelector('.brc-iv').onclick = () => { const R = window.__gumballzRoom, c = R && R.code && R.code(); if (!c) return; import('./invite.js?v=10').then(m => m.openInvite({ code: c, url: location.origin + location.pathname + '?room=' + encodeURIComponent(c) })); }; /* mời bạn / đổi game ngay trong ván */
+  /* 🎲 Tới lượt mình (game phát sự kiện 'gumballz-myturn'): chat đang mở mà không gõ dở thì tự thu lại cho khỏi che nút; đang gõ thì hiện dải nhắc bấm để về bàn */
+  addEventListener('gumballz-myturn', () => {
+    try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {}
+    if (box.hidden) return;
+    if (document.activeElement !== inp || !inp.value.trim()) { u.open(false); inp.blur(); return; }
+    let t = box.querySelector('.brc-turn'); if (!t) { t = document.createElement('button'); t.type = 'button'; t.className = 'brc-turn'; t.textContent = '🎲 Tới lượt bạn! Chạm để về bàn'; t.onclick = () => { u.open(false); inp.blur(); t.remove(); }; box.querySelector('.brc-head').after(t); }
+    clearTimeout(u.turnT); u.turnT = setTimeout(() => t.remove(), 15000);
+  });
+  box.querySelector('.brc-head button[aria-label="Đóng"]').onclick = () => u.open(false);
   box.querySelector('form').onsubmit = e => { e.preventDefault(); const t = inp.value.trim(); if (!t || !u.api) return; u.api.send(t); inp.value = ''; };
   for (const ev of ['keydown', 'keyup', 'keypress']) box.addEventListener(ev, e => { e.stopPropagation(); if (ev === 'keydown' && e.key === 'Escape') u.open(false); }); /* gõ chat không kích phím tắt của game */
   addEventListener('gumballz-chat', e => u.add(e.detail || {}));

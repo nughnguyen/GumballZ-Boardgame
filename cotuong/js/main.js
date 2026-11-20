@@ -4,8 +4,8 @@ import * as E from './engine.js?v=1';
 import { botAction, botWants } from './bot.js?v=1';
 import { masterMove, masterReady, masterOff } from './master.js?v=1';
 import { PUZZLES } from './puzzles.js?v=1';
-import { today, state as dailyState, markSolved } from './today.js?v=1';
-import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { today, state as dailyState, markSolved, puzzleOf, pastDays, markPast } from './today.js?v=2';
+import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 
@@ -225,7 +225,7 @@ function showEnd(v) {
   const w = v.players.find(p => p.id === v.winner), mine = v.players.filter(p => ui.controls(p.id) && !p.isBot), iWon = w && mine.length === 1 && mine[0].id === w.id, iLost = w && mine.length === 1 && mine[0].id !== w.id;
   let extra = '', nextPz = null;
   let daily = null;
-  if (v.puzzle) { const ok = w && w.id === 'host' && Math.ceil(v.nMoves / 2) <= v.puzzle.n; if (ok && v.puzzle.daily) daily = markSolved(v.puzzle.daily); if (ok && !v.puzzle.daily) { const d = solved(); d[v.puzzle.id] = 1; ls.set('cotuong-pz', JSON.stringify(d)); nextPz = PUZZLES[PUZZLES.findIndex(x => x.id === v.puzzle.id) + 1] || null; } extra = `<p style="text-align:center">${ok && daily ? `🎉 Giải xong Cờ thế hôm nay!<br>🔥 Chuỗi <b>${daily.streak}</b> ngày liên tiếp${daily.best > daily.streak ? ` (kỷ lục ${daily.best})` : ''}` : ok ? `🎉 Giải đúng trong ${Math.ceil(v.nMoves / 2)} nước!` : w && w.id === 'host' ? `Thắng rồi, nhưng đề yêu cầu chiếu bí trong <b>${v.puzzle.n}</b> nước. Thử lại nha!` : 'Chưa đúng – thử lại nha 💪'}</p>`; }
+  if (v.puzzle) { const ok = w && w.id === 'host' && Math.ceil(v.nMoves / 2) <= v.puzzle.n; if (ok && v.puzzle.daily) daily = v.puzzle.daily === today().day ? markSolved(v.puzzle.daily) : markPast(v.puzzle.daily); if (ok && !v.puzzle.daily) { const d = solved(); d[v.puzzle.id] = 1; ls.set('cotuong-pz', JSON.stringify(d)); nextPz = PUZZLES[PUZZLES.findIndex(x => x.id === v.puzzle.id) + 1] || null; } extra = `<p style="text-align:center">${ok && daily ? `🎉 Giải xong Cờ thế hôm nay!<br>🔥 Chuỗi <b>${daily.streak}</b> ngày liên tiếp${daily.best > daily.streak ? ` (kỷ lục ${daily.best})` : ''}` : ok ? `🎉 Giải đúng trong ${Math.ceil(v.nMoves / 2)} nước!` : w && w.id === 'host' ? `Thắng rồi, nhưng đề yêu cầu chiếu bí trong <b>${v.puzzle.n}</b> nước. Thử lại nha!` : 'Chưa đúng – thử lại nha 💪'}</p>`; }
   ui.openModal(`<h2>${!w ? '🤝 Hoà cờ' : iWon ? '🏆 Bạn thắng!' : iLost ? '😵 Bạn thua rồi' : `🏆 ${esc(cleanName(w.name))} thắng`}</h2><p style="text-align:center;color:var(--muted);font-weight:800">${E.RESULT_TEXT[v.result.kind] || ''} · ${Math.ceil(v.nMoves / 2)} nước</p>${extra}<div class="btns">${daily ? '<button class="btn pri" id="m-brag">📸 Khoe</button>' : ''}${nextPz ? '<button class="btn pri" id="m-next">🧩 Bài tiếp theo</button>' : ''}<button class="btn" id="m-close">Xem lại bàn cờ</button></div>`);
   $('#m-close').onclick = ui.closeModal;
   if (daily) $('#m-brag').onclick = () => { ui.closeModal(); /* đóng hộp kết quả để thẻ khoe hiện rõ */ return import('../../shared/ui/brag.js?v=35').then(m => m.brag({ game: 'cotuong', title: `Mình giải xong Cờ thế #${v.puzzle.no}!`, sub: `🔥 Chuỗi ${daily.streak} ngày`, lines: [`Chiếu bí trong ${v.puzzle.n} nước`, 'Mỗi ngày một bài mới – thử sức đi!'] })); };
@@ -274,13 +274,20 @@ function drawDaily() {
   const b = $('#btn-daily'); if (!b) return; const t = today(), d = dailyState();
   b.innerHTML = `📅 Cờ thế hôm nay <small>#${t.no} · ${d.done[t.day] ? '✅ đã giải' : `chiếu bí ${t.n} nước`}${d.streak ? ` · 🔥 ${d.streak} ngày` : ''}</small>`;
 }
-function startDaily() { const t = today(); startPuzzle({ ...t, name: `Cờ thế hôm nay #${t.no}` }, { daily: t.day, no: t.no }); }
+function startDaily(k) { const t = k ? puzzleOf(k) : today(), isT = t.day === today().day; startPuzzle({ ...t, name: isT ? `Cờ thế hôm nay #${t.no}` : `Cờ thế ngày ${t.day.split('-').reverse().slice(0, 2).join('/')} (#${t.no})` }, { daily: t.day, no: t.no }); }
+const WD = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+function openArchive() { /* 📚 cờ thế các ngày trước: xem lại / giải bù (không tính chuỗi ngày) */
+  const d = dailyState(), tk = today().day;
+  ui.openModal(`<h2>📚 Cờ thế các ngày</h2><p style="text-align:center;color:var(--muted)">Mỗi ngày một thế, giữ lại để giải bù. Giải bù không tính vào chuỗi 🔥.</p><div class="pz-grid">${pastDays().map(k => { const p = puzzleOf(k); return `<button type="button" data-day="${k}" class="${d.done[k] ? 'done' : ''}">${d.done[k] ? '✅' : k === tk ? '📅' : '🧩'} #${p.no} · ${k.split('-').reverse().slice(0, 2).join('/')}${k === tk ? ' · hôm nay' : ''}<small>${WD[new Date(k + 'T00:00:00Z').getUTCDay()]} · chiếu bí ${p.n} nước</small></button>`; }).join('')}</div><div class="btns"><button class="btn" id="m-close">Đóng</button></div>`);
+  $('#m-close').onclick = ui.closeModal;
+  $('.pz-grid').onclick = e => { const b = e.target.closest('[data-day]'); if (b) { ui.closeModal(); startDaily(b.dataset.day); } };
+}
 function startPuzzle(pz, more = {}) {
   if (!pz) return; const h = ui.startHost(true, true);
   h.addBot({ level: 'hard' }); h.start({ first: 'host', setup: pz.rows.join('').split('').map(c => c === '.' ? '' : c), puzzle: { id: pz.id, name: pz.name, n: pz.n, ...more } });
 }
 $('#btn-puzzle').onclick = openPuzzles;
-$('#btn-daily').onclick = startDaily; drawDaily(); addEventListener('focus', drawDaily);
+$('#btn-daily').onclick = () => startDaily(); if ($('#btn-arch')) $('#btn-arch').onclick = openArchive; drawDaily(); addEventListener('focus', drawDaily);
 if (/[?&]daily=1/.test(location.search)) { history.replaceState(null, '', location.pathname); setTimeout(startDaily, 300); } /* vào từ ô Thử thách hôm nay ở trang chủ */
 
 const ui = gameKit({

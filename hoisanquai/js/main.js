@@ -3,7 +3,7 @@ import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
 import { CLS, CLS_KEYS, HEROES, LEADERS, ITEMS, MAGIC, MODS, MONSTERS, ALL, BEAST, EFF, PEN, typeName, descOf } from './cards.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);

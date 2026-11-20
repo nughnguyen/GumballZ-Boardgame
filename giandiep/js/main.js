@@ -3,7 +3,7 @@ import { createGame, applyAction, viewFor, actors, OPT_CHOICES, MIN_PLAYERS, MAX
 import { botAction, GENERIC_DESC } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { toast as tip, confirmBox, promptBox } from '../../shared/ui/dialog.js?v=8';
 
 let sound = ls.get('giandiep-sound') !== '0';

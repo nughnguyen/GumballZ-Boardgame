@@ -5,7 +5,7 @@ import { clean, cleanName } from './filter.js';
 import { Meter, LIMITS, GB } from './meter.js';
 
 const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai'];
-const DUO = new Set(['cotuong', 'covua', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'codam', 'colat', 'connect4']); /* game đúng 2 người */
+const DUO = new Set(['cotuong', 'covua', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'codam', 'colat', 'connect4', 'sudoku']); /* game đúng 2 người (+ Sudoku: Tìm trận ghép solo 1v1) */
 const LV = v => Math.max(0, Math.min(10, Math.floor(+v || 0))); /* cấp độ 1–10 (0 = chưa rõ) */
 const gap = (a, b) => (a && b ? Math.abs(a - b) : 3); /* chưa rõ trình thì coi như lệch vừa */
 const CHANNELS = new Set(['all', ...GAMES]);
@@ -31,6 +31,7 @@ export class Lobby extends DurableObject {
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN kind TEXT DEFAULT ''"); } catch (e) {} // loại tin: 'invite' = lời mời phòng lên kênh thế giới
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN game TEXT DEFAULT ''"); } catch (e) {} // game của lời mời
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN code TEXT DEFAULT ''"); } catch (e) {} // mã phòng của lời mời
+    try { this.sql.exec("ALTER TABLE chat ADD COLUMN av TEXT DEFAULT ''"); } catch (e) {} // ✨ diện mạo chat: JSON {f,n} (khung/màu tên) – chỉ để hiện, không ảnh hưởng kiểm duyệt
     this.inviteLast = new Map(); // phòng (game/code) → lúc mời gần nhất (chống spam mời, 60 giây/lần)
     if (!this.sql.exec("SELECT v FROM stat WHERE k = 'live-v'").toArray().length) { this.sql.exec('DELETE FROM live'); this.sql.exec("INSERT INTO stat (k, v) VALUES ('live-v', 2)"); } // bỏ số cũ (kiểu đếm trước)
     if (!this.sql.exec("SELECT v FROM stat WHERE k = 'meter-v'").toArray().length) { this.sql.exec('UPDATE usage10 SET ms = ms / 10'); this.sql.exec("INSERT INTO stat (k, v) VALUES ('meter-v', 2)"); } // bản đo cũ đếm dư ~10 lần → chia lại số cũ cho khớp số thật trên Cloudflare
@@ -241,7 +242,7 @@ export class Lobby extends DurableObject {
     this.ctx.acceptWebSocket(srv); srv.serializeAttachment({ ipk, who: null, name: 'Khách', v: 0, chs: ['all'] }); this.bumpOnline();
     return new Response(null, { status: 101, webSocket: cli });
   }
-  hist(ch) { return this.sql.exec('SELECT id, ch, ts, who, name, v, text, kind, game, code FROM chat WHERE ch = ? AND hidden = 0 ORDER BY id DESC LIMIT ?', ch, HIST).toArray().reverse().map(pubMsg); }
+  hist(ch) { return this.sql.exec('SELECT id, ch, ts, who, name, v, text, kind, game, code, av FROM chat WHERE ch = ? AND hidden = 0 ORDER BY id DESC LIMIT ?', ch, HIST).toArray().reverse().map(pubMsg); }
   banned(who, ipk) {
     const r = this.sql.exec('SELECT who, until, reason FROM bans WHERE (who = ? OR who = ?) AND until > ?', who || '-', 'ip:' + ipk, now()).toArray();
     return r[0] || null;
@@ -260,13 +261,13 @@ export class Lobby extends DurableObject {
     const a = ws.deserializeAttachment() || {};
     const send = o => { try { ws.send(JSON.stringify(o)); } catch (e) {} };
     if (m.t === 'hello') {
-      let who = null, name = cleanName(m.name) || 'Khách', v = 0, admin = 0;
-      if (m.token) { const u = await this.env.USERS.get(this.env.USERS.idFromName('main')).whoami(String(m.token)); if (u && !u.banned) { who = 'u:' + u.id; name = u.name; v = 1; admin = u.admin ? 1 : 0; } }
+      let who = null, name = cleanName(m.name) || 'Khách', v = 0, admin = 0, av = null;
+      if (m.token) { const us = this.env.USERS.get(this.env.USERS.idFromName('main')); const u = await us.whoami(String(m.token)); if (u && !u.banned) { who = 'u:' + u.id; name = u.name; v = u.admin && u.id === 1 ? 2 : u.admin ? 3 : 1; /* v = 2: chủ web, 3: Mod – chat Sảnh hiện huy hiệu */ admin = u.admin ? 1 : 0; try { av = await us.avOf(u.id); } catch (x) {} } }
       if (!who) { const g = String(m.guest || '').replace(/[^a-z0-9]/g, '').slice(0, 24); who = a.g0 || (g.length >= 8 ? 'g:' + g : 'g:' + a.ipk); } /* một kết nối chỉ có MỘT mã khách: không đổi mã liên tục để lách chống spam / lệnh cấm */
       if (name.includes('*')) name = 'Khách';
       const chs = (Array.isArray(m.chs) ? m.chs : ['all']).filter(c => CHANNELS.has(c)).slice(0, 3);
       if (!chs.length) chs.push('all');
-      ws.serializeAttachment({ ...a, who, name, v, chs, admin, g0: a.g0 || (who.startsWith('g:') ? who : undefined) });
+      ws.serializeAttachment({ ...a, who, name, v, chs, admin, av, g0: a.g0 || (who.startsWith('g:') ? who : undefined) });
       send({ t: 'me', name, v, admin: !!admin, who: who.startsWith('u:') ? who : who.slice(0, 9) });
       send({ t: 'online', n: this.online() });
       send({ t: 'rooms', list: this.rooms() });
@@ -279,15 +280,21 @@ export class Lobby extends DurableObject {
     if (!a.who) return;
     if (m.t === 'chat') {
       const ch = String(m.ch || 'all'); if (!a.chs.includes(ch)) return;
+      if (!a.v) { send({ t: 'err', msg: 'Đăng nhập để chat trong Sảnh nha 🔑', login: 1 }); return; } /* chỉ tài khoản đã đăng nhập mới được chat Sảnh (khách vẫn xem được) */
       const b = this.banned(a.who, a.ipk); if (b) { send({ t: 'err', msg: `Bạn đang bị cấm chat đến ${new Date(b.until).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` }); return; }
+      if (a.who.startsWith('u:')) { /* 🔇 quản trị cấm chat theo tài khoản – nhớ 60 giây */
+        const uid = +a.who.slice(2), mc = this.muteC || (this.muteC = new Map()); let e = mc.get(uid);
+        if (!e || now() - e.at > 60000) { let mi = null; try { mi = await this.env.USERS.get(this.env.USERS.idFromName('main')).modInfo(uid); } catch (x) {} e = { at: now(), mc: (mi && mi.mc) || 0 }; mc.set(uid, e); if (mc.size > 5000) mc.clear(); }
+        if (e.mc > now()) { send({ t: 'err', msg: `🔇 Bạn đang bị tạm cấm chat đến ${new Date(e.mc).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` }); return; }
+      }
       const t0 = Math.max(this.last.get(a.who) || 0, a.v ? 0 : (this.last.get('ip:' + a.ipk) || 0)); /* khách: tính nhịp theo cả IP */ if (now() - t0 < SLOW) { send({ t: 'err', msg: 'Từ từ thôi nè 😅' }); return; }
       let text = String(m.text || '').slice(0, MSG_MAX); const c = clean(text); text = c.text;
       if (!text.trim()) return;
       this.last.set(a.who, now()); if (!a.v) this.last.set('ip:' + a.ipk, now()); if (this.last.size > 20000) this.last.clear();
-      this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text) VALUES (?,?,?,?,?,?,?)', ch, now(), a.who, a.ipk, a.name, a.v, text);
+      this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text, av) VALUES (?,?,?,?,?,?,?,?)', ch, now(), a.who, a.ipk, a.name, a.v, text, a.av ? JSON.stringify(a.av) : '');
       const id = this.sql.exec('SELECT last_insert_rowid() AS id').one().id;
       if (id % 200 === 0) this.sql.exec('DELETE FROM chat WHERE id IN (SELECT id FROM chat c WHERE (SELECT COUNT(*) FROM chat c2 WHERE c2.ch = c.ch AND c2.id > c.id) > 500)');
-      const msg = JSON.stringify({ t: 'msg', m: pubMsg({ id, ch, ts: now(), who: a.who, name: a.name, v: a.v, text }) });
+      const msg = JSON.stringify({ t: 'msg', m: pubMsg({ id, ch, ts: now(), who: a.who, name: a.name, v: a.v, text, av: a.av ? JSON.stringify(a.av) : '' }) });
       for (const w of this.ctx.getWebSockets()) { const x = w.deserializeAttachment() || {}; if (x.chs && x.chs.includes(ch)) try { w.send(msg); } catch (e) {} }
       return;
     }
@@ -303,9 +310,9 @@ export class Lobby extends DurableObject {
       this.last.set(a.who, now()); if (!a.v) this.last.set('ip:' + a.ipk, now()); if (this.last.size > 20000) this.last.clear();
       this.inviteLast.set(rk, now()); if (this.inviteLast.size > 5000) this.inviteLast.clear();
       const text = `Mời chơi ${game} — phòng ${code} đang chờ người!`;
-      this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text, kind, game, code) VALUES (?,?,?,?,?,?,?,?,?,?)', 'all', now(), a.who, a.ipk, a.name, a.v, text, 'invite', game, code);
+      this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text, kind, game, code, av) VALUES (?,?,?,?,?,?,?,?,?,?,?)', 'all', now(), a.who, a.ipk, a.name, a.v, text, 'invite', game, code, a.av ? JSON.stringify(a.av) : '');
       const id = this.sql.exec('SELECT last_insert_rowid() AS id').one().id;
-      const msg = JSON.stringify({ t: 'msg', m: pubMsg({ id, ch: 'all', ts: now(), who: a.who, name: a.name, v: a.v, text, kind: 'invite', game, code }) });
+      const msg = JSON.stringify({ t: 'msg', m: pubMsg({ id, ch: 'all', ts: now(), who: a.who, name: a.name, v: a.v, text, kind: 'invite', game, code, av: a.av ? JSON.stringify(a.av) : '' }) });
       for (const w of this.ctx.getWebSockets()) { const x = w.deserializeAttachment() || {}; if (x.chs && x.chs.includes('all')) try { w.send(msg); } catch (e) {} }
       send({ t: 'ok', msg: 'Đã mời lên kênh thế giới 📣' });
       return;
@@ -396,5 +403,5 @@ export class Lobby extends DurableObject {
     return { ok: false };
   }
 }
-const pubMsg = r => { const o = { id: r.id, ch: r.ch, ts: r.ts, who: r.who.startsWith('u:') ? r.who : r.who.slice(0, 9), name: r.name, v: r.v, text: r.text }; if (r.kind) o.kind = r.kind; if (r.game) o.game = r.game; if (r.code) o.code = r.code; return o; };
+const pubMsg = r => { const o = { id: r.id, ch: r.ch, ts: r.ts, who: r.who.startsWith('u:') ? r.who : r.who.slice(0, 9), name: r.name, v: r.v, text: r.text }; if (r.kind) o.kind = r.kind; if (r.game) o.game = r.game; if (r.code) o.code = r.code; if (r.av) { let av = null; try { av = typeof r.av === 'string' ? JSON.parse(r.av) : r.av; } catch (e) {} if (av && typeof av === 'object') { const f = typeof av.f === 'string' ? av.f.slice(0, 14) : '', n = typeof av.n === 'string' ? av.n.slice(0, 14) : ''; if (f || n) o.av = { f, n }; } } return o; };
 async function sha(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }

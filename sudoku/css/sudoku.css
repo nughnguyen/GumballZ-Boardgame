@@ -40,6 +40,12 @@
 .sd-cell.sel { background: #ffd273; outline: 3px solid #2a2340; outline-offset: -3px; z-index: 1; }
 .sd-cell.wrong { background: #ffd9d4; animation: sd-shake .3s ease; }
 @keyframes sd-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+/* ⚔️ Combat: ô bị sương mù che — màn sương xám xanh, không điền được */
+.sd-cell.fog { background: repeating-linear-gradient(45deg, #d7dee8 0 6px, #c3cedb 6px 12px); cursor: not-allowed; }
+.sd-cell.fog .fog-g { font-size: clamp(12px, 3.4vw, 18px); opacity: .85; animation: sd-fog 1.6s ease-in-out infinite alternate; }
+@keyframes sd-fog { from { opacity: .55; } to { opacity: 1; } }
+.fog-stat { color: #5a6b80 !important; }
+.race-row .cb { font-weight: 800; color: #5a6b80; white-space: nowrap; }
 .sd-cell .notes { position: absolute; inset: 8%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); font-size: clamp(7px, 2vw, 11px); font-weight: 800; color: #6b6480; line-height: 1; }
 .sd-cell .notes span { display: flex; align-items: center; justify-content: center; }
 .sd-cell:disabled { cursor: default; }

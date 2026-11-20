@@ -3,10 +3,10 @@ import { SHIPS, SHIP_BY_ID, ITEMS, COINS_START, coordName, area3x3, placeOk, shi
 import { botAction } from './bot.js?v=10';
 import { GUIDE_HTML } from './guide.js?v=10';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=86';
-import { stock, useItem } from '../../shared/ui/wallet.js?v=2'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
+import { recordEvent } from '../../shared/ui/stats.js?v=87';
+import { stock, useItem } from '../../shared/ui/wallet.js?v=3'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
 
 let sound = ls.get('bantau-sound') !== '0';
 

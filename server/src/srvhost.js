@@ -34,7 +34,7 @@ import { DEFAULT_OPTS as CAMEL_OPTS } from '../../camel/js/engine.js';
 import { makeHost as xidachHost } from '../../xidach/js/host.js';
 import { DEFAULT_OPTS as XIDACH_OPTS } from '../../xidach/js/engine.js';
 import { masoiLine } from './ai.js';
-import { checkPass } from './vip.js';
+import { checkPass, checkIdPass } from './vip.js';
 import { DEF as D_baitan } from '../../baitan/js/def.js';
 import { DEF as D_cholon } from '../../cholon/js/def.js';
 import { DEF as D_loto } from '../../loto/js/def.js';
@@ -421,11 +421,11 @@ export class SrvRoom {
     let c = this.conns.get(a.id);
     if (!c) {
       if (d.t !== 'join') { try { ws.send('{"x":"gone"}'); ws.close(1000, 'rejoin'); } catch (e) {} return; } /* máy chủ vừa thức dậy / khởi động lại, chưa biết người này: cắt để họ tự vào lại bằng token */
-      c = new Conn(a.id, ws); c.own = !!a.own; c.onPid = () => this.pushPeers(); c.seats = () => this.openSeats(); this.conns.set(a.id, c);
+      c = new Conn(a.id, ws); c.own = !!a.own; c.ipk = a.ipk || ''; c.onPid = () => this.pushPeers(); c.seats = () => this.openSeats(); this.conns.set(a.id, c);
       if (!c.own) this.onConn(c);
     }
-    if (d.t === 'join' && !c.own && this.banned.has(String(d.token || '').slice(0, 48))) { c.open = false; this.conns.delete(a.id); try { ws.send(JSON.stringify({ t: '__kicked' })); ws.close(4003, 'kicked'); } catch (e) {} return; }
-    if (d.t === 'join') { c.tok = String(d.token || '').slice(0, 48); this.remember(ws, a, { join: d }); c.name = String(d.name || 'Khách').slice(0, 20); c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); if (this.chatLog.length) c.send({ t: '__chat', hist: this.chatLog }); }
+    if (d.t === 'join' && !c.own && (this.banned.has(String(d.token || '').slice(0, 48)) || (c.ipk && this.banned.has('ip:' + c.ipk)))) { c.open = false; this.conns.delete(a.id); try { ws.send(JSON.stringify({ t: '__kicked' })); ws.close(4003, 'kicked'); } catch (e) {} return; }
+    if (d.t === 'join') { c.tok = String(d.token || '').slice(0, 48); c.t0 = Date.now(); this.remember(ws, a, { join: d, t0: c.t0 }); c.name = String(d.name || 'Khách').slice(0, 20); c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.idCheck(c, d.ip); if (this.chatLog.length) c.send({ t: '__chat', hist: this.chatLog }); }
     if (d.t.startsWith('__')) { /* tin tầng phòng: máy chủ tự xử lý, không đưa xuống lõi game */
       if (d.t === '__ping') c.send({ t: '__pong', n: d.n, away: false });
       else if (d.t === '__chat') this.chat(c, d.text);
@@ -434,7 +434,7 @@ export class SrvRoom {
       else if (d.t === '__kick' && c.own) this.kick(String(d.pid || ''));
       else if (d.t === '__local' && c.own) this.goLocal(c);
       else if (d.t === '__unlocal' && c.own) this.unLocal(c, d.snap, !!d.keep);
-      else if (d.t === '__id') { c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.pushPeers(); }
+      else if (d.t === '__id') { c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.idCheck(c, d.ip); this.pushPeers(); }
       return;
     }
     if (d.t === 'join' && !c.own && this.localMode && this.owner) this.owner.send({ t: 'guest', name: c.name }); /* chủ phòng đang chơi với máy trên máy mình: báo có người vào */
@@ -472,15 +472,15 @@ export class SrvRoom {
   // ---- 💤 phòng ngủ / thức: Cloudflare cho Durable Object "ngủ" khi không có việc (không tốn tiền chạy). Lúc ngủ mất hết bộ nhớ,
   // nên mỗi socket tự mang theo tin "join"; thức dậy thì revive() dựng lại người trong phòng, không ai phải nối lại.
   remember(ws, a, extra) {
-    try { const cur = a || ws.deserializeAttachment() || {}; const next = { ...cur, ...extra }; if (next.join) { const j = next.join; next.join = { t: 'join', name: j.name, token: j.token, uid: j.uid, uname: j.uname, avatar: j.avatar, spec: j.spec, vp: j.vp }; }
+    try { const cur = a || ws.deserializeAttachment() || {}; const next = { ...cur, ...extra }; if (next.join) { const j = next.join; next.join = { t: 'join', name: j.name, token: j.token, uid: j.uid, uname: j.uname, avatar: j.avatar, spec: j.spec, vp: j.vp, ip: j.ip }; }
       if (JSON.stringify(next).length < 1800) ws.serializeAttachment(next); } catch (e) {}
   }
   revive() {
     let n = 0;
     for (const ws of this.room.ctx.getWebSockets()) {
       let a; try { a = ws.deserializeAttachment(); } catch (e) {} if (!a || a.role !== 'c' || !a.join || this.conns.has(a.id) || ws.readyState !== 1) continue;
-      const c = new Conn(a.id, ws); c.own = !!a.own; c.onPid = () => this.pushPeers(); c.seats = () => this.openSeats(); c.quiet = true; this.conns.set(a.id, c);
-      const j = a.join; c.name = String(j.name || 'Khách').slice(0, 20); c.uid = Number(j.uid) || 0; c.uname = String(j.uname || '').slice(0, 20); c.tok = String(j.token || '').slice(0, 48); this.vipCheck(c, j.vp);
+      const c = new Conn(a.id, ws); c.own = !!a.own; c.ipk = a.ipk || ''; c.onPid = () => this.pushPeers(); c.seats = () => this.openSeats(); c.quiet = true; this.conns.set(a.id, c);
+      const j = a.join; c.name = String(j.name || 'Khách').slice(0, 20); c.uid = Number(j.uid) || 0; c.uname = String(j.uname || '').slice(0, 20); c.tok = String(j.token || '').slice(0, 48); c.t0 = a.t0 || Date.now(); this.vipCheck(c, j.vp); this.idCheck(c, j.ip);
       if (c.own) { const h = this.host, hp = h.players.find(p => p.id === 'host'); this.owner = c; this.ownerGone = 0; if (hp) { hp.connected = true; } if (h.ownerOn) h.ownerOn(true, j.name, j.avatar); }
       else { this.onConn(c); c.emit('data', j); }
       c.quiet = false; n++;
@@ -523,11 +523,11 @@ export class SrvRoom {
     return true;
   }
   /* người tạo phòng mời một người ra (cả giữa ván): cắt kết nối, chặn token; ghế để máy / người xem ngồi thay như người thoát */
-  kick(pid) {
+  kick(pid, why) {
     if (!pid || pid === 'host') return; const h = this.host;
     for (const x of [...this.conns.values()]) if (!x.own && x.pid === pid) {
       if (x.tok) this.banned.add(x.tok);
-      x.send({ t: '__kicked' }); x.open = false; this.conns.delete(x.id);
+      x.send({ t: '__kicked', ...(why ? { why } : {}) }); x.open = false; this.conns.delete(x.id);
       try { x.ws.close(4003, 'kicked'); } catch (e) {} x.emit('close');
     }
     const p = Array.isArray(h.players) && h.players.find(q => q && q.id === pid); if (p && p.token) this.banned.add(p.token);
@@ -593,6 +593,24 @@ export class SrvRoom {
     if (!w.split(' ').every(x => /^[a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]{1,7}$/.test(x))) return;
     try { const env = this.room.env; env.LOBBY.get(env.LOBBY.idFromName('main')).ntAdd(w, yes, no).catch(() => {}); } catch (e) {}
   }
+  /* 🪪 vé tài khoản (server/src/vip.js) → c.vid = uid đã kiểm + c.mod = lệnh cấm của quản trị & danh sách người họ chặn (Users.modInfo) */
+  idCheck(c, p) {
+    c.vid = 0; c.mod = null; const uid = Number(c.uid) || 0; if (!p || !uid) return;
+    checkIdPass(this.room.env, p, uid).then(async ok => {
+      if (!ok || c.uid !== uid) return; c.vid = uid;
+      try { const env = this.room.env; c.mod = await env.USERS.get(env.USERS.idFromName('main')).modInfo(uid); } catch (e) {}
+      this.blkSweep();
+    }, () => {});
+  }
+  /* 🚫 người chủ phòng đã chặn thì không ở trong phòng của chủ phòng – chặn luôn IP máy đó như bị mời ra */
+  blkSweep() {
+    const o = [...this.conns.values()].find(x => x.open && x.own), blk = o && o.mod && o.mod.blk; if (!blk || !blk.length) return;
+    for (const x of [...this.conns.values()]) if (!x.own && x.vid && blk.includes(x.vid)) {
+      if (x.ipk) { this.banned.add('ip:' + x.ipk); this.room.ctx.storage.put('ban', [...this.banned].slice(-200)).catch(() => {}); } /* chặn cả IP trong phòng này – acc khác / khách cùng mạng cũng không vào lại được */
+      if (x.pid) { this.kick(x.pid, 'blk'); continue; }
+      if (x.tok) this.banned.add(x.tok); x.send({ t: '__kicked', why: 'blk' }); x.open = false; this.conns.delete(x.id); try { x.ws.close(4003, 'kicked'); } catch (e) {} x.emit('close');
+    }
+  }
   /* 👑 kiểm vé chủ web (server/src/vip.js) rồi báo lại danh sách người trong phòng */
   vipCheck(c, vp) {
     if (!vp) { if (c.vip) { c.vip = false; this.pushPeers(); } return; }
@@ -612,6 +630,7 @@ export class SrvRoom {
   }
   chat(c, text) {
     if (!c.name) return; const now = Date.now(); if (now - (c.chatAt || 0) < 700) return; c.chatAt = now;
+    if (c.mod && c.mod.mc > now) return c.send({ t: '__chat', id: 'mute.' + now, from: 'GumballZ', sys: 1, text: `🔇 Bạn đang bị tạm cấm chat đến ${new Date(c.mod.mc).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` });
     text = String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, 140); if (!text) return;
     try { text = clean(text).text; } catch (e) {}
     const m = { t: '__chat', id: ++this.chatN, from: c.name, host: !!c.own, uid: c.uid || 0, uname: c.uname || '', text, ...(c.vip ? { vip: true } : {}) };

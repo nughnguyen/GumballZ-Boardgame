@@ -4,18 +4,18 @@
 // tiến độ (số ô đã điền) của người khác — không ai thấy lưới hay đáp án của
 // người khác. Thắng/thua/xu ghi qua watch() của simplenet — main.js KHÔNG
 // gọi record() trực tiếp.
-import { createGame, applyAction, viewFor, serialize, deserialize, actors, DIFFS, HINTS_PER_GAME, MAX_MISTAKES, peersOf } from './engine.js?v=1';
-import { botAction } from './bot.js?v=1';
-import { GUIDE_HTML } from './guide.js?v=1';
-import * as Snd from './sound.js?v=1';
+import { createGame, applyAction, viewFor, serialize, deserialize, actors, DIFFS, HINTS_PER_GAME, MAX_MISTAKES, peersOf } from './engine.js?v=2';
+import { botAction } from './bot.js?v=2';
+import { GUIDE_HTML } from './guide.js?v=2';
+import * as Snd from './sound.js?v=2';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, $$, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, $$, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet({
   game: 'sudoku', min: 1, max: 4, maxSeats: 4, allowLocal: false,
-  defaults: { difficulty: 'medium' },
-  optOk: (k, v) => k === 'difficulty' && ['easy', 'medium', 'hard', 'expert'].includes(v),
+  defaults: { difficulty: 'medium', combat: true },
+  optOk: (k, v) => (k === 'difficulty' && ['easy', 'medium', 'hard', 'expert'].includes(v)) || (k === 'combat' && typeof v === 'boolean'),
   create: (players, opts) => createGame(players, opts),
   apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy điền 1 ô đúng mỗi lượt; Máy Dễ điền chậm + nghỉ lâu, Máy Khó nhanh */
@@ -56,7 +56,8 @@ function renderLobby(info, ui) {
     ? `<div class="row-btns"><button class="btn" id="btn-addbot-easy">🤖 Thêm máy Dễ</button><button class="btn" id="btn-addbot-hard">🧠 Thêm máy Khó</button></div>`
     : '');
   const o = info.opts || {}, dis = ui.isHost ? '' : 'disabled';
-  $('#opts').innerHTML = `<div class="opt"><b>🎚️ Độ khó</b><div class="seg">${[['easy', 'Dễ · 44 số'], ['medium', 'Vừa · 34 số'], ['hard', 'Khó · 28 số'], ['expert', 'Chuyên gia · 24 số']].map(([v, n]) => `<button type="button" data-diff="${v}" aria-pressed="${o.difficulty === v}" ${dis}>${n}</button>`).join('')}</div><small>Số cho sẵn càng ít thì càng khó — mọi câu đố đều có đúng 1 nghiệm duy nhất.</small></div>`;
+  const combatOn = o.combat !== false;
+  $('#opts').innerHTML = `<div class="opt"><b>🎚️ Độ khó</b><div class="seg">${[['easy', 'Dễ · 44 số'], ['medium', 'Vừa · 34 số'], ['hard', 'Khó · 28 số'], ['expert', 'Chuyên gia · 24 số']].map(([v, n]) => `<button type="button" data-diff="${v}" aria-pressed="${o.difficulty === v}" ${dis}>${n}</button>`).join('')}</div><small>Số cho sẵn càng ít thì càng khó — mọi câu đố đều có đúng 1 nghiệm duy nhất.</small></div>${n > 1 || mode !== 'solo' ? `<div class="opt"><b>⚔️ Combat</b><div class="seg">${[[true, 'Bật · kín dãy phủ sương'], [false, 'Tắt · đua thuần']].map(([v, nm]) => `<button type="button" data-combat="${v}" aria-pressed="${combatOn === v}" ${dis}>${nm}</button>`).join('')}</div><small>Kín 1 hàng/cột/khối thì sương mù của mình tan hết + phủ 3 ô sương mù (9 giây) lên người dẫn đầu — ô bị sương không điền được.</small></div>` : ''}`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = mode === 'online' ? n < 2 : n < 1;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -70,6 +71,7 @@ $('#screen-lobby').addEventListener('click', e => {
   else if (b.id === 'btn-addbot-easy') h.addBot({ level: 'easy' });
   else if (b.id === 'btn-addbot-hard') h.addBot({ level: 'hard' });
   else if (b.dataset.diff && ui.isHost) h.setOpt('difficulty', b.dataset.diff);
+  else if (b.dataset.combat != null && ui.isHost) h.setOpt('combat', b.dataset.combat === 'true');
 });
 $('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
 $('#btn-start').onclick = () => { ui.startHost(true); };
@@ -78,6 +80,7 @@ $('#btn-start').onclick = () => { ui.startHost(true); };
 let cur = null, sel = null, notesMode = false;
 let paused = false, pauseStart = 0, pausedTotal = 0;
 let hinted = new Set(), lastWrongKey = '', lastPlaceKey = '', endShown = '';
+let fogSet = new Set(), lastHitKey = '', lastFogN = 0; /* ⚔️ Combat: ô đang bị sương che + dấu hiệu tấn công/bị phủ sương */
 let timerInt = null;
 const fmt = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${String((s / 60) | 0).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
 const elapsedMs = v => {
@@ -98,6 +101,7 @@ function resetGameState() {
   cur = null; sel = null; notesMode = false;
   paused = false; pauseStart = 0; pausedTotal = 0;
   hinted = new Set(); lastWrongKey = ''; lastPlaceKey = ''; endShown = '';
+  fogSet = new Set(); lastHitKey = ''; lastFogN = 0;
   stopTimer();
   $('#pause-veil').style.display = 'none';
   $('#btn-pause').textContent = '⏸️ Tạm dừng';
@@ -117,7 +121,8 @@ function cellHtml(v, i) {
     else if (peersOf(sel).includes(i)) cls.push('peer');
   }
   let inner = val ? String(val) : '';
-  if (!val && v.you.notes[i]) {
+  if (fogSet.has(i)) { cls.push('fog'); inner = '<span class="fog-g">🌫️</span>'; }
+  else if (!val && v.you.notes[i]) {
     const ns = v.you.notes[i];
     inner = `<span class="notes">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(d => `<span>${ns.includes(d) ? d : ''}</span>`).join('')}</span>`;
   }
@@ -125,6 +130,7 @@ function cellHtml(v, i) {
 }
 function drawGrid(v) {
   const g = $('#grid');
+  fogSet = new Set((v.you.fog || []).map(f => f[0]));
   g.innerHTML = Array.from({ length: 81 }, (_, i) => cellHtml(v, i)).join('');
 }
 function drawPad(v) {
@@ -148,7 +154,9 @@ function drawStatus(v) {
   const isRace = v.players.length > 1;
   $('#diff-chip').textContent = DIFFS[v.difficulty].name;
   const mist = v.you.mistakes;
-  $('#status').innerHTML = `<span class="stat">⏱️ <span id="timer-text">${fmt(elapsedMs(v))}</span></span><span class="stat">❌ <span class="mist ${mist ? '' : 'ok'}">${'×'.repeat(mist) || '0'}</span> / ${MAX_MISTAKES}</span><span class="stat">💡 Gợi ý: ${v.you.hintsLeft}/${HINTS_PER_GAME}</span><span class="stat">🔢 Đã điền: ${v.players.find(p => p.id === v.me)?.filled || v.givensCount}/81</span>${v.you.failed ? '<span class="stat">😢 Bạn đã bị loại</span>' : ''}`;
+  const fogN = (v.you.fog || []).length;
+  const fogSec = fogN ? Math.ceil(Math.min(...v.you.fog.map(f => f[1])) / 1000) : 0;
+  $('#status').innerHTML = `<span class="stat">⏱️ <span id="timer-text">${fmt(elapsedMs(v))}</span></span><span class="stat">❌ <span class="mist ${mist ? '' : 'ok'}">${'×'.repeat(mist) || '0'}</span> / ${MAX_MISTAKES}</span><span class="stat">💡 Gợi ý: ${v.you.hintsLeft}/${HINTS_PER_GAME}</span><span class="stat">🔢 Đã điền: ${v.players.find(p => p.id === v.me)?.filled || v.givensCount}/81</span>${v.combat && fogN ? `<span class="stat fog-stat">🌫️ Sương: ${fogN} ô · tan sau ${fogSec}s</span>` : ''}${v.you.failed ? '<span class="stat">😢 Bạn đã bị loại</span>' : ''}`;
   $('#btn-hint').textContent = `💡 Gợi ý (${v.you.hintsLeft})`;
   $('#btn-hint').disabled = v.phase === 'ended' || v.you.failed || v.you.hintsLeft <= 0;
   $('#btn-erase').disabled = v.phase === 'ended' || v.you.failed || sel == null || !v.you.grid[sel];
@@ -159,11 +167,11 @@ function drawStatus(v) {
     race.style.display = '';
     race.innerHTML = v.players.map(p => {
       const pct = Math.round((p.filled / 81) * 100);
-      return `<div class="race-row ${p.id === v.me ? 'me' : ''} ${p.failed ? 'out' : ''}">${avatar(p.name, 30)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' 🤖' : ''}${p.id === v.me ? ' (bạn)' : ''}</span><span class="bar"><i style="width:${pct}%"></i></span><span class="cnt">${p.filled}/81</span><span class="mist">${p.failed ? '❌ loại' : p.mistakes ? `❌×${p.mistakes}` : ''}</span></div>`;
+      return `<div class="race-row ${p.id === v.me ? 'me' : ''} ${p.failed ? 'out' : ''}">${avatar(p.name, 30)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' 🤖' : ''}${p.id === v.me ? ' (bạn)' : ''}</span><span class="bar"><i style="width:${pct}%"></i></span><span class="cnt">${p.filled}/81</span>${v.combat ? `<span class="cb">⚔️${p.atk || 0}${(p.fogN || 0) ? ` · 🌫️${p.fogN}` : ''}</span>` : ''}<span class="mist">${p.failed ? '❌ loại' : p.mistakes ? `❌×${p.mistakes}` : ''}</span></div>`;
     }).join('');
   } else race.style.display = 'none';
   $('#round').textContent = isRace
-    ? `🏁 Đua ${v.players.length} người · ${DIFFS[v.difficulty].name} · ${v.givensCount} số cho sẵn — ai giải xong trước thắng!`
+    ? `🏁 Đua ${v.players.length} người · ${DIFFS[v.difficulty].name} · ${v.givensCount} số cho sẵn — ai giải xong trước thắng!${v.combat ? ' · ⚔️ Combat bật: kín dãy phủ sương đối thủ' : ''}`
     : `🧩 Chơi đơn · ${DIFFS[v.difficulty].name} · ${v.givensCount} số cho sẵn · sai ${MAX_MISTAKES} lần là thua`;
   const log = $('#log');
   log.innerHTML = v.log.map(l => `<div class="${l.kind || ''}">${esc(l.text)}</div>`).join('');
@@ -191,6 +199,22 @@ function soundForPlace(v) {
 }
 
 /* ---------- vẽ toàn ván ---------- */
+/* ⚔️ Combat: báo khi mình phủ sương được đối thủ / khi mình bị phủ sương */
+function combatAlerts(v) {
+  const h = v.you.hit;
+  if (h) {
+    const key = `${h.foe}:${h.at}:${h.n}`;
+    if (key !== lastHitKey) {
+      lastHitKey = key;
+      Snd.fog();
+      const foe = v.players.find(p => p.id === h.foe);
+      tip(`⚔️ Bạn kín ${h.done} dãy — phủ ${h.n} ô sương mù lên ${foe ? cleanName(foe.name) : 'đối thủ'}!`);
+    }
+  }
+  const n = (v.you.fog || []).length;
+  if (n > lastFogN) { Snd.fog(); tip('🌫️ Đối thủ phủ sương mù lên lưới của bạn — kín 1 hàng/cột/khối để thổi tan, hoặc chờ tan!'); }
+  lastFogN = n;
+}
 function render(v, prev) {
   if (!v) { resetGameState(); return; }
   const newGame = !cur || cur.gid !== v.gid;
@@ -203,6 +227,7 @@ function render(v, prev) {
   drawGrid(v);
   drawPad(v);
   drawStatus(v);
+  combatAlerts(v);
   drawNotesBtn();
   /* flashWrong SAU khi vẽ lưới: nó cần phần tử ô vừa vẽ để gắn class */
   flashWrong(v);
@@ -263,6 +288,7 @@ $('#pad').addEventListener('click', e => {
   if (sel == null) { tip('Chọn 1 ô trống trước đã.'); return; }
   const d = +b.dataset.num;
   if (cur.givens[sel]) { tip('Ô này có số cho sẵn, không đổi được.'); Snd.invalid(); return; }
+  if (fogSet.has(sel)) { tip('Ô này đang bị sương mù che — kín 1 hàng/cột/khối để thổi tan, hoặc chờ tan rồi điền lại nha.'); Snd.invalid(); return; }
   if (notesMode) {
     if (cur.you.grid[sel]) { tip('Ô này đã điền rồi — xoá trước đã.'); Snd.invalid(); return; }
     ui.act({ type: 'note', cell: sel, value: d });

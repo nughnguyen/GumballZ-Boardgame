@@ -2,10 +2,14 @@
 // Trong ván chơi mỗi game có âm thanh riêng nên ở đó chỉ rung, không kêu thêm.
 // Tắt trong ⚙️ Cài đặt: gumballz-ui-sfx = '0' (tiếng), gumballz-haptic = '0' (rung); "Tắt hết nhạc nền" không ảnh hưởng tiếng nút.
 import './inapp.js?v=5'; /* nhắc mở bằng Safari/Chrome khi đang ở trình duyệt nhúng của Zalo, Facebook… */
-import './errlog.js?v=21'; /* ghi lỗi JS về máy chủ cho chủ web */
+import './errlog.js?v=22'; /* ghi lỗi JS về máy chủ cho chủ web */
 import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứng (gumballz-vol-*) – chặn AudioNode.connect một lần cho mọi game */
 /* 🌐 tiếng Anh: ?lang=en / ?lang=vi đổi ngôn ngữ (nhớ trong gumballz-lang); chọn English thì nạp bộ dịch (shared/i18n.js) */
 { try { const q = new URLSearchParams(location.search).get('lang'); if (q === 'en' || q === 'vi') localStorage.setItem('gumballz-lang', q); if (localStorage.getItem('gumballz-lang') === 'en') import('../i18n.js?v=1').then(m => m.startI18n()).catch(() => {}); } catch (e) {} }
+/* 🧈 Cuộn mượt: đang cuộn trang (hoặc khung cuộn cao ≥ ½ màn hình) thì gắn html.gumballz-scroll
+   → shell.css tạm dừng mọi hoạt ảnh CSS (sao lấp lánh, mây, chấm xanh…) để máy khỏi vẽ lại các lớp mờ / bóng đổ phía trên chúng mỗi khung hình; ngừng cuộn 0,2 giây thì chạy lại. */
+{ let sT = 0; const de = document.documentElement;
+  addEventListener('scroll', e => { const t = e.target; if (t !== document && !(t && t.clientHeight > innerHeight * 0.5)) return; if (!sT) de.classList.add('gumballz-scroll'); clearTimeout(sT); sT = setTimeout(() => { sT = 0; de.classList.remove('gumballz-scroll'); }, 200); }, { capture: true, passive: true }); }
 /* 📈 Thống kê lượt xem của Cloudflare Web Analytics (không cookie, không theo dõi cá nhân) – chỉ chạy trên tên miền thật */
 if (location.hostname === 'gumballzgames.vercel.app' && !navigator.webdriver && !document.querySelector('script[data-cf-beacon]')) {
   const b = document.createElement('script'); b.defer = true; b.src = 'https://static.cloudflareinsights.com/beacon.min.js';

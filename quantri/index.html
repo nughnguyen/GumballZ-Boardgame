@@ -30,10 +30,10 @@ button{background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:800}
 .days{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:10px}.days div{flex:1;text-align:center;font-size:11px;color:var(--muted)}.days span{display:block;background:#C9BDF3;border-radius:6px 6px 0 0;margin:0 auto 2px;width:70%;min-height:2px}.hrs{display:flex;gap:2px;align-items:flex-end;height:86px;margin-top:4px}.hrs div{flex:1;min-width:0;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}.hrs span{display:block;background:#ffb27a;border-radius:4px 4px 0 0;margin:0 auto 2px;width:82%;min-height:2px}.hrs .now span{background:#ff7a45}.hrs em{font-style:normal;display:block;height:13px}.chart-h{font-weight:800;font-size:13.5px;margin-top:14px}.chart-h small{font-weight:700;color:var(--muted)}#st{min-height:22px;color:#c0263b;font-weight:700}
 .cfu{margin-top:14px;padding-top:12px;border-top:1px dashed #E9DCC6}.cfu h3{margin:0 0 6px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.cfr{margin:8px 0 2px}.cfr span{display:inline-block;margin-right:12px;font-size:13.5px}.cfr>b{display:block}.cfcost{margin:4px 0 8px;font-size:15px}.cfu code{background:#FFF8EE;padding:1px 5px;border-radius:5px}
 </style>
-<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
 </head>
 <body>
-<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script><main>
+<main>
   <div class="top"><a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a><h1>🛠️ Quản trị GumballZ</h1><span id="acct"></span></div>
   <div id="gate" class="card" hidden></div>
   <div id="panel" hidden>
@@ -44,9 +44,9 @@ button{background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:800}
   </div>
 </main>
 <script type="module">
-import { auth, API } from '../shared/net/api.js?v=27';
+import { auth, API } from '../shared/net/api.js?v=28';
 import { mountAccount, openLogin } from '../shared/ui/account.js?v=50';
-import { confirmBox, promptBox, alertBox } from '../shared/ui/dialog.js?v=8';
+import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=8';
 import '../shared/net/presence.js?v=26';
 mountAccount(document.getElementById('acct'));
 const $ = s => document.querySelector(s), esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -163,7 +163,7 @@ async function go(t) {
   if (t === 'er') $('#l').innerHTML = ((d.errs || []).length ? '<p class="muted">Lỗi JavaScript trên máy người chơi, gộp theo từng lỗi (số đo lag nằm ở tab 📶 Lag). Sửa xong thì bấm Xoá. <button class="sm gray" data-errdel="*">Xoá hết</button></p>' : '') + (d.errs || []).map(i => `<div class="it"><div class="meta"><span class="tag bug">×${i.n}</span><b>${esc(i.game || '?')}</b><span>mới nhất ${dt(i.ts)}</span><span>lần đầu ${dt(i.first)}</span><button class="sm red r" data-errdel="${esc(i.h)}">Xoá</button></div><div class="msg">${esc(i.msg)}</div><div class="meta">${esc(i.at)} · ${esc(i.page)} · ${esc(i.ua)}</div></div>`).join('') || '<p class="muted">Chưa ghi nhận lỗi nào 🎉</p>';
   if (t === 'rp') $('#l').innerHTML = (d.reports || []).map(r => `<div class="it"><div class="meta"><b>${esc(r.tname)}</b><span>${esc(r.target)}</span><span>${dt(r.ts)}</span><span class="r">báo bởi ${esc(r.rname)}</span></div><div class="msg">“${esc(r.text)}”${r.reason ? '\n<i>Lý do: ' + esc(r.reason) + '</i>' : ''}</div><div class="acts"><button class="sm" data-op="hide" data-msg="${r.msg}">🙈 Ẩn tin</button><button class="sm red" data-ban="${esc(r.target)}" data-h="24">Cấm 24h</button><button class="sm red" data-ban="${esc(r.target)}" data-h="168">Cấm 7 ngày</button><button class="sm red" data-ban="${esc(r.target)}" data-h="87600">Cấm vĩnh viễn</button><button class="sm gray" data-op="dismiss" data-id="${r.id}">Bỏ qua</button></div></div>`).join('') || '<p class="muted">Không có báo cáo nào 🎉</p>';
   if (t === 'bn') $('#l').innerHTML = (d.bans || []).map(b => `<div class="it"><div class="meta"><b>${esc(b.who)}</b><span>đến ${dt(b.until)}</span><span>${esc(b.reason)}</span><button class="sm r" data-unban="${esc(b.who)}">Gỡ cấm</button></div></div>`).join('') || '<p class="muted">Không ai bị cấm.</p>';
-  if (t === 'us') { const q = $('#uq')?.value || ''; $('#l').innerHTML = `<form id="uf" style="display:flex;gap:8px"><input id="uq" placeholder="Tìm tên đăng nhập / tên / id" style="flex:1" value="${esc(q)}"><button>Tìm</button></form>` + (d.users || []).map(u => `<div class="it"><div class="meta"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${u.id}</span><span>${dt(u.created)}</span>${u.admin ? '<span class="tag adm">🛠️ quản trị</span>' : ''}${u.banned ? '<span class="tag bug">bị khoá</span>' : ''}<span class="r"></span></div><div class="acts"><button class="sm ${u.banned ? '' : 'red'}" data-ub="${u.id}" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Mở khoá' : 'Khoá tài khoản'}</button>${u.username ? `<button class="sm gray" data-pw="${u.id}">Đặt lại mật khẩu</button>` : ''}<button class="sm gray" data-adm="${u.id}" data-v="${u.admin ? 0 : 1}">${u.admin ? 'Bỏ quyền quản trị' : 'Cấp quyền quản trị'}</button></div></div>`).join(''); $('#uf').onsubmit = e => { e.preventDefault(); go('us'); }; }
+  if (t === 'us') { const q = $('#uq')?.value || ''; $('#l').innerHTML = `<form id="uf" style="display:flex;gap:8px"><input id="uq" placeholder="Tìm tên đăng nhập / tên / id" style="flex:1" value="${esc(q)}"><button>Tìm</button></form>` + (d.users || []).map(u => `<div class="it"><div class="meta"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${u.id}</span><span>${dt(u.created)}</span>${u.admin ? '<span class="tag adm">🛠️ quản trị</span>' : ''}${u.banned ? '<span class="tag bug">bị khoá</span>' : ''}${u.mute && u.mute.c > Date.now() ? `<span class="tag bug">🔇 cấm chat tới ${new Date(u.mute.c).toLocaleString('vi-VN')}</span>` : ''}<span class="r"></span></div><div class="acts"><button class="sm ${u.banned ? '' : 'red'}" data-ub="${u.id}" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Mở khoá' : 'Khoá tài khoản'}</button>${u.username ? `<button class="sm gray" data-pw="${u.id}">Đặt lại mật khẩu</button>` : ''}<button class="sm gray" data-mute="${u.id}" data-k="c">🔇 Cấm chat</button><button class="sm gray" data-adm="${u.id}" data-v="${u.admin ? 0 : 1}">${u.admin ? 'Bỏ quyền quản trị' : 'Cấp quyền quản trị'}</button></div></div>`).join(''); $('#uf').onsubmit = e => { e.preventDefault(); go('us'); }; }
 }
 $('#tabs').onclick = e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); };
 $('#l').onclick = async e => {
@@ -174,10 +174,13 @@ $('#l').onclick = async e => {
   if (b.dataset.op) { await api({ op: b.dataset.op, msg: b.dataset.msg, id: b.dataset.id }); return go(tab); }
   if (b.dataset.ban) { const reason = await promptBox('Người bị cấm sẽ thấy lý do này.', { title: '⛔ Cấm chat', placeholder: 'Lý do (không bắt buộc)', maxlength: 120, ok: 'Cấm' }); if (reason === null) return; await api({ op: 'ban', who: b.dataset.ban, hours: +b.dataset.h, reason }); return go(tab); }
   if (b.dataset.unban) { await api({ op: 'unban', who: b.dataset.unban }); return go(tab); }
+  if (b.dataset.mute) { /* 🔇 cấm chat (Sảnh + chat phòng) theo tài khoản, có hạn – chọn 0 để gỡ */
+    const h = await chooseBox('🔇 Cấm chat', [{ id: '24', label: '24 giờ' }, { id: '168', label: '7 ngày' }, { id: '720', label: '30 ngày' }, { id: '0', label: 'Gỡ lệnh cấm' }], { text: 'Không nhắn được ở Sảnh chung và chat trong phòng (khi đã đăng nhập).' });
+    if (h == null) return; await api({ op: 'user', id: b.dataset.mute, patch: { mute: { c: +h } } }); return go('us'); }
   if (b.dataset.ub) { if (!(await confirmBox(b.dataset.v === '1' ? 'Tài khoản này sẽ bị khoá và đăng xuất khỏi mọi máy.' : 'Tài khoản này sẽ đăng nhập lại được.', { title: b.dataset.v === '1' ? 'Khoá tài khoản?' : 'Mở khoá tài khoản?', ok: b.dataset.v === '1' ? 'Khoá' : 'Mở khoá', danger: b.dataset.v === '1' }))) return; await api({ op: 'user', id: b.dataset.ub, patch: { banned: b.dataset.v === '1' } }); return go('us'); }
   if (b.dataset.adm) { if (!(await confirmBox(b.dataset.v === '1' ? 'Người này sẽ xem được báo cáo, góp ý và cấm được người chơi.' : 'Người này sẽ không vào được trang Quản trị nữa.', { title: b.dataset.v === '1' ? 'Cấp quyền quản trị?' : 'Bỏ quyền quản trị?', ok: b.dataset.v === '1' ? 'Cấp quyền' : 'Bỏ quyền', danger: b.dataset.v !== '1' }))) return; await api({ op: 'user', id: b.dataset.adm, patch: { admin: b.dataset.v === '1' } }); return go('us'); }
   if (b.dataset.pw) { const pw = await promptBox('Đặt xong thì nhắn mật khẩu mới cho người đó.', { title: '🔑 Đặt lại mật khẩu', placeholder: 'Mật khẩu mới (ít nhất 6 ký tự)', maxlength: 100, ok: 'Đặt lại' }); if (pw && pw.length >= 6) { await api({ op: 'user', id: b.dataset.pw, patch: { password: pw } }); await alertBox('Nhắn người đó mật khẩu mới nha.', { title: '✅ Đã đặt lại mật khẩu' }); } else if (pw) await alertBox('Mật khẩu cần ít nhất 6 ký tự.', { title: 'Chưa đặt được' }); }
 };
 </script>
-<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+<script type="module" async src="../shared/ui/feel.js?v=54"></script>
 </body></html>

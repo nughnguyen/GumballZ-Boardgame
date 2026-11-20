@@ -3,7 +3,7 @@
 // vật liệu / hình học dùng chung.
 import * as THREE from '../../shared/lib/three.module.min.js';
 import { OrbitControls } from '../../shared/lib/OrbitControls.js';
-import { COLORS, GATE, HOME0, onTrack, absSq } from './engine.js?v=3';
+import { COLORS, GATE, HOME0, onTrack, absSq, SAFE, PORTAL, TP } from './engine.js?v=3';
 
 export const QUALITY = { low: { aa: false, pr: 1, shadow: 0, tex: 1024 }, med: { aa: true, pr: 1.5, shadow: 1024, tex: 1536 }, high: { aa: true, pr: 2, shadow: 2048, tex: 2048 } };
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif', TITLE = '"Baloo 2", "Be Vietnam Pro", system-ui, sans-serif';
@@ -263,7 +263,7 @@ export class Board3D {
   // ---------- vị trí ----------
   posOf(seat, h, pos) {
     if (pos < 0) return W(slotCell(seat, h), 0.065);
-    if (pos <= GATE) return W(trackCell(absSq(seat, pos)), TH);
+    if (pos <= GATE) { const w = W(trackCell(absSq(seat, pos)), TH), sh = this.share && this.share[seat + ':' + h]; if (sh && sh[1] > 1 && this.horses[seat][h].userData.pos === pos) { const a = sh[0] / sh[1] * Math.PI * 2 + 0.6; w.x += Math.cos(a) * 0.24; w.z += Math.sin(a) * 0.24; } return w; } /* nhiều ngựa đứng chung ô an toàn: xếp vòng quanh */
     const n = pos - GATE; return W(stepCell(seat, n), STEP_H(n));
   }
   restYaw(seat, pos) { // hướng mặt ngựa khi đứng yên: theo chiều đi
@@ -277,7 +277,44 @@ export class Board3D {
   sync(v) {
     this.seats = new Set(v.players.map(p => p.seat));
     for (let k = 0; k < 4; k++) { const used = this.seats.has(k); this.horses[k].forEach(g => { g.visible = used; }); this.stables[k].plat.material.color.set(used ? tint(COLORS[k], 0.6) : '#e8e2d4'); }
-    for (const p of v.players) p.horses.forEach((pos, h) => this.place(p.seat, h, pos));
+    this.setFun(!!(v.opts && v.opts.fun));
+    const cnt = {}, share = this.share = {};
+    for (const p of v.players) p.horses.forEach((pos, h) => { if (pos >= 0 && pos <= GATE) { const q = absSq(p.seat, pos); (cnt[q] = cnt[q] || []).push(p.seat + ':' + h); } });
+    for (const l of Object.values(cnt)) l.forEach((k, i) => { share[k] = [i, l.length]; });
+    for (const p of v.players) p.horses.forEach((pos, h) => { this.horses[p.seat][h].userData.pos = pos; this.place(p.seat, h, pos); });
+  }
+  /* 🎉 ô đặc biệt: 🛡️ ô an toàn + 🌀 cổng dịch chuyển (dựng 1 lần, bật/tắt theo luật phòng) */
+  setFun(on) {
+    if (!this.funG) {
+      const g = this.funG = new THREE.Group(); this.root.add(g); this.portals = [];
+      const shCv = document.createElement('canvas'); shCv.width = shCv.height = 128; const c = shCv.getContext('2d');
+      c.fillStyle = '#2fb35066'; c.beginPath(); c.arc(64, 64, 60, 0, 7); c.fill();
+      c.strokeStyle = '#11823a'; c.lineWidth = 11; c.beginPath(); c.moveTo(64, 22); c.lineTo(98, 34); c.lineTo(96, 66); c.quadraticCurveTo(92, 92, 64, 108); c.quadraticCurveTo(36, 92, 32, 66); c.lineTo(30, 34); c.closePath(); c.stroke();
+      c.fillStyle = '#1e9b4555'; c.fill();
+      const shM = new THREE.MeshBasicMaterial({ map: tex(shCv), transparent: true, depthWrite: false }), shG = new THREE.PlaneGeometry(0.66, 0.66);
+      for (const q of SAFE) { if (q % 14 === 0) continue; const m = new THREE.Mesh(shG, shM), p = W(trackCell(q), TH + 0.014); m.rotation.x = -Math.PI / 2; m.position.copy(p); g.add(m); } /* ô xuất quân đã có mũi tên – vẫn an toàn */
+      const pm = new THREE.MeshStandardMaterial({ color: 0x9b6bff, emissive: 0x6a2cff, emissiveIntensity: 0.9, roughness: 0.3 });
+      const dm = new THREE.MeshBasicMaterial({ color: 0xb388ff, transparent: true, opacity: 0.55, depthWrite: false });
+      for (const q of PORTAL) {
+        const p = W(trackCell(q), TH + 0.02), grp = new THREE.Group(); grp.position.copy(p);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.06, 8, 28), pm); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04; grp.add(ring);
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(0.31, 24), dm); disc.rotation.x = -Math.PI / 2; disc.position.y = 0.03; grp.add(disc);
+        const lab = textSprite('CỔNG +' + TP, '#6a2cff', '#fff', 0.34); lab.position.y = 0.7; grp.add(lab);
+        grp.userData = { ring, disc }; g.add(grp); this.portals.push(grp);
+      }
+    }
+    this.funG.visible = on;
+  }
+  /* 🌀 chui cổng: thu nhỏ xoay tít → hiện ra ở cổng kia */
+  async teleport(seat, h, pos, ms = 900) {
+    const g = this.horses[seat][h], fig = g.userData.fig; g.userData.busy = true;
+    const from = g.position.clone(), to = this.posOf(seat, h, pos);
+    this.burst(from.clone().add(new THREE.Vector3(0, 0.3, 0)), '#b388ff', 28);
+    await this.tween(ms * 0.45, t => { const e = ease(t); fig.scale.setScalar(1.18 * (1 - e * 0.95)); g.rotation.y += 0.35; g.position.y = from.y - e * 0.1; });
+    g.position.copy(to); this.focusOn(to);
+    this.burst(to.clone().add(new THREE.Vector3(0, 0.3, 0)), '#b388ff', 28);
+    await this.tween(ms * 0.55, t => { const e = easeOut(t); fig.scale.setScalar(1.18 * (0.05 + e * 0.95)); g.rotation.y += 0.25 * (1 - t); });
+    fig.scale.setScalar(1.18); g.userData.busy = false; g.userData.pos = pos; g.rotation.y = this.restYaw(seat, pos);
   }
   place(seat, h, pos) {
     const g = this.horses[seat][h]; if (g.userData.busy) return;
@@ -296,7 +333,7 @@ export class Board3D {
   static markText(m) {
     if (m.kind === 'out') return m.kick ? 'Xuất · ĐÁ!' : 'Xuất chuồng';
     const n = m.to - m.from, b = m.to - GATE;
-    const t = m.dbl ? `Lên bậc ${b}` : m.to > GATE ? `${n} → bậc ${b}` : `${n} ô`;
+    const t = m.tp != null ? `${m.tp - m.from} ô + CỔNG ${TP}` : m.dbl ? `Lên bậc ${b}` : m.to > GATE ? `${n} → bậc ${b}` : `${n} ô`;
     return m.kick ? `ĐÁ! ${t}` : t;
   }
   setMark(mk, seat, m, lift = 0) {
@@ -452,6 +489,7 @@ export class Board3D {
       const f = this.gates[k].userData.flag; f.rotation.y = Math.sin(el * 3 + k) * 0.4;
     }
     this.marks.forEach((m, i) => { if (!m.visible) return; const hot = i === this.markI; m.children[0].scale.setScalar((hot ? 1.35 : 1) + 0.12 * Math.sin(el * 6 + i)); m.userData.gm.opacity = hot ? 0.85 : 0.6 + 0.1 * Math.sin(el * 4); });
+    if (this.funG && this.funG.visible) for (const pg of this.portals) { pg.userData.ring.rotation.z = el * 2; pg.userData.disc.material.opacity = 0.4 + 0.2 * Math.sin(el * 3); }
     this.star.rotation.y = el * 1.6; this.star.position.y = STEP_H(6) + 1.1 + Math.sin(el * 2) * 0.05;
     for (const P of this.pools) if (P.pts.visible) {
       P.t += dt; const k = P.t / P.life; if (k >= 1) { P.pts.visible = false; continue; }

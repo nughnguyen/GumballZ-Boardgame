@@ -1,5 +1,6 @@
 // Gọi máy chủ GumballZ (Cloudflare): tài khoản, sảnh chung. Đăng nhập là TUỲ CHỌN – khách vẫn chơi bình thường.
 import { cfHttp, cfProbe } from './cfrelay.js?v=16';
+import { XP_K } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 
 export const API = () => cfHttp();
 export const WS = () => cfHttp().replace(/^http/, 'ws');
@@ -12,7 +13,7 @@ export function guestId() {
 }
 export const myName = () => ls.get('gumballz-name') || '';
 /* cấp độ 1–10 của mình (cùng công thức với level() trong shared/ui/stats.js) – dùng để ghép trận theo trình */
-export function myLevel() { try { const g = (JSON.parse(ls.get('gumballz-stats')) || {}).g || {}; let p = 0, w = 0; for (const k in g) { p += g[k].p || 0; w += g[k].w || 0; } return Math.min(10, Math.floor(Math.sqrt((p * 10 + w * 20) / 50)) + 1); } catch (e) { return 1; } }
+export function myLevel() { try { const g = (JSON.parse(ls.get('gumballz-stats')) || {}).g || {}; let x = 0; for (const k in g) x += Math.round(((g[k].p || 0) * 10 + (g[k].w || 0) * 20) * (XP_K[k] || 1)); return Math.min(10, Math.floor(Math.sqrt(x / 50)) + 1); } catch (e) { return 1; } }
 
 async function call(path, data, token) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -62,9 +63,19 @@ export const friends = {
   list: () => call('/friends/list', {}, auth.token()),
   add: d => call('/friends/add', d || {}, auth.token()),
   act: (id, act) => call('/friends/act', { id, act }, auth.token()),
+  block: (id, on = true) => call('/friends/block', { id, on }, auth.token()),
   msgs: (withId, afterId = 0) => call('/friends/msgs', { withId, afterId }, auth.token()),
   send: (toId, text) => call('/friends/send', { toId, text }, auth.token()),
 };
+/* 🪪 vé tài khoản (server/src/vip.js): mọi tài khoản đã đăng nhập – gửi kèm khi vào phòng máy chủ để áp lệnh cấm / danh sách chặn */
+const IP_KEY = 'gumballz-ip';
+export function idCached() { const u = auth.user(); if (!u) return ''; const p = ls.get(IP_KEY) || ''; const m = /^(\d+)\.(\d{13})\./.exec(p); return m && +m[1] === u.id && +m[2] > Date.now() + 36e5 ? p : ''; }
+let ipWait = null;
+export function idPass() {
+  const u = auth.user(), c = idCached(); if (!u) return Promise.resolve('');
+  const m = /\.(\d{13})\./.exec(c); if (c && +m[1] > Date.now() + 864e5) return Promise.resolve(c);
+  return ipWait || (ipWait = call('/vip/id', {}, auth.token()).then(r => { ipWait = null; if (r && r.ok && r.p) { ls.set(IP_KEY, r.p); return r.p; } return c; }, () => { ipWait = null; return c; }));
+}
 // ---------- bảng xếp hạng ----------
 export const leaderboard = (game = 'all', by = '') => call('/leaderboard', { game, by }, auth.token());
 // tab khác đăng nhập/đăng xuất → cập nhật

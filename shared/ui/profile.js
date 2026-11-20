@@ -2,12 +2,12 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=47'
-import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=86';
-import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=3';
-import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=2'; /* 💰 Ví xu */
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=48'
+import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=87';
+import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
+import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=3'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags } from '../js/avatar-rewards.js';
+import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim } from '../js/avatar-rewards.js';
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
@@ -32,7 +32,7 @@ export function setAvatarChar(cfg) { setAv({ ...cleanChar(cfg), e: 'ch' }); }
 export function setAvatarLook(patch) { setAv(patch); }
 /* hình của NGƯỜI KHÁC (từ máy chủ): chỉ nhận nhân vật hợp lệ / emoji trong danh sách / khung, màu tên có trong bảng – không chèn chuỗi lạ vào trang */
 export function safeAv(av, seed = 0) {
-  const base = av && typeof av === 'object' ? { c: Math.max(0, +av.c || 0), f: FRAMES.some(x => x.id && x.id === av.f) ? av.f : '', n: NAME_COLORS.some(x => x.id && x.id === av.n) ? av.n : '' } : { c: Math.abs(seed) % BG.length };
+  const base = av && typeof av === 'object' ? { c: Math.max(0, +av.c || 0), f: FRAMES.some(x => x.id && x.id === av.f) ? av.f : '', n: NAME_COLORS.some(x => x.id && x.id === av.n) ? av.n : '', b: BANNERS.some(x => x.id && x.id === av.b) ? av.b : '' } : { c: Math.abs(seed) % BG.length };
   if (av && av.ch && typeof av.ch === 'object' && av.ch.kind) return { ...base, ch: cleanChar(av.ch) };
   if (av && av.kind) return { ...base, ch: cleanChar(av) }; /* nhân vật phẳng từ máy chủ (đã đồng bộ theo tài khoản) */
   if (av && AVATARS.includes(av.e)) return { ...base, e: av.e };
@@ -71,24 +71,31 @@ export function avatarHTML(size = 40, a = avatar()) {
     body = `<img alt="" data-cb="${esc(js)}" data-sz="${in_}"${u ? ' data-ok="1"' : ''}${mine ? ' data-mine="1"' : ''} src="${u || BLANK}">`; cls = ' pf-cb';
   }
   const inner = `<span class="pf-av${cls}" style="width:${in_}px;height:${in_}px;font-size:${Math.round(in_ * .56)}px;background:${ch ? (ring ? '#fffaf3' : 'transparent') : bg}${ring ? ';box-shadow:0 0 0 1.5px #fff' : ''}">${body}</span>`; /* nhân vật 3D: nền trong suốt */
-  return ring ? `<span class="pf-fr" style="width:${size}px;height:${size}px;padding:${pad}px;background:${ring}">${inner}</span>` : inner;
+  const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy */
+  return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
 }
 /* huy hiệu chủ web – chỉ khi là tài khoản chủ web (id 1, xem shared/js/avatar-rewards.js isOwner) */
-export const ownerBadge = on => on ? '<span class="pf-own" title="Người làm ra GumballZ Boardgame">👑 Chủ web</span>' : '';
+export const ownerBadge = on => on ? '<span class="pf-own" title="Người làm ra GumballZ Boardgame"><i>👑</i>Chủ web<b aria-hidden="true">✦</b></span>' : '';
+export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ web: lấp lánh */
+export const modBadge = on => on ? '<span class="pf-mod" title="Quản trị viên – giữ trật tự cho GumballZ Boardgame">🛡️ Mod</span>' : ''; /* 🛡️ Mod = quản trị viên không phải chủ web */
 /* màu tên đã mở (thuộc tính style) */
-export const nameStyle = n => { const c = NAME_COLORS.find(x => x.id && x.id === n); return c ? c.css : ''; };
+export const nameStyle = n => nameCss(n);
+/* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
+export const nameClass = n => nameAnim(n) ? ' nc-anim' : '';
+/* 🎏 dải banner trên đầu hộp Hồ sơ (trường b) – '' = không banner */
+export const bannerHTML = b => { const css = bannerCss(b); return css ? `<div class="pf-banner${bannerAnim(b) ? ' bn-anim' : ''}" style="background:${css}"></div>` : ''; };
 /* CSS diện mạo ở shared/css/avatar.css (nạp bằng <link>), gồm cả pill danh hiệu (.pf-tt/.pf-tts) */
 export function profileCss() {
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=1', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=1'; }
+  try { l.href = new URL('../css/avatar.css?v=2', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=2'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function setAv(patch) {
   const a = avatar(), base = a.ch ? { ...a.ch, ...(a.sex ? { sex: a.sex } : {}), e: 'ch' } : { e: a.e, ...(a.sex ? { sex: a.sex } : {}) }; /* giữ giới tính đã chọn khi đổi đồ / đổi mẫu */
-  const n = { ...base, c: +a.c || 0, f: a.f || '', n: a.n || '', ...patch, t: Date.now() };
+  const n = { ...base, c: +a.c || 0, f: a.f || '', n: a.n || '', b: a.b || '', ...patch, t: Date.now() };
   if (['kind', 'hair', 'hat', 'outfit', 'acc', 'skin', 'hairColor', 'color', 'horns', 'e'].some(k => k in patch)) try { localStorage.setItem('gumballz-dress-n', String(+(localStorage.getItem('gumballz-dress-n') || 0) + 1)); } catch (e) {} /* đếm lần đổi đồ – thành tích Mystique */
   if (AVATARS.includes(n.e)) for (const k of CH_KEYS) delete n[k]; /* đổi sang emoji thì bỏ nhân vật */
   delete n.ch; ls.set('gumballz-avatar', JSON.stringify(n));
@@ -100,7 +107,7 @@ const LBL = { kind: 'Kiểu nhân vật', skin: 'Màu da / lông', hair: 'Kiểu
 const SUBS = [['pre', '✨ Mẫu'], ['body', '🧑 Dáng'], ['hair', '💇 Tóc'], ['hat', '🎩 Nón'], ['outfit', '👕 Đồ'], ['acc', '🎒 Phụ kiện']];
 const SUB_KEYS = { body: ['kind', 'skin', 'horns', 'color'], hair: ['hair', 'hairColor'], hat: ['hat'], outfit: ['outfit'], acc: ['acc'] };
 function picker(a, st, tab, name, sub = 'pre') {
-  const TABS = [['ch', '🧸 Nhân vật'], ['track', '🎁 Lộ trình thưởng'], ['frame', '🖼️ Khung'], ['name', '✍️ Màu tên'], ['fx', '🎉 Khi thắng']];
+  const TABS = [['ch', '🧸 Nhân vật'], ['track', '🎁 Lộ trình thưởng'], ['frame', '🖼️ Khung'], ['name', '✍️ Màu tên'], ['banner', '🎏 Banner'], ['fx', '🎉 Khi thắng']];
   let body = '';
   const bgRow = `<div class="lk-row">${BG.map((c, i) => `<button type="button" class="lk-sw" data-c="${i}" aria-pressed="${i === (+a.c || 0) % BG.length}" style="background:linear-gradient(135deg,${c})" aria-label="Nền ${i + 1}"></button>`).join('')}</div>`;
   if (tab === 'ch') {
@@ -131,9 +138,10 @@ function picker(a, st, tab, name, sub = 'pre') {
       <div class="lk-track">${TRACK.map((r, i) => { const ok = xp >= r.xp || st.admin; return `<div class="lk-tr${ok ? ' ok' : ''}${i === ni ? ' nx' : ''}"><span class="n">${i + 1}</span><span class="t">${esc(KIND[r.k] || '')} ${esc(nm(r))}</span><small>${ok ? '✓ Đã nhận' : r.xp + ' điểm'}</small></div>`; }).join('')}</div>`;
   }
   else if (tab === 'frame') body = `<div class="lk-grid">${FRAMES.map(x => { const shopLk = x.shop && !owns(widOf('frame', x.id)), chestLk = x.chest && !owns(widOf('frame', x.id)), lk = (x.lock && !isOpen(x.lock, st)) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-f="${x.id}"`} aria-pressed="${(a.f || '') === x.id}">${avatarHTML(54, { ...a, f: x.id })}<span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
-  else if (tab === 'name') body = `<div class="lk-grid">${NAME_COLORS.map(x => { const shopLk = x.shop && !owns(widOf('color', x.id)), chestLk = x.chest && !owns(widOf('color', x.id)), lk = (x.lock && !isOpen(x.lock, st)) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-n="${x.id}"`} aria-pressed="${(a.n || '') === x.id}"><span class="lk-nm" style="${x.css || ''}">${esc(name)}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
+  else if (tab === 'name') body = `<div class="lk-grid">${NAME_COLORS.map(x => { const shopLk = x.shop && !owns(widOf('color', x.id)), chestLk = x.chest && !owns(widOf('color', x.id)), lk = (x.lock && !isOpen(x.lock, st)) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-n="${x.id}"`} aria-pressed="${(a.n || '') === x.id}"><span class="lk-nm${x.anim ? ' nc-anim' : ''}" style="${x.css || ''}">${esc(name)}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
+  else if (tab === 'banner') body = `<div class="lk-grid">${BANNERS.map(x => { const shopLk = x.shop && !owns(widOf('banner', x.id)), chestLk = x.chest && !owns(widOf('banner', x.id)), lk = shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : ''; return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-b="${x.id}"`} aria-pressed="${(a.b || '') === x.id}"><span class="lk-bn${x.anim ? ' bn-anim' : ''}" style="background:${x.css || 'transparent'}"></span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
   else if (tab === 'fx') { const cur = ls.get('gumballz-winfx') || 'giay'; body = `<p class="pf-note" style="margin:0 0 8px;text-align:left">Hiện trên màn hình của bạn mỗi khi thắng ván. Chạm để chọn và xem thử.</p><div class="lk-grid">${WIN_FX.map(x => { const lk = x.lock && !isOpen(x.lock, st); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lockDesc(x.lock))}"` : `data-fx="${x.id}"`} aria-pressed="${cur === x.id}"><span style="font-size:28px;line-height:1">${x.icon}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lockDesc(x.lock))}</small>` : ''}</button>`; }).join('')}</div>`; }
-  const hint = tab === 'frame' || tab === 'name' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung và màu tên mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng.</p>' : '';
+  const hint = tab === 'frame' || tab === 'name' || tab === 'banner' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung, màu tên và banner mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng. Món có ✨ là hạng động kiểu Nitro, chỉ mở ra từ rương với tỉ lệ cực hiếm.</p>' : '';
   return `<div class="lk-tabs" role="tablist">${TABS.map(([id, t]) => `<button type="button" role="tab" data-tab="${id}" aria-pressed="${tab === id || (id === 'ch' && tab === 'emoji')}">${t}</button>`).join('')}</div>${body}${hint}`;
 }
 
@@ -263,7 +271,8 @@ export function openProfile() {
     const keepY = ov.querySelector('.pf-box') ? ov.querySelector('.pf-box').scrollTop : 0; /* vẽ lại (chọn danh hiệu, đổi hình…) không nhảy về đầu, không chạy lại hiệu ứng mở – trước đây trông như chớp */
     if (ov.querySelector('.pf-box')) ov.classList.add('pf-shown');
     ov.innerHTML = `<div class="pf-box" role="dialog" aria-modal="true" aria-label="Hồ sơ của bạn"><button class="pf-x" aria-label="Đóng">✕</button>
-      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner ? `<div>${ownerBadge(true)}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
+      ${bannerHTML(look.b)}
+      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || (flags.admin && !flags.owner) ? `<div>${ownerBadge(flags.owner)}${modBadge(flags.admin && !flags.owner)}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
       <div class="pf-acts"><button type="button" class="pf-act-y" data-a="pick">Đổi tên và avatar</button><button type="button" class="pf-act-w" data-a="shop">Đến cửa hàng</button></div>
       ${picking ? picker(a, ust, tab, name, sub) : ''}
       <div class="pf-lv"><b>${lv.to ? `${lv.xp - lv.from} / ${lv.to - lv.from} điểm tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
@@ -291,7 +300,7 @@ export function openProfile() {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.a === 'pick') { picking = !picking; return draw(); }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
-    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=33').then(m => m.openLeaderboard('all')); return; }
+    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=34').then(m => m.openLeaderboard('all')); return; }
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
     if (b.dataset.shopgo) { close(); location.href = shopURL(); return; } /* khung/màu tên bán bằng xu: sang Cửa hàng mua */
     if (b.dataset.lock) { import('./dialog.js?v=8').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }
@@ -303,6 +312,7 @@ export function openProfile() {
     if (b.dataset.k) { const a = avatar(); setAv({ ...(a.ch || cleanChar(PUB[0])), [b.dataset.k]: b.dataset.v, e: 'ch' }); return draw(); }
     if (b.dataset.f != null) { setAv({ f: b.dataset.f }); return draw(); }
     if (b.dataset.n != null) { setAv({ n: b.dataset.n }); return draw(); }
+    if (b.dataset.b != null) { setAv({ b: b.dataset.b }); return draw(); }
     if (b.dataset.fx) { ls.set('gumballz-winfx', b.dataset.fx); import('./winfx.js?v=1').then(m => m.playWin(b.dataset.fx, true)).catch(() => {}); return draw(); }
     if (b.dataset.e || b.dataset.c) { setAv({ e: b.dataset.e || avatar().e, ...(b.dataset.c != null ? { c: +b.dataset.c } : {}) }); draw(); }
   });
@@ -310,6 +320,6 @@ export function openProfile() {
   /* có tài khoản: hỏi máy chủ thứ hạng + ngày lập tài khoản để tính đủ danh hiệu (GET /profile/<id> trả rank + created) */
   try {
     const u = JSON.parse(ls.get('gumballz-auth') || 'null'); const id = u && u.user && u.user.id;
-    if (id) import('../net/api.js?v=27').then(m => m.memberProfile(id).then(r => { if (r && r.ok && r.user && ov.isConnected) { srv = { rank: r.user.rank, created: r.user.created }; draw(); } }).catch(() => {})).catch(() => {});
+    if (id) import('../net/api.js?v=28').then(m => m.memberProfile(id).then(r => { if (r && r.ok && r.user && ov.isConnected) { srv = { rank: r.user.rank, created: r.user.created }; draw(); } }).catch(() => {})).catch(() => {});
   } catch (e) {}
 }

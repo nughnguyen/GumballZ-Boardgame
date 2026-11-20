@@ -26,8 +26,9 @@ $('#hills').innerHTML = hillsSVG();
 $('#dinh').innerHTML = dinhSVG();
 $('#bamboo-l').innerHTML = bambooSVG(11, false);
 $('#bamboo-r').innerHTML = bambooSVG(23, true);
-$('#stars').innerHTML = starsHTML(70);
-$('#fireflies').innerHTML = firefliesHTML(16);
+{ const lite = matchMedia('(max-width:640px), (pointer:coarse)').matches; /* điện thoại: bớt hạt lấp lánh cho nhẹ */
+$('#stars').innerHTML = starsHTML(lite ? 36 : 70);
+$('#fireflies').innerHTML = firefliesHTML(lite ? 8 : 16); }
 $('#hero').innerHTML = heroSVG();
 $('#fire').innerHTML = `<svg viewBox="0 0 120 120"><defs><radialGradient id="fg"><stop offset="0" stop-color="#ffcf6a" stop-opacity=".75"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient></defs>
   <circle class="glow" cx="60" cy="78" r="58" fill="url(#fg)"/>
@@ -309,6 +310,7 @@ function onState(v) {
   coachCheck(ctx());
 }
 function defaultTab(v) {
+  if (!v) return 'all'; /* đã rời ván mà hiệu ứng hẹn giờ (trời sáng) vẫn chạy */
   if (v.me && !v.me.alive && v.phase !== 'ended') return 'ghost';
   if (v.phase === 'night' && v.me && isWolfRole(v.me.role) && v.me.alive) return 'wolf';
   return 'all';
@@ -660,12 +662,12 @@ let lastTick = 0;
 function frame() {
   requestAnimationFrame(frame);
   const c = $('#clock');
-  if (!view || !clockEnd || view.phase === 'ended') { c.className = 'clock'; const nt = $('#ntime'); if (nt) nt.textContent = ''; return; }
+  if (!view || !clockEnd || view.phase === 'ended') { if (c.className !== 'clock') c.className = 'clock'; const nt = $('#ntime'); if (nt && nt.textContent) nt.textContent = ''; return; } /* chỉ ghi khi khác – gán lại cùng giá trị vẫn bắt trình duyệt tính lại kiểu cả trang mỗi khung hình (giật khi cuộn) */
   const left = clockPaused ? clockPaused : Math.max(0, clockEnd - Date.now()), sec = Math.ceil(left / 1000);
-  c.className = 'clock on' + (sec <= 10 ? ' low' : '');
-  c.querySelector('i').style.width = (left / clockTotal * 100).toFixed(1) + '%';
+  { const cn = 'clock on' + (sec <= 10 ? ' low' : ''); if (c.className !== cn) c.className = cn; }
+  { const w = (left / clockTotal * 100).toFixed(1) + '%', i = c.querySelector('i'); if (i.style.width !== w) i.style.width = w; }
   const nt = $('#ntime'); if (nt && clockPaused) { if (!nt.querySelector('.pz')) nt.innerHTML = '<i class="pz" aria-label="Tạm dừng"></i>'; nt.classList.remove('low'); return; }
-  if (nt) { nt.textContent = sec >= 60 ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : sec + 's'; nt.classList.toggle('low', sec <= 10); }
+  if (nt) { const tx = sec >= 60 ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : sec + 's'; if (nt.textContent !== tx) nt.textContent = tx; if (nt.classList.contains('low') !== (sec <= 10)) nt.classList.toggle('low', sec <= 10); }
   if (view.myTurn && amAlive() && sec <= 5 && sec > 0 && sec !== lastTick) { lastTick = sec; fx.sfx.tick(); }
 }
 requestAnimationFrame(frame);

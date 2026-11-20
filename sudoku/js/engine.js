@@ -15,6 +15,24 @@ export const HINTS_PER_GAME = 3;
 export const MAX_MISTAKES = 3;
 export const OPT_CHOICES = { difficulty: ['easy', 'medium', 'hard', 'expert'] };
 
+/* ⚔️ Combat (mặc định BẬT khi đua 2–4 người, tắt khi chơi đơn): điền đúng
+   làm kín 1 hàng/cột/khối → sương mù của mình tan hết + phủ FOG_N ô trống
+   của người dẫn đầu trong FOG_MS (tối đa FOG_MAX ô). Ô bị sương không điền
+   được (kể cả máy) cho tới khi tan. */
+export const FOG_N = 3, FOG_MS = 9000, FOG_MAX = 9;
+export const UNITS = (() => {
+  const u = [];
+  for (let r = 0; r < 9; r++) u.push(Array.from({ length: 9 }, (_, k) => r * 9 + k));
+  for (let c = 0; c < 9; c++) u.push(Array.from({ length: 9 }, (_, k) => k * 9 + c));
+  for (let br = 0; br < 3; br++) for (let bc = 0; bc < 3; bc++) {
+    const a = [];
+    for (let dr = 0; dr < 3; dr++) for (let dc = 0; dc < 3; dc++) a.push((br * 3 + dr) * 9 + bc * 3 + dc);
+    u.push(a);
+  }
+  return u;
+})();
+export const fogged = (pr, i, now = Date.now()) => !!(pr && pr.fog && pr.fog[i] > now && !pr.grid[i]);
+
 const FULL = 0x1ff; /* 9 bit: đủ số 1–9 */
 const boxOf = i => (((i / 27) | 0) * 3) + (((i % 9) / 3) | 0);
 const popcount = m => { let n = 0; while (m) { m &= m - 1; n++; } return n; };
@@ -174,6 +192,39 @@ export function peersOf(i) {
 const pOf = (s, id) => s.players.find(p => p.id === id);
 const pushLog = (s, text, kind = '') => { s.log.push({ text, kind }); if (s.log.length > 40) s.log.shift(); };
 const filledCount = (s, pr) => { let n = s.givensCount; for (const v of pr.grid) if (v) n++; return n; };
+/* ⚔️ Combat: sau 1 nước điền đúng, đếm số dãy (hàng/cột/khối) chứa ô đó mà
+   đã kín → tan sương của mình, phủ sương lên đối thủ dẫn đầu. Trả về null
+   nếu không kín dãy nào (hoặc Combat tắt / chơi đơn). */
+function combat(s, pid, cell, now) {
+  if (!s.combat || s.players.length < 2) return null;
+  const pr = s.prog[pid]; if (!pr) return null;
+  let done = 0;
+  for (const u of UNITS) {
+    if (!u.includes(cell)) continue;
+    if (u.every(i => s.givens[i] || pr.grid[i])) done++;
+  }
+  if (!done) return null;
+  let clear = 0;
+  for (const k of Object.keys(pr.fog)) { if (pr.fog[k] > now) clear++; delete pr.fog[k]; }
+  const foes = s.players.filter(p => p.id !== pid && !s.prog[p.id].failed && !s.prog[p.id].finishedAt);
+  foes.sort((a, b) => filledCount(s, s.prog[b.id]) - filledCount(s, s.prog[a.id]));
+  const foe = foes[0]; if (!foe) return { done, clear, foe: null, n: 0 };
+  const fp = s.prog[foe.id];
+  const free = [];
+  for (let i = 0; i < 81; i++) if (!s.givens[i] && !fp.grid[i] && !fogged(fp, i, now)) free.push(i);
+  let n = 0;
+  const cap = Math.max(0, FOG_MAX - Object.keys(fp.fog).filter(k => fp.fog[k] > now).length);
+  while (n < Math.min(FOG_N * done, cap) && free.length) {
+    const i = free.splice(Math.floor(nextRand(s) * free.length), 1)[0];
+    fp.fog[i] = now + FOG_MS; n++;
+  }
+  pr.atk = (pr.atk || 0) + n;
+  pr.hit = { foe: foe.id, at: now, n, done };
+  if (n) pushLog(s, `⚔️ ${(pOf(s, pid) || {}).name || '?'} kín ${done} dãy — phủ ${n} ô sương mù lên ${(pOf(s, foe.id) || {}).name || '?'}!`, 'fog');
+  else if (clear) pushLog(s, `🌫️ ${(pOf(s, pid) || {}).name || '?'} kín ${done} dãy — sương mù của mình tan hết!`, 'fog');
+  s.seq++;
+  return { done, clear, foe: foe.id, n };
+}
 /* xóa 1 số khỏi ghi chú của các ô cùng hàng/cột/khối (điền đúng 1 số thì các
    ô liên quan không còn cần ghi chú số đó nữa) */
 function clearPeerNotes(s, pr, cell, value) {
@@ -209,13 +260,14 @@ function checkAllFailed(s) {
 export function createGame(players, opts = {}) {
   if (!players || players.length < 1 || players.length > 4) throw new Error('Sudoku chơi 1–4 người.');
   const difficulty = OPT_CHOICES.difficulty.includes(opts.difficulty) ? opts.difficulty : 'medium';
+  const combat = opts.combat !== false && players.length > 1; /* ⚔️ mặc định BẬT khi đua */
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
   const { solution, givens, givensCount } = generatePuzzle(difficulty, seed);
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     seed, /* hạt giống LCG — chọn ô gợi ý phải giống hệt ở mọi máy */
     phase: 'playing', /* 'playing' | 'ended' */
-    difficulty, solution, givens, givensCount,
+    difficulty, combat, solution, givens, givensCount,
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null })),
     prog: {},
     winner: null, losers: [], endReason: null,
@@ -223,7 +275,7 @@ export function createGame(players, opts = {}) {
     lastPlace: null, lastWrong: null,
     log: [],
   };
-  for (const p of s.players) s.prog[p.id] = { grid: new Array(81).fill(0), notes: {}, mistakes: 0, hintsLeft: HINTS_PER_GAME, hintsUsed: 0, finishedAt: null, failed: false, resigned: false };
+  for (const p of s.players) s.prog[p.id] = { grid: new Array(81).fill(0), notes: {}, mistakes: 0, hintsLeft: HINTS_PER_GAME, hintsUsed: 0, finishedAt: null, failed: false, resigned: false, fog: {}, atk: 0, hit: null };
   pushLog(s, `🔢 Câu đố Sudoku ${DIFFS[difficulty].name} bắt đầu — ${givensCount} số cho sẵn, sai ${MAX_MISTAKES} lần là thua!`);
   return s;
 }
@@ -260,13 +312,16 @@ export function applyPlace(s, pid, cell, value) {
     }
     return { ok: true, correct: false, mistakes: pr.mistakes, failed: pr.failed };
   }
+  /* đoán mò vào ô sương vẫn bị tính sai ở trên; đoán ĐÚNG thì sương chặn lại */
+  if (fogged(pr, cell, Date.now())) return { ok: false, reason: 'Ô này đang bị sương mù che — kín 1 hàng/cột/khối để thổi tan, hoặc chờ tan rồi điền lại nha.' };
   pr.grid[cell] = value;
   delete pr.notes[cell];
   clearPeerNotes(s, pr, cell, value);
   s.lastPlace = { by: pid, cell, value, n: filledCount(s, pr) };
   s.seq++;
-  if (filledCount(s, pr) >= 81) { finishWin(s, pid); return { ok: true, correct: true, finished: true }; }
-  return { ok: true, correct: true };
+  const c = combat(s, pid, cell, Date.now());
+  if (filledCount(s, pr) >= 81) { finishWin(s, pid); return { ok: true, correct: true, finished: true, combat: c }; }
+  return { ok: true, correct: true, combat: c };
 }
 
 /* xoá số mình đã điền (ô cho sẵn không xoá được) */
@@ -316,6 +371,7 @@ export function applyHint(s, pid) {
   const cell = empties[Math.floor(nextRand(s) * empties.length)];
   const value = s.solution[cell];
   pr.grid[cell] = value;
+  delete pr.fog[cell]; /* gợi ý mở trúng ô đang sương thì sương tan luôn */
   delete pr.notes[cell];
   clearPeerNotes(s, pr, cell, value);
   pr.hintsLeft--; pr.hintsUsed++;
@@ -349,17 +405,18 @@ export const actors = s => {
    độ của mọi người (chỉ số ô đã điền, không lộ lưới của người khác); KHÔNG
    bao giờ lộ đáp án (solution) cho client */
 export function viewFor(s, pid) {
-  const pr = s.prog[pid] || { grid: new Array(81).fill(0), notes: {}, mistakes: 0, hintsLeft: HINTS_PER_GAME, hintsUsed: 0, finishedAt: null, failed: false };
+  const now = Date.now();
+  const pr = s.prog[pid] || { grid: new Array(81).fill(0), notes: {}, mistakes: 0, hintsLeft: HINTS_PER_GAME, hintsUsed: 0, finishedAt: null, failed: false, fog: {}, atk: 0, hit: null };
   return {
-    gid: s.gid, seq: s.seq, phase: s.phase, difficulty: s.difficulty,
+    gid: s.gid, seq: s.seq, phase: s.phase, difficulty: s.difficulty, combat: !!s.combat,
     givens: s.givens.slice(), givensCount: s.givensCount,
     startedAt: s.startedAt, endedAt: s.endedAt,
     winner: s.winner, losers: (s.losers || []).slice(), endReason: s.endReason,
     players: s.players.map(p => {
       const q = s.prog[p.id] || {};
-      return { id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, filled: q.grid ? filledCount(s, q) : s.givensCount, mistakes: q.mistakes || 0, hintsLeft: q.hintsLeft != null ? q.hintsLeft : HINTS_PER_GAME, failed: !!q.failed, finished: !!q.finishedAt };
+      return { id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, filled: q.grid ? filledCount(s, q) : s.givensCount, mistakes: q.mistakes || 0, hintsLeft: q.hintsLeft != null ? q.hintsLeft : HINTS_PER_GAME, failed: !!q.failed, finished: !!q.finishedAt, atk: q.atk || 0, fogN: q.fog ? Object.keys(q.fog).filter(k => q.fog[k] > now && !q.grid[k]).length : 0 };
     }),
-    you: { grid: pr.grid.slice(), notes: JSON.parse(JSON.stringify(pr.notes)), mistakes: pr.mistakes, hintsLeft: pr.hintsLeft, hintsUsed: pr.hintsUsed, failed: pr.failed, finished: !!pr.finishedAt },
+    you: { grid: pr.grid.slice(), notes: JSON.parse(JSON.stringify(pr.notes)), mistakes: pr.mistakes, hintsLeft: pr.hintsLeft, hintsUsed: pr.hintsUsed, failed: pr.failed, finished: !!pr.finishedAt, fog: Object.keys(pr.fog || {}).filter(k => pr.fog[k] > now && !pr.grid[k]).map(k => [+k, pr.fog[k] - now]), hit: pr.hit ? { ...pr.hit } : null },
     lastPlace: s.lastPlace ? { ...s.lastPlace } : null,
     lastWrong: s.lastWrong ? { ...s.lastWrong } : null,
     log: s.log.slice(-20),

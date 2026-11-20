@@ -7,9 +7,9 @@ import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=86';
+import { recordEvent } from '../../shared/ui/stats.js?v=87';
 
 const NET = makeNet({
   game: 'tictactoe', min: 2, max: 2, maxSeats: 10, allowLocal: true,

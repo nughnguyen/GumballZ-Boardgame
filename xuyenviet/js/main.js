@@ -1,11 +1,11 @@
 // 🚂 Tàu Xuyên Việt – giao diện. Luật ở engine.js, bản đồ ở map.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=1';
-import * as E from './engine.js?v=4';
-import { CITIES, ROUTES, TICKETS, COLORS, COLOR_NAME, ROUTE_PTS } from './map.js?v=4';
-import { botAction } from './bot.js?v=4';
+import * as E from './engine.js?v=5';
+import { CITIES, ROUTES, TICKETS, COLORS, COLOR_NAME, ROUTE_PTS } from './map.js?v=5';
+import { botAction } from './bot.js?v=5';
 import { LAND, LBL, MAP_W, MAP_H } from './geo.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);
@@ -24,11 +24,16 @@ function mapSVG(v, o = {}) {
   let h = `<path class="land" d="${LAND}"/><text class="sea" x="${MAP_W - 22}" y="62">Biển Đông</text>
     <g class="isl"><circle cx="${MAP_W + 4}" cy="97" r="1.2"/><circle cx="${MAP_W + 7}" cy="99.5" r=".9"/><circle cx="${MAP_W + 2.5}" cy="101" r=".8"/><text x="${MAP_W + 12}" y="107">QĐ. Hoàng Sa</text>
     <circle cx="${MAP_W + 2}" cy="178" r="1"/><circle cx="${MAP_W + 7}" cy="182" r="1.1"/><circle cx="${MAP_W + 4}" cy="186.5" r=".8"/><circle cx="${MAP_W + 9}" cy="175" r=".8"/><text x="${MAP_W + 12}" y="193">QĐ. Trường Sa</text></g>`;
-  for (const r of ROUTES) { const [, ax, ay] = CITIES[r.a], [, bx, by] = CITIES[r.b], dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy), ang = Math.atan2(dy, dx) * 180 / Math.PI;
-    const pad = 2.2, seg = (len - pad * 2) / r.n, w = Math.max(1.6, seg - .7), own = v && v.owner[r.id], pc = own && (v.players.find(p => p.id === own) || {}).color;
+  for (const r of ROUTES) { const [, ax, ay] = CITIES[r.a], [, bx, by] = CITIES[r.b], dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+    /* tuyến cong (r.bend = độ lệch giữa tuyến): đường Bezier bậc 2, toa đặt dọc đường cong – tuyến đôi / tuyến đi sát tuyến khác khỏi đè nhau */
+    const nx = -dy / len, ny = dx / len, cx = (ax + bx) / 2 + nx * r.bend * 2, cy = (ay + by) / 2 + ny * r.bend * 2;
+    const at = t => [(1 - t) * (1 - t) * ax + 2 * (1 - t) * t * cx + t * t * bx, (1 - t) * (1 - t) * ay + 2 * (1 - t) * t * cy + t * t * by];
+    const tan = t => Math.atan2(2 * (1 - t) * (cy - ay) + 2 * t * (by - cy), 2 * (1 - t) * (cx - ax) + 2 * t * (bx - cx)) * 180 / Math.PI;
+    const arc = len * (1 + (r.bend / len) ** 2 * 2.6), pad = 2.2, seg = (arc - pad * 2) / r.n, w = Math.max(1.6, seg - .7), own = v && v.owner[r.id], pc = own && (v.players.find(p => p.id === own) || {}).color;
     let cars = ''; const hh = own ? 3.3 : 2.1; /* tuyến đã xây: toa to hơn, viền trắng, có chấm trắng – để không lẫn với màu tuyến chưa xây */
-    for (let k = 0; k < r.n; k++) { const x0 = pad + seg * k + (seg - w) / 2; cars += `<rect class="car" x="${x0.toFixed(2)}" y="${-hh / 2}" width="${w.toFixed(2)}" height="${hh}" rx=".7" fill="${own ? pc : CC(r.c)}"/>${own ? `<circle class="dot" cx="${(x0 + w / 2).toFixed(2)}" cy="0" r=".62"/>` : ''}`; }
-    h += `<g class="rt${own ? ' own' : ''}${o.can && o.can.has(r.id) ? ' can' : ''}${v && v.last && v.last.route === r.id ? ' last' : ''}" data-r="${r.id}" transform="translate(${ax} ${ay}) rotate(${ang.toFixed(1)})">${cars}<line class="hit" x1="${pad}" y1="0" x2="${(len - pad).toFixed(1)}" y2="0"/></g>`; }
+    for (let k = 0; k < r.n; k++) { const t = (pad + seg * (k + .5)) / arc, [x, y] = at(t); cars += `<g transform="translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${tan(t).toFixed(1)})"><rect class="car" x="${(-w / 2).toFixed(2)}" y="${-hh / 2}" width="${w.toFixed(2)}" height="${hh}" rx=".7" fill="${own ? pc : CC(r.c)}"/>${own ? '<circle class="dot" cx="0" cy="0" r=".62"/>' : ''}</g>`; }
+    const t0 = pad / arc, t1 = 1 - t0, [sx, sy] = at(t0), [ex, ey] = at(t1), hit = `M${sx.toFixed(2)} ${sy.toFixed(2)} Q${cx.toFixed(2)} ${cy.toFixed(2)} ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+    h += `<g class="rt${own ? ' own' : ''}${o.can && o.can.has(r.id) ? ' can' : ''}${v && v.last && v.last.route === r.id ? ' last' : ''}${r.tw != null ? ' tw' : ''}" data-r="${r.id}">${cars}<path class="hit" d="${hit}"/></g>`; }
   for (const [k, [nm, x, y]] of Object.entries(CITIES)) { const l = LBL[k] || [2.6, 1.2, 'start']; h += `<g class="city${o.goal && o.goal.includes(k) ? ' goal' : ''}"><circle cx="${x}" cy="${y}" r="1.9"/><text x="${x + l[0]}" y="${y + l[1]}" text-anchor="${l[2]}">${esc(nm)}</text></g>`; }
   return h;
 }
@@ -53,7 +58,7 @@ const nameOf = (v, id) => { const p = v.players.find(x => x.id === id); return p
 const tkName = t => `${CITIES[t.a][0]} ↔ ${CITIES[t.b][0]}`;
 function draw(v) {
   const me = ui.myId, mine = v.players.find(p => p.id === me), ended = v.phase === 'ended', myTurn = !v.spec && v.cur === me && v.phase === 'play' && !v.offer;
-  const can = new Set(); if (myTurn && !v.drawn) for (const r of ROUTES) if (v.owner[r.id] === undefined && r.n <= mine.trains && E.payOptions(v.hand, r).length) can.add(r.id);
+  const can = new Set(); if (myTurn && !v.drawn) for (const r of ROUTES) if (E.routeFree(v, r.id, me) && r.n <= mine.trains && E.payOptions(v.hand, r).length) can.add(r.id);
   $('#map').innerHTML = mapSVG(v, { can, goal });
   $('#round').textContent = ended ? '🏁 Hết ván' : v.phase === 'tickets' ? '🎫 Chọn vé đích' : v.finalLeft >= 0 ? `🚨 Lượt cuối (còn ${v.finalLeft})` : `🚂 Lượt của ${v.cur === me ? 'bạn' : (v.players.find(p => p.id === v.cur) || {}).name || ''}`;
   $('#seats').innerHTML = v.players.map(p => `<div class="seat${p.id === v.cur ? ' turn' : ''}${(v.away || []).includes(p.id) ? ' away' : ''}" style="--pc:${p.color}" data-pid="${p.id}">${avatar(p.name, 24)}<span class="nm">${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</span><span class="pt">${p.pts}</span><small title="toa còn lại · thẻ trên tay · vé đích">🚃${p.trains} · 🃏${p.cards} · 🎫${p.tks}${p.choosing ? ' · chọn vé' : ''}</small></div>`).join('');

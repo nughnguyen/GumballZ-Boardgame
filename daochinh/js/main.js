@@ -2,7 +2,7 @@
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 
 const NET = makeNet(DEF);
 const { ROLES, ROLE_NAME, ACTS } = E, LV = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' };

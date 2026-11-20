@@ -23,7 +23,7 @@ export function setTheme(t) {
 // ---------- Hạt nền ----------
 let cv, cx, parts = [], kind = '', raf = 0, W = 0, H = 0;
 const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-function resize() { if (!cv) return; const d = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); }
+function resize() { if (!cv) return; const d = 1; /* hạt nền mờ ảo – vẽ ở mật độ 1 cho nhẹ (màn 2x/3x trước phải đẩy gấp 4–9 lần điểm ảnh mỗi khung hình) */ W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); }
 function rnd(a, b) { return a + Math.random() * (b - a); }
 function spawn(k, init) {
   switch (k) {
@@ -49,6 +49,7 @@ function drawWeed(p) {
   cx.restore();
 }
 function tick(t = 0) {
+  if (document.documentElement.classList.contains('gumballz-scroll')) { raf = requestAnimationFrame(tick); return; } /* đứng yên khi đang cuộn (đỡ giật) */
   cx.clearRect(0, 0, W, H);
   if (kind === 'tumbleweed' && t - lastWeed > 9000 && parts.length < 2) { parts.push(spawn('tumbleweed')); lastWeed = t; }
   for (let i = parts.length - 1; i >= 0; i--) {

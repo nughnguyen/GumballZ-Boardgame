@@ -1,11 +1,11 @@
 // 👤 Hồ sơ công khai của một thành viên: hình đại diện, cấp độ, danh hiệu, số liệu chơi, thành tích, game chơi nhiều.
 // Mở từ thẻ người chơi (bấm tên/avatar trong phòng), bảng xếp hạng, hộp bạn bè, trang quản trị:
-//   import('…/shared/ui/member.js?v=1').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
+//   import('…/shared/ui/member.js?v=2').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
-import { auth, friends, API } from '../net/api.js?v=27';
-import { profileCss, avatarHTML, AVATARS } from './profile.js?v=47';
-import { ACHS, GAME_NAMES } from './stats.js?v=86';
-import { GAME_WINS } from '../titles.js?v=3';
+import { auth, friends, API } from '../net/api.js?v=28';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=48';
+import { ACHS, GAME_NAMES } from './stats.js?v=87';
+import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
@@ -46,7 +46,8 @@ export function openMember(key) {
     else if (rel === 'out') acts = '<button type="button" disabled>⏳ Đã gửi lời mời kết bạn</button>';
     else if (rel === 'none') acts = '<button type="button" class="pri" data-a="add">＋ Kết bạn</button>';
     ov.innerHTML = frame(`
-      <div class="pf-head">${avatarHTML(72, U.av && AVATARS.includes(U.av.e) ? { e: U.av.e, c: +U.av.c || 0 } : { e: '🐱', c: U.id % 6 } /* hình của người khác: chỉ nhận hình có trong danh sách, không chèn chuỗi lạ vào trang */)}<div style="min-width:0"><div class="pf-name">${esc(U.name)}</div>
+      ${bannerHTML(U.av && safeAv(U.av, U.id).b)}
+      <div class="pf-head">${avatarHTML(72, safeAv(U.av, U.id))}<div style="min-width:0"><div class="pf-name${nameClass(U.av && U.av.n)}" style="${nameStyle(U.av && U.av.n)}">${esc(U.name)}</div>
         <div class="pf-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${U.id}</div>
         <div class="mb-tags"><span class="pf-tt lv">⭐ Cấp ${U.lv} · ${esc(U.lvName)}</span>${titlePill(U.title && { ...U.title, desc: titleDesc(U.title) })}</div></div></div>
       <div class="pf-nums"><div><b>${U.p}</b><small>ván đã chơi</small></div><div><b>${U.w}</b><small>ván thắng</small></div><div><b>${U.rate}%</b><small>tỉ lệ thắng</small></div><div><b>${U.best}</b><small>chuỗi thắng</small></div></div>
@@ -70,12 +71,12 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=47').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=48').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=50').then(m => m.openLogin()); }
-    else if (a === 'dm') { close(); import('./friends.js?v=33').then(m => m.openFriends(U.id)); }
+    else if (a === 'dm') { close(); import('./friends.js?v=34').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
-      try { const m = await import('./friends.js?v=33'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
+      try { const m = await import('./friends.js?v=34'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
       busy = false; await loadRel(); if (ov.isConnected && rel == null) draw();
     }
   });

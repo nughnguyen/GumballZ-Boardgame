@@ -21,12 +21,10 @@
   --lh-tight:1.1; --lh-base:1.5;
 }
 
-/* ---------- shell chung: nút về trang chủ + màn hình chờ ---------- */
+/* ---------- shell chung: nút về trang chủ ---------- */
 body a.gumballz-chip{border:2.5px solid var(--neo-ink)!important;border-radius:var(--neo-r-sm)!important;background:var(--neo-y2)!important;box-shadow:var(--neo-sh-sm)!important}
 body a.gumballz-chip:hover{transform:translate(-1px,-1px)}
 body a.gumballz-chip:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38!important}
-body #gumballz-splash{background:var(--neo-y2)}
-body #gumballz-splash b::after{background:linear-gradient(90deg,var(--neo-pink),var(--neo-y1),var(--neo-lav))}
 body :focus-visible{outline:3px solid var(--neo-ink);outline-offset:2px}
 
 /* ---------- trang chủ: nền, thanh trên, dải hero gọn ---------- */

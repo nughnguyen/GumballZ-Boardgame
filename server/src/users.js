@@ -2,7 +2,7 @@
 // Không bắt buộc – ai không đăng nhập vẫn chơi như khách.
 import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
-import { statOf, titlesOf, pickTitle, levelOf } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
+import { statOf, titlesOf, pickTitle, levelOf, gameXp } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
 import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
 
 const te = new TextEncoder();
@@ -18,6 +18,7 @@ async function hashPw(pw, salt) {
 export const eqTime = (a, b) => { if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
 const USER = /^[a-z0-9_.]{3,20}$/;
 const SESSION_DAYS = 60;
+const OWNER_ID = 1; /* tài khoản đầu tiên = chủ web (khớp /vip/pass trong index.js) */
 
 /* ================= 🛡️ ĐIỂM — NỚI LỎNG (18/11/2026, Nguyễn quyết: bỏ chống gian lận) =================
    Trước bản này (port 20261118-3): số liệu chỉ tăng khi SrvRoom ghi kết quả ván nó giữ (recordGame bên dưới),
@@ -50,12 +51,11 @@ function migrateProf(P) {
 }
 function vCtx(P) {
   const V = P.v || {}, g = P.g || {};
-  let p = 0, w = 0, kinds = 0, top = 0; const wins = {};
-  for (const k of Object.keys(g)) { const v = g[k] || {}, gp = Math.max(0, Math.floor(+v.p || 0)), gw = Math.min(gp, Math.max(0, Math.floor(+v.w || 0))); p += gp; w += gw; if (gp) kinds++; top = Math.max(top, gw); wins[k] = gw; }
+  let p = 0, w = 0, kinds = 0, top = 0, xp = 0; const wins = {};
+  for (const k of Object.keys(g)) { const v = g[k] || {}, gp = Math.max(0, Math.floor(+v.p || 0)), gw = Math.min(gp, Math.max(0, Math.floor(+v.w || 0))); p += gp; w += gw; if (gp) kinds++; top = Math.max(top, gw); wins[k] = gw; xp += gameXp(k, gp, gw); }
   const vg = V.g || {}; let vloss = 0; for (const v of Object.values(vg)) vloss += Math.max(0, Math.floor(+v.l || 0));
   const days = new Set([...(Array.isArray(P.days) ? P.days : []), ...(Array.isArray(V.days) ? V.days : [])]).size;
-  const xp = p * 10 + w * 20;
-  return { p, w, kinds, top, days, best: Math.min(w, Math.max(0, Math.floor(+P.best || 0))), night: !!P.night, ls: Math.max(0, Math.floor(+V.ls || 0)), vloss,
+  return { p, w, xp, kinds, top, days, best: Math.min(w, Math.max(0, Math.floor(+P.best || 0))), night: !!P.night, ls: Math.max(0, Math.floor(+V.ls || 0)), vloss,
     dmax: V.dmax || { n: 0, k: 0, w: 0 }, marks: V.marks || {}, vg, g, wins, lv: Math.min(10, Math.floor(Math.sqrt(xp / 50)) + 1) };
 }
 /* thành tích máy chủ tự xét được từ số liệu gộp (id + điều kiện y hệt ACHS trong shared/ui/stats.js) */
@@ -120,9 +120,11 @@ export class Users extends DurableObject {
     this.sql.exec(`CREATE TABLE IF NOT EXISTS loginfail (ip TEXT, t INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS friends (a INTEGER, b INTEGER, status TEXT, req INTEGER, ts INTEGER, PRIMARY KEY (a, b))`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS dms (id INTEGER PRIMARY KEY AUTOINCREMENT, fromId INTEGER, toId INTEGER, msg TEXT, ts INTEGER, seen INTEGER DEFAULT 0)`);
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS blocks (a INTEGER, b INTEGER, ts INTEGER, PRIMARY KEY (a, b))`); // 🚫 a chặn b (20/11/2026)
     this.sql.exec(`CREATE INDEX IF NOT EXISTS dms_pair ON dms (fromId, toId, ts)`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS dms_to ON dms (toId, seen)`);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN admin INTEGER DEFAULT 0'); } catch (e) {} // cột quản trị (bản 11/2026)
+    try { this.sql.exec("ALTER TABLE users ADD COLUMN mute TEXT DEFAULT '{\"c\":0,\"v\":0}'"); } catch (e) {} // 🔇 lệnh cấm theo tài khoản (20/11/2026): {c: cấm chat tới, v: cấm mở phiếu tới}
     try { this.sql.exec('ALTER TABLE users ADD COLUMN prof TEXT'); this.sql.exec('ALTER TABLE users ADD COLUMN profOp TEXT'); } catch (e) {} // hồ sơ đồng bộ theo tài khoản (số ván, thành tích, avatar)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS vgames (k TEXT PRIMARY KEY, ts INTEGER)`); // 🛡️ chống gian lận: khoá các ván máy chủ đã ghi (chống ghi trùng khi phòng ngủ rồi thức dậy phát lại view cuối)
   }
@@ -188,6 +190,16 @@ export class Users extends DurableObject {
     if (!s || s.exp < Date.now()) return null;
     return this.pub(this.one('SELECT * FROM users WHERE id = ?', s.uid));
   }
+  /* ✨ diện mạo chat (2026-11-21): khung + màu tên của tài khoản, để Sảnh gắn vào tin nhắn */
+  async avOf(uid) {
+    const row = this.one('SELECT prof FROM users WHERE id = ?', +uid || 0);
+    if (!row) return null;
+    let P = null; try { P = JSON.parse(row.prof || 'null'); } catch (e) {}
+    if (!P || typeof P !== 'object') return null;
+    const av = cleanAvatar(P.av);
+    if (!av) return null;
+    return { f: av.f || '', n: av.n || '' };
+  }
   async logout(token) { if (token) this.sql.exec('DELETE FROM sessions WHERE tok = ?', await sha256(String(token))); return { ok: true }; }
   async rename(token, name) {
     const u = await this.whoami(token); if (!u) return { ok: false, msg: 'Hết phiên đăng nhập' };
@@ -218,7 +230,7 @@ export class Users extends DurableObject {
     if (d.wal && typeof d.wal === 'object' && num(d.wal.at, 4e12) > num(P.wal && P.wal.at, 4e12)) {
       const w = d.wal, inv = {};
       if (w.inv && typeof w.inv === 'object') for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) inv[k] = Math.min(999, num(w.inv[k]));
-      const own = Array.isArray(w.own) ? [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
+      const own = Array.isArray(w.own) ? [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back|banner):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
       const eq = {}; if (w.eq && typeof w.eq.back === 'string' && /^[a-z]{2,14}$/.test(w.eq.back)) eq.back = w.eq.back;
       P.wal = { xu: Math.min(10000000, num(w.xu)), inv, own, eq, dbl: Math.min(99, num(w.dbl)), chest: Math.min(100000, num(w.chest)), at: num(w.at, 4e12) };
       changed = true;
@@ -357,11 +369,12 @@ export class Users extends DurableObject {
   async adminFind(q, opt = {}) {
     const fold = x => String(x == null ? '' : x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
     if (!this.admIdx || Date.now() - this.admIdx.at > 20e3 || opt.fresh) {
-      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, prof FROM users').toArray(), list = [];
+      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, prof, mute FROM users').toArray(), list = [];
       for (const r of rows) {
         let P = null; try { P = JSON.parse(r.prof || 'null'); } catch (e) {}
-        const st = statOf(P), lv = levelOf(st.p, st.w); let last = 0; if (P && P.g) for (const v of Object.values(P.g)) last = Math.max(last, +(v && v.last) || 0);
-        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: !!r.admin, lv: lv.lv, p: st.p, w: st.w, last,
+        const st = statOf(P), lv = levelOf(st.p, st.w, st.xp); let last = 0; if (P && P.g) for (const v of Object.values(P.g)) last = Math.max(last, +(v && v.last) || 0);
+        let mu = { c: 0, v: 0 }; try { const m = JSON.parse(r.mute || 'null'); if (m && typeof m === 'object') { mu.c = +m.c || 0; mu.v = +m.v || 0; } } catch (e) {}
+        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: !!r.admin, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
           av: P && P.av && typeof P.av.e === 'string' ? String(P.av.e).slice(0, 8) : '', _u: fold(r.username), _n: fold(r.name) });
       }
       this.admIdx = { at: Date.now(), list };
@@ -370,7 +383,7 @@ export class Users extends DurableObject {
     const raw = String(q || '').trim().slice(0, 60), toks = fold(raw).split(/\s+/).filter(Boolean);
     let res = all.filter(u => (f === 'admin' ? u.admin : f === 'banned' ? u.banned : f === 'google' ? u.g : f === 'active' ? now - u.last < W : f === 'new' ? now - u.created < W : true)
       && toks.every(t => (t[0] === '#' ? String(u.id) === t.slice(1) : t[0] === '@' ? u._u.includes(t.slice(1)) : u._u.includes(t) || u._n.includes(t) || String(u.id) === t)));
-    const cmp = { new: (a, b) => b.id - a.id, old: (a, b) => a.id - b.id, name: (a, b) => a._n.localeCompare(b._n) || a.id - b.id, lv: (a, b) => (b.p * 10 + b.w * 20) - (a.p * 10 + a.w * 20) || b.id - a.id, last: (a, b) => b.last - a.last || b.id - a.id }[sort] || ((a, b) => b.id - a.id);
+    const cmp = { new: (a, b) => b.id - a.id, old: (a, b) => a.id - b.id, name: (a, b) => a._n.localeCompare(b._n) || a.id - b.id, lv: (a, b) => b.xp - a.xp || b.id - a.id, last: (a, b) => b.last - a.last || b.id - a.id }[sort] || ((a, b) => b.id - a.id);
     res = res.slice().sort(cmp);
     const off = Math.max(0, Math.floor(+opt.off || 0)), lim = Math.max(1, Math.min(100, Math.floor(+opt.lim || 40)));
     const count = k => all.reduce((n, u) => n + (k(u) ? 1 : 0), 0);
@@ -386,6 +399,12 @@ export class Users extends DurableObject {
     if ('admin' in patch) this.sql.exec('UPDATE users SET admin = ? WHERE id = ?', patch.admin ? 1 : 0, uid);
     if ('banned' in patch) { this.sql.exec('UPDATE users SET banned = ? WHERE id = ?', patch.banned ? 1 : 0, uid); if (patch.banned) this.sql.exec('DELETE FROM sessions WHERE uid = ?', uid); }
     if (patch.password) { const salt = rand(16); this.sql.exec('UPDATE users SET pw = ?, salt = ? WHERE id = ? AND username IS NOT NULL', await hashPw(String(patch.password), salt), salt, uid); }
+    if ('mute' in patch && patch.mute && typeof patch.mute === 'object') { /* 🔇 cấm chat (c) / cấm mở phiếu (v) theo tài khoản, theo giờ – 0 = gỡ */
+      const now = Date.now(), cur = this.one('SELECT mute FROM users WHERE id = ?', uid); let m = { c: 0, v: 0 };
+      try { m = JSON.parse((cur && cur.mute) || 'null') || m; } catch (e) {}
+      for (const k of ['c', 'v']) { const h = +patch.mute[k]; if (Number.isFinite(h) && h !== 0) m[k] = now + h * 3600e3; else if (h === 0) m[k] = 0; }
+      this.sql.exec('UPDATE users SET mute = ? WHERE id = ?', JSON.stringify(m), uid);
+    }
     this.admIdx = null; return { ok: true };
   }
   async stats() { return { users: this.one('SELECT COUNT(*) AS n FROM users').n, sessions: this.one('SELECT COUNT(*) AS n FROM sessions WHERE exp > ?', Date.now()).n }; }
@@ -404,7 +423,22 @@ export class Users extends DurableObject {
       totalUnread += unread;
       const last = this.one('SELECT msg, ts, fromId FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) ORDER BY id DESC LIMIT 1', u.id, id, id, u.id);
       return { id: u.id, name: u.name, username: u.username || null, unread, last: last ? { msg: last.msg, ts: last.ts, mine: last.fromId === id } : null, since: u.ts };
-    }).sort((x, y) => ((y.last && y.last.ts) || y.since || 0) - ((x.last && x.last.ts) || x.since || 0));
+    });
+    /* 👑 cuộc trò chuyện có chủ web mà chưa kết bạn: vẫn hiện trong danh sách để đọc / trả lời */
+    const frIds = new Set(friends.map(f => f.id)), ownerMe = this.isOwnerId(id), ownerOn = this.isOwnerId(OWNER_ID);
+    if (ownerOn) {
+      const rows = ownerMe
+        ? this.sql.exec('SELECT DISTINCT CASE WHEN fromId = ? THEN toId ELSE fromId END AS o FROM dms WHERE fromId = ? OR toId = ?', id, id, id).toArray().map(r => r.o)
+        : (this.one('SELECT id FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) LIMIT 1', id, OWNER_ID, OWNER_ID, id) ? [OWNER_ID] : []);
+      for (const o of rows) {
+        if (frIds.has(o) || o === id) continue;
+        const u = this.one('SELECT id, name, username, banned FROM users WHERE id = ?', o); if (!u || u.banned) continue;
+        const unread = this.one('SELECT COUNT(*) AS n FROM dms WHERE fromId = ? AND toId = ? AND seen = 0', u.id, id).n; totalUnread += unread;
+        const last = this.one('SELECT msg, ts, fromId FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) ORDER BY id DESC LIMIT 1', u.id, id, id, u.id);
+        friends.push({ id: u.id, name: u.name, username: u.username || null, unread, last: last ? { msg: last.msg, ts: last.ts, mine: last.fromId === id } : null, since: 0, dm: 1, owner: u.id === OWNER_ID ? 1 : 0 });
+      }
+    }
+    friends.sort((x, y) => ((y.last && y.last.ts) || y.since || 0) - ((x.last && x.last.ts) || x.since || 0));
     const incoming = this.sql.exec(
       `SELECT u.id, u.name, u.username, f.ts FROM friends f JOIN users u ON u.id = f.req WHERE (f.a = ? OR f.b = ?) AND f.status = 'pending' AND f.req != ? AND u.banned = 0 ORDER BY f.ts DESC`,
       id, id, id
@@ -413,7 +447,11 @@ export class Users extends DurableObject {
       `SELECT u.id, u.name, u.username, f.ts FROM friends f JOIN users u ON u.id = (CASE WHEN f.a = ? THEN f.b ELSE f.a END) WHERE (f.a = ? OR f.b = ?) AND f.status = 'pending' AND f.req = ? AND u.banned = 0 ORDER BY f.ts DESC`,
       id, id, id, id
     ).toArray().map(u => ({ id: u.id, name: u.name, username: u.username || null, ts: u.ts }));
-    return { ok: true, friends, incoming, outgoing, unread: totalUnread };
+    const blocked = this.sql.exec(
+      `SELECT u.id, u.name, u.username, b.ts FROM blocks b JOIN users u ON u.id = b.b WHERE b.a = ? ORDER BY b.ts DESC`,
+      id
+    ).toArray().map(u => ({ id: u.id, name: u.name, username: u.username || null, ts: u.ts }));
+    return { ok: true, friends, incoming, outgoing, blocked, unread: totalUnread };
   }
   async friendAdd(token, d = {}) {
     const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Đăng nhập để kết bạn' };
@@ -431,6 +469,7 @@ export class Users extends DurableObject {
     }
     if (!other || other.banned) return { ok: false, msg: 'Không tìm thấy người chơi này' };
     if (other.id === me.id) return { ok: false, msg: 'Không thể kết bạn với chính mình' };
+    if (await this.isBlocked(me.id, other.id) || await this.isBlocked(other.id, me.id)) return { ok: false, msg: 'Bạn đã chặn hoặc bị chặn bởi người này' }; /* 🚫 */
     const a = Math.min(me.id, other.id), b = Math.max(me.id, other.id);
     const cur = this.one('SELECT status, req FROM friends WHERE a = ? AND b = ?', a, b);
     const pub = { id: other.id, name: other.name, username: other.username || null };
@@ -466,12 +505,31 @@ export class Users extends DurableObject {
     }
     return { ok: false, msg: 'Thao tác không hợp lệ' };
   }
+  /* 🚫 chặn người chơi (20/11/2026): a chặn b → không kết bạn / nhắn riêng được, máy chủ phòng quét người bị chủ phòng chặn ra khỏi phòng */
+  async isBlocked(a, b) { const r = this.one('SELECT 1 AS x FROM blocks WHERE a = ? AND b = ?', +a, +b); return !!(r && r.x); }
+  async friendBlock(token, id, on = true) {
+    const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Hết phiên đăng nhập' };
+    const oid = +id; if (!oid || oid === me.id) return { ok: false, msg: 'Người dùng không hợp lệ' };
+    if (!this.one('SELECT id FROM users WHERE id = ?', oid)) return { ok: false, msg: 'Không tìm thấy người chơi này' };
+    if (on) this.sql.exec('INSERT OR IGNORE INTO blocks (a, b, ts) VALUES (?,?,?)', me.id, oid, Date.now());
+    else this.sql.exec('DELETE FROM blocks WHERE a = ? AND b = ?', me.id, oid);
+    return { ok: true };
+  }
+  /* 🛡️ máy chủ phòng gọi sau khi kiểm vé tài khoản: lệnh cấm của quản trị + danh sách người uid này đã chặn */
+  async modInfo(uid) {
+    const r = this.one('SELECT mute FROM users WHERE id = ?', +uid);
+    let m = { c: 0, v: 0 }; try { m = JSON.parse((r && r.mute) || 'null') || m; } catch (e) {}
+    const blk = this.sql.exec('SELECT b FROM blocks WHERE a = ?', +uid).toArray().map(x => x.b);
+    return { mc: +m.c || 0, mv: +m.v || 0, blk };
+  }
+  /* 💬 được nhắn riêng: đã là bạn bè, hoặc một bên là chủ web (chủ web nhắn được cho mọi tài khoản) */
+  isOwnerId(id) { if (+id !== OWNER_ID) return false; const u = this.one('SELECT admin FROM users WHERE id = ?', OWNER_ID); return !!(u && u.admin); }
+  dmOk(a0, b0) { if (this.isOwnerId(a0) || this.isOwnerId(b0)) return true; const a = Math.min(a0, b0), b = Math.max(a0, b0); const fr = this.one('SELECT status FROM friends WHERE a = ? AND b = ?', a, b); return !!(fr && fr.status === 'acc'); }
   async dmList(token, withId, afterId = 0) {
     const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Hết phiên đăng nhập' };
     const oid = +withId; if (!oid || oid === me.id) return { ok: false, msg: 'Người nhận không hợp lệ' };
-    const a = Math.min(me.id, oid), b = Math.max(me.id, oid);
-    const fr = this.one('SELECT status FROM friends WHERE a = ? AND b = ?', a, b);
-    if (!fr || fr.status !== 'acc') return { ok: false, msg: 'Hai bạn chưa kết bạn' };
+    if (!this.dmOk(me.id, oid)) return { ok: false, msg: 'Hai bạn chưa kết bạn' };
+    if (await this.isBlocked(me.id, oid) || await this.isBlocked(oid, me.id)) return { ok: false, msg: 'Bạn đã chặn hoặc bị chặn bởi người này' }; /* 🚫 */
     const after = Math.max(0, Math.floor(+afterId || 0));
     const msgs = after > 0
       ? this.sql.exec('SELECT id, fromId, toId, msg, ts FROM dms WHERE ((fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?)) AND id > ? ORDER BY id ASC LIMIT 50', me.id, oid, oid, me.id, after).toArray()
@@ -483,9 +541,8 @@ export class Users extends DurableObject {
   async dmSend(token, toId, text) {
     const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Hết phiên đăng nhập' };
     const oid = +toId; if (!oid || oid === me.id) return { ok: false, msg: 'Người nhận không hợp lệ' };
-    const a = Math.min(me.id, oid), b = Math.max(me.id, oid);
-    const fr = this.one('SELECT status FROM friends WHERE a = ? AND b = ?', a, b);
-    if (!fr || fr.status !== 'acc') return { ok: false, msg: 'Cần kết bạn trước khi nhắn tin' };
+    if (!this.dmOk(me.id, oid)) return { ok: false, msg: 'Cần kết bạn trước khi nhắn tin' };
+    if (await this.isBlocked(me.id, oid) || await this.isBlocked(oid, me.id)) return { ok: false, msg: 'Bạn đã chặn hoặc bị chặn bởi người này' }; /* 🚫 */
     const other = this.one('SELECT id, banned FROM users WHERE id = ?', oid);
     if (!other || other.banned) return { ok: false, msg: 'Tài khoản này không khả dụng' };
     const now = Date.now(), last = this.dmRate.get(me.id) || 0;
@@ -505,29 +562,28 @@ export class Users extends DurableObject {
     const meUser = token ? await this.whoami(token) : null;
     const ck = game + '|' + by, hit = this.lbCache && this.lbCache.get(ck); /* giữ 30 giây: khỏi quét + đọc JSON cả bảng users ở mỗi lượt xem */
     if (hit && Date.now() - hit.at < 30e3) return { ok: true, game, by, total: hit.entries.length, list: hit.entries.slice(0, 50), me: meUser ? (hit.entries.find(e => e.id === meUser.id) || null) : null };
-    const rows = this.sql.exec('SELECT id, username, name, prof, created FROM users WHERE banned = 0 AND prof IS NOT NULL').toArray();
+    const rows = this.sql.exec('SELECT id, username, name, prof, created, admin FROM users WHERE banned = 0 AND prof IS NOT NULL').toArray();
     const ranks = game === 'all' && by === 'xp' ? null : await this.ranks(); /* thứ hạng chung (để tính danh hiệu Top 1/3/10) */
     const entries = [];
     for (const r of rows) {
       let pf; try { pf = JSON.parse(r.prof); } catch (e) { continue; }
       if (!pf || typeof pf !== 'object') continue;
       const g = pf.g && typeof pf.g === 'object' ? pf.g : {};
-      let p = 0, w = 0;
+      let p = 0, w = 0, xp = 0;
       if (game === 'all') {
-        for (const v of Object.values(g)) if (v && typeof v === 'object') { p += Math.max(0, Math.min(99999, +v.p || 0)); w += Math.max(0, Math.min(99999, +v.w || 0)); }
+        for (const [k, v] of Object.entries(g)) if (v && typeof v === 'object') { const gp = Math.max(0, Math.min(99999, +v.p || 0)), gw = Math.min(gp, Math.max(0, Math.min(99999, +v.w || 0))); p += gp; w += gw; xp += gameXp(k, gp, gw); }
       } else {
         const gv = g[game];
         if (gv && typeof gv === 'object') { p = Math.max(0, Math.min(99999, +gv.p || 0)); w = Math.max(0, Math.min(99999, +gv.w || 0)); }
       }
-      w = Math.min(w, p);
+      w = Math.min(w, p); if (game !== 'all') xp = gameXp(game, p, w);
       const best = Math.max(0, Math.min(999, +pf.best || 0));
       if (p <= 0 && w <= 0 && (by !== 'streak' || best <= 0)) continue;
-      const xp = p * 10 + w * 20;
       const lv = Math.min(10, Math.floor(Math.sqrt(xp / 50)) + 1);
       const rate = p > 0 ? Math.round((w / p) * 100) : 0;
       const av = cleanAvatar(pf.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) để bảng xếp hạng hiện đúng nhân vật */
       const safeName = clean(String(r.name || 'Người chơi')).text || 'Người chơi';
-      entries.push({ id: r.id, username: r.username || null, name: safeName, p, w, xp, lv, best, rate, av, _pf: pf, _c: r.created });
+      entries.push({ id: r.id, username: r.username || null, name: safeName, p, w, xp, lv, best, rate, av, _pf: pf, _c: r.created, _a: r.admin ? 1 : 0 });
     }
     entries.sort((a, b) => {
       if (by === 'streak') return b.best - a.best || b.w - a.w || b.xp - a.xp;
@@ -536,7 +592,7 @@ export class Users extends DurableObject {
     });
     entries.forEach((e, i) => { e.rank = i + 1; });
     if (!ranks) { this.rankMap = new Map(entries.map(e => [e.id, e.rank])); this.rankAt = Date.now(); this.rankTotal = entries.length; }
-    for (const e of entries) { const t = pickTitle(titlesOf(statOf(e._pf, { created: e._c, rank: (ranks || this.rankMap).get(e.id) || 0 })), e._pf.title); e.title = t ? { id: t.id, icon: t.icon, name: t.name } : null; delete e._pf; delete e._c; }
+    for (const e of entries) { const t = pickTitle(titlesOf(statOf(e._pf, { created: e._c, rank: (ranks || this.rankMap).get(e.id) || 0 })), e._pf.title); e.title = t ? { id: t.id, icon: t.icon, name: t.name } : null; if (e._a && e.id === OWNER_ID) e.owner = true; else if (e._a) e.mod = true; delete e._a; delete e._pf; delete e._c; }
     if (!this.lbCache) this.lbCache = new Map(); if (this.lbCache.size > 80) this.lbCache.clear(); this.lbCache.set(ck, { at: Date.now(), entries });
     const me = meUser ? (entries.find(e => e.id === meUser.id) || null) : null;
     return { ok: true, game, by, total: entries.length, list: entries.slice(0, 50), me };
@@ -551,7 +607,7 @@ export class Users extends DurableObject {
     if (!u || u.banned) return { ok: false, msg: 'Không tìm thấy thành viên này' };
     let P = null; try { P = JSON.parse(u.prof || 'null'); } catch (e) {}
     P = P && typeof P === 'object' ? P : {};
-    const ranks = await this.ranks(), rank = ranks.get(u.id) || 0, st = statOf(P, { created: u.created, rank }), lv = levelOf(st.p, st.w), titles = titlesOf(st), t = pickTitle(titles, P.title);
+    const ranks = await this.ranks(), rank = ranks.get(u.id) || 0, st = statOf(P, { created: u.created, rank }), lv = levelOf(st.p, st.w, st.xp), titles = titlesOf(st), t = pickTitle(titles, P.title);
     const games = Object.keys(st.plays).sort((a, b) => st.plays[b] - st.plays[a]).slice(0, 8).map(g => ({ g, p: st.plays[g], w: st.wins[g] || 0 }));
     const av = cleanAvatar(P.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) */
     /* không trả cờ quản trị: ai là quản trị viên không phải thứ cần cho cả làng biết (đỡ bị dò mật khẩu) */

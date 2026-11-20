@@ -22,7 +22,14 @@ export const ROUTES = [
   ['bmt', 'nhatrang', 2, 'o'], ['bmt', 'dalat', 2, 'x'], ['nhatrang', 'dalat', 2, 'w'], ['nhatrang', 'phanthiet', 3, 'k'], ['dalat', 'phanthiet', 2, 'g'], ['dalat', 'hcm', 4, 'y'],
   ['bmt', 'tayninh', 5, 'x'], ['phanthiet', 'hcm', 3, 'r'], ['phanthiet', 'vungtau', 2, 'x'], ['hcm', 'vungtau', 2, 'b'], ['hcm', 'tayninh', 2, 'o'], ['hcm', 'cantho', 3, 'w'],
   ['tayninh', 'rachgia', 4, 'k'], ['cantho', 'rachgia', 2, 'g'], ['cantho', 'camau', 2, 'y'], ['rachgia', 'camau', 2, 'x'], ['vungtau', 'cantho', 3, 'p'], ['thanhhoa', 'donghoi', 6, 'x'],
-].map(([a, b, n, c], i) => ({ id: i, a, b, n, c }));
+  /* 20/11/2026 (người chơi báo "khúc giữa có đường chặn hết thì không fair"): tuyến đôi dọc miền Trung + đường Trường Sơn Huế – Kon Tum. Chỉ THÊM vào cuối – id cũ giữ nguyên cho ván đang chơi */
+  ['thanhhoa', 'vinh', 2, 'o'], ['vinh', 'donghoi', 3, 'w'], ['donghoi', 'hue', 2, 'g'], ['hue', 'danang', 1, 'y'], ['hue', 'kontum', 4, 'x'],
+].map(([a, b, n, c], i) => ({ id: i, a, b, n, c, bend: 0, tw: null }));
+/* tuyến đôi (như luật gốc): 2–3 người chỉ xây được 1 trong 2, 4–5 người xây được cả hai nhưng không cùng một người */
+for (const [x, y] of [[17, 48], [18, 49], [19, 50], [20, 51]]) { ROUTES[x].tw = y; ROUTES[y].tw = x; ROUTES[x].bend = -1.7; ROUTES[y].bend = 1.7; }
+/* tuyến vẽ cong cho khỏi đè lên tuyến / thành phố khác (người chơi báo "2 đường đè lên nhau, đường dưới không bấm được") – số = độ lệch giữa tuyến, đơn vị bản đồ */
+for (const [id, b] of [[21, 10], [11, -3.5], [33, -4], [47, -7], [52, 3]]) ROUTES[id].bend = b;
+ROUTES[52].xv = 1; /* chỉ Tàu Xuyên Việt dùng (Đội Cứu Hộ dùng chung bản đồ nhưng giữ đường cũ cho khỏi lệch cân bằng) */
 export const ROUTE_PTS = [0, 1, 2, 4, 7, 10, 15];
 /* vé đích: nối được hai thành phố thì cộng điểm, không thì trừ. Điểm = quãng đường ngắn nhất (tính sẵn bên dưới). */
 const PAIRS = [['hanoi', 'hcm'], ['laocai', 'camau'], ['hagiang', 'danang'], ['dienbien', 'hue'], ['langson', 'nhatrang'], ['halong', 'quynhon'], ['haiphong', 'dalat'], ['hanoi', 'danang'], ['sonla', 'vinh'], ['vinh', 'pleiku'],

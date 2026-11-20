@@ -2,7 +2,11 @@
 // dùng chung cho web (shared/ui/member.js, hồ sơ của bạn) và máy chủ (server/src/users.js) để hai nơi luôn ra cùng một kết quả.
 // Thêm danh hiệu: thêm 1 dòng vào GEN (thứ tự = độ "oách": danh hiệu đứng trước được chọn làm mặc định). Thêm game: thêm vào GAME_TITLES.
 export const LEVEL_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ'];
-export function levelOf(p, w) { const xp = p * 10 + w * 20, lv = Math.min(LEVEL_NAMES.length, Math.floor(Math.sqrt(xp / 50)) + 1); return { xp, lv, name: LEVEL_NAMES[lv - 1] }; }
+/* XP: mỗi ván +10, thắng +20 nữa. Game tính theo TỪNG VÁN BÀI ngắn (10–30 giây/ván) chỉ được một phần (Poker cày 1.600 ván đứng Top 1) */
+export const XP_K = { poker: 0.25, xidach: 0.25, bacao: 0.25, catte: 0.5 };
+export const gameXp = (k, p, w) => Math.round(((+p || 0) * 10 + (+w || 0) * 20) * (XP_K[k] || 1));
+export function xpOfG(g) { let x = 0; if (g && typeof g === 'object') for (const k of Object.keys(g)) { const v = g[k]; if (v && typeof v === 'object') { const p = Math.max(0, Math.min(99999, +v.p || 0)); x += gameXp(k, p, Math.min(p, Math.max(0, +v.w || 0))); } } return x; }
+export function levelOf(p, w, xp0) { const xp = xp0 != null ? xp0 : p * 10 + w * 20, lv = Math.min(LEVEL_NAMES.length, Math.floor(Math.sqrt(xp / 50)) + 1); return { xp, lv, name: LEVEL_NAMES[lv - 1] }; }
 export const GAME_WINS = 15; /* thắng từng này ván ở một game thì có danh hiệu riêng của game đó */
 export const GAME_TITLES = {
   uno: ['🃏', 'Thánh UNÔ'], tienlen: ['🐷', 'Vua Tiến Lên'], masoi: ['🐺', 'Sói đầu đàn'], bang: ['🤠', 'Tay súng miền Tây'], typhu: ['🏙️', 'Tỷ phú Sài Thành'], tamquoc: ['⚔️', 'Quân sư'],
@@ -42,7 +46,7 @@ const n0 = (v, max = 1e7) => Math.min(max, Math.max(0, Math.floor(+v || 0)));
 export function statOf(P, extra = {}) {
   P = P && typeof P === 'object' ? P : {}; const g = P.g && typeof P.g === 'object' ? P.g : {}; let p = 0, w = 0, kinds = 0; const wins = {}, plays = {};
   for (const k of Object.keys(g)) { const v = g[k] || {}, gp = n0(v.p), gw = Math.min(gp, n0(v.w)); p += gp; w += gw; if (gp) { kinds++; plays[k] = gp; } wins[k] = gw; }
-  return { p, w, kinds, wins, plays, best: Math.min(w, n0(P.best)), days: Array.isArray(P.days) ? P.days.length : n0(P.days), night: !!P.night, created: n0(extra.created, 4e12), rank: n0(extra.rank) };
+  return { p, w, xp: xpOfG(g), kinds, wins, plays, best: Math.min(w, n0(P.best)), days: Array.isArray(P.days) ? P.days.length : n0(P.days), night: !!P.night, created: n0(extra.created, 4e12), rank: n0(extra.rank) };
 }
 const gameTitle = g => { const t = GAME_TITLES[g]; return t ? { id: 'g-' + g, icon: t[0], name: t[1], desc: `Thắng ${GAME_WINS} ván ${g}`, game: g } : null; };
 /* mọi danh hiệu đã đạt, xếp theo độ oách */

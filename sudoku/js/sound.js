@@ -30,6 +30,12 @@ export function wrong() {
   if (!on) return;
   blip(160, 0.14, 0.2, 'sawtooth');
 }
+/* ⚔️ Combat: phủ sương / bị phủ sương — 2 nốt trầm xuống */
+export function fog() {
+  if (!on) return;
+  blip(220, 0.12, 0.16, 'sawtooth');
+  setTimeout(() => blip(160, 0.12, 0.2, 'sawtooth'), 120);
+}
 /* gợi ý: 2 nốt chuông */
 export function hint() {
   if (!on) return;

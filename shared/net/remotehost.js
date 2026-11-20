@@ -1,8 +1,8 @@
 // 🖥️ Chủ phòng từ xa – phần dùng chung cho các game "máy chủ giữ ván" (server/src/srvhost.js chạy lõi <game>/js/host.js ngay trong Durable Object).
 // Máy người tạo phòng chỉ là một khách đặc biệt ngồi ghế 'host': gửi lệnh phòng chờ ({ t: 'cmd', m, a }) và hành động như mọi người.
 // Nhờ vậy chủ phòng để tab ở nền / khoá điện thoại / rớt mạng thì ván vẫn chạy; rời hẳn thì máy chủ trao quyền cho người kế ({ t: '__own' }).
-import { RoomClient, session, makeCode } from './room.js?v=51';
-import { announceRoom, myLevel } from './api.js?v=27';
+import { RoomClient, session, makeCode } from './room.js?v=52';
+import { announceRoom, myLevel } from './api.js?v=28';
 const rkey = () => Math.random().toString(36).slice(2, 12) + Math.random().toString(36).slice(2, 12);
 /* Game có bật chế độ máy chủ giữ ván không: ?srv=1 / ?srv=0 ghi đè (nhớ trong localStorage 'gumballz-srv-<game>'), không thì theo mặc định của game.
    Mở phòng trên máy chủ thất bại thì lần tạo kế trong tab này quay về kiểu cũ ('gumballz-srv-off'). */

@@ -1,6 +1,6 @@
 // Nút "🏠 Trang chủ" trong hộp thoại "Rời ván/bàn/làng?" của mọi game:
 // bấm → chạy đúng thủ tục rời của game (bấm hộ nút Rời), rồi về trang chủ GumballZ.
-// Dùng: <script type="module" src="../shared/ui/homebtn.js?v=1"></script>
+// Dùng: <script type="module" src="../shared/ui/homebtn.js?v=70"></script>
 const HOME = '../';
 const isLeaveBtn = b => !b.dataset.home && (/^(m-leave|m-quit)$/.test(b.id) || /^\s*(🚪\s*)?Rời/.test(b.textContent || ''));
 
@@ -48,9 +48,9 @@ import('./feedback.js?v=34').then(() => {
   const box = document.createElement('p'); box.className = 'gumballz-fbline';
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';
   box.innerHTML = '<a href="#" data-rank style="color:inherit">🏆 Bảng xếp hạng</a> · <a href="#" data-profile style="color:inherit">🏅 Hồ sơ</a> · <a href="#" data-friends style="color:inherit">🤝 Bạn bè</a> · <a href="#" data-feedback style="color:inherit">💌 Góp ý</a> · <a href="#" data-donate style="color:inherit">☕ Ủng hộ</a>';
-  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=33').then(m => m.openLeaderboard(GAME)); };
-  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=47').then(m => m.openProfile()); };
-  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=33').then(m => m.openFriends()); };
+  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=34').then(m => m.openLeaderboard(GAME)); };
+  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=48').then(m => m.openProfile()); };
+  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=34').then(m => m.openFriends()); };
   if (!a) return;
   if (a.mode === 'footer') a.el.after(box);
   else a.el.append(box);
@@ -85,11 +85,11 @@ try {
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
   mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=56').then(m => m.openMatchmaking(GAME));
+  mm.onclick = () => import('./lobby.js?v=58').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
   b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=56').then(m => m.openLobby(GAME));
+  b.onclick = () => import('./lobby.js?v=58').then(m => m.openLobby(GAME));
   row.append(mm, b);
   if (a.mode === 'footer') a.el.before(row);
   else a.el.append(row);
@@ -133,7 +133,7 @@ function inviteBtn() {
   if (b) b.remove();
   b = document.createElement('button'); b.id = 'gumballz-invite'; b.type = 'button'; b.textContent = '📨 Mời bạn (mã QR)';
   b.style.cssText = 'display:flex';
-  import('./invite.js?v=9').then(m => { m.inviteCss(); b.onclick = () => { const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim(); m.openInvite({ code: c, url: location.origin + location.pathname + '?room=' + encodeURIComponent(c) }); }; });
+  import('./invite.js?v=10').then(m => { m.inviteCss(); b.onclick = () => { const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim(); m.openInvite({ code: c, url: location.origin + location.pathname + '?room=' + encodeURIComponent(c) }); }; });
   anchor.after(b);
 }
 // 📣 Nút "Mời lên kênh thế giới" ngay dưới nút mời QR – chỉ chủ phòng, chỉ khi phòng đang công khai.
@@ -158,7 +158,7 @@ function worldInviteBtn() {
       const h = window.__gumballzHost; if (!h || h.dead || !h.pub) return;
       const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim();
       b.dataset.busy = '1'; b.disabled = true; b.textContent = '📣 Đang mời…';
-      const r = await import('./worldchat.js?v=1').then(m => m.sendWorldInvite({ game: h.game, code: c, k: h.pubK })).catch(() => null);
+      const r = await import('./worldchat.js?v=2').then(m => m.sendWorldInvite({ game: h.game, code: c, k: h.pubK })).catch(() => null);
       b.dataset.busy = '';
       if (r && r.ok) {
         try { localStorage.setItem('gumballz-invite-' + h.game + '-' + c, String(Date.now())); } catch (e) {}

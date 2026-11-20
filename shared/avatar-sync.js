@@ -18,6 +18,7 @@ export function cleanAvatar(a) {
   const o = { e: a.e, c: Math.min(40, Math.max(0, Math.floor(+a.c || 0))), t: Math.min(4e12, Math.max(0, Math.floor(+a.t || 0))) };
   if (typeof a.f === 'string' && /^[a-z0-9]{2,14}$/.test(a.f)) o.f = a.f;
   if (typeof a.n === 'string' && /^[a-z0-9]{2,14}$/.test(a.n)) o.n = a.n;
+  if (typeof a.b === 'string' && /^[a-z0-9]{2,14}$/.test(a.b)) o.b = a.b; /* 🎏 banner hồ sơ (2026-11-21) */
   if (a.sex === 'nam' || a.sex === 'nu') o.sex = a.sex;
   for (const k of AVATAR_CH) if (typeof src[k] === 'string' && src[k].length > 0 && src[k].length <= 24) o[k] = src[k];
   return o;

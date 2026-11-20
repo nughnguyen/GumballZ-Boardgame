@@ -1,11 +1,17 @@
 // 📅 Cờ thế hôm nay: mỗi ngày (giờ Việt Nam) một bài từ kho daily.js, giữ chuỗi ngày giải liên tiếp.
 // Dùng chung cho Cờ tướng và ô "Thử thách hôm nay" ở trang chủ.
-import { DAILY } from './daily.js?v=1';
+import { DAILY } from './daily.js?v=2';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const KEY = 'cotuong-daily', START = Date.UTC(2026, 10, 12); /* bài #1 = 12/11/2026 */
 export const dayKey = (t = Date.now()) => new Date(t + 7 * 3600e3).toISOString().slice(0, 10);
 const dayNo = k => Math.round((Date.parse(k + 'T00:00:00Z') - START) / 864e5);
-export function today() { const k = dayKey(), n = dayNo(k); const p = DAILY[((n % DAILY.length) + DAILY.length) % DAILY.length]; return { ...p, day: k, no: n + 1 }; }
+/* bài của ngày k (YYYY-MM-DD). 8 bài đầu (12–19/11) giữ nguyên như cũ; từ 20/11/2026 là kho khó (chiếu bí 3–5 nước) – DAILY chỉ được THÊM vào cuối, không xáo, để xem lại ngày cũ vẫn đúng bài */
+export function puzzleOf(k) { const n = dayNo(k); const p = DAILY[((n % DAILY.length) + DAILY.length) % DAILY.length]; return { ...p, day: k, no: n + 1 }; }
+export function today() { return puzzleOf(dayKey()); }
+/* 📚 các ngày từ bài #1 tới hôm nay (mới nhất trước) */
+export function pastDays() { const out = []; for (let i = 0; i < 400; i++) { const k = dayKey(Date.now() - i * 864e5); if (dayNo(k) < 0) break; out.push(k); } return out; }
+/* giải bù ngày cũ: đánh dấu đã giải, không tính chuỗi */
+export function markPast(k) { const d = state(); if (k === dayKey()) return markSolved(k); if (!d.done[k]) { d.done[k] = 1; ls.set(KEY, JSON.stringify(d)); } return { ...d, fresh: false }; }
 export function state() { let d = null; try { d = JSON.parse(ls.get(KEY)); } catch (e) {} d = d && typeof d === 'object' ? d : {}; d.done = d.done || {}; d.streak = d.streak || 0; d.best = d.best || 0; if (d.last && d.last !== dayKey() && d.last !== dayKey(Date.now() - 864e5)) d.streak = 0; return d; }
 // giải xong bài của ngày `k` (chỉ tính khi đúng là hôm nay)
 export function markSolved(k) {

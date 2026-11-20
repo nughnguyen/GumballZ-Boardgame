@@ -8,9 +8,9 @@ import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { record, recordEvent } from '../../shared/ui/stats.js?v=86';
+import { record, recordEvent } from '../../shared/ui/stats.js?v=87';
 
 const HIDE_MS = 900; /* 2 lá trượt giữ ngửa chừng này rồi úp lại */
 const LEVEL_LABEL = { easy: 'Dễ · 12 lá', medium: 'Vừa · 16 lá', hard: 'Khó · 24 lá' };

@@ -31,11 +31,54 @@
       '<div class="gmf-brand"><a class="gmf-logo" href="' + P + '" aria-label="Về trang chủ GumballZ Boardgame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="16" fill="#FACD33" stroke="#241A38" stroke-width="3"/><circle cx="32" cy="35" r="16" fill="#FF5A60" stroke="#241A38" stroke-width="3"/><path d="M22 24 Q25 21 29 20.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="25.5" cy="31" r="2.6" fill="#241A38"/><circle cx="38.5" cy="31" r="2.6" fill="#241A38"/><path d="M25 38 Q32 44.5 39 38" fill="none" stroke="#241A38" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q18 12 25 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="48" cy="15" r="4.5" fill="#B9A6FF" stroke="#241A38" stroke-width="2.5"/><circle cx="49" cy="49" r="3.5" fill="#2EC5B6" stroke="#241A38" stroke-width="2.5"/></svg><span class="gmf-name">GUMBALLZ<em>BOARDGAME</em></span></a>' +
       '<p>Board game &amp; game bài tiếng Việt — chơi online cùng bạn bè, miễn phí, không cần cài đặt.</p>' +
       '<div class="gmf-chips"><a href="#" data-feedback="">💌 Góp ý / báo lỗi</a><a href="#" data-donate class="donate">☕ Ủng hộ chủ web</a></div>' +
-      '<div class="gmf-social"><a class="facebook" href="https://www.facebook.com/hungnq188.2k5/" target="_blank" rel="noopener" aria-label="Facebook GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"></path></svg></a><a class="zalo" href="https://zalo.me/0388205003" target="_blank" rel="noopener" aria-label="Zalo 0388205003"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16L4 19h16"/></svg></a><a class="discord" href="https://dsc.gg/gumballz" target="_blank" rel="noopener" aria-label="Discord GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-discord" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"/></svg></a><a class="telegram" href="https://t.me/+EkTeXM7l96hiNjI1" target="_blank" rel="noopener" aria-label="Telegram GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-telegram" viewBox="0 0 16 16" aria-hidden="true"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg></a></div></div>' +
+      '<div class="gmf-social"><a class="facebook" href="https://www.facebook.com/hungnq188.2k5/" target="_blank" rel="noopener" aria-label="Facebook GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg></a><a class="zalo" href="https://zalo.me/0388205003" target="_blank" rel="noopener" aria-label="Zalo 0388205003"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.49 10.2722v-.4496h1.3467v6.3218h-.7704a.576.576 0 01-.5763-.5729l-.0006.0005a3.273 3.273 0 01-1.9372.6321c-1.8138 0-3.2844-1.4697-3.2844-3.2823 0-1.8125 1.4706-3.2822 3.2844-3.2822a3.273 3.273 0 011.9372.6321l.0006.0005zM6.9188 7.7896v.205c0 .3823-.051.6944-.2995 1.0605l-.03.0343c-.0542.0615-.1815.206-.2421.2843L2.024 14.8h4.8948v.7682a.5764.5764 0 01-.5767.5761H0v-.3622c0-.4436.1102-.6414.2495-.8476L4.8582 9.23H.1922V7.7896h6.7266zm8.5513 8.3548a.4805.4805 0 01-.4803-.4798v-7.875h1.4416v8.3548H15.47zM20.6934 9.6C22.52 9.6 24 11.0807 24 12.9044c0 1.8252-1.4801 3.306-3.3066 3.306-1.8264 0-3.3066-1.4808-3.3066-3.306 0-1.8237 1.4802-3.3044 3.3066-3.3044zm-10.1412 5.253c1.0675 0 1.9324-.8645 1.9324-1.9312 0-1.065-.865-1.9295-1.9324-1.9295s-1.9324.8644-1.9324 1.9295c0 1.0667.865 1.9312 1.9324 1.9312zm10.1412-.0033c1.0737 0 1.945-.8707 1.945-1.9453 0-1.073-.8713-1.9436-1.945-1.9436-1.0753 0-1.945.8706-1.945 1.9436 0 1.0746.8697 1.9453 1.945 1.9453z"/></svg></a><a class="discord" href="https://dsc.gg/gumballz" target="_blank" rel="noopener" aria-label="Discord GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg></a><a class="telegram" href="https://t.me/+EkTeXM7l96hiNjI1" target="_blank" rel="noopener" aria-label="Telegram GumballZ"><span></span><span></span><span></span><span></span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a></div></div>' +
       '<nav aria-label="Khám phá"><h3>Khám phá</h3><a href="' + P + '">Trang chủ</a><a href="' + P + 'sanh/">Sảnh chung</a><a href="#" data-foot-rank>🏆 Xếp hạng</a><a href="' + P + 'luat/">Luật chơi</a></nav>' +
       '<nav aria-label="Trợ giúp"><h3>Trợ giúp</h3><a href="' + P + 'gioi-thieu/">Giới thiệu</a><a href="' + P + 'credits/">Credits</a><a href="' + P + 'terms/">Điều khoản</a><a href="' + P + 'privacy/">Bảo mật</a></nav>' +
       '</div>' +
       '<div class="gmf-bot"><span>© 2026 GumballZ Boardgame</span>' + (isHome ? '<span id="foot-online">Đang online: —</span>' : '') + '</div>';
+    mountTopButton();
+  }
+
+  // Nút về đầu trang (.gmf-top): tạo 1 lần, gắn vào <body> (không nằm trong
+  // footer để không bị ảnh hưởng bởi layout footer). Vòng tiến độ: r=24 nên
+  // chu vi C = 2π×24 ≈ 150.8; dashoffset = C×(1 − p), với p = scrollY /
+  // (scrollHeight − clientHeight) — ở 50% trang offset = C/2 nên vòng chạy
+  // đúng 1/2 nút. Nút chỉ hiện sau khi cuộn > 400px; trang không cuộn được
+  // (max = 0) thì p = 0 và nút luôn ẩn, không lỗi.
+  var topBtn = null, topProg = null, TOP_C = 2 * Math.PI * 24;
+  function mountTopButton() {
+    if (document.getElementById('gmf-top')) return;
+    topBtn = document.createElement('button');
+    topBtn.type = 'button';
+    topBtn.id = 'gmf-top';
+    topBtn.className = 'gmf-top';
+    topBtn.setAttribute('aria-label', 'Về đầu trang');
+    topBtn.setAttribute('aria-hidden', 'true');
+    topBtn.innerHTML = '<svg class="gmf-top-ring" viewBox="0 0 56 56" aria-hidden="true"><circle class="gmf-top-track" cx="28" cy="28" r="24"/><circle class="gmf-top-prog" cx="28" cy="28" r="24"/></svg><span class="gmf-top-arrow" aria-hidden="true">↑</span>';
+    document.body.appendChild(topBtn);
+    topProg = topBtn.querySelector('.gmf-top-prog');
+    topProg.style.strokeDasharray = TOP_C;
+    topProg.style.strokeDashoffset = TOP_C;
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var de = document.scrollingElement || document.documentElement;
+      var max = de.scrollHeight - de.clientHeight;
+      var y = window.scrollY || window.pageYOffset || 0;
+      var p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      topProg.style.strokeDashoffset = TOP_C * (1 - p);
+      var show = y > 400;
+      topBtn.classList.toggle('on', show);
+      topBtn.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+    function onScroll() { if (!ticking) { ticking = true; window.requestAnimationFrame(update); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    topBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    });
+    update();
   }
 
   if (document.body) build();
@@ -52,6 +95,6 @@
     var r = e.target && e.target.closest ? e.target.closest('.gmf [data-foot-rank]') : null;
     if (!r) return;
     e.preventDefault();
-    import('./leaderboard.js?v=33').then(function (m) { m.openLeaderboard(); }).catch(function () { location.href = P; });
+    import('./leaderboard.js?v=34').then(function (m) { m.openLeaderboard(); }).catch(function () { location.href = P; });
   });
 })();

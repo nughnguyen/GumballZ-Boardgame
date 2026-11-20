@@ -8,7 +8,7 @@ import { botAction, botDelay, BOT_NAMES } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import { Sfx } from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
-import { gameKit, $, esc, cleanName, avatar } from '../../shared/ui/gamekit.js?v=11';
+import { gameKit, $, esc, cleanName, avatar } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox, confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const CANDY = ['🍓', '🍋', '🍏', '🫐', '🍇'];

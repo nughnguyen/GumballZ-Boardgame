@@ -534,12 +534,13 @@ let lastTick = 0;
 function frame() {
   requestAnimationFrame(frame);
   const cb = $('#clockbar');
-  if (!view) { cb.className = 'clockbar'; return; }
+  const setC = n => { if (cb.className !== n) cb.className = n; }; /* chỉ ghi khi khác */
+  if (!view) { setC('clockbar'); return; }
   const ck = view.clock, left = Math.max(0, clockEnd - Date.now()), frac = clockEnd ? left / clockTotal : 0;
-  const ns = $('#next-s'); if (ns) ns.textContent = ck && ck.kind === 'next' ? Math.ceil(left / 1000) + 's' : '';
-  if (!ck || ck.kind === 'next' || !clockEnd) { cb.className = 'clockbar'; $$('.seat .av.ring').forEach(a => a.classList.remove('ring')); return; }
+  const ns = $('#next-s'); if (ns) { const tx = ck && ck.kind === 'next' ? Math.ceil(left / 1000) + 's' : ''; if (ns.textContent !== tx) ns.textContent = tx; }
+  if (!ck || ck.kind === 'next' || !clockEnd) { setC('clockbar'); $$('.seat .av.ring').forEach(a => a.classList.remove('ring')); return; }
   const mine = (ck.pids || []).includes(myId) && myTurn(); const sec = Math.ceil(left / 1000);
-  cb.className = 'clockbar on' + (mine ? ' mine' : '') + (sec <= 5 ? ' low' : '');
+  setC('clockbar on' + (mine ? ' mine' : '') + (sec <= 5 ? ' low' : ''));
   cb.querySelector('i').style.width = (frac * 100).toFixed(1) + '%';
   cb.dataset.t = mine ? `⏱ ${sec}s` : '';
   for (const pid of ck.pids || []) { const a = seatAv(pid); if (a) { a.classList.add('ring'); a.style.setProperty('--p', (frac * 100).toFixed(1) + '%'); } }

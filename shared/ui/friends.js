@@ -1,5 +1,6 @@
 // 🤝 Bạn bè & Nhắn tin 1-1 + Mời vào bàn (cần đăng nhập tài khoản GumballZ).
-import { auth, friends } from '../net/api.js?v=27';
+import { auth, friends } from '../net/api.js?v=28';
+const amOwner = () => { const u = auth.user(); return !!(u && u.admin && +u.id === 1); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) */
 import { openLogin } from './account.js?v=50';
 import { confirmBox } from './dialog.js?v=6';
 
@@ -16,7 +17,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const hhmm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 const INV_RE = /\[invite:([a-z0-9]{2,16}):([A-Z0-9]{5})\]/g;
 
-const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:12px}
+const CSS = `.bf-ub{flex:none;border:0;border-radius:999px;background:#ffe9d6;color:#c2581f;font:800 12px/1 Nunito,sans-serif;padding:7px 11px;cursor:pointer}
+.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:12px}
 .bf-mod{width:min(760px,100%);height:min(620px,calc(100dvh - 24px));background:#fffaf3;color:#4A3E5C;border-radius:24px;box-shadow:0 24px 60px #0006;display:flex;flex-direction:column;overflow:hidden;font:600 14.5px/1.4 Nunito,system-ui,sans-serif}
 .bf-mod *{box-sizing:border-box}
 .bf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#FFFDF9;border-bottom:1.5px solid #ecdfd0;flex-wrap:wrap}
@@ -74,7 +76,7 @@ const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;dis
 .bf-pop-btns .sub{background:#f0e6da;color:#4A3E5C}
 #plist li[data-id],#g-players .pl[data-id],#g-chat b[data-id],.item .by[data-id],.lb li[data-id],.final li[data-id],.pod[data-id],.gains li[data-id],.who li[data-id],#msgs .m b[data-id],.seat .avatar,.seat .av,[data-gumballz-pid]{cursor:pointer}
 @media (max-width:640px){
-  .bf-body{grid-template-columns:1fr}
+  .bf-body{grid-template-columns:minmax(0,1fr)}.bf-side,.bf-chat{min-width:0}.bf-list>*{min-width:0;max-width:100%}
   .bf-mod[data-chat="0"] .bf-chat{display:none}
   .bf-mod[data-chat="1"] .bf-side{display:none}
   .bf-mod[data-chat="1"] .bf-bk{display:inline-block}
@@ -84,7 +86,7 @@ const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;dis
 .bf-panel-host .bf-body{flex:1;min-height:0}
 /* Nhúng vào khung chat Sảnh: 1 cột hẹp như điện thoại (danh sách ↔ đoạn chat) */
 .bf-embed{flex:1;min-height:0;display:flex;flex-direction:column}
-.bf-embed .bf-body{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+.bf-embed .bf-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .bf-embed[data-chat="0"] .bf-chat{display:none}
 .bf-embed[data-chat="1"] .bf-side{display:none}
 .bf-embed[data-chat="1"] .bf-bk{display:inline-block}`;
@@ -107,10 +109,21 @@ function setCount(n) {
   cachedCount = Math.max(0, +n || 0);
   try { dispatchEvent(new CustomEvent('gumballz-friends', { detail: { count: cachedCount } })); } catch (e) {}
 }
+/* 🚫 danh sách người mình đã chặn – nhớ ở máy để chat phòng / chat Sảnh ẩn tin của họ (roomchat.js, lobby.js đọc 'gumballz-blocked') */
+function saveBlocked(list) { const ids = (list || []).map(b => +b.id).filter(Boolean); try { localStorage.setItem('gumballz-blocked', JSON.stringify(ids)); } catch (e) {} try { dispatchEvent(new CustomEvent('gumballz-blocked', { detail: ids })); } catch (e) {} }
+export function isBlockedId(uid) { try { return (JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []).includes(+uid); } catch (e) { return false; } }
+async function setBlock(u, on) {
+  if (on && !(await confirmBox(`Chặn ${u.name}? Hai bạn sẽ không kết bạn / nhắn riêng được nữa và bạn không thấy tin chat của họ. Bỏ chặn lúc nào cũng được trong hộp 🤝 Bạn bè.`, { title: '🚫 Chặn người chơi', ok: 'Chặn', danger: true }))) return false;
+  const r = await friends.block(u.id, on);
+  if (!(r && r.ok)) { toast((r && r.msg) || 'Có lỗi xảy ra'); return false; }
+  await refreshUnread(); toast(on ? `Đã chặn ${u.name}.` : `Đã bỏ chặn ${u.name}.`);
+  try { const R = window.__gumballzRoom; R && R.reId && R.reId(); } catch (e) {} /* báo lại phòng đang chơi để máy chủ phòng cập nhật danh sách chặn */
+  return true;
+}
 export async function refreshUnread() {
   if (!auth.user()) { cachedList = null; cachedAt = 0; setCount(0); return 0; }
   const r = await friends.list();
-  if (r && r.ok) { cachedList = r; cachedAt = Date.now(); setCount((r.unread || 0) + (r.incoming ? r.incoming.length : 0)); }
+  if (r && r.ok) { saveBlocked(r.blocked); cachedList = r; cachedAt = Date.now(); setCount((r.unread || 0) + (r.incoming ? r.incoming.length : 0)); }
   return cachedCount;
 }
 export function mountFriendsPoll() {
@@ -220,7 +233,11 @@ export function showPlayerCard(target, anchorEl = null) {
       const isFr = (d.friends || []).some(f => f.id === info.uid);
       const isIn = (d.incoming || []).some(f => f.id === info.uid);
       const isOut = (d.outgoing || []).some(f => f.id === info.uid);
-      if (isFr) {
+      const isBlk = info.uid !== u.id && ((d.blocked || []).some(f => f.id === info.uid) || isBlockedId(info.uid));
+      if (isBlk) {
+        note = '🚫 Bạn đã chặn người này.';
+        btns = '<button type="button" class="sub" data-go="unblock">Bỏ chặn</button>';
+      } else if (isFr) {
         note = '🤝 Hai bạn đang là bạn bè.';
         btns = '<button type="button" class="dm" data-go="dm">💬 Nhắn tin riêng</button>';
       } else if (isIn) {
@@ -232,11 +249,14 @@ export function showPlayerCard(target, anchorEl = null) {
       } else {
         note = 'Kết bạn để rủ chơi chung và nhắn tin riêng mọi lúc!';
         btns = '<button type="button" class="pri" data-go="add">＋ Kết bạn</button>';
+        if (amOwner()) { note = '👑 Bạn là chủ web: nhắn riêng được dù chưa kết bạn.'; btns = '<button type="button" class="dm" data-go="dm">💬 Nhắn tin riêng</button>' + btns; }
       }
     }
-    pop.innerHTML = `<div class="bf-pop-hd"><span class="bf-av" style="background:${avCol(info.name)}">${esc([...info.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(info.name)}${info.host ? ' 👑' : ''}</b><small>${tag}</small></div></div><div class="bf-pop-note">${note}</div><div class="bf-pop-btns">${btns}</div>`;
+    pop.innerHTML = `<div class="bf-pop-hd"><span class="bf-av" style="background:${avCol(info.name)}">${esc([...info.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(info.name)}${info.host ? ' 👑' : ''}</b><small>${tag}</small></div></div><div class="bf-pop-note">${note}</div><div class="bf-pop-btns">${btns}${u && info.uid && info.uid !== u.id && !isBlockedId(info.uid) ? '<button type="button" class="sub" data-go="block">🚫 Chặn</button>' : ''}</div>`;
     place();
     pop.querySelector('[data-close]')?.addEventListener('click', close);
+    pop.querySelector('[data-go="block"]')?.addEventListener('click', async () => { close(); await setBlock({ id: info.uid, name: info.name }, true); });
+    pop.querySelector('[data-go="unblock"]')?.addEventListener('click', async () => { if (await setBlock({ id: info.uid, name: info.name }, false)) draw(); });
     pop.querySelector('[data-go="login"]')?.addEventListener('click', () => { close(); openLogin(); });
     pop.querySelector('[data-go="dm"]')?.addEventListener('click', () => { close(); openFriends(info.uid); });
     pop.querySelector('[data-go="accept"]')?.addEventListener('click', async e => {
@@ -297,7 +317,8 @@ export function mountPlayerClick() {
    phím Escape (hộp nổi / Sảnh tự xử lý); data-chat đặt trên .bf-mod gần nhất
    (hộp nổi) hoặc trên chính root (khi nhúng). */
 function createFriendsPanel(root, initialUid = null) {
-  let data = { friends: [], incoming: [], outgoing: [] };
+  let data = { friends: [], incoming: [], outgoing: [] }, extra = null; /* extra: người chưa kết bạn mà chủ web đang nhắn */
+  const withExtra = () => { if (extra && !(data.friends || []).some(f => f.id === extra.id)) data.friends = [extra, ...(data.friends || [])]; };
   let activeId = initialUid ? +initialUid : null;
   let msgs = [], lastId = 0, pollChat = 0, pollList = 0, closed = false, gen = 0;
 
@@ -310,7 +331,7 @@ function createFriendsPanel(root, initialUid = null) {
   async function loadList() {
     const r = await friends.list();
     if (!r || !r.ok) return;
-    data = r; cachedList = r; cachedAt = Date.now();
+    data = { ...r, friends: [...(r.friends || [])] }; cachedList = r; cachedAt = Date.now(); withExtra();
     setCount((r.unread || 0) + (r.incoming ? r.incoming.length : 0));
     drawSide();
   }
@@ -319,6 +340,7 @@ function createFriendsPanel(root, initialUid = null) {
     if (!activeId) return;
     const id = activeId, r = await friends.msgs(id, reset ? 0 : lastId);
     if (!r || !r.ok || closed || id !== activeId) return; /* đã đổi người chat trong lúc chờ: bỏ phản hồi cũ */
+    if (r.other && !(data.friends || []).some(f => f.id === r.other.id)) { extra = { ...r.other, dm: 1, last: null }; withExtra(); drawSide(); }
     const fresh = reset || !!(r.msgs && r.msgs.length);
     if (reset) msgs = r.msgs || [];
     else if (r.msgs && r.msgs.length) {
@@ -359,7 +381,7 @@ function createFriendsPanel(root, initialUid = null) {
       html += data.friends.map(f => {
         const prev = f.last ? (INV_RE.test(f.last.msg) ? '🎲 Lời mời vào bàn' : f.last.msg) : (f.username ? '@' + f.username : '#' + f.id);
         INV_RE.lastIndex = 0;
-        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
+        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}${f.owner ? ' <small style="color:#b8860b">👑 Chủ web</small>' : f.dm ? ' <small style="color:#8a7f96">· chưa kết bạn</small>' : ''}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
       }).join('');
     } else {
       html += '<div class="bf-empty" style="padding:14px 8px">Chưa có bạn bè nào.<br>Nhập <b>@tênđăngnhập</b> hoặc <b>#ID</b> ở trên, hoặc bấm <b>＋ Kết bạn</b> ngay trong chat phòng!</div>';
@@ -367,6 +389,10 @@ function createFriendsPanel(root, initialUid = null) {
     if (data.outgoing && data.outgoing.length) {
       html += '<div class="bf-sec">Đã gửi lời mời</div>';
       html += data.outgoing.map(p => `<div class="bf-it" style="cursor:default;opacity:.75"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>Đang chờ đồng ý…</small></div><button type="button" class="bf-rm" data-act="reject" data-id="${p.id}" title="Huỷ lời mời">✕</button></div>`).join('');
+    }
+    if (data.blocked && data.blocked.length) {
+      html += '<div class="bf-sec">🚫 Đã chặn</div>';
+      html += data.blocked.map(p => `<div class="bf-it" style="cursor:default;opacity:.75"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>${p.username ? '@' + esc(p.username) + ' · ' : ''}#${p.id}</small></div><button type="button" class="bf-ub" data-unblock="${p.id}" data-nm="${esc(p.name)}">Bỏ chặn</button></div>`).join('');
     }
     list.innerHTML = html;
   }
@@ -464,6 +490,8 @@ function createFriendsPanel(root, initialUid = null) {
         } else toast((r && r.msg) || 'Có lỗi xảy ra');
         return;
       }
+      const ub = e.target.closest('[data-unblock]');
+      if (ub) { e.stopPropagation(); if (await setBlock({ id: +ub.dataset.unblock, name: ub.dataset.nm || 'người này' }, false)) await loadList(); return; }
       const row = e.target.closest('[data-open]');
       if (row) {
         activeId = +row.dataset.open;

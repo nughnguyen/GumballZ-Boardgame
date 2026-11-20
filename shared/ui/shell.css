@@ -1,21 +1,13 @@
 /* 🧩 Khung chung GumballZ – nạp ở MỌI trang (trang chủ, trang phụ, từng game):
-   chuyển trang mượt, màn hình chờ có logo, nút "GumballZ" về trang chủ, hiệu ứng nhấn nút. */
-@import url("neo.css?v=16"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
+   chuyển trang mượt, nút "GumballZ" về trang chủ, hiệu ứng nhấn nút. */
+@import url("neo.css?v=17"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
 @view-transition{navigation:auto}
 ::view-transition-old(root){animation:.16s ease-in both gumballz-vt-out}
 ::view-transition-new(root){animation:.26s cubic-bezier(.2,.9,.3,1) both gumballz-vt-in}
 @keyframes gumballz-vt-out{to{opacity:0;transform:scale(.985)}}
 @keyframes gumballz-vt-in{from{opacity:0;transform:translateY(10px)}}
 
-/* màn hình chờ: chỉ hiện khi trang tải lâu hơn ~0,35 giây */
-#gumballz-splash{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#FFF8EE;opacity:0;pointer-events:none;animation:gumballz-sp-in .2s .35s forwards}
-#gumballz-splash.out{animation:none;opacity:0;transition:opacity .3s}
-#gumballz-splash i{display:block;width:92px;height:92px;background:url("../../favicon.svg?v=2") center/contain no-repeat;animation:gumballz-sp-b 1s cubic-bezier(.3,0,.3,1) infinite;filter:drop-shadow(3px 3px 0 rgba(74,62,92,.20))}
-#gumballz-splash b{position:absolute;left:50%;top:calc(50% + 74px);transform:translateX(-50%);width:120px;height:6px;border-radius:999px;background:#4A3E5C1a;overflow:hidden}
-#gumballz-splash b::after{content:"";position:absolute;inset:0;width:40%;border-radius:999px;background:linear-gradient(90deg,#FFB9CF,#FFD98E,#C9BDF3);animation:gumballz-sp-l 1s ease-in-out infinite}
-@keyframes gumballz-sp-in{to{opacity:1;pointer-events:auto}}
-@keyframes gumballz-sp-b{0%,100%{transform:translateY(0) rotate(-6deg) scale(1,1)}45%{transform:translateY(-22px) rotate(8deg) scale(.97,1.03)}90%{transform:translateY(0) rotate(-6deg) scale(1.06,.94)}}
-@keyframes gumballz-sp-l{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
 
 /* nút về trang chủ: giống nhau ở mọi game và trang phụ */
 .gumballz-chip{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:5px 14px 5px 6px!important;min-height:40px!important;box-sizing:border-box!important;border-radius:999px!important;background:#FFFDF9!important;color:#4A3E5C!important;font:800 15.5px/1 "Baloo 2",Nunito,system-ui,sans-serif!important;letter-spacing:.5px!important;text-decoration:none!important;text-shadow:none!important;border:1.5px solid #4A3E5C1a!important;box-shadow:3px 3px 0 rgba(74,62,92,.20)!important;transition:transform .15s!important;width:auto!important}
@@ -27,4 +19,7 @@
 @media (hover:hover){button:not(:disabled),a.btn,.btn{-webkit-tap-highlight-color:transparent}}
 button,a,.tile{-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:3px solid #4A3E5C;outline-offset:2px;border-radius:8px}
-@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}#gumballz-splash i,#gumballz-splash b::after{animation:none}}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
+
+/* 🧈 đang cuộn (feel.js gắn html.gumballz-scroll): tạm dừng hoạt ảnh CSS cho cuộn mượt */
+html.gumballz-scroll *,html.gumballz-scroll *::before,html.gumballz-scroll *::after{animation-play-state:paused!important}
