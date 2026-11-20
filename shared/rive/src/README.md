@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -174,6 +174,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `spyfall.riv` | 4942 B | Lá địa điểm lật lên thành bãi biển (mặt trời + sóng ngọc), lá gián điệp lật lên (mặt nạ mực + 2 mắt) rồi rung lắc, vòng ngắm đỏ chớp + sao vàng (180f = 3s) |
 | `sudoku.riv` | 7356 B | Lưới 9×9: 12 số cho sẵn (ô vuông mực), số mới (chấm đỏ) điền đúng vào ô trống, hàng + cột sáng vàng + sao vàng (180f = 3s) |
 | `wordle.riv` | 7061 B | Hàng trên: lượt đoán trước (xám/xanh/vàng/xám/xanh). Hàng dưới: lật từng ô (xanh/xanh/vàng/xám/xanh) → đúng từ, sao vàng bật lên (180f = 3s) |
+| `domi.riv` | 8407 B | Lưới mìn 9×9, con trỏ trượt tới ô (4,4) lật lên thành số 3, mìn hiện + cờ đỏ cắm vào, lá cờ phất + sao vàng nhấp, con trỏ trượt ra ngoài bàn (180f = 3s) |
+| `s2048.riv` | 8022 B | Lưới 4×4: 2 ô 2 trượt vào nhau thành ô 4 nảy lên + vòng hào quang, ô 8/16/32 đứng yên (180f = 3s) |
+| `matchu.riv` | 10713 B | 6 lá mạt chược úp: 2 lá tre lật lên khớp nhau, vòng vàng ôm + mờ đi, 4 lá còn lại úp (180f = 3s) |
+| `loveletter.riv` | 5372 B | Lá Công chúa (vương miện vàng, vòng vàng) + lá Vệ binh (bích) lật lên, mũi tên vàng từ Vệ binh chỉ sang Công chúa (180f = 3s) |
+| `sushigo.riv` | 7260 B | 3 lá sushi (maki/nigiri/tamago) lật lên thành bộ, 3 xu điểm bay lên + sao vàng (180f = 3s) |
+| `lay6.riv` | 6481 B | 4 hàng bài: lá thứ 6 trượt vào hàng 3 đã đầy 5 lá, cả hàng bay về phía người chơi + mờ đi, lá mới ở lại đầu hàng (180f = 3s) |
+| `saboteur.riv` | 6749 B | 3 lá đường hầm: lá giữa lật lên nối thông đường, lá kẻ phá hoại (mặt nạ) lật lên + rung lắc, vòng ngắm đỏ chớp (180f = 3s) |
+| `skull.riv` | 6588 B | 3 lá úp: lật lần lượt thành hoa, hoa, sọ; lá sọ rung lắc + vòng ngắm đỏ chớp + sao vàng (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -183,6 +191,35 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 8, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): domi 56, s2048 181, matchu 248, loveletter 296, sushigo 314,
+  lay6 552, saboteur 316, skull 304 (đều trên ngưỡng 50 — Dò Mìn thấp
+  nhất vì chuyển động chính là con trỏ + 1 ô lật + cờ phất trên nền lớn;
+  đã đo 2 lần (57 rồi 56, ổn định) sau khi dời nhịp con trỏ/lá cờ về
+  sau + tăng biên độ phất cờ 0.12→0.2 + sao vàng nhấp liên tục).
+- Trang chủ Playwright: **123/123 checks passed** (60 canvas mount + 60
+  thẻ `.has-riv` + 60 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 60 canvas, 60 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. 2 điểm đã kiểm và kết luận KHÔNG phải lỗi:
+  ảnh cuối vòng của Mạt Chược chỉ còn 2 vòng vàng rỗng (2 lá khớp đã mờ
+  đi đúng luật) và Lấy 6 chỉ còn lá mới ở đầu hàng (hàng cũ đã lấy đúng
+  luật) — ảnh pha ngẫu nhiên cho thấy đủ 2 lá tre ngửa khớp nhau và
+  5 lá vàng đang bay đi. 1 lỗi thật đã sửa trong lúc verify: mũi tên
+  Love Letter ban đầu chỉ SANG PHẢI (ngược hướng đoán) — đã lật đầu
+  mũi tên sang trái, chỉ từ Vệ binh sang Công chúa.
+- File .riv cũ 52 file không đổi (md5 khớp sau khi build lại toàn bộ;
+  chỉ domi.riv đổi 1 lần nữa khi dời nhịp + tăng biên độ, các file khác
+  vẫn khớp md5 — build xác định).
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 7
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 7, 2026-11-21)
 
