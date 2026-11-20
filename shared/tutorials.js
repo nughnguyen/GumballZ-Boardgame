@@ -1238,5 +1238,9 @@ export const TUT = {
  "dapenalty": {
   "name": "Đá Penalty — GumballZ Boardgame",
   "steps": []
+ },
+ "phitieu": {
+  "name": "Phi Tiêu — GumballZ Boardgame",
+  "steps": []
  }
 };

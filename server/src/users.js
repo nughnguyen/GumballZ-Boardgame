@@ -71,7 +71,7 @@ const VERIFIED_ACHS = [
   { id: 'k5', ok: t => t.kinds >= 5 }, { id: 'k10', ok: t => t.kinds >= 10 }, { id: 'k15', ok: t => t.kinds >= 15 },
   { id: 'k20', ok: t => t.kinds >= 20 }, { id: 'k24', ok: t => t.kinds >= 24 }, { id: 'k25', ok: t => t.kinds >= 25 },
   { id: 'k30', ok: t => t.kinds >= 30 }, { id: 'k35', ok: t => t.kinds >= 35 },
-  { id: 'c-allgames', ok: t => t.kinds >= 88 }, /* đủ 88 game trong GAME_NAMES (shared/ui/stats.js) */
+  { id: 'c-allgames', ok: t => t.kinds >= 89 }, /* đủ 89 game trong GAME_NAMES (shared/ui/stats.js) */
   { id: 'm10', ok: t => t.top >= 10 }, { id: 'c-w50', ok: t => t.top >= 50 }, { id: 'm25', ok: t => t.top >= 25 },
   { id: 'd3', ok: t => t.days >= 3 }, { id: 'd7', ok: t => t.days >= 7 }, { id: 'd14', ok: t => t.days >= 14 }, { id: 'd30', ok: t => t.days >= 30 },
   { id: 'd60', ok: t => t.days >= 60 }, { id: 'd100', ok: t => t.days >= 100 },

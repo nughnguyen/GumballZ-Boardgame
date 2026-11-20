@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect x="2" y="2" width="116" height="116" rx="26" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <circle cx="60" cy="60" r="44" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="3"/>
+  <g stroke="#4A3E5C" stroke-width="1.5">
+    <circle cx="60" cy="60" r="38" fill="none"/>
+    <circle cx="60" cy="60" r="22" fill="none"/>
+    <circle cx="60" cy="60" r="18" fill="none"/>
+    <circle cx="60" cy="60" r="8" fill="#FF6B6B"/>
+    <circle cx="60" cy="60" r="3.5" fill="#4A3E5C"/>
+  </g>
+  <g>
+    <path d="M60 60 L60 22 A38 38 0 0 1 77.2 27.2 Z" fill="#FF6B6B"/>
+    <path d="M60 60 L77.2 27.2 A38 38 0 0 1 90.5 41.6 Z" fill="#FFFDF9"/>
+    <path d="M60 60 L90.5 41.6 A38 38 0 0 1 96.5 60 Z" fill="#ABE0C6"/>
+    <path d="M60 60 L96.5 60 A38 38 0 0 1 90.5 78.4 Z" fill="#FFFDF9"/>
+    <path d="M60 60 L90.5 78.4 A38 38 0 0 1 77.2 92.8 Z" fill="#FF6B6B"/>
+    <path d="M60 60 L77.2 92.8 A38 38 0 0 1 60 98 Z" fill="#FFFDF9"/>
+    <path d="M60 60 L60 98 A38 38 0 0 1 42.8 92.8 Z" fill="#ABE0C6"/>
+    <path d="M60 60 L42.8 92.8 A38 38 0 0 1 29.5 78.4 Z" fill="#FFFDF9"/>
+    <path d="M60 60 L29.5 78.4 A38 38 0 0 1 23.5 60 Z" fill="#FF6B6B"/>
+    <path d="M60 60 L23.5 60 A38 38 0 0 1 29.5 41.6 Z" fill="#FFFDF9"/>
+    <path d="M60 60 L29.5 41.6 A38 38 0 0 1 42.8 27.2 Z" fill="#ABE0C6"/>
+    <path d="M60 60 L42.8 27.2 A38 38 0 0 1 60 22 Z" fill="#FFFDF9"/>
+  </g>
+  <g stroke="#4A3E5C" stroke-width="1" fill="none">
+    <circle cx="60" cy="60" r="38"/>
+    <circle cx="60" cy="60" r="22"/>
+    <circle cx="60" cy="60" r="18"/>
+  </g>
+  <g stroke="#4A3E5C" stroke-width="1.5">
+    <line x1="60" y1="60" x2="88" y2="88" stroke-linecap="round"/>
+    <line x1="88" y1="88" x2="96" y2="96" stroke="#FF6B6B" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <path d="M84 84 l8 8 M92 84 l-8 8" stroke="#4A3E5C" stroke-width="2" stroke-linecap="round"/>
+  <text x="60" y="14" text-anchor="middle" font-family="sans-serif" font-size="9" font-weight="bold" fill="#4A3E5C">20</text>
+</svg>

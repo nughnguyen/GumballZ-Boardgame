@@ -1,0 +1,45 @@
+/* 🎯 Phi Tiêu — kiểu riêng (đồng bộ pastel với các game khác) */
+.ph-topbar { flex-wrap: wrap; }
+.ph-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px;
+  padding: 10px 14px; margin: 12px 0; font-weight: 700; color: #4A3E5C;
+}
+.ph-stage .ph-status { color: #8B7E9E; font-weight: 600; }
+.ph-main { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.ph-board-wrap {
+  position: relative; width: 100%; max-width: 560px; margin: 0 auto;
+}
+.ph-board-wrap svg { display: block; width: 100%; height: auto; }
+.ph-board { cursor: crosshair; }
+.ph-board .ph-wedge { stroke: #4A3E5C; stroke-width: 1.5; }
+.ph-board .ph-num { font-family: "Baloo 2", sans-serif; font-weight: 800; fill: #FFFDF9; }
+.ph-board .ph-aim { stroke: #7C5CFF; stroke-width: 2; stroke-dasharray: 4 3; fill: none; pointer-events: none; }
+.ph-board .ph-mark { stroke: #4A3E5C; stroke-width: 2; pointer-events: none; }
+.ph-board .ph-mark text { font-family: "Baloo 2", sans-serif; font-weight: 800; fill: #FFFDF9; }
+.ph-prompt {
+  min-height: 26px; font-weight: 800; color: #4A3E5C; text-align: center;
+  font-size: 16px; margin-top: 4px;
+}
+.ph-visit { text-align: center; font-weight: 800; color: #4A3E5C; font-size: 15px; }
+.ph-visit .ph-dart { display: inline-block; min-width: 34px; padding: 2px 8px; margin: 0 3px; border-radius: 10px; background: #FFE3A3; border: 2px solid #4A3E5C; }
+.ph-visit .ph-dart.hit { background: #ABE0C6; }
+.ph-visit .ph-dart.miss { background: #FFB9CF; }
+.ph-side { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 10px; }
+.ph-side .ph-panel {
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px 12px;
+}
+.ph-panel-title { font-weight: 800; color: #4A3E5C; margin-bottom: 6px; }
+.ph-opp { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.ph-opp:first-child { border-top: none; }
+.ph-throw { padding: 3px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.ph-throw:first-child { border-top: none; }
+.ph-throw .good { color: #1E7D32; font-weight: 800; }
+.ph-throw .bad { color: #D61F4A; font-weight: 800; }
+.ph-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+.ph-log { font-size: 13px; color: #8B7E9E; min-height: 18px; text-align: center; }
+@media (max-width: 640px) {
+  .ph-topbar { flex-wrap: wrap; }
+  .ph-stage { font-size: 13px; padding: 8px 10px; }
+  .ph-prompt { font-size: 14px; }
+}
