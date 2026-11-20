@@ -3,6 +3,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
 import { statOf, titlesOf, pickTitle, levelOf } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
+import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
 
 const te = new TextEncoder();
 const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -156,7 +157,7 @@ export class Users extends DurableObject {
     const salt = rand(16), pw = await hashPw(password, salt);
     this.sql.exec('INSERT INTO users (username, name, pw, salt, created) VALUES (?,?,?,?,?)', username, nm, pw, salt, Date.now());
     const u = this.one('SELECT * FROM users WHERE username = ?', username);
-    return { ok: true, token: await this.session(u.id), user: this.pub(u) };
+    return { ok: true, token: await this.session(u.id), user: this.pub(u), new: true }; /* tài khoản mới tạo → web mở bước chọn nhân vật */
   }
   async login({ username, password }, ip) {
     if (await this.limited(ip)) return { ok: false, msg: 'Sai nhiều lần quá – đợi 15 phút rồi thử lại nha' };
@@ -171,13 +172,15 @@ export class Users extends DurableObject {
     const p = await verifyGoogle(credential, clientId).catch(() => null);
     if (!p) { await this.fail(ip); return { ok: false, msg: 'Không xác minh được tài khoản Google' }; }
     let u = this.one('SELECT * FROM users WHERE google = ?', p.sub);
+    let isNew = false;
     if (!u) {
       const nm = cleanName(p.given_name || p.name || 'Người chơi') || 'Người chơi';
       this.sql.exec('INSERT INTO users (name, google, email, created) VALUES (?,?,?,?)', nm.includes('*') ? 'Người chơi' : nm, p.sub, '', Date.now()); // không lưu email
       u = this.one('SELECT * FROM users WHERE google = ?', p.sub);
+      isNew = true;
     }
     if (u.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' };
-    return { ok: true, token: await this.session(u.id), user: this.pub(u) };
+    return { ok: true, token: await this.session(u.id), user: this.pub(u), new: isNew }; /* Google lần đầu → web mở bước chọn nhân vật */
   }
   async whoami(token) {
     if (!token || typeof token !== 'string' || token.length > 100) return null;
@@ -220,7 +223,13 @@ export class Users extends DurableObject {
       P.wal = { xu: Math.min(10000000, num(w.xu)), inv, own, eq, dbl: Math.min(99, num(w.dbl)), chest: Math.min(100000, num(w.chest)), at: num(w.at, 4e12) };
       changed = true;
     }
-    if (d.av && typeof d.av.e === 'string' && d.av.e.length <= 16 && num(d.av.t, 4e12) > num(P.av && P.av.t, 4e12)) { P.av = { e: d.av.e, c: num(d.av.c, 40), t: num(d.av.t, 4e12) }; changed = true; }
+    /* 🧸 Nhân vật: giữ đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên).
+       Bản mới hơn thì thắng; cùng thời gian thì bản đủ (có nhân vật) thắng bản thiếu — để tài khoản cũ
+       từng mất nhân vật tự lành khi máy chính đồng bộ lại. Bản thiếu {e:'ch'} không có nhân vật thì
+       không bao giờ được đè lên bản đủ (bản cũ của web trước đây chỉ gửi e/c/t nên mới mất nhân vật). */
+    { const nav = cleanAvatar(d.av), curT = num(P.av && P.av.t, 4e12);
+      const navOk = avatarUsable(nav), curOk = avatarUsable(P.av);
+      if (nav && (nav.t > curT || (nav.t === curT && navOk && !curOk)) && (navOk || !curOk)) { P.av = nav; changed = true; } }
     const op = d && typeof d.op === 'string' ? d.op.slice(0, 40) : '';
     if (op && op !== row.profOp && !(Array.isArray(P.ops) && P.ops.includes(op)) && JSON.stringify(d).length < 40000) {
       const add = d.add && typeof d.add === 'object' ? d.add : {};
@@ -248,7 +257,6 @@ export class Users extends DurableObject {
       if (num(d.lastT, 4e12) >= num(P.lastT, 4e12)) { P.streak = num(d.streak); P.lastT = num(d.lastT, 4e12); }
       if (d.night) P.night = 1;
       const f = num(d.first, 4e12); if (f && (!P.first || f < P.first)) P.first = f;
-      if (d.av && typeof d.av.e === 'string' && d.av.e.length <= 16 && num(d.av.t, 4e12) > num(P.av && P.av.t, 4e12)) P.av = { e: d.av.e, c: num(d.av.c, 40), t: num(d.av.t, 4e12) };
       this.sql.exec('UPDATE users SET profOp = ? WHERE id = ?', op, me.id);
       changed = true;
     }
@@ -517,7 +525,7 @@ export class Users extends DurableObject {
       const xp = p * 10 + w * 20;
       const lv = Math.min(10, Math.floor(Math.sqrt(xp / 50)) + 1);
       const rate = p > 0 ? Math.round((w / p) * 100) : 0;
-      const av = pf.av && typeof pf.av === 'object' ? { e: String(pf.av.e || '🐱').slice(0, 8), c: +pf.av.c || 0 } : null;
+      const av = cleanAvatar(pf.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) để bảng xếp hạng hiện đúng nhân vật */
       const safeName = clean(String(r.name || 'Người chơi')).text || 'Người chơi';
       entries.push({ id: r.id, username: r.username || null, name: safeName, p, w, xp, lv, best, rate, av, _pf: pf, _c: r.created });
     }
@@ -545,7 +553,7 @@ export class Users extends DurableObject {
     P = P && typeof P === 'object' ? P : {};
     const ranks = await this.ranks(), rank = ranks.get(u.id) || 0, st = statOf(P, { created: u.created, rank }), lv = levelOf(st.p, st.w), titles = titlesOf(st), t = pickTitle(titles, P.title);
     const games = Object.keys(st.plays).sort((a, b) => st.plays[b] - st.plays[a]).slice(0, 8).map(g => ({ g, p: st.plays[g], w: st.wins[g] || 0 }));
-    const av = P.av && typeof P.av === 'object' ? { e: String(P.av.e || '🐱').slice(0, 8), c: +P.av.c || 0 } : null;
+    const av = cleanAvatar(P.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) */
     /* không trả cờ quản trị: ai là quản trị viên không phải thứ cần cho cả làng biết (đỡ bị dò mật khẩu) */
     return { ok: true, user: { id: u.id, username: u.username || null, name: clean(String(u.name || 'Người chơi')).text || 'Người chơi', created: u.created, av,
       lv: lv.lv, lvName: lv.name, xp: lv.xp, p: st.p, w: st.w, rate: st.p ? Math.round(st.w / st.p * 100) : 0, best: st.best, days: st.days, kinds: st.kinds, rank, total: this.rankTotal || 0,

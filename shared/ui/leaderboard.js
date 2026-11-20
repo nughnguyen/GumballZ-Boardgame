@@ -2,9 +2,9 @@
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
 import { auth, leaderboard } from '../net/api.js?v=27';
 import { GAME_NAMES } from './stats.js?v=86';
-import { AVATARS } from './profile.js?v=46';
-import { openLogin } from './account.js?v=49';
-import { syncNow } from './sync.js?v=44';
+import { AVATARS, avatarHTML, safeAv } from './profile.js?v=47';
+import { openLogin } from './account.js?v=50';
+import { syncNow } from './sync.js?v=45';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=3';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
 const titleHow = t => { if (!t) return ''; if (t.id && String(t.id).startsWith('g-')) { const g = String(t.id).slice(2); return `Thắng ${GAME_WINS} ván ${GAME_NAMES[g] || g}`; } const f = ALL_TITLES.find(x => x.id === t.id); return f ? f.desc : (t.desc || ''); };
@@ -63,6 +63,7 @@ function injectCss() {
 }
 
 function avFor(r) {
+  if (r.av && (r.av.kind || (r.av.ch && r.av.ch.kind))) return avatarHTML(40, safeAv(r.av, 0)); /* nhân vật 3D đã đồng bộ theo tài khoản */
   if (r.av && AVATARS.includes(r.av.e)) {
     const c = BG[(+r.av.c || 0) % BG.length];
     return `<span class="rk-av" style="background:linear-gradient(135deg,${c})">${r.av.e}</span>`;

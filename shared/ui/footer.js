@@ -52,6 +52,6 @@
     var r = e.target && e.target.closest ? e.target.closest('.gmf [data-foot-rank]') : null;
     if (!r) return;
     e.preventDefault();
-    import('./leaderboard.js?v=32').then(function (m) { m.openLeaderboard(); }).catch(function () { location.href = P; });
+    import('./leaderboard.js?v=33').then(function (m) { m.openLeaderboard(); }).catch(function () { location.href = P; });
   });
 })();

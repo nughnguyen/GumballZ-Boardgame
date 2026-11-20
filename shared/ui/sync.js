@@ -10,7 +10,8 @@
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=27';
 import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=86';
-import { snapshot, adoptServer } from './wallet.js?v=1'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
+import { snapshot, adoptServer } from './wallet.js?v=2'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
+import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };
@@ -38,7 +39,7 @@ export async function syncNow() {
     ls.set(META, JSON.stringify(m));
     let av = null; try { av = JSON.parse(ls.get(AV)); } catch (e) {}
     const TT = 'gumballz-title', TTT = 'gumballz-title-t';
-    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace && av && av.e ? { e: av.e, c: num(av.c), t: num(av.t) } : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot() }; /* danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian */
+    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace ? cleanAvatar(av) : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot() }; /* nhân vật: gửi đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên) · danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian */
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
     let r; try { r = await (await fetch(API() + '/auth/profile', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body), signal: ctl.signal })).json(); } finally { clearTimeout(to); }
     if (!r || !r.ok || !r.prof) return; /* lỗi mạng / hết phiên: giữ gói đang gửi dở, lần sau gửi lại */
@@ -61,7 +62,7 @@ export async function syncNow() {
     ls.set(STATS, JSON.stringify(out));
     const base = {}; for (const g in P.g || {}) base[g] = { p: num(P.g[g].p), w: num(P.g[g].w) };
     ls.set(META, JSON.stringify({ uid: u.id, base, at: Date.now() }));
-    if (P.av && P.av.e && (m.replace || num(P.av.t) > num(av && av.t))) { ls.set(AV, JSON.stringify(P.av)); try { dispatchEvent(new CustomEvent('gumballz-avatar', { detail: { fromSync: true } })); } catch (e) {} }
+    if (avatarUsable(P.av) && (m.replace || num(P.av.t) > num(av && av.t))) { ls.set(AV, JSON.stringify(cleanAvatar(P.av))); try { dispatchEvent(new CustomEvent('gumballz-avatar', { detail: { fromSync: true } })); } catch (e) {} } /* nhân vật ở máy khác mới hơn thì nhận — bản thiếu {e:'ch'} không có nhân vật thì bỏ qua, không đè nhân vật ở máy này (đó là vòng lặp khiến F5 lại ra nhân vật khác) */
     if (typeof P.title === 'string' && num(P.titleT) > num(ls.get(TTT))) { ls.set(TT, P.title); ls.set(TTT, String(num(P.titleT))); } /* danh hiệu chọn ở máy khác mới hơn */
     try { dispatchEvent(new CustomEvent('gumballz-stats-sync')); } catch (e) {}
   } catch (e) { /* thử lại ở lần sau */ } finally { busy = false; if (again) { again = false; syncSoon(1500); } }

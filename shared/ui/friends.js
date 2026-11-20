@@ -1,6 +1,6 @@
 // 🤝 Bạn bè & Nhắn tin 1-1 + Mời vào bàn (cần đăng nhập tài khoản GumballZ).
 import { auth, friends } from '../net/api.js?v=27';
-import { openLogin } from './account.js?v=49';
+import { openLogin } from './account.js?v=50';
 import { confirmBox } from './dialog.js?v=6';
 
 const ROOT = new URL('../../', import.meta.url).href;

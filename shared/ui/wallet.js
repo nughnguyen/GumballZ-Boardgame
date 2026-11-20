@@ -17,7 +17,7 @@ const emit = () => { try { if (typeof dispatchEvent !== 'undefined') dispatchEve
 const blank = () => ({ xu: START_XU, inv: {}, own: [], eq: { back: '' }, dbl: 0, chest: 0, at: 0 });
 export function loadWallet() {
   let w = null; try { w = JSON.parse(ls.get(KEY)); } catch (e) {}
-  if (!w || typeof w !== 'object') { w = blank(); w.at = Date.now(); ls.set(KEY, JSON.stringify(w)); return w; }
+  if (!w || typeof w !== 'object') { w = blank(); ls.set(KEY, JSON.stringify(w)); return w; } /* ví mới chưa có giao dịch nào: at = 0 — để ví trên tài khoản (nếu có) thắng khi đồng bộ, và ví trống không bao giờ đè ví thật trên máy chủ (trước đây at = giờ mở ví lần đầu nên máy mới đăng nhập là xoá sạch xu đã kiếm ở máy kia) */
   w.xu = num(w.xu); w.inv = w.inv && typeof w.inv === 'object' ? w.inv : {}; w.own = Array.isArray(w.own) ? w.own : [];
   w.eq = w.eq && typeof w.eq === 'object' ? w.eq : {}; w.dbl = num(w.dbl); w.chest = num(w.chest); w.at = num(w.at);
   for (const k of Object.keys(w.inv)) w.inv[k] = num(w.inv[k]);

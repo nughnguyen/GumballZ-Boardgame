@@ -2,7 +2,7 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
 import { auth } from '../net/api.js?v=27';
 import { promptBox, formBox } from './dialog.js?v=8';
-import { avatarHTML, profileCss, openProfile } from './profile.js?v=46';
+import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=47';
 
 const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
 .ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
@@ -41,7 +41,7 @@ function loadGsi() { return gsi || (gsi = new Promise((res, rej) => { const s = 
 // không thì toast — One Tap không có hộp nên không được chạm vào biến box.
 async function onGoogleCredential(resp) {
   const r = await auth.google(resp.credential);
-  if (r.ok) { closeModal(); toast(`Chào ${r.user.name} 👋`); return; }
+  if (r.ok) { closeModal(); if (r.new) { openCharSetup(); return; } toast(`Chào ${r.user.name} 👋`); return; }
   const errEl = document.querySelector('#ac-e');
   if (errEl) errEl.textContent = r.msg || 'Không đăng nhập được bằng Google';
   else toast(r.msg || 'Không đăng nhập được bằng Google');
@@ -98,7 +98,7 @@ export async function openLogin(mode = 'login') {
     let ts = ''; if (mode === 'register') { const { humanToken } = await import('./turnstile.js?v=1').catch(() => ({})); if (humanToken) ts = await humanToken('register'); } /* 🛡️ Turnstile: chống bơm tài khoản rác (chưa cài khoá thì rỗng, máy chủ bỏ qua) */
     const r = mode === 'register' ? await auth.register(u, p, box.querySelector('#ac-name').value.trim(), ts) : await auth.login(u, p);
     go.disabled = false;
-    if (r.ok) { closeModal(); toast(`Chào ${r.user.name} 👋`); } else err.textContent = r.msg || 'Có lỗi, thử lại nha';
+    if (r.ok) { closeModal(); if (mode === 'register') openCharSetup(); else toast(`Chào ${r.user.name} 👋`); } else err.textContent = r.msg || 'Có lỗi, thử lại nha';
   };
   // Google (nếu chủ web đã bật)
   const g = await initGoogle();

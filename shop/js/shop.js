@@ -1,7 +1,7 @@
 // 🛍️ Cửa hàng — mua vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và mở rương Gacha bằng xu ảo.
 // Tiền ảo, không nạp, không rút, không tiền thật. Mọi giá và tỉ lệ rơi lấy từ shared/ui/wallet.js.
-import { loadWallet, balance, fmt, spend, grantItem, grantCosmetic, owns, widOf, stock, ITEM_DEFS, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=1';
-import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=46';
+import { loadWallet, balance, fmt, spend, grantItem, grantCosmetic, owns, widOf, stock, ITEM_DEFS, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=2';
+import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=47';
 import { FRAMES, NAME_COLORS } from '../../shared/js/avatar-rewards.js';
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
 import { toast } from '../../shared/ui/dialog.js?v=8';

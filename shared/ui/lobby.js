@@ -3,7 +3,7 @@
 // openLobby(game) – mở dạng hộp nổi (dùng trong trang game)
 import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=27';
 export const LV_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ']; /* trùng LEVELS trong stats.js */
-import { openLogin } from './account.js?v=49';
+import { openLogin } from './account.js?v=50';
 import { promptBox, chooseBox } from './dialog.js?v=8';
 
 const ROOT = new URL('../../', import.meta.url).href;
@@ -175,7 +175,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=32').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=33').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
     const list = rooms.filter(r => filter === 'all' || r.game === filter);
