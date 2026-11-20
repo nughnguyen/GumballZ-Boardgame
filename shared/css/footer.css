@@ -6,7 +6,7 @@
 .gmf-band-in{max-width:1020px;margin:0 auto;padding:26px 18px;display:flex;align-items:center;gap:24px;justify-content:space-between}
 .gmf-band h2{margin:0;font:400 30px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;letter-spacing:.5px}
 .gmf-band p{margin:6px 0 0;font-size:15px;font-weight:800}
-.gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:#FFB98A;color:#4A3E5C;text-decoration:none;font:400 17px/1.2 "Bungee","Baloo 2",Nunito,sans-serif;border:3px solid #4A3E5C;box-shadow:4px 4px 0 rgba(74,62,92,.18);transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
+.gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:#FFB98A;color:#4A3E5C;text-decoration:none;font:400 17px/1.2 "Bungee","Baloo 2",Nunito,sans-serif;border:3px solid #4A3E5C;box-shadow:4px 4px 0 rgba(74,62,92,.18);transition:background .15s ease,transform .15s ease,box-shadow .15s ease;box-sizing:border-box}
 .gmf-cta:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(74,62,92,.18)}
 .gmf-cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(74,62,92,.18)}
 .gmf-in{max-width:1020px;margin:0 auto;padding:36px 18px 10px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px 36px}
