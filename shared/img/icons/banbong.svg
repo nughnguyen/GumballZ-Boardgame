@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#AFD8F3"/>
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round">
+    <!-- bricks: 2 rows -->
+    <rect x="22" y="20" width="22" height="12" rx="3" fill="#FF5CA8"/>
+    <rect x="48" y="20" width="22" height="12" rx="3" fill="#FFE45C"/>
+    <rect x="74" y="20" width="22" height="12" rx="3" fill="#5CB85C"/>
+    <rect x="35" y="36" width="22" height="12" rx="3" fill="#B388F5"/>
+    <rect x="61" y="36" width="22" height="12" rx="3" fill="#FFB98A"/>
+    <!-- cracked hard brick -->
+    <rect x="48" y="56" width="22" height="12" rx="3" fill="#8B7E9E"/>
+    <path d="M54 56 l4 6 -3 6 M64 56 l-3 5 4 7" fill="none" stroke="#FFFDF9" stroke-width="2"/>
+    <!-- ball -->
+    <circle cx="76" cy="80" r="8" fill="#FFFDF9"/>
+    <circle cx="73" cy="77" r="2.5" fill="#FF5CA8"/>
+    <!-- paddle -->
+    <rect x="30" y="98" width="60" height="10" rx="5" fill="#FFE45C"/>
+    <!-- motion arc -->
+    <path d="M84 72 q10 -8 12 -20" fill="none" stroke="#4A3E5C" stroke-width="2" stroke-dasharray="4 4"/>
+  </g>
+</svg>

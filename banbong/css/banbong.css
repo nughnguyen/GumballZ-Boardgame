@@ -1,0 +1,17 @@
+/* Bắn Bóng — phong cách chung của site (xem tetris/ransanmoi làm mẫu). */
+.bb-topbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:8px 12px; background:#FFF6E3; border:2px solid #4A3E5C; border-radius:14px; margin-bottom:10px; box-shadow:3px 3px 0 #4A3E5C; }
+.bb-topbar .t{ font-weight:800; font-size:20px; }
+.bb-topbar .sp{ flex:1; }
+.bb-topbar .chip{ background:#FFE3A3; border:2px solid #4A3E5C; border-radius:999px; padding:3px 10px; font-weight:700; font-size:14px; }
+.bb-canvas { display:block; width:min(100%, 480px); margin:0 auto; touch-action:none; user-select:none; -webkit-user-select:none; }
+.bb-hint{ text-align:center; color:#8B7E9E; font-size:13px; margin-top:8px; }
+.bb-opps{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:10px; }
+.bb-opp{ background:#FFFDF9; border:2px solid #4A3E5C; border-radius:10px; padding:6px 10px; font-weight:700; font-size:14px; box-shadow:2px 2px 0 #4A3E5C; }
+.bb-opp .dead{ color:#C2185B; }
+.bb-controls{ display:flex; gap:8px; justify-content:center; margin-top:10px; }
+.bb-controls .btn{ min-width:96px; }
+.bb-kbd-hint{ font-size:13px; color:#8B7E9E; text-align:center; margin-top:6px; }
+@media (max-width:640px){
+  .bb-topbar{ flex-wrap:wrap; }
+  .bb-topbar .t{ font-size:17px; }
+}

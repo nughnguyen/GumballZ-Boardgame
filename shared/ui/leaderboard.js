@@ -1,7 +1,7 @@
 // 🏆 Bảng xếp hạng toàn server GumballZ: lọc theo Tất cả game hoặc từng game, xếp theo Điểm XP / Ván thắng / Chuỗi thắng.
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
 import { auth, leaderboard } from '../net/api.js?v=27';
-import { GAME_NAMES } from './stats.js?v=76';
+import { GAME_NAMES } from './stats.js?v=77';
 import { AVATARS } from './profile.js?v=45';
 import { openLogin } from './account.js?v=49';
 import { syncNow } from './sync.js?v=44';

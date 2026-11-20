@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bắn Bóng · GumballZ Boardgame</title>
+<meta property="og:title" content="Bắn Bóng · GumballZ Boardgame">
+<meta property="og:description" content="Phá gạch bằng bóng và vợt — chơi đơn, đấu máy, online hoặc chung máy!">
+<meta property="og:image" content="../shared/img/og/banbong.jpg">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="css/banbong.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="../shared/ui/footer.js?v=9"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <button class="btn ghost" id="btn-leave">🏠</button>
+    <h1 class="logo">🏀 Bắn Bóng</h1>
+    <div class="sp"></div>
+    <button class="btn ghost" id="btn-guide">📖 Luật</button>
+    <button class="btn ghost" id="btn-sound">🔊</button>
+  </header>
+  <main>
+    <section id="screen-home" class="screen active home-card">
+      <h2>🏀 Bắn Bóng</h2>
+      <p class="tagline">Đỡ bóng, phá gạch — đừng để bóng rơi!</p>
+      <div class="field">
+        <label for="name">Tên của bạn</label>
+        <input id="name" type="text" maxlength="20" placeholder="Nhập tên...">
+      </div>
+      <div class="btns">
+        <button class="btn big" id="btn-solo">🎯 Chơi đơn</button>
+        <button class="btn big" id="btn-vs-bot">🤖 Đấu máy</button>
+        <button class="btn big" id="btn-online">🌐 Online</button>
+        <button class="btn big" id="btn-local">👥 Chung máy</button>
+      </div>
+      <div id="solo-row" class="row" style="display:none">
+        <button class="btn" id="btn-start-solo">▶ Bắt đầu</button>
+      </div>
+      <div id="bot-row" class="row" style="display:none">
+        <label for="sel-level">Độ khó máy</label>
+        <select id="sel-level">
+          <option value="easy">Dễ</option>
+          <option value="hard" selected>Khó</option>
+        </select>
+        <button class="btn" id="btn-start-bot">▶ Đấu máy</button>
+      </div>
+      <div id="online-row" class="row" style="display:none">
+        <button class="btn" id="btn-create">➕ Tạo phòng</button>
+        <input id="join-code" type="text" maxlength="6" placeholder="Mã phòng">
+        <button class="btn" id="btn-join">🚪 Vào phòng</button>
+      </div>
+      <div id="local-row" class="row" style="display:none">
+        <label for="inp-p2name">Tên người chơi 2</label>
+        <input id="inp-p2name" type="text" maxlength="20" placeholder="Người chơi 2">
+        <button class="btn" id="btn-start-local">▶ Chơi chung máy</button>
+      </div>
+      <div id="room-box" class="row" style="display:none"></div>
+    </section>
+    <section id="screen-lobby" class="screen">
+      <h2>🕹️ Sảnh chờ</h2>
+      <p class="tagline">Chia sẻ mã phòng cho bạn bè</p>
+      <div class="code-box" id="code-box"></div>
+      <div class="room-code-line">Mã phòng: <b id="room-code"></b> <button class="btn small" id="btn-copy">📋 Sao chép</button></div>
+      <div id="lobby-list" class="lobby-list"></div>
+      <div class="btns">
+        <button class="btn big" id="btn-start-online">▶ Bắt đầu</button>
+        <button class="btn ghost" id="btn-leave-lobby">🏠 Rời sảnh</button>
+      </div>
+    </section>
+    <section id="screen-game" class="screen">
+      <div class="bb-topbar">
+        <span class="t">🏀 <span id="bb-mode">Chơi đơn</span></span>
+        <span class="chip">⭐ Điểm: <span id="bb-score">0</span></span>
+        <span class="chip">🧱 Gạch: <span id="bb-bricks">60</span></span>
+        <span class="chip">❤️ Mạng: <span id="bb-lives">3</span></span>
+        <span class="chip" id="bb-time-chip">⏱️ <span id="bb-time">—</span></span>
+        <span class="sp"></span>
+        <button class="btn small ghost" id="btn-pause">⏸️ Tạm dừng</button>
+        <button class="btn small ghost" id="btn-resign">🏳️ Xin thua</button>
+      </div>
+      <canvas class="bb-canvas" id="bb-canvas" width="480" height="640"></canvas>
+      <div class="bb-hint">Kéo chuột / chạm kéo để di chuyển vợt • phím ◀ ▶ hoặc A / D (chung máy: P2 dùng A / D)</div>
+      <div class="bb-opps" id="bb-opps"></div>
+      <div class="bb-controls">
+        <button class="btn" id="bb-left">◀</button>
+        <button class="btn" id="bb-right">▶</button>
+      </div>
+      <div class="bb-kbd-hint">Trên điện thoại: chạm vào nút ◀ ▶ hoặc kéo vợt trực tiếp trên sân</div>
+    </section>
+    <section id="screen-end" class="screen">
+      <h2 id="end-title">🏆 Kết thúc!</h2>
+      <div id="end-summary" class="end-summary"></div>
+      <div class="btns">
+        <button class="btn big" id="btn-again">🔄 Chơi lại</button>
+        <button class="btn ghost" id="btn-home">🏠 Về trang chính</button>
+      </div>
+    </section>
+  </main>
+  <footer class="gmf"></footer>
+</div>
+<div id="modal"><div id="modal-box"></div></div>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>
