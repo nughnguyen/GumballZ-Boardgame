@@ -1202,5 +1202,9 @@ export const TUT = {
  "vetruyentin": {
   "name": "Vẽ Truyền Tin — GumballZ Boardgame",
   "steps": []
+ },
+ "tetris": {
+  "name": "Tetris — GumballZ Boardgame",
+  "steps": []
  }
 };

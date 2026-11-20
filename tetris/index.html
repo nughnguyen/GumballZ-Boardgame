@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tetris — GumballZ Boardgame</title>
+<meta name="description" content="Tetris — xếp các khối rơi thành hàng ngang để xoá hàng, ghi điểm. Chơi đơn tới 100 hàng, đua 40 hàng với máy hoặc bạn bè online!">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="css/tetris.css?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+window.GAME_META = { game: 'tetris', name: 'Tetris', gid: 'tetris', color: '#00B8A9', icon: '🧱' };
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar tt-topbar">
+    <a class="logo" href="../index.html">🎲 GumballZ</a>
+    <span class="game-name">🧱 Tetris</span>
+    <span class="spacer"></span>
+    <div class="tools">
+      <button class="btn small" id="btn-guide-top">📖 Luật chơi</button>
+      <button class="btn small" id="btn-sound">🔊 Âm thanh</button>
+      <button class="btn small danger" id="btn-leave">🏠 Về trang chủ</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- MÀN HÌNH TRANG CHỦ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-card">
+        <div class="home-icon">🧱</div>
+        <h1>Tetris</h1>
+        <p class="tagline">Xếp khối rơi thành hàng ngang — xoá càng nhiều cùng lúc càng nhiều điểm!</p>
+        <p class="desc">Khối rơi từ trên xuống, xếp cho đầy hàng ngang để xoá. Xoá 4 hàng 1 lúc (Tetris) được 800đ × level. Chơi đơn tới 100 hàng, đua 40 hàng với máy hoặc bạn bè!</p>
+        <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+        <div class="mode-grid tt-mode-grid">
+          <button class="btn big primary" id="btn-solo">🧍 Chơi đơn</button>
+          <button class="btn big" id="btn-vs-bot">🤖 Đấu với máy</button>
+          <button class="btn big" id="btn-online">🌐 Chơi online</button>
+          <button class="btn big" id="btn-local">👥 2 người cùng máy</button>
+        </div>
+        <div class="solo-row" id="solo-row" style="display:none">
+          <label>Độ khó máy (chỉ dùng khi đấu máy):
+            <select id="sel-solo-level">
+              <option value="easy">Dễ</option>
+              <option value="hard" selected>Khó</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-solo">▶ Bắt đầu</button>
+          <p class="hint">Chơi đơn: xếp tới khi chạm nóc. Xoá đủ 100 hàng (lên level 10) thì thắng ngay!</p>
+        </div>
+        <div class="bot-row" id="bot-row" style="display:none">
+          <label>Độ khó máy:
+            <select id="sel-level">
+              <option value="easy">Dễ (đi chậm, hay đặt bừa)</option>
+              <option value="hard" selected>Khó (đi nhanh, đặt tốt nhất)</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-bot">▶ Bắt đầu</button>
+          <p class="hint">Đua 40 hàng: ai xoá đủ 40 hàng trước thì thắng. Không có hàng rác.</p>
+        </div>
+        <div class="room-box" id="room-box" style="display:none">
+          <div class="join-row">
+            <input id="join-code" type="text" placeholder="Nhập mã phòng (VD: ABC12)" maxlength="5">
+            <button class="btn" id="btn-join">Vào phòng</button>
+          </div>
+          <button class="btn primary" id="btn-create">＋ Tạo phòng mới</button>
+          <p class="hint">Chia sẻ mã phòng cho bạn bè để cùng đua 40 hàng (2–4 người).</p>
+        </div>
+        <div class="local-row" id="local-row" style="display:none">
+          <label>Tên người chơi 2:
+            <input id="inp-p2name" maxlength="16" placeholder="Bạn 2" value="Bạn 2">
+          </label>
+          <button class="btn primary" id="btn-start-local">▶ Bắt đầu</button>
+          <p class="hint">2 người chung 1 bàn phím: người 1 dùng ← → ↓ ↑ + Enter + Shift phải; người 2 dùng A D S W + Space + Q. Chỉ tiện trên máy tính.</p>
+        </div>
+        <div class="home-links">
+          <button class="btn small" id="btn-guide-home">📖 Luật chơi</button>
+          <a class="btn small" href="../luat/tetris.html">📜 Luật chi tiết</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH SẢNH CHỜ -->
+    <section class="screen" id="screen-lobby">
+      <div class="card">
+        <h2>🚪 Sảnh chờ</h2>
+        <p>Mã phòng: <b id="room-code">—</b></p>
+        <div id="code-box" class="code-box"></div>
+        <div class="lobby-actions">
+          <button class="btn" id="btn-copy">📋 Sao chép mã</button>
+          <button class="btn danger" id="btn-leave-lobby">Rời phòng</button>
+        </div>
+        <div id="lobby-list" class="lobby-list"></div>
+        <button class="btn primary big" id="btn-start-online">▶ Bắt đầu ván</button>
+        <p class="hint">Chỉ chủ phòng mới bắt đầu được. Đua cần ít nhất 2 người.</p>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH CHƠI -->
+    <section class="screen" id="screen-game">
+      <div class="tt-stage">
+        <span class="tt-score">⭐ <b id="tt-score">0</b> điểm</span>
+        <span class="tt-lines">🧱 <b id="tt-lines">0</b> hàng</span>
+        <span class="tt-level">🎚️ Lv <b id="tt-level">1</b></span>
+        <span class="tt-status" id="tt-status"></span>
+      </div>
+      <div class="tt-main">
+        <div class="tt-side">
+          <div class="tt-panel"><div class="tt-panel-title">Giữ (C)</div><div id="tt-hold"></div></div>
+          <div class="tt-panel"><div class="tt-panel-title">Tiếp theo</div><div id="tt-next"></div></div>
+          <div class="tt-panel"><div class="tt-panel-title">Đối thủ</div><div id="tt-opps"></div></div>
+        </div>
+        <div id="tt-boards"><div class="tt-well" id="tt-well"></div></div>
+      </div>
+      <div class="tt-touch" id="tt-touch">
+        <button class="btn" id="btn-left">◀</button>
+        <button class="btn" id="btn-right">▶</button>
+        <button class="btn" id="btn-rotate">⟳ Xoay</button>
+        <button class="btn" id="btn-down">▼ Rơi mềm</button>
+        <button class="btn primary" id="btn-drop">⤓ Thả nhanh</button>
+        <button class="btn" id="btn-hold">📥 Giữ</button>
+      </div>
+      <div class="tt-actions">
+        <button class="btn" id="btn-pause">⏸ Tạm dừng (chơi đơn)</button>
+        <button class="btn danger" id="btn-resign">🏳️ Xin thua</button>
+      </div>
+      <div class="tt-log" id="tt-log"></div>
+    </section>
+
+    <!-- MÀN HÌNH KẾT THÚC -->
+    <section class="screen" id="screen-end">
+      <div class="card end-card">
+        <h2 id="end-title">🏆 Kết thúc!</h2>
+        <div id="end-body"></div>
+        <div class="end-actions">
+          <button class="btn primary big" id="btn-again">🔄 Chơi lại</button>
+          <a class="btn big" href="../index.html">🏠 Về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gmf"></footer>
+</div>
+
+<div id="modal" class="modal">
+  <div id="modal-box" class="modal-box"></div>
+</div>
+
+<script src="../shared/ui/footer.js?v=9"></script>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+/* 🧱 Tetris — giao diện đồng bộ pastel của site. */
+.tt-topbar { flex-wrap: wrap; }
+.tt-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tt-stage { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-weight: 800; color: #4A3E5C; background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px 14px; margin-bottom: 10px; }
+.tt-stage .tt-status { margin-left: auto; color: #8B7E9E; font-size: 13px; }
+.tt-main { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.tt-side { display: flex; flex-direction: column; gap: 10px; min-width: 120px; }
+.tt-panel { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px; }
+.tt-panel-title { font-weight: 800; font-size: 13px; color: #4A3E5C; margin-bottom: 6px; }
+#tt-boards { display: flex; gap: 16px; flex-wrap: wrap; }
+.tt-board { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px; }
+.tt-board-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: #4A3E5C; margin-bottom: 6px; }
+.tt-board-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: #4A3E5C; margin-top: 6px; }
+.tt-well { display: grid; grid-template-columns: repeat(10, 22px); grid-auto-rows: 22px; gap: 1px; background: #1B1425; border: 2px solid #1B1425; border-radius: 6px; padding: 1px; }
+.tt-well .cell { width: 22px; height: 22px; border-radius: 3px; background: #2E2A45; }
+.tt-well .cell.ghost { background: transparent; outline: 2px dashed #8B7E9E; outline-offset: -2px; }
+.tt-well .cell.c1 { background: #00B8D4; }
+.tt-well .cell.c2 { background: #FFD60A; }
+.tt-well .cell.c3 { background: #7C5CFF; }
+.tt-well .cell.c4 { background: #1F9D55; }
+.tt-well .cell.c5 { background: #E5484D; }
+.tt-well .cell.c6 { background: #2F6FED; }
+.tt-well .cell.c7 { background: #F76B15; }
+.tt-mini-grid { display: grid; grid-template-columns: repeat(4, 18px); grid-auto-rows: 18px; gap: 1px; }
+.tt-mini-grid .cell { width: 18px; height: 18px; border-radius: 3px; background: transparent; }
+.tt-mini-grid .cell.c1 { background: #00B8D4; }
+.tt-mini-grid .cell.c2 { background: #FFD60A; }
+.tt-mini-grid .cell.c3 { background: #7C5CFF; }
+.tt-mini-grid .cell.c4 { background: #1F9D55; }
+.tt-mini-grid .cell.c5 { background: #E5484D; }
+.tt-mini-grid .cell.c6 { background: #2F6FED; }
+.tt-mini-grid .cell.c7 { background: #F76B15; }
+.tt-next-item { margin-bottom: 4px; }
+.tt-opp { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: #4A3E5C; border-top: 1px dashed #C9BDF3; padding-top: 6px; margin-top: 6px; }
+.tt-opp:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.tt-touch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tt-touch .btn { min-width: 56px; }
+.tt-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.tt-log { margin-top: 10px; font-size: 13px; color: #8B7E9E; }
+@media (max-width: 640px) {
+  .tt-topbar { flex-wrap: wrap; }
+  .tt-well { grid-template-columns: repeat(10, 19px); grid-auto-rows: 19px; }
+  .tt-well .cell { width: 19px; height: 19px; }
+  .tt-stage .tt-status { margin-left: 0; width: 100%; }
+  .tt-main { flex-direction: column; }
+  .tt-side { flex-direction: row; flex-wrap: wrap; }
+}

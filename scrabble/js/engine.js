@@ -279,26 +279,34 @@ function byLenPos(L, k, ch) {
    nên không thể thử đặt từng ứng viên — loại trước các từ mà khay không
    đủ chữ (kể cả ô trống) hoặc không khớp chữ đã có trên bàn trong đoạn
    đặt. Lọc này là điều kiện cần của tryPlacement nên không đổi kết quả,
-   chỉ giảm số lần gọi tryPlacement (đắt: kiểm từ phụ + tính điểm). */
+   chỉ giảm số lần gọi tryPlacement (đắt: kiểm từ phụ + tính điểm).
+   Không cấp phát theo ứng viên: dùng 2 mảng dùng lại (_need/_touched). */
+const _need = new Int16Array(26);
+const _touched = new Int16Array(8);
 function rackCanCover(seg, word, rackCounts, blankCount) {
-  const need = {};
+  let nTouched = 0;
   for (let i = 0; i < seg.length; i++) {
     if (seg[i].board) {
-      if (seg[i].ch !== word[i]) return false;
+      if (seg[i].ch !== word[i]) {
+        for (let t = 0; t < nTouched; t++) _need[_touched[t]] = 0;
+        return false;
+      }
     } else {
-      const ch = word[i];
-      need[ch] = (need[ch] || 0) + 1;
+      const c = word.charCodeAt(i) - 65;
+      if (_need[c] === 0) _touched[nTouched++] = c;
+      _need[c]++;
     }
   }
-  let blanks = 0;
-  for (const ch in need) {
-    const short = need[ch] - (rackCounts[ch] || 0);
+  let blanks = 0, ok = true;
+  for (let t = 0; t < nTouched; t++) {
+    const short = _need[_touched[t]] - rackCounts[_touched[t]];
     if (short > 0) {
       blanks += short;
-      if (blanks > blankCount) return false;
+      if (blanks > blankCount) { ok = false; break; }
     }
   }
-  return true;
+  for (let t = 0; t < nTouched; t++) _need[_touched[t]] = 0;
+  return ok;
 }
 export function legalMoves(s, pid) {
   const p = pOf(s, pid);
@@ -317,11 +325,11 @@ export function legalMoves(s, pid) {
   }
   const rackSet = new Set(rack);
   const hasBlank = rack.includes('*');
-  const rackCounts = {};
+  const rackCounts = new Int16Array(26);
   let blankCount = 0;
   for (const ch of rack) {
     if (ch === '*') blankCount++;
-    else rackCounts[ch] = (rackCounts[ch] || 0) + 1;
+    else rackCounts[ch.charCodeAt(0) - 65]++;
   }
   const out = [];
   const seen = new Set();
@@ -349,12 +357,12 @@ export function legalMoves(s, pid) {
           } else if (hasBlank) {
             candidates = list;
           } else {
-            const seenW = new Set();
+            /* mỗi từ chỉ có 1 chữ ở vị trí k nên hợp các danh sách theo
+               chữ trên khay không trùng nhau — không cần seenW riêng,
+               vòng ngoài đã khử trùng bằng `seen` */
             candidates = [];
             for (const ch of rackSet) {
-              for (const w of byLenPos(L, k, ch)) {
-                if (!seenW.has(w)) { seenW.add(w); candidates.push(w); }
-              }
+              for (const w of byLenPos(L, k, ch)) candidates.push(w);
             }
           }
           for (const w of candidates) {
