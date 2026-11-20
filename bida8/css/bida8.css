@@ -1,0 +1,52 @@
+/* 🎱 Bida 8-ball — kiểu riêng (đồng bộ pastel với các game khác) */
+.bd-topbar { flex-wrap: wrap; }
+.bd-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px;
+  padding: 10px 14px; margin: 12px 0; font-weight: 700; color: #4A3E5C;
+}
+.bd-stage .bd-status { color: #8B7E9E; font-weight: 600; }
+.bd-main { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.bd-table-wrap {
+  background: #2B2440; border: 2px solid #4A3E5C; border-radius: 16px;
+  padding: 10px; width: 100%; max-width: 980px;
+}
+#bd-canvas {
+  display: block; width: 100%; height: auto; border-radius: 8px;
+  touch-action: none; cursor: crosshair;
+}
+.bd-power {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px;
+  color: #FFFDF9; font-weight: 700; font-size: 14px;
+}
+.bd-power .bd-power-track {
+  flex: 1; height: 12px; border-radius: 999px; background: #4A3E5C;
+  overflow: hidden;
+}
+.bd-power .bd-power-fill {
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, #ABE0C6, #FFE45C, #FF6B6B);
+  transition: width 0.05s linear;
+}
+.bd-tray {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 6px 2px 0;
+  color: #FFFDF9; font-size: 14px; font-weight: 700;
+}
+.bd-tray .bd-dot {
+  display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid #FFFDF9; vertical-align: -2px; margin-right: 2px;
+}
+.bd-side { width: 100%; max-width: 980px; }
+.bd-side .bd-panel {
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px 12px;
+}
+.bd-panel-title { font-weight: 800; color: #4A3E5C; margin-bottom: 6px; }
+.bd-opp { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.bd-opp:first-child { border-top: none; }
+.bd-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.bd-log { font-size: 13px; color: #8B7E9E; min-height: 18px; }
+@media (max-width: 640px) {
+  .bd-topbar { flex-wrap: wrap; }
+  .bd-table-wrap { padding: 6px; border-radius: 12px; }
+  .bd-stage { font-size: 13px; padding: 8px 10px; }
+}
