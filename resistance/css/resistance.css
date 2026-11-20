@@ -1,0 +1,50 @@
+/* 🛡️ The Resistance — pastel, đồng bộ shell game */
+:root { --rs-ink: #4A3E5C; --rs-muted: #8B7E9E; --rs-butter: #FFE3A3; --rs-peach: #FFB98A; --rs-mint: #ABE0C6; --rs-lav: #C9BDF3; --rs-pink: #FFB9CF; --rs-card: #FFFDF9; --rs-good: #1F9D55; --rs-evil: #E5484D; }
+.rs-topbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rs-topbar .spacer { flex: 1; }
+.rs-stage { text-align: center; margin: 12px 0 4px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.rs-stage .round-pill { display: inline-block; background: var(--rs-lav); color: var(--rs-ink); border: 2px solid var(--rs-ink); border-radius: 999px; padding: 4px 14px; font-weight: 800; font-size: 14px; box-shadow: 2px 2px 0 var(--rs-ink); }
+.rs-stage .rs-score { background: var(--rs-butter); }
+.rs-role { text-align: center; background: var(--rs-card); border: 3px solid var(--rs-ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--rs-ink); padding: 12px 14px; margin: 12px 0; font-size: 17px; font-weight: 800; color: var(--rs-ink); line-height: 1.5; }
+.rs-role .lbl { display: block; font-size: 13px; color: var(--rs-muted); font-weight: 700; margin-bottom: 2px; }
+.rs-role.spy { background: #FFE1E2; border-color: var(--rs-evil); }
+.rs-role small { display: block; font-size: 13px; color: var(--rs-muted); font-weight: 700; margin-top: 4px; }
+.rs-players { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.rs-player { background: #fff; border: 2px solid var(--rs-ink); border-radius: 12px; padding: 6px 10px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 var(--rs-ink); cursor: default; }
+.rs-player.me { background: var(--rs-butter); }
+.rs-player.leader { outline: 3px solid var(--rs-peach); }
+.rs-player.on-team { background: var(--rs-mint); }
+.rs-player.pickable { cursor: pointer; }
+.rs-player.picked { background: var(--rs-peach); }
+.rs-player .st { color: var(--rs-muted); font-weight: 600; }
+.rs-team { background: var(--rs-card); border: 3px solid var(--rs-ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--rs-ink); padding: 14px; margin: 12px 0; }
+.rs-team h3 { margin: 0 0 8px; color: var(--rs-ink); font-size: 17px; }
+.rs-team p { margin: 6px 0; font-weight: 700; color: var(--rs-ink); }
+.rs-team .hint { color: var(--rs-muted); font-size: 14px; }
+.rs-team .names { font-size: 16px; }
+.rs-team .names .ok { color: var(--rs-good); }
+.rs-team .names .no { color: var(--rs-evil); }
+.rs-missions { display: flex; gap: 6px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+.rs-missions .m { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--rs-ink); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 15px; background: #fff; }
+.rs-missions .m.cur { outline: 3px solid var(--rs-peach); }
+.rs-missions .m.win { background: var(--rs-mint); }
+.rs-missions .m.lose { background: #FFB9C0; }
+.rs-log { background: var(--rs-card); border: 3px solid var(--rs-ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--rs-ink); padding: 10px 12px; margin: 12px 0; max-height: 220px; overflow-y: auto; }
+.rs-log .lg { padding: 4px 0; border-bottom: 1px dashed #E5DDF5; font-size: 14px; }
+.rs-log .lg:last-child { border-bottom: 0; }
+.rs-result { text-align: center; padding: 10px 0; }
+.rs-result .big { font-size: 24px; font-weight: 900; color: var(--rs-ink); }
+.rs-result .det { font-size: 16px; font-weight: 800; margin: 6px 0; }
+.rs-result .det.good { color: var(--rs-good); }
+.rs-result .det.bad { color: var(--rs-evil); }
+.rs-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+@media (max-width: 640px) {
+  .rs-topbar { flex-wrap: wrap; }
+  .rs-role { font-size: 15px; }
+  .rs-actions .btn { flex: 1 1 40%; }
+}
+.rs-cover { position: fixed; inset: 0; background: rgba(27, 20, 37, .92); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.rs-cover-card { background: var(--rs-card); border: 3px solid var(--rs-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--rs-ink); padding: 28px 22px; text-align: center; max-width: 420px; }
+.rs-cover-icon { font-size: 52px; }
+.rs-cover-card h3 { margin: 8px 0; color: var(--rs-ink); }
+.rs-cover-card p { color: var(--rs-muted); font-weight: 700; }

@@ -1194,5 +1194,9 @@ export const TUT = {
  "wavelength": {
   "name": "Wavelength — GumballZ Boardgame",
   "steps": []
+ },
+ "resistance": {
+  "name": "The Resistance — GumballZ Boardgame",
+  "steps": []
  }
 };
