@@ -46,6 +46,8 @@
 .at-log p { margin: 3px 0; }
 .at-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 @media (max-width: 640px) {
+  .at-topbar { flex-wrap: wrap; }
+  .at-topbar h1 { font-size: 18px; }
   .at-main { flex-direction: column; }
   .at-left { flex: none; width: 100%; }
   .at-ladder .lad-row { padding: 4px 10px; font-size: 12px; }

@@ -208,7 +208,7 @@ function render(v, prev) {
   const done = actYou.done;
   if (v.phase === 'ended' || done || !q) {
     $('#q-text').textContent = v.phase === 'ended'
-      ? (v.winner === me ? `🎉 Bạn thắng với ${fmtVND(v.you.prize)}!` : v.winner ? `${cleanName((v.players.find(p => p.id === v.winner) || {}).name)} thắng với ${fmtVND((v.players.find(p => p.id === v.winner) || {}).prize)}.` : '🤝 Trận hòa!')
+      ? (v.winner === me ? `🎉 Bạn thắng với ${fmtVND(v.you.prize)}!` : v.winner ? `${cleanName((v.players.find(p => p.id === v.winner) || {}).name)} thắng với ${fmtVND((v.players.find(p => p.id === v.winner) || {}).prize)}.` : v.endReason === 'draw' ? '🤝 Trận hòa!' : `🏁 Trận đã kết thúc — bạn giữ ${fmtVND(v.you.prize)}.`)
       : done ? `Bạn đã dừng ở ${fmtVND(actYou.prize)} — đang chờ đối thủ chơi nốt…` : 'Đang tải câu hỏi…';
     $('#q-opts').innerHTML = '';
     $('#timer').innerHTML = '';
@@ -259,7 +259,7 @@ function showEnd(v) {
     const s = sum[p.id] || {};
     return `<tr><td>${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</td><td>${s.level ?? 0}/15</td><td>${s.correct ?? 0}</td><td>${fmtVND(s.prize || 0)}</td><td>${((s.timeMs || 0) / 1000).toFixed(1)}s</td></tr>`;
   }).join('');
-  const title = v.winner === me ? '👑 Bạn thắng trận!' : v.winner ? `🏁 ${esc(cleanName((v.players.find(p => p.id === v.winner) || {}).name))} thắng trận!` : '🤝 Trận hòa!';
+  const title = v.winner === me ? '👑 Bạn thắng trận!' : v.winner ? `🏁 ${esc(cleanName((v.players.find(p => p.id === v.winner) || {}).name))} thắng trận!` : v.endReason === 'draw' ? '🤝 Trận hòa!' : '🏁 Trận đã kết thúc!';
   const sub = v.winner === me && (sum[me] || {}).level >= QUESTION_COUNT
     ? '🎉 Bạn đã trả lời đúng cả 15 câu — 150.000.000 đồng!'
     : `Bạn giữ ${fmtVND(v.you.prize)} — ${v.endReason === 'stop' ? 'dừng lại đúng lúc' : v.endReason === 'timeout' ? 'hết giờ' : v.endReason === 'resign' ? 'đã xin thua' : v.endReason === 'draw' ? 'hòa' : 'trả lời sai'}.`;

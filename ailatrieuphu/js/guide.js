@@ -14,4 +14,4 @@ export const GUIDE_HTML = `
 <h3>🏁 Các chế độ chơi</h3>
 <p><b>Chơi đơn:</b> 1 mình chinh phục 15 câu. <b>Đấu máy:</b> đua cùng máy (Máy Dễ trả lời đúng khoảng 55%, Máy Khó khoảng 85%) trên cùng 15 câu hỏi. <b>Online / chuyền tay 2 người:</b> cùng 1 bộ 15 câu, ai được nhiều tiền hơn thì thắng; hòa tiền thì ai trả lời nhanh hơn (tổng thời gian) thắng.</p>
 <p><i>Nguồn: format chương trình "Ai là triệu phú" (bản quyền Who Wants to Be a Millionaire), thang tiền thưởng bản Việt trên VTV3. Ngân hàng câu hỏi do GumballZ Boardgame biên soạn.</i></p>
-`;
+<div class="btns"><button class="btn" id="m-close">Đóng</button></div>`;
