@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -134,6 +134,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `poker.riv` | 17015 B | Flop 3 lá lật lần lượt → turn → river; 2 lá tẩy ngửa sẵn ở dưới; 3 chip trượt vào pot sau river (180f = 3s) |
 | `solitaire.riv` | 14461 B | 3 cột bài, A♠ và 2♥ bay lên 2 ô foundation, sao vàng bật lên (180f = 3s) |
 | `bang.riv` | 3873 B | Lá BANG! đỏ bay vào cao bồi → lá TRƯỢT! xanh bật lên chắn + chớp trắng → lá BANG! bật lại + rơi, cao bồi gật mũ; mặt trời + xương rồng + cồn cát (180f = 3s) |
+| `scribble.riv` | 4953 B | Bảng trắng: mèo vẽ từng nét (đầu → tai → mắt/mũi → râu → thân → đuôi/chân), 3 vạch gợi ý + avatar người đoán + dấu tick vàng bật lên (180f = 3s) |
+| `meono.riv` | 10562 B | Chồng bài úp: 1 lá bay ra, lật lên thành Mèo Nổ (bom đen + ngòi + tia lửa vàng), sao vàng + 4 tia bung ra sau lá bài, lá bài rung (180f = 3s) |
+| `tamquoc.riv` | 4983 B | 2 võ tướng đối mặt (đỏ vs xanh, 3 tim máu mỗi bên), lá Sát đỏ bay sang tướng xanh, loé sáng + tướng xanh rung + rụng 1 tim (180f = 3s) |
+| `masoi.riv` | 9031 B | Trời đêm + trăng + sao nhấp nháy; sói đen trên đồi (mắt vàng sáng, gật đầu, vẫy đuôi, rình tiến về phía dân), lá dân làng bị khung ngắm đỏ chớp + run sợ (180f = 3s) |
+| `thathaythach.riv` | 4514 B | 2 lá lựa chọn (THẬT = con mắt, THÁCH = tia sét): ngón tay chọn THÁCH, lá THÁCH nhấc lên + vòng vàng loé; lá giữa lật lên thành tia sét vàng + sao bật (180f = 3s) |
+| `baitan.riv` | 26957 B | Tấn 7♥, đỡ 9♥ chồng lên; tấn K♠, đỡ Át ♠ chồng lên; tay trên 3 lá úp xanh + tay dưới 3 lá úp đỏ; lá chủ (tim đỏ) + dấu chủ nhấp nháy (180f = 3s) |
+| `loto.riv` | 6472 B | Vé 3 hàng × 9 cột: số đã ra chấm đỏ (2 dấu cuối hiện dần), hàng giữa đủ 5 số (ô vàng), bóng số rơi vào khay + nảy đều, sao vàng KINH! bật lên + nhấp nháy (180f = 3s) |
+| `covua.riv` | 11706 B | 1 góc bàn cờ 5×4 ô; Mã trắng nhảy chữ L đi + về (2 ô ngang + 1 ô lên); Vua đen nhún nhẹ; Tốt trắng đứng yên (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -143,6 +151,34 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 3, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): scribble 28–61, meono 371–388, tamquoc 338–355, masoi 169,
+  thathaythach 303–318, baitan 417–449, loto 24–38, covua 70–77.
+- Trang chủ Playwright: **43/43 checks passed** (20 canvas mount + 20
+  thẻ `.has-riv` + 20 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 20 canvas, 20 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 và cả 8 thẻ ở
+  cỡ thẻ thật): mỗi cảnh đọc ra game ngay và lấp đầy header. 3 lỗi thật
+  đã tìm + sửa trong đợt verify: (1) Ma Sói + Lô tô gần như không đổi
+  pixel (masoi 4, loto 4) vì chuyển động quá nhẹ / chết cảnh giữa vòng —
+  sửa bằng cách tăng biên độ (sói gật ±5, mắt to + sáng mạnh, khung
+  ngắm chớp 1.2, đuôi vẫy, sói rình tiến + lá dân run; bóng lô tô nảy
+  đều ±7, sao KINH! nhấp nháy 1.25) → masoi 169, loto 38; (2) Lô tô:
+  chấm đỏ bị ô kem che mất (tạo dấu SAU ô → dấu nằm dưới ô) + gạch
+  vàng đặt nhầm y=118 (đè lên hàng 2) — sửa bằng cách tạo dấu TRƯỚC
+  ô + bỏ gạch vàng, tô vàng cả hàng trúng; (3) Ảnh tile chụp ở pha
+  ngẫu nhiên có thể bắt đúng lúc lá bài đang lật (chỉ thấy 1 vạch
+  mỏng) — phải xem thêm ảnh -a/-b ở 2 pha khác nhau mới kết luận được
+  (đã xem: meono lật thành bom, baitan đủ cặp khi đứng yên).
+  File .riv cũ 12 file không đổi (md5 khớp sau khi build lại toàn bộ).
+- BÀI HỌC verify (bổ sung): chụp ảnh kiểm tra ở NHIỀU pha khác nhau
+  của vòng lặp — ảnh chụp ở 1 pha có thể bắt đúng lúc lá bài đang lật
+  (chỉ thấy 1 vạch mỏng) hoặc lúc cảnh đang tĩnh, dễ kết luận sai.
 
 ## Kiểm chứng (đã làm — v5 wide + batch 2, 2026-11-21)
 

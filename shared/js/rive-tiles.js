@@ -1,6 +1,7 @@
 // 🎬 Animation Rive riêng từng game trên thẻ trang chủ — KHỔ RỘNG
 // (đợt 1 làm lại: typhu/cotuong/cangua/camel + đợt 2: uno/tienlen/catte/
-// bacao/xidach/poker/solitaire/bang — 12 game, 80 game còn lại làm sau).
+// bacao/xidach/poker/solitaire/bang + đợt 3: scribble/meono/tamquoc/
+// masoi/thathaythach/baitan/loto/covua — 20 game, 72 game còn lại làm sau).
 // Gắn canvas vào đúng khối .art của thẻ — canvas lấp đầy toàn bộ đầu thẻ
 // (full tile width × 104px), artboard 400×200 + Fit.Cover.
 // Chạy SAU khi module chính của trang chủ đã chuyển thẻ vào từng .shelf (thẻ module này đặt
@@ -13,7 +14,7 @@
 // - prefers-reduced-motion: không mount, giữ icon SVG cũ. File .riv lỗi: giữ icon SVG cũ.
 // - Tạm dừng animation khi thẻ ra khỏi màn hình (IntersectionObserver) để đỡ tốn pin/CPU.
 (function () {
-  var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang'];
+  var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang', 'scribble', 'meono', 'tamquoc', 'masoi', 'thathaythach', 'baitan', 'loto', 'covua'];
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') return;
   try { window.rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm'); } catch (e) { return; }
