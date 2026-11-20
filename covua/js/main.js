@@ -5,7 +5,6 @@ import { botAction, botWants, think, mateIn, MATE } from './ai.js?v=1';
 import { PUZZLES } from './puzzles.js?v=2';
 import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox } from '../../shared/ui/dialog.js?v=6';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet({
   game: 'covua', min: 2, max: 2, maxSeats: 10, allowLocal: true, minMsg: 'Cờ vua cần 2 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
@@ -241,7 +240,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('covua-sound', sound ? '1' : '0'); drawSound(); beep('move'); };
-$('#btn-news-home').onclick = () => openNews('covua'); newsBadge($('#btn-news-home'), 'covua');
 
 const ui = gameKit({
   game: 'covua', net: NET,

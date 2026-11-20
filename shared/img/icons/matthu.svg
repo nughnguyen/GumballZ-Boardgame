@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- bàn Mật Thư mini 5x5: lá kem + lá Đỏ/Xanh đã lật + 1 lá sát thủ đen -->
+<g stroke="#2a2340" stroke-width="2.5">
+<rect x="26" y="14" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="61" y="14" width="30" height="26" rx="6" fill="#FF8A7A"/><rect x="96" y="14" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="131" y="14" width="30" height="26" rx="6" fill="#7FB3F0"/><rect x="166" y="14" width="30" height="26" rx="6" fill="#FFFDF5"/>
+<rect x="26" y="45" width="30" height="26" rx="6" fill="#7FB3F0"/><rect x="61" y="45" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="96" y="45" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="131" y="45" width="30" height="26" rx="6" fill="#FF8A7A"/><rect x="166" y="45" width="30" height="26" rx="6" fill="#FFFDF5"/>
+<rect x="26" y="76" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="61" y="76" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="96" y="76" width="30" height="26" rx="6" fill="#2A2340"/><rect x="131" y="76" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="166" y="76" width="30" height="26" rx="6" fill="#7FB3F0"/>
+<rect x="26" y="107" width="30" height="26" rx="6" fill="#FF8A7A"/><rect x="61" y="107" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="96" y="107" width="30" height="26" rx="6" fill="#7FB3F0"/><rect x="131" y="107" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="166" y="107" width="30" height="26" rx="6" fill="#FFFDF5"/>
+<rect x="26" y="138" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="61" y="138" width="30" height="26" rx="6" fill="#7FB3F0"/><rect x="96" y="138" width="30" height="26" rx="6" fill="#FFFDF5"/><rect x="131" y="138" width="30" height="26" rx="6" fill="#FF8A7A"/><rect x="166" y="138" width="30" height="26" rx="6" fill="#FFFDF5"/>
+</g>
+<!-- vạch "chữ" trên vài lá kem -->
+<g stroke="#C9BBA6" stroke-width="2.5" stroke-linecap="round">
+<path d="M33 24 h16 M33 31 h11"/><path d="M103 24 h16 M103 31 h11"/><path d="M173 24 h16 M173 31 h11"/>
+<path d="M68 55 h16 M68 62 h11"/><path d="M103 55 h16 M103 62 h11"/><path d="M173 55 h16 M173 62 h11"/>
+<path d="M33 86 h16 M33 93 h11"/><path d="M68 86 h16 M68 93 h11"/><path d="M138 86 h16 M138 93 h11"/>
+<path d="M68 117 h16 M68 124 h11"/><path d="M138 117 h16 M138 124 h11"/><path d="M173 117 h16 M173 124 h11"/>
+<path d="M33 148 h16 M33 155 h11"/><path d="M103 148 h16 M103 155 h11"/><path d="M173 148 h16 M173 155 h11"/>
+</g>
+<!-- đầu lâu trên lá sát thủ -->
+<g transform="translate(111 89)" fill="#fff" stroke="none">
+<circle cx="0" cy="-2" r="6"/><rect x="-5" y="0" width="10" height="5" rx="2"/>
+<circle cx="-2.5" cy="-3" r="1.6" fill="#2A2340"/><circle cx="2.5" cy="-3" r="1.6" fill="#2A2340"/>
+</g>
+<!-- kính lúp của mật vụ soi lá Đỏ -->
+<g transform="translate(146 27)">
+<circle r="15" fill="#FFE3A3" fill-opacity=".55" stroke="#2a2340" stroke-width="3"/>
+<path d="M11 11 L24 24" stroke="#2a2340" stroke-width="5" stroke-linecap="round"/>
+<circle cx="-3" cy="-2" r="3" fill="#FF5A4E" stroke="#2a2340" stroke-width="1.5"/>
+<circle cx="4" cy="4" r="3" fill="#7FB3F0" stroke="#2a2340" stroke-width="1.5"/>
+</g>
+<!-- huy hiệu Mật Thư -->
+<g transform="translate(296 90)">
+<circle r="52" fill="#FFE3A3" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<text y="-26" text-anchor="middle" font-size="26">🔐</text>
+<g transform="translate(-14 -2)"><circle r="8" fill="#FF5A4E" stroke="#2a2340" stroke-width="2"/></g>
+<g transform="translate(14 8)"><circle r="8" fill="#3F7FD9" stroke="#2a2340" stroke-width="2"/></g>
+<text y="40" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="17" font-weight="800" fill="#2a2340">MẬT THƯ</text>
+</g>
+<path d="M214 30 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M368 150 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFB9CF" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

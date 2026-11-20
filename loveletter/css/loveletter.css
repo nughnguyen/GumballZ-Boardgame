@@ -1,0 +1,74 @@
+/* 💌 Love Letter – 16 lá bài, đoán bài đối thủ, giữ Công chúa.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.ll-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.ll-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.ll-topbar .back-hub { position: static; flex: none; }
+.ll-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.ll-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.ll-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.ll-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.ll-status .no-token { color: #6b6480; font-weight: 700; }
+/* lá ngửa ngoài bàn (2 người) */
+.ll-faceup { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 12px; margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+/* hàng người chơi */
+.ll-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .ll-players { grid-template-columns: 1fr; } }
+.ll-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.ll-player.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.ll-player.out { opacity: .62; }
+.ll-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ll-pinfo b { font-size: 15px; }
+.ll-pinfo .turn-tag { color: #b8860b; }
+.ll-ptokens { font-size: 13px; font-weight: 800; }
+.ll-phand { font-size: 13px; font-weight: 700; color: #6b6480; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ll-phand small { font-weight: 700; }
+.peek-tag { color: #7c5cff; font-weight: 800; }
+.ll-discards { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 13px; font-weight: 700; color: #6b6480; }
+/* lá bài */
+.ll-card { width: 132px; min-height: 168px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 10px 8px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; text-align: center; transition: transform .12s ease, box-shadow .12s ease; }
+.ll-card:hover { transform: translateY(-4px); box-shadow: 5px 7px 0 rgba(42,35,64,.16); }
+.ll-card.sel { outline: 3px solid #ffd273; outline-offset: 2px; }
+.ll-card.illegal { opacity: .55; }
+.ll-card.cant { cursor: default; }
+.ll-card.cant:hover { transform: none; }
+.ll-card .ll-num { font: 800 26px 'Baloo 2', sans-serif; line-height: 1; color: #b3232a; }
+.ll-card .ll-ic { font-size: 34px; line-height: 1.1; }
+.ll-card .ll-name { font-size: 15px; font-weight: 800; }
+.ll-card .ll-desc { font-size: 12px; font-weight: 700; color: #6b6480; line-height: 1.35; }
+.ll-card.mini { width: 54px; min-height: 66px; padding: 4px 2px; border-width: 2px; box-shadow: 2px 2px 0 rgba(42,35,64,.16); cursor: default; }
+.ll-card.mini .ll-num { font-size: 14px; }
+.ll-card.mini .ll-ic { font-size: 16px; }
+.ll-card.mini .ll-name { font-size: 10px; }
+.ll-card.mini .ll-desc { display: none; }
+.ll-card.mini:hover { transform: none; }
+.ll-card.dead { opacity: .6; }
+.ll-back { font-size: 22px; line-height: 1; color: #7c5cff; }
+/* bài trên tay */
+.ll-hand-wrap { margin-bottom: 10px; }
+.ll-hand-label { font-weight: 800; font-size: 15px; margin-bottom: 8px; text-align: center; }
+.ll-hand { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ll-hand-cover { text-align: center; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 18px; padding: 18px 14px; }
+.ll-hand-cover .note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b6480; }
+.ll-peek { text-align: center; margin-top: 8px; font-size: 14px; }
+/* panel chọn người / đoán lá */
+.ll-target { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px 14px; margin-bottom: 10px; }
+.ll-target h3 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+.ll-target .sub { font-size: 13px; font-weight: 700; color: #6b6480; margin: -4px 0 8px; }
+#target-body { display: flex; gap: 8px; flex-wrap: wrap; }
+#target-body .btn { display: flex; align-items: center; gap: 6px; }
+#target-body .btn.sel { outline: 3px solid #ffd273; outline-offset: 1px; background: #fff3c4; }
+.guess-row { width: 100%; margin-top: 6px; }
+.guess-row b { font-size: 14px; }
+.guess-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+/* hàng nút trong ván */
+.ll-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.ll-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.ll-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.ll-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.ll-log div:last-child { border-bottom: 0; }
+.ll-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .ll-card { width: 118px; min-height: 156px; }
+  .ll-topbar h1 { font-size: 22px; }
+}

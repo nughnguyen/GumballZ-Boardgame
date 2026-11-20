@@ -3,7 +3,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, UNO_PHRA
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=5';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { startPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=4';
 import { MODES, COLOR_NAME, cardText, DRAW_VALUE, CARD_NAME, MATCH_TARGETS, deckTypes } from './engine.js?v=27';
 import * as fx from './ufx.js?v=25';
@@ -172,10 +172,7 @@ $('#vol').value = fx.musicVolume(); $('#vol').oninput = e => fx.musicVolume(+e.t
 const syncMute = () => $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊';
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal, cardHTML);
-// 📝 Có gì mới (patch notes dùng chung)
-const news = () => { openNews('uno'); ['#btn-news-home', '#btn-news'].forEach(k => $(k).classList.remove('gumballz-dot')); };
-$('#btn-news-home').onclick = $('#btn-news').onclick = news; window.__news = news;
-newsBadge($('#btn-news-home'), 'uno'); newsBadge($('#btn-news'), 'uno');
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
 $('#btn-log-close').onclick = () => $('#log').classList.remove('open');
 

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sushi Go online – game bài xếp sushi 2–5 người | GumballZ Boardgame</title>
+<meta name="description" content="Sushi Go online: 108 lá sushi, chọn 1 lá đặt xuống rồi chuyền tay, gom bộ Tempura, Sashimi, Há cảo, tranh Maki, giữ Pudding tới cuối trận. Chơi với bạn qua mã phòng, đấu với máy AI hoặc 2–5 người chơi trên cùng 1 máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/sushigo/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sushi Go online – game bài xếp sushi 2–5 người | GumballZ Boardgame">
+<meta property="og:description" content="Chọn lá, chuyền tay, gom bộ sushi ngon nhất — Tempura cặp, Sashimi bộ 3, Maki tranh nhất nhì, Pudding quyết định cuối trận!">
+<meta property="og:url" content="https://gumballzgames.vercel.app/sushigo/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/sushigo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/sushigo.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/sushigo.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Sushi <span>Go</span></h1>
+    <p class="tag">Chọn lá sushi ngon nhất, chuyền tay cho bạn, gom bộ Tempura – Sashimi – Há cảo, tranh Maki, giữ Pudding tới cuối trận! 🍣🍮</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2–5 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="count-box">
+      <label class="fld"><span>Số người chơi (đấu máy)</span></label>
+      <div class="seg" id="count-seg">
+        <button type="button" data-count="2" aria-pressed="false">2 người</button>
+        <button type="button" data-count="3" aria-pressed="false">3 người</button>
+        <button type="button" data-count="4" aria-pressed="false">4 người</button>
+        <button type="button" data-count="5" aria-pressed="false">5 người</button>
+      </div>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧠 Bắt đầu chơi với máy Khó</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2–5 người · 108 lá bài · 3 vòng · mỗi lượt mọi người cùng chọn 1 lá đặt xuống rồi chuyền tay (vòng 1 trái, vòng 2 phải, vòng 3 trái) · Tempura cặp 5, Sashimi bộ 3 là 10, Há cảo tối đa 15, Maki nhất 6 nhì 3, Pudding cuối trận +6/−6 · đấu máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🍣 <b>2–5 người</b>, bộ <b>108 lá</b>, 3 vòng: 2 người chia 10 lá, 3 người 9 lá, 4 người 8 lá, 5 người 7 lá mỗi vòng.</li>
+          <li>🃏 Mỗi lượt mọi người <b>cùng chọn 1 lá</b> đặt ngửa xuống, rồi <b>chuyền tay</b>: vòng 1 sang trái, vòng 2 sang phải, vòng 3 sang trái.</li>
+          <li>🏆 Hết vòng tính điểm: Tempura cặp = 5, Sashimi bộ 3 = 10, Há cảo 1/2/3/4/5+ = 1/3/6/10/15, Maki nhiều nhất = 6, nhì = 3 (hòa chia đều), Nigiri Cá hồi/Mực = 3, Trứng = 1, Wasabi nhân 3 Nigiri kế tiếp.</li>
+          <li>🥢 Đã đặt <b>Đũa</b> xuống thì một lượt sau được đặt <b>2 lá cùng lúc</b>, trả Đũa về tay.</li>
+          <li>🍮 <b>Pudding</b> tính cuối trận: nhiều nhất +6, ít nhất −6, hòa chia đều. Tổng điểm cao nhất sau 3 vòng thì thắng trận.</li>
+          <li>👁️ Bài trên tay chỉ hiện trên máy của chính người đó — chơi chuyền tay nhớ <b>che lại trước khi đưa máy</b>!</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🍣 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="sg-wrap">
+    <header class="topbar sg-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🍣 Sushi Go</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="sg-status" id="status"></div>
+    <div class="sg-scores" id="scores" style="display:none"></div>
+    <div class="sg-players" id="players"></div>
+    <div class="sg-hand-wrap" id="hand-wrap">
+      <div class="sg-hand-cover" id="hand-cover" style="display:none">
+        <button class="btn big pri" id="btn-reveal-hand">👁 Xem bài của bạn</button>
+        <p class="note">Bài chỉ hiện cho người tới lượt chọn — bấm để xem, chọn xong nhớ che lại trước khi đưa máy.</p>
+      </div>
+      <div class="sg-hand" id="hand"></div>
+      <div class="sg-chop-row" id="chop-row" style="display:none">
+        <button class="btn" id="btn-chop">🥢 Dùng Đũa (chọn 2 lá)</button>
+        <span class="note" id="chop-hint">Bấm 1 lá rồi bấm thêm 1 lá nữa — Đũa sẽ về tay bạn.</span>
+      </div>
+      <div class="sg-picked-note" id="picked-note" style="display:none">✅ Bạn đã chọn — đang chờ mọi người…</div>
+    </div>
+    <div class="sg-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="sg-log" id="log" aria-live="polite"></div>
+    <div class="sg-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

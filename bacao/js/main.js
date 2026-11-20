@@ -2,7 +2,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, BC_PHRAS
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { OPT_CHOICES, DEFAULT_OPTS, handInfo, handLabel, RANK_TXT } from './engine.js?v=2';
 import { winChance } from './bot.js?v=1';
@@ -154,9 +154,7 @@ $('#btn-music').onclick = $('#btn-music-home').onclick = () => { fx.actx(); fx.m
 const syncMute = () => $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊';
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal, (view && view.opts) || (lobby && lobby.opts) || DEFAULT_OPTS);
-const news = () => { openNews(GAME); ['#btn-news-home', '#btn-news'].forEach(k => $(k).classList.remove('gumballz-dot')); };
-$('#btn-news-home').onclick = $('#btn-news').onclick = news;
-newsBadge($('#btn-news-home'), GAME); newsBadge($('#btn-news'), GAME);
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
 $('#btn-log-close').onclick = () => $('#log').classList.remove('open');
 $('#round-tag').onclick = () => openBoard();

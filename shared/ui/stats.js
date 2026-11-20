@@ -2,9 +2,10 @@
 // Mỗi net.js bọc handlers: this.h = watch(GAME, handlers, () => this.id) → tự đếm ván đã chơi / thắng khi ván kết thúc.
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
 import { questWin } from '../js/daily.js?v=1'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
+import { earnGame } from './wallet.js?v=1'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
 const KEY = 'gumballz-stats';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-export const GAME_NAMES = { bang: 'CÀ ĐÙNG!', uno: 'UNÔ', typhu: 'Cờ Tỷ Phú', scribble: 'Scribble it!', meono: 'Mèo Nổ', tamquoc: 'Tam Quốc Sát', masoi: 'Ma Sói', camel: 'Đua Lạc Đà', cangua: 'Cờ cá ngựa', tienlen: 'Tiến Lên', catte: 'Cát tê', bacao: 'Ba Cào', xidach: 'Xì dách', poker: 'Poker', solitaire: 'Xếp bài', cotuong: 'Cờ tướng', thathaythach: 'Thật hay Thách', baitan: 'Bài Tấn', loto: 'Lô tô', covua: 'Cờ vua', tala: 'Tá lả', cholon: 'Chợ Lớn', tusac: 'Tứ sắc', bantau: 'Bắn Tàu', oanquan: 'Ô Ăn Quan', caro: 'Cờ Caro', tictactoe: 'TicTacToe', memory: 'Memory', covay: 'Cờ Vây', cothu: 'Cờ Thú', ranvathang: 'Rắn và Thang', sam: 'Sâm lốc', baucua: 'Bầu cua', noitu: 'Nối từ', xuyenviet: 'Tàu Xuyên Việt', khaihoang: 'Đảo Khai Hoang', daochinh: 'Đảo Chính', cuuho: 'Đội Cứu Hộ', xiecthu: 'Gánh Xiếc Thú' };
+export const GAME_NAMES = { bang: 'CÀ ĐÙNG!', uno: 'UNÔ', typhu: 'Cờ Tỷ Phú', scribble: 'Scribble it!', meono: 'Mèo Nổ', tamquoc: 'Tam Quốc Sát', masoi: 'Ma Sói', camel: 'Đua Lạc Đà', cangua: 'Cờ cá ngựa', tienlen: 'Tiến Lên', catte: 'Cát tê', bacao: 'Ba Cào', xidach: 'Xì dách', poker: 'Poker', solitaire: 'Xếp bài', cotuong: 'Cờ tướng', thathaythach: 'Thật hay Thách', baitan: 'Bài Tấn', loto: 'Lô tô', covua: 'Cờ vua', tala: 'Tá lả', cholon: 'Chợ Lớn', tusac: 'Tứ sắc', bantau: 'Bắn Tàu', oanquan: 'Ô Ăn Quan', caro: 'Cờ Caro', tictactoe: 'TicTacToe', memory: 'Memory', covay: 'Cờ Vây', cothu: 'Cờ Thú', ranvathang: 'Rắn và Thang', sam: 'Sâm lốc', baucua: 'Bầu cua', noitu: 'Nối từ', xuyenviet: 'Tàu Xuyên Việt', khaihoang: 'Đảo Khai Hoang', daochinh: 'Đảo Chính', cuuho: 'Đội Cứu Hộ', xiecthu: 'Gánh Xiếc Thú', giandiep: 'Ai là Gián Điệp', codam: 'Cờ Đam', lieng: 'Liêng', maubinh: 'Mậu Binh', xito: 'Xì Tố', colat: 'Cờ Lật', domino: 'Domino', connect4: 'Connect 4', matthu: 'Mật Thư', avalon: 'Avalon', spyfall: 'Spyfall', sudoku: 'Sudoku', wordle: 'Wordle', domi: 'Dò Mìn', s2048: '2048', matchu: 'Mạt Chược', loveletter: 'Love Letter', sushigo: 'Sushi Go', lay6: 'Lấy 6', saboteur: 'Saboteur', skull: 'Skull', hanabi: 'Hanabi', chan: 'Chắn', totom: 'Tổ Tôm', carcassonne: 'Carcassonne', azul: 'Azul', splendor: 'Splendor', conhay: 'Cờ Nhảy', backgammon: 'Backgammon', rummikub: 'Rummikub', quoridor: 'Quoridor', blokus: 'Blokus' };
 const byId = (v, id) => (v.players || []).find(p => p.id === id);
 const isMe = (v, me) => id => id === me;
 const SIDE = { bang: { law: ['sheriff', 'deputy'], outlaw: ['outlaw'], renegade: ['renegade'] }, tamquoc: { lord: ['lord', 'loyal'], rebel: ['rebel'], spy: ['spy'] } };
@@ -44,6 +45,38 @@ const OVER = {
   xiecthu: (v, me) => v.phase === 'ended' ? { won: (v.winners || []).includes(me) } : null,
   cuuho: v => v.phase === 'ended' ? { won: !!(v.result && v.result.win) } : null, /* chơi chung: cả đội cùng thắng / thua */
   scribble: (v, me) => v.phase === 'end' ? { won: ((v.players || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0))[0] || {}).id === me } : null,
+  giandiep: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  codam: (v, me) => v.phase === 'ended' ? { won: v.winner ? v.winner === me : null } : null, /* có hòa; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  lieng: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = có tên trong winnerIds; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  maubinh: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = có tên trong winnerIds; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  xito: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = có tên trong winnerIds; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  colat: (v, me) => v.phase === 'ended' ? { won: v.winner ? v.winner === me : null } : null, /* có hòa; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  domino: (v, me) => v.phase === 'ended' ? { won: v.winner ? v.winner === me : null } : null, /* có hòa (khóa ván hòa nút); mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  connect4: (v, me) => v.phase === 'ended' ? { won: v.winner ? v.winner === me : null } : null, /* có hòa; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  matthu: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = đội mình thắng; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  avalon: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = phe mình thắng; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  spyfall: (v, me) => v.phase === 'ended' ? { won: (v.winnerIds || []).includes(me) } : null, /* thắng = thắng trận (đủ số ván mục tiêu); mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  sudoku: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = giải xong trước / chơi đơn giải xong; thua = bị loại hoặc đối thủ về đích trước; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  wordle: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đoán đúng trước / chơi đơn đoán đúng; thua = hết 6 lượt, xin thua, hoặc đối thủ đoán đúng trước; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  domi: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = mở hết ô an toàn trước / chơi đơn mở hết; thua = chạm mìn, xin thua, hoặc đối thủ về đích trước; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  s2048: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đạt ô 2048 trước / chơi đơn đạt ô 2048; thua = kẹt lưới, xin thua, hoặc đối thủ đạt 2048/điểm cao hơn trước; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  matchu: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = gỡ hết 144 quân trước / chơi đơn gỡ hết; thua = kẹt hết lượt xào, xin thua, hoặc đối thủ gỡ hết/nhiều hơn trước; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  loveletter: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đủ dấu Yêu trước / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  sushigo: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = nhiều điểm nhất / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  lay6: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = ít đầu bò nhất / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  saboteur: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = nhiều vàng nhất sau 3 vòng / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  skull: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đủ 2 điểm hoặc là người sống sót cuối cùng / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  hanabi: (v, me) => v.phase === 'ended' ? { won: (v.winners || []).includes(me) } : null, /* thắng cả đội khi ≥20 điểm; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  chan: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* ù = 6 chắn + 4 cạ (hoặc thập thành); mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  totom: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* ù = 21 lá thành phu + ≥1 lưng; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  carcassonne: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = nhiều điểm nhất khi hết chồng lá / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  azul: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = nhiều điểm nhất khi có người đủ 1 hàng ngang trên tường / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  splendor: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = nhiều điểm nhất khi có người đạt 15 điểm trở lên (hòa thì ít thẻ đã mua hơn) / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  conhay: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đưa cả 10 bi về nhà đích trước tiên / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  backgammon: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = ra hết 15 quân trước tiên (gammon ×2 / backgammon ×3 / đối thủ từ chối gấp đôi) / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  rummikub: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = hết bài trên tay trước tiên, hoặc ít điểm bài nhất khi hết chồng / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  quoridor: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = tới hàng đích đối diện trước tiên / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
+  blokus: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = tổng điểm cao nhất khi tất cả hết nước đặt / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
 };
 
 export function load() { let s = null; try { s = JSON.parse(ls.get(KEY)); } catch (e) {} s = s && typeof s === 'object' ? s : {}; s.g = s.g || {}; s.ach = s.ach || {}; s.days = s.days || []; s.streak = s.streak || 0; s.best = s.best || 0; s.ev = s.ev || {}; s.dd = s.dd || { d: '', n: 0, k: [], w: [] }; s.ls = s.ls || 0; s.marks = s.marks || {}; s.cnt = s.cnt || {}; return s; }
@@ -185,7 +218,7 @@ export const ACHS = [
   { id: 'c-lose500', icon: '🎲', name: 'Thua là mẹ thành công', desc: 'Thua tổng cộng 500 ván', ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 500, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 500), 500] },
 ];
 /* thành tích theo từng game: thắng đầu tiên + 10 ván thắng; game không tính thắng thua thì chơi đầu tiên + 10 ván */
-const GAME_ICON = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', baitan: '🃏', loto: '🎪', covua: '♟️', tala: '🀄', cholon: '🏮', tusac: '🀄', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍', sam: '🃏', baucua: '🎲', noitu: '🔤', xuyenviet: '🚂', khaihoang: '🏝️', daochinh: '🎭', cuuho: '🦸', xiecthu: '🎪' };
+const GAME_ICON = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', baitan: '🃏', loto: '🎪', covua: '♟️', tala: '🀄', cholon: '🏮', tusac: '🀄', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍', sam: '🃏', baucua: '🎲', noitu: '🔤', xuyenviet: '🚂', khaihoang: '🏝️', daochinh: '🎭', cuuho: '🦸', xiecthu: '🎪', giandiep: '🕵️', codam: '🔴', lieng: '🎴', maubinh: '🀄', xito: '♣️', colat: '🔄', domino: '🎲', connect4: '🔴', matthu: '🔐', avalon: '🛡️', spyfall: '🕵️', sudoku: '🔢', wordle: '🟩', domi: '🧨', s2048: '2️⃣', matchu: '🀅', loveletter: '💌', sushigo: '🍣', lay6: '🐂', saboteur: '⛏️', skull: '💀', hanabi: '🎆', chan: '🀄', totom: '👴', carcassonne: '🏰', azul: '🎨', splendor: '💎', conhay: '⭐', backgammon: '🎲', rummikub: '🧩', quoridor: '🧱', blokus: '🟦' };
 for (const [g, name] of Object.entries(GAME_NAMES)) {
   const ic = GAME_ICON[g] || '🎲';
   if (g === 'thathaythach') {
@@ -244,6 +277,134 @@ const SPECIAL = [
   { id: 'ms-villager', icon: '🧑‍🌾', name: 'Ủa ai biết gì đâu', desc: 'Sống sót tới cuối khi là Dân làng', ok: () => false },
   { id: 'ms-wolfwin', icon: '🐺', name: 'CSCĐ = con sói cô độc', desc: 'Thắng khi là Sói', ok: () => false },
   { id: 'ms-night1', icon: '🌙', name: 'Twilight', desc: 'Bị cắn ngay đêm đầu', ok: () => false },
+  { id: 'gd-spywin', icon: '🕵️', name: 'Gián điệp hoàn hảo', desc: 'Thắng khi là Gián điệp', ok: () => false },
+  { id: 'gd-firstvote', icon: '🎯', name: 'Mắt thần', desc: 'Bắt đúng gián điệp ngay vòng bỏ phiếu đầu', ok: () => false },
+  { id: 'gd-survive3', icon: '🛡️', name: 'Sống sót kỳ cựu', desc: 'Sống sót qua 3 vòng bỏ phiếu', ok: () => false },
+  { id: 'gd-perfect', icon: '✨', name: 'Trong sạch tuyệt đối', desc: 'Dân thường thắng mà không ai bị loại oan', ok: () => false },
+  { id: 'cd-blockwin', icon: '🧱', name: 'Bít cửa', desc: 'Thắng bằng cách chặn đối thủ hết nước đi ở Cờ Đam', ok: () => false },
+  { id: 'cd-kings3', icon: '👑', name: 'Tam Vương', desc: 'Phong 3 Vua trong 1 ván Cờ Đam', ok: () => false },
+  { id: 'cd-jump3', icon: '🔁', name: 'Nhảy 3 lần', desc: 'Ăn 3 quân trong 1 lượt ở Cờ Đam', ok: () => false },
+  { id: 'cd-endgame3', icon: '⚔️', name: 'Tàn cuộc 3 quân', desc: 'Thắng 1 ván Cờ Đam khi chỉ còn 3 quân', ok: () => false },
+  { id: 'lg-sap', icon: '🃏', name: 'Sáp là vua', desc: 'Thắng 1 ván Liêng bằng Sáp', ok: () => false },
+  { id: 'lg-lieng', icon: '🌉', name: 'Liêng đẹp như mơ', desc: 'Thắng 1 ván Liêng bằng Liêng', ok: () => false },
+  { id: 'lg-anh', icon: '🎭', name: 'Ba tây oai phong', desc: 'Thắng 1 ván Liêng bằng Ảnh', ok: () => false },
+  { id: 'lg-noshow', icon: '🙈', name: 'Ăn gà không cần lật', desc: 'Thắng 1 ván Liêng vì mọi người khác đều Bỏ', ok: () => false },
+  { id: 'mb-dragon', icon: '🐉', name: 'Sảnh rồng!', desc: 'Thắng 1 ván Mậu Binh bằng Sảnh rồng', ok: () => false },
+  { id: 'mb-sweep', icon: '🧹', name: 'Quét sạch', desc: 'Thắng cả 3 chi trước 1 đối thủ ở Mậu Binh', ok: () => false },
+  { id: 'mb-quads', icon: '💎', name: 'Tứ quý cuối', desc: 'Thắng 1 ván Mậu Binh với Tứ quý ở chi Cuối', ok: () => false },
+  { id: 'mb-special', icon: '🌟', name: 'Bài đặc biệt', desc: 'Thắng 1 ván Mậu Binh bằng bài đặc biệt', ok: () => false },
+  { id: 'xt-sf', icon: '🌊', name: 'Thùng phá sảnh!', desc: 'Thắng 1 ván Xì Tố bằng Thùng phá sảnh', ok: () => false },
+  { id: 'xt-quads', icon: '💎', name: 'Tứ quý oai phong', desc: 'Thắng 1 ván Xì Tố bằng Tứ quý', ok: () => false },
+  { id: 'xt-allin', icon: '🔥', name: 'Tất tay thắng lớn', desc: 'Thắng 1 ván Xì Tố khi đã Tất tay', ok: () => false },
+  { id: 'xt-noshow', icon: '😎', name: 'Dọa chạy cả bàn', desc: 'Thắng 1 ván Xì Tố vì mọi người khác đều Bỏ', ok: () => false },
+  { id: 'cl-margin40', icon: '💪', name: 'Áp đảo', desc: 'Thắng 1 ván Cờ Lật cách biệt 40 quân trở lên', ok: () => false },
+  { id: 'cl-corners', icon: '👑', name: 'Bốn góc vàng', desc: 'Thắng 1 ván Cờ Lật khi giữ cả 4 góc bàn', ok: () => false },
+  { id: 'cl-comeback', icon: '🌪️', name: 'Lật ngược thế cờ', desc: 'Thắng 1 ván Cờ Lật sau khi bị dẫn 20 quân trở lên', ok: () => false },
+  { id: 'cl-flip8', icon: '🌊', name: 'Lật sóng thần', desc: 'Lật 8 quân trở lên trong 1 nước ở Cờ Lật', ok: () => false },
+  { id: 'dm-double6', icon: '🀄', name: 'Chốt sáu đôi', desc: 'Thắng 1 ván Domino bằng quân [6|6] cuối cùng', ok: () => false },
+  { id: 'dm-block', icon: '🧱', name: 'Đóng cửa', desc: 'Thắng 1 ván Domino khi ván bị khóa (ít nút nhất)', ok: () => false },
+  { id: 'dm-sweep', icon: '💥', name: 'Quét sạch', desc: 'Thắng 1 ván Domino được 40 điểm trở lên', ok: () => false },
+  { id: 'dm-comeback', icon: '⚡', name: 'Lật kèo', desc: 'Thắng 1 trận Domino sau khi từng bị dẫn 30 điểm trở lên', ok: () => false },
+  { id: 'cf-fast', icon: '⚡', name: 'Thắng chớp nhoáng', desc: 'Thắng 1 ván Connect 4 trong 10 nước trở xuống', ok: () => false },
+  { id: 'cf-vert', icon: '🧱', name: 'Cột thép', desc: 'Thắng 1 ván Connect 4 bằng 4 quân dọc', ok: () => false },
+  { id: 'cf-diag', icon: '📐', name: 'Chéo thần thánh', desc: 'Thắng 1 ván Connect 4 bằng 4 quân chéo', ok: () => false },
+  { id: 'cf-block3', icon: '🛡️', name: 'Bức tường thép', desc: 'Chặn 3 nước thắng của đối thủ trong 1 ván Connect 4', ok: () => false },
+  { id: 'mt-clue5', icon: '🎯', name: 'Gợi ý thần sầu', desc: 'Thắng 1 ván Mật Thư bằng gợi ý 5 lá trở lên', ok: () => false },
+  { id: 'mt-clean', icon: '✨', name: 'Sạch bong', desc: 'Thắng 1 ván Mật Thư mà đội mình không đoán sai lá nào', ok: () => false },
+  { id: 'mt-lastcard', icon: '🃏', name: 'Lá cuối định mệnh', desc: 'Thắng 1 ván Mật Thư bằng cách đoán trúng lá điệp viên cuối cùng khi sát thủ còn ẩn', ok: () => false },
+  { id: 'mt-comeback', icon: '🌪️', name: 'Lật kèo mật thư', desc: 'Thắng 1 ván Mật Thư sau khi đội mình từng bị dẫn 4 lá trở lên', ok: () => false },
+  { id: 'av-merlin', icon: '🧙', name: 'Merlin bất khả xâm phạm', desc: 'Thắng 1 ván Avalon với vai Merlin mà không bị ám sát', ok: () => false },
+  { id: 'av-assassin', icon: '🗡️', name: 'Sát thủ bách phát', desc: 'Thắng 1 ván Avalon với vai Sát thủ bằng cách đoán đúng Merlin', ok: () => false },
+  { id: 'av-q4', icon: '⚔️', name: 'Nhiệm vụ 4 sinh tử', desc: 'Thắng 1 ván Avalon từ 7 người trở lên (nhiệm vụ 4 cần 2 lần thất bại mới hỏng)', ok: () => false },
+  { id: 'av-oberon', icon: '👤', name: 'Bóng ma Oberon', desc: 'Thắng 1 ván Avalon với vai Oberon', ok: () => false },
+  { id: 'sf-spyguess', icon: '🕵️', name: 'Đoán đâu trúng đó', desc: 'Thắng 1 ván Spyfall khi là gián điệp bằng cách đoán đúng địa điểm', ok: () => false },
+  { id: 'sf-survive', icon: '🥷', name: 'Ẩn mình hoàn hảo', desc: 'Thắng 1 ván Spyfall khi là gián điệp mà không bị bắt (buộc tội nhầm người khác hoặc hòa phiếu)', ok: () => false },
+  { id: 'sf-firstvote', icon: '🎯', name: 'Thám tử tài ba', desc: 'Bỏ phiếu đúng gián điệp, gián điệp bị buộc tội rồi đoán sai địa điểm', ok: () => false },
+  { id: 'sf-ghost', icon: '👻', name: 'Bóng ma', desc: 'Thắng 1 ván Spyfall khi là người thường mà không ai bỏ phiếu cho mình', ok: () => false },
+  { id: 'su-clean', icon: '🧹', name: 'Sạch bong không tì vết', desc: 'Giải xong 1 ván Sudoku Dễ mà không sai lần nào', ok: () => false },
+  { id: 'su-hard', icon: '💪', name: 'Khó cũng xong', desc: 'Giải xong 1 ván Sudoku Khó', ok: () => false },
+  { id: 'su-expert', icon: '🧠', name: 'Bậc thầy Sudoku', desc: 'Giải xong 1 ván Sudoku Chuyên gia', ok: () => false },
+  { id: 'su-nohint', icon: '🔍', name: 'Tự lực cánh sinh', desc: 'Giải xong 1 ván Sudoku mà không dùng gợi ý nào', ok: () => false },
+  { id: 'wd-quick', icon: '⚡', name: 'Đoán thần tốc', desc: 'Đoán đúng từ Wordle chỉ sau 1–2 lượt', ok: () => false },
+  { id: 'wd-clean', icon: '✨', name: 'Không một ô xám', desc: 'Thắng 1 ván Wordle mà không có chữ nào bị tô xám', ok: () => false },
+  { id: 'wd-last', icon: '😅', name: 'Cân não phút chót', desc: 'Đoán đúng từ Wordle ở lượt thứ 6 cuối cùng', ok: () => false },
+  { id: 'wd-streak3', icon: '🔥', name: 'Chuỗi 3 ván thắng', desc: 'Thắng 3 ván Wordle liên tiếp', ok: () => false },
+  { id: 'dm-clean', icon: '🧹', name: 'Dò mìn tay không', desc: 'Thắng 1 ván Dò Mìn Dễ mà không cắm cờ lần nào', ok: () => false },
+  { id: 'dm-medium', icon: '💪', name: 'Thợ dò trung cấp', desc: 'Thắng 1 ván Dò Mìn Vừa', ok: () => false },
+  { id: 'dm-hard', icon: '🧠', name: 'Bậc thầy gỡ mìn', desc: 'Thắng 1 ván Dò Mìn Khó', ok: () => false },
+  { id: 'dm-fast', icon: '⚡', name: 'Thần tốc gỡ mìn', desc: 'Thắng 1 ván Dò Mìn Dễ trong chưa đầy 60 giây', ok: () => false },
+  { id: 't4-512', icon: '🟧', name: 'Ô 512 đầu tiên', desc: 'Đạt ô 512 trong 1 ván 2048', ok: () => false },
+  { id: 't4-1024', icon: '🟨', name: 'Ô 1024 đầu tiên', desc: 'Đạt ô 1024 trong 1 ván 2048', ok: () => false },
+  { id: 't4-2048', icon: '👑', name: 'Chạm tới 2048!', desc: 'Đạt ô 2048 và thắng 1 ván 2048', ok: () => false },
+  { id: 't4-score', icon: '💯', name: 'Điểm cao 5000', desc: 'Đạt 5000 điểm trở lên trong 1 ván 2048', ok: () => false },
+  { id: 'mc-clean', icon: '🧹', name: 'Mắt tinh tay nhanh', desc: 'Thắng 1 ván Mạt Chược mà không dùng gợi ý lần nào', ok: () => false },
+  { id: 'mc-noshuffle', icon: '🔀', name: 'Không cần xào bài', desc: 'Thắng 1 ván Mạt Chược mà không xào bài lần nào', ok: () => false },
+  { id: 'mc-fast', icon: '⚡', name: 'Gỡ bài thần tốc', desc: 'Thắng 1 ván Mạt Chược trong chưa đầy 5 phút', ok: () => false },
+  { id: 'mc-noundo', icon: '↩️', name: 'Một mạch tới đích', desc: 'Thắng 1 ván Mạt Chược mà không hoàn tác lần nào', ok: () => false },
+  { id: 'll-princess', icon: '👸', name: 'Công chúa trong tay', desc: 'Thắng 1 ván Love Letter khi đang cầm Công chúa', ok: () => false },
+  { id: 'll-sweep', icon: '🧹', name: 'Toàn thắng', desc: 'Thắng 1 trận Love Letter mà thắng mọi vòng', ok: () => false },
+  { id: 'll-countess', icon: '🎀', name: 'Nữ bá tước khôn ngoan', desc: 'Thắng 1 ván Love Letter sau khi đã bỏ Nữ bá tước', ok: () => false },
+  { id: 'll-duel', icon: '⚔️', name: 'Đấu tay đôi', desc: 'Thắng 1 trận Love Letter 2 người', ok: () => false },
+  { id: 'sg-sashimi', icon: '🍣', name: 'Bộ ba Sashimi', desc: 'Thắng 1 ván Sushi Go khi đã đủ bộ 3 Sashimi', ok: () => false },
+  { id: 'sg-tempura', icon: '🍤', name: 'Cặp Tempura', desc: 'Thắng 1 ván Sushi Go khi đã đủ cặp Tempura', ok: () => false },
+  { id: 'sg-wasabi', icon: '🌶️', name: 'Wasabi cay nồng', desc: 'Thắng 1 ván Sushi Go khi đã ăn Nigiri trên Wasabi (nhân 3 điểm)', ok: () => false },
+  { id: 'sg-pudding', icon: '🍮', name: 'Vua Pudding', desc: 'Thắng 1 ván Sushi Go khi có nhiều Pudding nhất', ok: () => false },
+  { id: 'l6-clean', icon: '🧼', name: 'Sạch bong', desc: 'Thắng 1 ván Lấy 6 mà không ăn lá phạt nào', ok: () => false },
+  { id: 'l6-taker', icon: '🐂', name: 'Ôm cả dãy', desc: 'Thắng 1 ván Lấy 6 dù đã ôm trọn 1 dãy (5 lá phạt trở lên)', ok: () => false },
+  { id: 'l6-crowd', icon: '👥', name: 'Đông vui', desc: 'Thắng 1 ván Lấy 6 với 10 người chơi', ok: () => false },
+  { id: 'l6-tight', icon: '🎯', name: 'Sít sao', desc: 'Thắng 1 ván Lấy 6 với tối đa 3 đầu bò', ok: () => false },
+  { id: 'sb-sab', icon: '😈', name: 'Kẻ phá hoại', desc: 'Thắng 1 trận Saboteur khi là kẻ phá hoại', ok: () => false },
+  { id: 'sb-digger', icon: '⛏️', name: 'Thợ đào vàng', desc: 'Thắng 1 trận Saboteur khi là thợ đào vàng', ok: () => false },
+  { id: 'sb-rich', icon: '💰', name: 'Đại gia vàng', desc: 'Thắng 1 trận Saboteur với ít nhất 8 cục vàng', ok: () => false },
+  { id: 'sb-crowd', icon: '👥', name: 'Đông vui', desc: 'Thắng 1 trận Saboteur với 10 người chơi', ok: () => false },
+  { id: 'sk-clean', icon: '🌹', name: 'Tay sạch', desc: 'Thắng 1 trận Skull mà không mất đĩa nào', ok: () => false },
+  { id: 'sk-survivor', icon: '💀', name: 'Người sống sót', desc: 'Thắng 1 trận Skull khi là người sống sót cuối cùng', ok: () => false },
+  { id: 'sk-comeback', icon: '💪', name: 'Lật kèo', desc: 'Thắng 1 trận Skull dù đã mất ít nhất 1 đĩa', ok: () => false },
+  { id: 'sk-crowd', icon: '👥', name: 'Đông vui', desc: 'Thắng 1 trận Skull với 6 người chơi', ok: () => false },
+  { id: 'hb-perfect', icon: '🎆', name: 'Pháo hoa hoàn hảo', desc: 'Thắng 1 trận Hanabi với 25/25 điểm', ok: () => false },
+  { id: 'hb-clean', icon: '✨', name: 'Không một vết xước', desc: 'Thắng 1 trận Hanabi mà không mất ngòi nổ nào', ok: () => false },
+  { id: 'hb-clutch', icon: '💪', name: 'Thắng trong gang tấc', desc: 'Thắng 1 trận Hanabi khi chỉ còn 1 ngòi nổ', ok: () => false },
+  { id: 'hb-crowd', icon: '👥', name: 'Đông vui', desc: 'Thắng 1 trận Hanabi với 5 người chơi', ok: () => false },
+  { id: 'ch-uu', icon: '🏆', name: 'Ù Chắn', desc: 'Thắng 1 trận Chắn bằng cách ù', ok: () => false },
+  { id: 'ch-chiu', icon: '✋', name: 'Chíu thần sầu', desc: 'Thắng 1 trận Chắn có chíu', ok: () => false },
+  { id: 'ch-thap', icon: '🔟', name: 'Thập thành', desc: 'Thắng 1 trận Chắn với ù thập thành (10 chắn)', ok: () => false },
+  { id: 'ch-crowd', icon: '👥', name: 'Bàn đông đủ', desc: 'Thắng 1 trận Chắn 4 người', ok: () => false },
+  { id: 'tt-uu', icon: '🏆', name: 'Ù Tổ Tôm', desc: 'Thắng 1 trận Tổ Tôm bằng cách ù', ok: () => false },
+  { id: 'tt-phu', icon: '🎴', name: 'Phu đặc biệt', desc: 'Thắng 1 trận Tổ Tôm có phu tôm hoặc phu lèo', ok: () => false },
+  { id: 'tt-khanh', icon: '✋', name: 'Khàn chíu', desc: 'Thắng 1 trận Tổ Tôm có khàn hoặc chíu', ok: () => false },
+  { id: 'tt-crowd', icon: '👥', name: 'Bàn đông đủ', desc: 'Thắng 1 trận Tổ Tôm 5 người', ok: () => false },
+  { id: 'ca-city', icon: '🏰', name: 'Thành phố lớn', desc: 'Thắng 1 trận Carcassonne với 1 thành phố hoàn thành từ 10 điểm trở lên', ok: () => false },
+  { id: 'ca-monk', icon: '⛪', name: 'Tu sĩ tận tâm', desc: 'Thắng 1 trận Carcassonne có hoàn thành 1 tu viện', ok: () => false },
+  { id: 'ca-farm', icon: '🌾', name: 'Chúa ruộng', desc: 'Thắng 1 trận Carcassonne với nhiều điểm ruộng nhất cuối ván', ok: () => false },
+  { id: 'ca-crowd', icon: '👥', name: 'Bàn đông đủ', desc: 'Thắng 1 trận Carcassonne 5 người', ok: () => false },
+  { id: 'az-row', icon: '➖', name: 'Một hàng ngang', desc: 'Thắng 1 trận Azul với 1 hàng ngang đủ trên tường', ok: () => false },
+  { id: 'az-col', icon: '↕️', name: 'Một cột dọc', desc: 'Thắng 1 trận Azul với 1 cột dọc đủ trên tường', ok: () => false },
+  { id: 'az-color', icon: '🌈', name: 'Đủ 5 màu', desc: 'Thắng 1 trận Azul với đủ 5 gạch 1 màu trên tường', ok: () => false },
+  { id: 'az-crowd', icon: '👥', name: 'Bàn đông đủ', desc: 'Thắng 1 trận Azul 4 người', ok: () => false },
+  { id: 'sp-noble', icon: '👑', name: 'Quý tộc ghé thăm', desc: 'Thắng 1 trận Splendor với ít nhất 1 quý tộc ghé thăm', ok: () => false },
+  { id: 'sp-gold', icon: '🪙', name: 'Vàng trong tay', desc: 'Thắng 1 trận Splendor khi còn giữ ít nhất 1 vàng lúc kết thúc', ok: () => false },
+  { id: 'sp-rich', icon: '💰', name: 'Đại gia 20 điểm', desc: 'Thắng 1 trận Splendor với 20 điểm trở lên', ok: () => false },
+  { id: 'sp-crowd', icon: '👥', name: 'Bàn đông đủ', desc: 'Thắng 1 trận Splendor 4 người', ok: () => false },
+  { id: 'chn-first', icon: '🥇', name: 'Về nhà đầu tiên', desc: 'Thắng 1 trận Cờ Nhảy — đưa cả 10 bi về nhà đích trước tiên', ok: () => false },
+  { id: 'chn-jump', icon: '🐇', name: 'Chuỗi nhảy dài', desc: 'Thắng 1 trận Cờ Nhảy với 1 chuỗi nhảy 4 bi trở lên trong 1 lượt', ok: () => false },
+  { id: 'chn-fast', icon: '⚡', name: 'Về nhà thần tốc', desc: 'Thắng 1 trận Cờ Nhảy trong chưa đầy 25 lượt đi của mình', ok: () => false },
+  { id: 'chn-crowd', icon: '🌟', name: 'Ngôi sao 6 cánh', desc: 'Thắng 1 trận Cờ Nhảy 6 người', ok: () => false },
+  { id: 'bg-gammon', icon: '🏆', name: 'Gammon', desc: 'Thắng 1 trận Backgammon kiểu Gammon (đối thủ chưa ra được quân nào)', ok: () => false },
+  { id: 'bg-backgammon', icon: '💥', name: 'Backgammon', desc: 'Thắng 1 trận Backgammon kiểu Backgammon (đối thủ còn quân trên vạch hoặc trong sân nhà mình)', ok: () => false },
+  { id: 'bg-hitter', icon: '🎯', name: 'Kẻ đánh trúng', desc: 'Đánh trúng 3 blot trở lên trong 1 trận Backgammon', ok: () => false },
+  { id: 'bg-cuber', icon: '📈', name: 'Bậc thầy gấp đôi', desc: 'Thắng 1 trận Backgammon có dùng cube gấp đôi (hoặc đối thủ từ chối gấp đôi)', ok: () => false },
+  { id: 'rk-joker', icon: '🃏', name: 'Joker thần thánh', desc: 'Thắng 1 trận Rummikub mà đã đánh ít nhất 1 joker', ok: () => false },
+  { id: 'rk-empty', icon: '🏆', name: 'Hết bài!', desc: 'Thắng 1 trận Rummikub bằng cách hết bài trên tay', ok: () => false },
+  { id: 'rk-rush', icon: '⚡', name: 'Xếp bài thần tốc', desc: 'Thắng 1 trận Rummikub trong 20 lượt đi của mình trở xuống', ok: () => false },
+  { id: 'rk-sweep', icon: '💯', name: 'Trăm điểm', desc: 'Thắng 1 trận Rummikub với 100 điểm trở lên', ok: () => false },
+  { id: 'qd-fast', icon: '⚡', name: 'Chạy nước rút', desc: 'Thắng 1 trận Quoridor trong 10 lượt đi của mình trở xuống', ok: () => false },
+  { id: 'qd-saver', icon: '🧱', name: 'Tiết kiệm tường', desc: 'Thắng 1 trận Quoridor mà còn ít nhất 5 tường', ok: () => false },
+  { id: 'qd-close', icon: '😱', name: 'Sát nút', desc: 'Thắng 1 trận Quoridor khi có đối thủ chỉ còn cách đích 1 ô', ok: () => false },
+  { id: 'qd-spent', icon: '💥', name: 'Dùng hết tường', desc: 'Thắng 1 trận Quoridor mà đã dùng hết tường', ok: () => false },
+  { id: 'bk-perfect', icon: '🌟', name: 'Hoàn hảo', desc: 'Thắng 1 trận Blokus với tổng thưởng từ 20 trở lên', ok: () => false },
+  { id: 'bk-full', icon: '🧩', name: 'Hết mảnh một màu', desc: 'Thắng 1 trận Blokus mà đặt hết 21 mảnh của ít nhất 1 màu', ok: () => false },
+  { id: 'bk-clean', icon: '✨', name: 'Sạch bàn', desc: 'Thắng 1 trận Blokus mà chỉ còn 10 ô trở xuống chưa đặt', ok: () => false },
+  { id: 'bk-quick', icon: '⚡', name: 'Nhanh tay', desc: 'Thắng 1 trận Blokus 2 người mà chỉ đặt 35 mảnh trở xuống', ok: () => false },
   { id: 'tl-trang', icon: '🙏', name: 'Ơn trên phù hộ', desc: 'Thắng trắng (tới trắng)', ok: () => false },
   { id: 'tl-chop', icon: '🐷', name: 'HEO HẢ MẢY???', desc: 'Chặt heo', ok: () => false },
   { id: 'tl-cong', icon: '🥶', name: 'Cold Palmer', desc: 'Thua cóng', ok: () => false },
@@ -392,6 +553,346 @@ const SP = {
   masoi: {
     tick(v, me, m) { if (v.me && v.me.role) m.role = v.me.role; const p = spBy(v, me); if (p.alive === false && p.diedDay != null && m.dd == null) m.dd = p.diedDay; },
     end(v, me, m, w) { const out = [], role = (v.me && v.me.role) || m.role, alive = v.me ? v.me.alive : spBy(v, me).alive; if (role === 'villager' && alive && w) out.push('ms-villager'); if (w && ['wolf', 'alpha', 'cub'].includes(role)) out.push('ms-wolfwin'); if (m.dd != null && m.dd <= 1 && !alive) out.push('ms-night1'); return out; } },
+  giandiep: {
+    tick(v, me, m) { if (v.you && v.you.role) m.role = v.you.role; },
+    end(v, me, m, w) { const out = [], role = (v.you && v.you.role) || m.role, you = v.you || {};
+      if (w && role === 'spy') out.push('gd-spywin');
+      if ((v.firstVoteCatchers || []).includes(me)) out.push('gd-firstvote');
+      if ((you.survived || 0) >= 3) out.push('gd-survive3');
+      if (w && v.winSide === 'civ' && (v.civLost || 0) === 0) out.push('gd-perfect');
+      return out; } },
+  codam: {
+    tick(v, me, m) { const l = v.lastMove; if (!l || l.n === m.lmn) return; m.lmn = l.n;
+      if (l.by !== me) return;
+      if (l.captured && l.captured.length) {
+        if (m.chainTurn !== v.turnNo) { m.chain = 0; m.chainTurn = v.turnNo; }
+        m.chain = (m.chain || 0) + l.captured.length; }
+      if (l.crowned) m.crowns = (m.crowns || 0) + 1; },
+    end(v, me, m, w) { const out = [];
+      if (w && v.endReason === 'blocked') out.push('cd-blockwin');
+      if ((m.crowns || 0) >= 3) out.push('cd-kings3');
+      if ((m.chain || 0) >= 3) out.push('cd-jump3');
+      if (w) { const sd = (v.players || []).find(p => p.id === me); let n = 0;
+        for (const c of v.cells || []) if (c !== 0 && (c > 0) === (sd && sd.side === 'R')) n++;
+        if (n <= 3) out.push('cd-endgame3'); }
+      return out; } },
+  lieng: {
+    tick(v, me, m) { const you = v.you || {}; if (you.info) m.info = you.info; },
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const meP = (v.players || []).find(p => p.id === me) || {};
+      const kind = (m.info && m.info.kind) || (meP.info && meP.info.kind);
+      if (kind === 'sap') out.push('lg-sap');
+      if (kind === 'lieng') out.push('lg-lieng');
+      if (kind === 'anh') out.push('lg-anh');
+      if (v.endReason === 'foldwin') out.push('lg-noshow');
+      return out; } },
+  maubinh: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const meP = (v.players || []).find(p => p.id === me) || {};
+      const r = meP.res || {};
+      if (r.special === 'dragon') out.push('mb-dragon');
+      if (r.special) out.push('mb-special');
+      if (r.quadsBot) out.push('mb-quads');
+      for (const k in (r.vs || {})) { const a = r.vs[k]; if (a && a[0] === 1 && a[1] === 1 && a[2] === 1) { out.push('mb-sweep'); break; } }
+      return out; } },
+  xito: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const meP = (v.players || []).find(p => p.id === me) || {};
+      const r = meP.res || {};
+      if (r.handCat === 9) out.push('xt-sf');
+      if (r.handCat === 8) out.push('xt-quads');
+      if (r.allin) out.push('xt-allin');
+      if (v.endReason === 'foldwin') out.push('xt-noshow');
+      return out; } },
+  colat: {
+    tick(v, me, m) { const l = v.lastMove; if (!l || l.n === m.lmn) return; m.lmn = l.n;
+      if (l.by !== me) return;
+      const c = v.counts || {};
+      const sd = (v.players || []).find(p => p.id === me) || {};
+      const mine = sd.side === 'B' ? c.B : c.W;
+      const theirs = sd.side === 'B' ? c.W : c.B;
+      const def = (theirs || 0) - (mine || 0);
+      if (def > (m.maxDef || 0)) m.maxDef = def;
+      if ((l.flipped || []).length > (m.maxFlip || 0)) m.maxFlip = l.flipped.length; },
+    end(v, me, m, w) { const out = [];
+      if ((m.maxFlip || 0) >= 8) out.push('cl-flip8');
+      if (!w) return out;
+      const c = v.counts || {};
+      const sd = (v.players || []).find(p => p.id === me) || {};
+      const mine = sd.side === 'B' ? c.B : c.W;
+      const theirs = sd.side === 'B' ? c.W : c.B;
+      if ((mine || 0) - (theirs || 0) >= 40) out.push('cl-margin40');
+      if ((m.maxDef || 0) >= 20) out.push('cl-comeback');
+      let corners = 0;
+      for (const [x, y] of [[0, 0], [7, 0], [0, 7], [7, 7]]) {
+        const cell = (v.cells || [])[y * 8 + x];
+        if (cell !== 0 && (cell === 1) === (sd.side === 'B')) corners++;
+      }
+      if (corners === 4) out.push('cl-corners');
+      return out; } },
+  domino: {
+    tick(v, me, m) {
+      /* chênh lệch điểm lớn nhất từng bị dẫn (tính từ điểm trận hiện tại) */
+      const ps = v.players || [];
+      const mine = (ps.find(p => p.id === me) || {}).score || 0;
+      let mx = 0; for (const p of ps) mx = Math.max(mx, p.score || 0);
+      if (mx - mine > (m.maxDef || 0)) m.maxDef = mx - mine;
+      /* nước đặt quân mới: thắng ván bằng [6|6] cuối cùng (tile 27) */
+      const l = v.lastPlay;
+      if (l && l.n !== m.lpn) { m.lpn = l.n;
+        if (l.by === me && l.tile === 27 && l.left === 0) m.d6 = 1; }
+      /* ván vừa kết thúc: khóa ván / quét 40+ điểm (khóa theo ván số + lý do) */
+      const h = v.handEnd;
+      if (h) { const key = v.handNo + '|' + h.reason + '|' + (h.winnerId || '');
+        if (m.hek !== key) { m.hek = key;
+          if (h.winnerId === me && h.reason === 'blocked') m.blockedWin = 1;
+          if (h.winnerId === me && h.reason === 'domino' && (h.points || 0) >= 40) m.sweep = 1; } } },
+    end(v, me, m, w) { const out = [];
+      if (m.d6) out.push('dm-double6');
+      if (m.blockedWin) out.push('dm-block');
+      if (m.sweep) out.push('dm-sweep');
+      if (w && (m.maxDef || 0) >= 30) out.push('dm-comeback');
+      return out; } },
+  connect4: {
+    tick(v, me, m) { const l = v.lastMove; if (!l || l.n === m.lmn) return; m.lmn = l.n;
+      /* đếm số lần mình chặn nước thắng của đối thủ trong ván này */
+      if (l.by === me && l.blocked) m.blocks = (m.blocks || 0) + 1; },
+    end(v, me, m, w) { const out = [];
+      if ((m.blocks || 0) >= 3) out.push('cf-block3');
+      if (!w) return out;
+      /* thắng trong 10 nước trở xuống = tổng quân trên bàn lúc kết thúc ≤ 10 */
+      if ((v.counts || {}).total <= 10) out.push('cf-fast');
+      const d = (v.lastMove || {}).winDir;
+      if (d === 'v') out.push('cf-vert');
+      if (d === 'd') out.push('cf-diag');
+      return out; } },
+  matthu: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if ((v.winClueNum || 0) >= 5) out.push('mt-clue5');
+      if (((v.wrong || {})[v.myTeam] || 0) === 0) out.push('mt-clean');
+      if (v.winLastCard) out.push('mt-lastcard');
+      if (((v.deficit || {})[v.myTeam] || 0) >= 4) out.push('mt-comeback');
+      return out; } },
+  avalon: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if (v.myRole === 'merlin' && v.endReason !== 'assassin') out.push('av-merlin');
+      if (v.myRole === 'assassin' && v.endReason === 'assassin') out.push('av-assassin');
+      if (v.q4Double) out.push('av-q4');
+      if (v.myRole === 'oberon') out.push('av-oberon');
+      return out; } },
+  spyfall: {
+    /* mỗi ván ghi cờ 1 lần (tick chạy nhiều lần trên cùng 1 view): ván thắng
+       với vai trò gì, bằng cách nào — end() chỉ mở khi thắng cả trận */
+    tick(v, me, m) {
+      if (v.phase !== 'roundover' && v.phase !== 'ended') return;
+      const key = 'sf' + v.roundNo;
+      if (m[key]) return; m[key] = 1;
+      if (!(v.roundWinnerIds || []).includes(me)) return;
+      if (v.amSpy) {
+        if (v.endReason === 'spy-guess' || v.endReason === 'spy-early-guess') m.spyguess = 1;
+        else if (v.endReason === 'wrong-accuse' || v.endReason === 'tie') m.survive = 1;
+      } else {
+        if (v.endReason === 'spy-guess-wrong' && v.myVote === v.spyId) m.firstvote = 1;
+        if ((v.votesAgainstMe || 0) === 0) m.ghost = 1;
+      }
+    },
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if (m.spyguess) out.push('sf-spyguess');
+      if (m.survive) out.push('sf-survive');
+      if (m.firstvote) out.push('sf-firstvote');
+      if (m.ghost) out.push('sf-ghost');
+      return out; } },
+  sudoku: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if (v.difficulty === 'easy' && (v.you?.mistakes || 0) === 0) out.push('su-clean');
+      if (v.difficulty === 'hard') out.push('su-hard');
+      if (v.difficulty === 'expert') out.push('su-expert');
+      if ((v.you?.hintsUsed || 0) === 0) out.push('su-nohint');
+      return out; } },
+  wordle: {
+    end(v, me, m, w, cnt) { const out = [];
+      if (w) {
+        const gs = v.you?.guesses || [];
+        if (gs.length >= 1 && gs.length <= 2) out.push('wd-quick');
+        if (gs.length > 0 && gs.every(g => (g.marks || []).every(x => x !== 'gray'))) out.push('wd-clean');
+        if (gs.length === 6) out.push('wd-last');
+        cnt('wdstreak', 1);
+      } else cnt('wdstreak', -cnt('wdstreak'));
+      if (cnt('wdstreak') >= 3) out.push('wd-streak3');
+      return out; } },
+  domi: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if (v.difficulty === 'easy' && (v.you?.flags || []).length === 0) out.push('dm-clean');
+      if (v.difficulty === 'medium') out.push('dm-medium');
+      if (v.difficulty === 'hard') out.push('dm-hard');
+      if (v.difficulty === 'easy' && v.startedAt && v.endedAt && (v.endedAt - v.startedAt) < 60000) out.push('dm-fast');
+      return out; } },
+  s2048: {
+    end(v, me, m, w) { const out = [];
+      const mt = v.you?.maxTile || 0, sc = v.you?.score || 0;
+      if (mt >= 512) out.push('t4-512');
+      if (mt >= 1024) out.push('t4-1024');
+      if (sc >= 5000) out.push('t4-score');
+      if (w && mt >= 2048) out.push('t4-2048');
+      return out; } },
+  matchu: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if ((v.you?.hintsUsed || 0) === 0) out.push('mc-clean');
+      if ((v.you?.shufflesUsed || 0) === 0) out.push('mc-noshuffle');
+      if (v.startedAt && v.endedAt && (v.endedAt - v.startedAt) < 300000) out.push('mc-fast');
+      if ((v.you?.undosLeft ?? 0) === 5) out.push('mc-noundo');
+      return out; } },
+  loveletter: {
+    end(v, me, m, w) { const out = [], p = spBy(v, me);
+      if (!w) return out;
+      if ((p.hand || []).some(c => String(c).startsWith('princess'))) out.push('ll-princess');
+      if (p.tokens && v.round && p.tokens === v.round) out.push('ll-sweep');
+      if ((p.discards || []).some(c => String(c).startsWith('countess'))) out.push('ll-countess');
+      if ((v.players || []).length === 2) out.push('ll-duel');
+      return out; } },
+  sushigo: {
+    end(v, me, m, w) { const out = [], p = spBy(v, me), played = p.played || [];
+      if (!w) return out;
+      const n = k => played.filter(e => e.kind === k).length;
+      if (n('sashimi') >= 3) out.push('sg-sashimi');
+      if (n('tempura') >= 2) out.push('sg-tempura');
+      if (played.some(e => e.wasabi)) out.push('sg-wasabi');
+      const maxPud = Math.max(...(v.players || []).map(x => x.puddings || 0));
+      if ((p.puddings || 0) > 0 && (p.puddings || 0) >= maxPud) out.push('sg-pudding');
+      return out; } },
+  lay6: {
+    end(v, me, m, w) { const out = [], p = spBy(v, me);
+      if (!w) return out;
+      if ((p.bullheads || 0) === 0) out.push('l6-clean');
+      if ((p.taken || 0) >= 5) out.push('l6-taker');
+      if ((v.players || []).length === 10) out.push('l6-crowd');
+      if ((p.bullheads || 0) <= 3) out.push('l6-tight');
+      return out; } },
+  saboteur: {
+    end(v, me, m, w) { const out = [], p = spBy(v, me);
+      if (!w) return out;
+      if (p.role === 'saboteur') out.push('sb-sab');
+      if (p.role === 'digger') out.push('sb-digger');
+      if ((p.gold || 0) >= 8) out.push('sb-rich');
+      if ((v.players || []).length === 10) out.push('sb-crowd');
+      return out; } },
+  skull: {
+    end(v, me, m, w) { const out = [], p = spBy(v, me);
+      if (!w) return out;
+      if ((p.lostCount || 0) === 0) out.push('sk-clean');
+      if (v.endReason === 'match' && (p.points || 0) < 2) out.push('sk-survivor');
+      if ((p.lostCount || 0) >= 1) out.push('sk-comeback');
+      if ((v.players || []).length === 6) out.push('sk-crowd');
+      return out; } },
+  hanabi: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      if ((v.score || 0) >= 25) out.push('hb-perfect');
+      if ((v.fuses || 0) === 3) out.push('hb-clean');
+      if ((v.fuses || 0) === 1) out.push('hb-clutch');
+      if ((v.players || []).length === 5) out.push('hb-crowd');
+      return out; } },
+  chan: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      out.push('ch-uu');
+      if ((v.cuoc || []).includes('chiu')) out.push('ch-chiu');
+      if ((v.cuoc || []).includes('thap')) out.push('ch-thap');
+      if ((v.players || []).length === 4) out.push('ch-crowd');
+      return out; } },
+  totom: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      out.push('tt-uu');
+      if ((v.cuoc || []).includes('tom') || (v.cuoc || []).includes('leo')) out.push('tt-phu');
+      if ((v.cuoc || []).includes('khan')) out.push('tt-khanh');
+      if ((v.players || []).length === 5) out.push('tt-crowd');
+      return out; } },
+  carcassonne: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const comp = ((v.final || {}).completed || []);
+      if (comp.some(e => e.kind === 'city' && (e.owners || []).includes(me) && (e.points || 0) >= 10)) out.push('ca-city');
+      if (comp.some(e => e.kind === 'cloister' && (e.owners || []).includes(me))) out.push('ca-monk');
+      const fields = ((v.final || {}).fields || []);
+      const totals = {};
+      for (const f of fields) for (const pid of (f.owners || [])) totals[pid] = (totals[pid] || 0) + (f.points || 0);
+      const myField = totals[me] || 0;
+      if (myField > 0 && Object.values(totals).every(t => t <= myField)) out.push('ca-farm');
+      if ((v.players || []).length === 5) out.push('ca-crowd');
+      return out; } },
+  azul: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if ((sum.rows || 0) >= 1) out.push('az-row');
+      if ((sum.cols || 0) >= 1) out.push('az-col');
+      if ((sum.colours || 0) >= 1) out.push('az-color');
+      if ((v.players || []).length === 4) out.push('az-crowd');
+      return out; } },
+  splendor: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if ((sum.nobles || 0) >= 1) out.push('sp-noble');
+      if ((sum.gold || 0) >= 1) out.push('sp-gold');
+      if ((sum.score || 0) >= 20) out.push('sp-rich');
+      if ((v.players || []).length === 4) out.push('sp-crowd');
+      return out; } },
+  conhay: {
+    end(v, me, m, w) { const out = [];
+      if (!w) return out;
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      out.push('chn-first');
+      if ((sum.jumpChainMax || 0) >= 4) out.push('chn-jump');
+      if ((sum.turns || 0) < 25) out.push('chn-fast');
+      if ((v.players || []).length === 6) out.push('chn-crowd');
+      return out; } },
+  backgammon: {
+    end(v, me, m, w) { const out = [];
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if ((sum.hits || 0) >= 3) out.push('bg-hitter'); /* thắng hay thua đều tính — hits đếm cả ván */
+      if (!w) return out;
+      if (sum.winType === 'gammon') out.push('bg-gammon');
+      if (sum.winType === 'backgammon') out.push('bg-backgammon');
+      if (sum.cubeUsed === true || sum.winType === 'double') out.push('bg-cuber');
+      return out; } },
+  rummikub: {
+    end(v, me, m, w) { const out = [];
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if (!w) return out;
+      if ((sum.jokersPlayed || 0) >= 1) out.push('rk-joker');
+      if (v.endCause === 'empty-hand') out.push('rk-empty');
+      if ((sum.turns || 99) <= 20) out.push('rk-rush');
+      if ((sum.score || 0) >= 100) out.push('rk-sweep');
+      return out; } },
+  quoridor: {
+    end(v, me, m, w) { const out = [];
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if (!w) return out;
+      if ((sum.turns || 99) <= 10) out.push('qd-fast');
+      if ((sum.wallsLeft || 0) >= 5) out.push('qd-saver');
+      if (Object.entries(((v.final || {}).summary || {})).some(([pid, s]) => pid !== me && (s.dist || 99) <= 1)) out.push('qd-close');
+      if (sum.wallsLeft === 0) out.push('qd-spent');
+      return out; } },
+  blokus: {
+    end(v, me, m, w) { const out = [];
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if (!w) return out;
+      if ((sum.bonus || 0) >= 20) out.push('bk-perfect');
+      if ((sum.bonus || 0) >= 15) out.push('bk-full');
+      if ((sum.squaresLeft || 99) <= 10) out.push('bk-clean');
+      if ((v.players || []).length === 2 && (sum.turns || 99) <= 35) out.push('bk-quick');
+      return out; } },
   tienlen: {
     tick(v, me, m) { for (const e of spFx(v, m)) {
       if (e.k === 'toitrang' && e.from === me) m.trang = 1;
@@ -497,8 +998,10 @@ export function record(game, won, extra = [], info = {}) {
   const t = totals(s), fresh = checkFresh(s);
   for (const id of extra || []) { const a = ACH_BY_ID.get(id); if (a && a.soon) continue; /* thành tựu soon:true (chưa có cách phát hiện) không được record */ if (!s.ach[id]) { s.ach[id] = Date.now(); if (a) fresh.push({ ...a, id }); } } /* thành tựu riêng từng game do SP.end/tick phát hiện */
   save(s);
+  let xuEarned = 0; try { xuEarned = earnGame(won); } catch (e) {} /* 💰 ví xu chung toàn web */
   try { dispatchEvent(new CustomEvent('gumballz-stats', { detail: { game, won, fresh } })); } catch (e) {}
   const up = level(t); const msgs = []; if (up.lv > before) msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`);
+  if (xuEarned > 0) msgs.push(`🪙 +${xuEarned} xu vào ví`);
   if (fresh.length) setTimeout(() => import('./achpop.js?v=1').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
   if (msgs.length) import('./dialog.js?v=8').then(m => msgs.forEach((x, i) => setTimeout(() => m.toast(x, 3600), 1800 + i * 3800))).catch(() => {});
   return fresh;

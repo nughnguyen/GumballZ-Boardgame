@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#ABE0C6"/>
+  <path d="M38 44 L74 20 L82 28 L48 52 Z" fill="#8B7E9E" stroke="#4A3E5C" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="34" y="40" width="10" height="26" rx="3" transform="rotate(35 39 53)" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <rect x="70" y="16" width="10" height="26" rx="3" transform="rotate(35 75 29)" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <circle cx="60" cy="78" r="26" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="3"/>
+  <circle cx="51" cy="74" r="4" fill="#4A3E5C"/>
+  <circle cx="69" cy="74" r="4" fill="#4A3E5C"/>
+  <path d="M50 84 Q60 92 70 84" fill="none" stroke="#4A3E5C" stroke-width="3" stroke-linecap="round"/>
+  <path d="M40 58 Q48 50 56 56" fill="none" stroke="#4A3E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M64 56 Q72 50 80 58" fill="none" stroke="#4A3E5C" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="96" cy="24" r="13" fill="#FFD34D" stroke="#4A3E5C" stroke-width="2.5"/>
+  <text x="96" y="29" font-family="sans-serif" font-size="14" font-weight="bold" fill="#4A3E5C" text-anchor="middle">💰</text>
+</svg>

@@ -1,0 +1,73 @@
+/* 🔢 Sudoku – lưới 9×9, bàn phím số, thanh tiến độ đua.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.sd-wrap { max-width: 720px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.sd-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.sd-topbar .back-hub { position: static; flex: none; }
+.sd-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.sd-topbar .sp { flex: 1; }
+.sd-topbar .diff-chip { background: #fff3c4; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 800; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* thanh trạng thái: đồng hồ, lỗi, gợi ý */
+.sd-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 10px; }
+.sd-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 800; }
+.sd-status .stat .mist { color: #b3232a; letter-spacing: 2px; }
+.sd-status .stat .mist.ok { color: #2e7d32; }
+/* thanh tiến độ đua */
+.race { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.race-row { display: flex; align-items: center; gap: 8px; background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 12px; padding: 5px 10px; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.race-row.me { background: #fff3c4; }
+.race-row.out { opacity: .55; }
+.race-row .nm { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.race-row .bar { flex: 1; height: 12px; background: #fff; border: 2px solid #2a2340; border-radius: 999px; overflow: hidden; min-width: 60px; }
+.race-row .bar i { display: block; height: 100%; background: #abe0c6; transition: width .3s ease; }
+.race-row.me .bar i { background: #ffd273; }
+.race-row .cnt { font-weight: 800; font-size: 13px; white-space: nowrap; }
+.race-row .mist { font-size: 12px; font-weight: 800; color: #b3232a; white-space: nowrap; }
+/* lưới Sudoku */
+.sd-board { position: relative; width: min(100%, 480px); margin: 0 auto 12px; }
+.sd-grid { display: grid; grid-template-columns: repeat(9, 1fr); border: 3px solid #2a2340; border-radius: 12px; overflow: hidden; background: #fffdf5; box-shadow: 4px 4px 0 rgba(42,35,64,.16); }
+.sd-cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0; border-right: 1px solid #ddd3bd; border-bottom: 1px solid #ddd3bd; background: #fffdf5; font-family: 'Baloo 2', sans-serif; font-size: clamp(18px, 5.4vw, 28px); font-weight: 800; color: #2a2340; cursor: pointer; padding: 0; min-width: 0; }
+.sd-cell:nth-child(3n) { border-right-width: 3px; border-right-color: #2a2340; }
+.sd-cell:nth-child(9n) { border-right-width: 0; }
+.sd-cell:nth-child(n+19):nth-child(-n+27),
+.sd-cell:nth-child(n+46):nth-child(-n+54) { border-bottom-width: 3px; border-bottom-color: #2a2340; }
+.sd-cell:nth-child(n+73) { border-bottom-width: 0; }
+.sd-cell.given { color: #2a2340; cursor: default; }
+.sd-cell.entry { color: #2e5aac; }
+.sd-cell.hinted { color: #2e7d32; }
+.sd-cell.peer { background: #fdf3dc; }
+.sd-cell.same { background: #ffe9a8; }
+.sd-cell.sel { background: #ffd273; outline: 3px solid #2a2340; outline-offset: -3px; z-index: 1; }
+.sd-cell.wrong { background: #ffd9d4; animation: sd-shake .3s ease; }
+@keyframes sd-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.sd-cell .notes { position: absolute; inset: 8%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); font-size: clamp(7px, 2vw, 11px); font-weight: 800; color: #6b6480; line-height: 1; }
+.sd-cell .notes span { display: flex; align-items: center; justify-content: center; }
+.sd-cell:disabled { cursor: default; }
+/* lớp che khi tạm dừng */
+.sd-pause-veil { position: absolute; inset: 0; background: #fff8ee; border: 3px solid #2a2340; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 5; text-align: center; padding: 16px; }
+.sd-pause-veil b { font: 400 24px 'Baloo 2', sans-serif; }
+.sd-pause-veil p { margin: 0; font-weight: 700; color: #6b6480; }
+/* bàn phím số */
+.sd-pad { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; width: min(100%, 480px); margin: 0 auto 10px; }
+.sd-num { min-height: 52px; border: 3px solid #2a2340; border-radius: 12px; background: #fffdf5; box-shadow: 3px 3px 0 rgba(42,35,64,.16); font: 800 22px 'Baloo 2', sans-serif; color: #2a2340; cursor: pointer; padding: 0; position: relative; }
+.sd-num small { display: block; font: 800 11px 'Nunito', sans-serif; color: #6b6480; }
+.sd-num:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(42,35,64,.16); }
+.sd-num:disabled { opacity: .35; cursor: default; }
+.sd-num.on { background: #ffd273; }
+@media (max-width: 480px) { .sd-pad { grid-template-columns: repeat(5, 1fr); } .sd-num { min-height: 48px; } }
+/* hàng nút hành động */
+.sd-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.sd-actions .btn { flex: 1 1 auto; max-width: 200px; min-height: 48px; }
+.sd-actions .btn.on { background: #ffd273; }
+.sd-actions .btn:disabled { opacity: .45; }
+.panel { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px 14px; margin-bottom: 10px; }
+.panel h3 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+.panel .sub { font-size: 13px; font-weight: 700; color: #6b6480; margin: -4px 0 8px; }
+.sd-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.sd-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.sd-log div:last-child { border-bottom: 0; }
+.sd-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.sd-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.sd-foot { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+.timer-chip { display: inline-block; background: #fff3c4; border: 2px solid #2a2340; border-radius: 999px; padding: 1px 10px; font-size: 14px; }
+.timer-chip.low { background: #ffd9d4; }

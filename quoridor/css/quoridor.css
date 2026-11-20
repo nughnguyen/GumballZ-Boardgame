@@ -1,0 +1,89 @@
+/* 🧱 Quoridor – bàn 9×9 + khe tường, bấm ô để đi, bấm khe để đặt tường.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.qd-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.qd-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.qd-topbar .back-hub { position: static; flex: none; }
+.qd-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.qd-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.qd-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.qd-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.qd-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+.qd-status .stat .opened { color: #2e8b57; }
+/* bàn: lưới 17×17 — ô cờ ở vị trí chẵn, khe tường ở vị trí lẻ */
+.qd-board-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
+.qd-board {
+  --cell: 44px; --gap: 10px;
+  display: grid; grid-template-columns: repeat(17, auto); grid-template-rows: repeat(17, auto);
+  background: #ffe3a3; border: 3px solid #2a2340; border-radius: 16px;
+  box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 8px; box-sizing: border-box;
+}
+.qd-cell {
+  width: var(--cell); height: var(--cell); background: #fffdf5; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; box-sizing: border-box;
+  border: 2px solid transparent; position: relative;
+}
+.qd-cell:hover { background: #fff3d6; }
+.qd-cell.dest { background: #ffe9a8; border-color: #e8a100; cursor: pointer; }
+.qd-cell.dest::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: #e8a100; opacity: .85; }
+.qd-cell.sel { outline: 3px solid #ffd273; outline-offset: 1px; }
+.qd-cell.goal-0 { box-shadow: inset 0 4px 0 #d64545; }
+.qd-cell.goal-1 { box-shadow: inset 0 -4px 0 #3b6fd4; }
+.qd-cell.goal-2 { box-shadow: inset -4px 0 0 #e8821e; }
+.qd-cell.goal-3 { box-shadow: inset 4px 0 0 #2e8b57; }
+.qd-pawn {
+  width: 72%; height: 72%; border-radius: 50%; border: 3px solid #2a2340;
+  box-shadow: 2px 2px 0 rgba(42,35,64,.3); box-sizing: border-box; flex: none;
+}
+.qd-pawn.p0 { background: #e05d5d; }
+.qd-pawn.p1 { background: #5b8def; }
+.qd-pawn.p2 { background: #f08a24; }
+.qd-pawn.p3 { background: #3fae6a; }
+.qd-pawn.mine { cursor: pointer; }
+.qd-hgap { width: var(--cell); height: var(--gap); border-radius: 3px; }
+.qd-vgap { width: var(--gap); height: var(--cell); border-radius: 3px; }
+.qd-x { width: var(--gap); height: var(--gap); border-radius: 3px; }
+.qd-hgap.wall, .qd-x.wall-h { background: #2a2340; }
+.qd-vgap.wall, .qd-x.wall-v { background: #2a2340; }
+.qd-x.anchor { cursor: pointer; }
+.qd-x.anchor:hover { background: #b9a8e8; }
+.qd-x.anchor.preview-h { background: #7c5cff; }
+.qd-x.anchor.preview-v { background: #7c5cff; }
+/* hàng người chơi */
+.qd-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .qd-players { grid-template-columns: 1fr; } }
+.qd-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.qd-player.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.qd-player.me { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.qd-player.me.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.qd-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.qd-pinfo b { font-size: 15px; }
+.qd-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.qd-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.qd-dot { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #2a2340; flex: none; margin-top: 2px; }
+.qd-dot.p0 { background: #e05d5d; }
+.qd-dot.p1 { background: #5b8def; }
+.qd-dot.p2 { background: #f08a24; }
+.qd-dot.p3 { background: #3fae6a; }
+/* dòng trạng thái lượt */
+.qd-stage { text-align: center; font-weight: 800; font-size: 15px; margin-bottom: 10px; min-height: 22px; }
+.qd-stage .ok { color: #2e8b57; }
+.qd-stage .need { color: #b8860b; }
+/* hàng nút trong ván */
+.qd-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.qd-actions-row .btn { flex: 1 1 auto; max-width: 220px; }
+.qd-actions-row .btn.on { outline: 3px solid #ffd273; outline-offset: 2px; background: #ffe9a8; }
+.qd-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.qd-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.qd-log div:last-child { border-bottom: 0; }
+.qd-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .qd-topbar h1 { font-size: 22px; }
+  .qd-board { --cell: 34px; --gap: 8px; padding: 6px; }
+}
+@media (max-width: 400px) {
+  .qd-board { --cell: 30px; --gap: 7px; padding: 5px; }
+}
+@media (max-width: 480px) {
+  .qd-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
+}

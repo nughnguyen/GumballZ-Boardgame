@@ -23,7 +23,7 @@ const GEN = [
   { id: 'p1000', icon: '🏰', name: 'Ông chủ bàn cờ', desc: 'Chơi 1000 ván', ok: s => s.p >= 1000 },
   { id: 's10', icon: '🌪️', name: 'Bất khả chiến bại', desc: 'Thắng 10 ván liên tiếp', ok: s => s.best >= 10 },
   { id: 'k20', icon: '🗺️', name: 'Nhà thám hiểm', desc: 'Chơi 20 game khác nhau', ok: s => s.kinds >= 20 },
-  { id: 'k39', icon: '🧭', name: 'Bậc thầy khám phá', desc: 'Chơi đủ 39 game', ok: s => s.kinds >= 39 },
+  { id: 'k46', icon: '🧭', name: 'Bậc thầy khám phá', desc: 'Chơi đủ 50 game', ok: s => s.kinds >= 50 },
   { id: 'd30', icon: '🌳', name: 'Cây đa cây đề', desc: 'Chơi vào 30 ngày khác nhau', ok: s => s.days >= 30 },
   { id: 'd100', icon: '🗓️', name: 'Gắn bó trăm ngày', desc: 'Chơi vào 100 ngày khác nhau', ok: s => s.days >= 100 },
   { id: 'w50', icon: '💎', name: 'Trùm cuối', desc: 'Thắng 50 ván', ok: s => s.w >= 50 },

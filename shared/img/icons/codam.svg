@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- bàn Cờ Đam mini 8x8: ô sáng kem + ô tối nâu -->
+<rect x="26" y="14" width="160" height="152" rx="12" fill="#F6EAD2" stroke="#2a2340" stroke-width="3"/>
+<g>
+<rect x="45" y="14" width="20" height="19" fill="#8F6A4A"/><rect x="85" y="14" width="20" height="19" fill="#8F6A4A"/><rect x="125" y="14" width="20" height="19" fill="#8F6A4A"/><rect x="165" y="14" width="20" height="19" fill="#8F6A4A"/>
+<rect x="26" y="33" width="19" height="19" fill="#8F6A4A"/><rect x="65" y="33" width="20" height="19" fill="#8F6A4A"/><rect x="105" y="33" width="20" height="19" fill="#8F6A4A"/><rect x="145" y="33" width="20" height="19" fill="#8F6A4A"/>
+<rect x="45" y="52" width="20" height="19" fill="#8F6A4A"/><rect x="85" y="52" width="20" height="19" fill="#8F6A4A"/><rect x="125" y="52" width="20" height="19" fill="#8F6A4A"/><rect x="165" y="52" width="20" height="19" fill="#8F6A4A"/>
+<rect x="26" y="71" width="19" height="19" fill="#8F6A4A"/><rect x="65" y="71" width="20" height="19" fill="#8F6A4A"/><rect x="105" y="71" width="20" height="19" fill="#8F6A4A"/><rect x="145" y="71" width="20" height="19" fill="#8F6A4A"/>
+<rect x="45" y="90" width="20" height="19" fill="#8F6A4A"/><rect x="85" y="90" width="20" height="19" fill="#8F6A4A"/><rect x="125" y="90" width="20" height="19" fill="#8F6A4A"/><rect x="165" y="90" width="20" height="19" fill="#8F6A4A"/>
+<rect x="26" y="109" width="19" height="19" fill="#8F6A4A"/><rect x="65" y="109" width="20" height="19" fill="#8F6A4A"/><rect x="105" y="109" width="20" height="19" fill="#8F6A4A"/><rect x="145" y="109" width="20" height="19" fill="#8F6A4A"/>
+<rect x="45" y="128" width="20" height="19" fill="#8F6A4A"/><rect x="85" y="128" width="20" height="19" fill="#8F6A4A"/><rect x="125" y="128" width="20" height="19" fill="#8F6A4A"/><rect x="165" y="128" width="20" height="19" fill="#8F6A4A"/>
+<rect x="26" y="147" width="19" height="19" fill="#8F6A4A"/><rect x="65" y="147" width="20" height="19" fill="#8F6A4A"/><rect x="105" y="147" width="20" height="19" fill="#8F6A4A"/><rect x="145" y="147" width="20" height="19" fill="#8F6A4A"/>
+</g>
+<!-- quân Đen ở trên -->
+<g transform="translate(55 42)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(95 42)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(135 42)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(75 61)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- quân Đen bị nhảy qua (nạn nhân) -->
+<g transform="translate(115 99)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- quân Đỏ đang nhảy qua quân Đen -->
+<g transform="translate(95 118)"><circle r="8.5" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- mũi tên nhảy chéo -->
+<path d="M100 112 L126 88" fill="none" stroke="#E0432F" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1 6"/>
+<path d="M122 84 L134 86 L126 96 Z" fill="#E0432F" stroke="#2a2340" stroke-width="2" stroke-linejoin="round"/>
+<!-- quân Đỏ đã phong Vua -->
+<g transform="translate(135 80)"><circle r="9" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="5.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/><text y="-12" text-anchor="middle" font-size="13">👑</text></g>
+<!-- quân Đỏ ở dưới -->
+<g transform="translate(55 156)"><circle r="8" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(95 156)"><circle r="8" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(155 137)"><circle r="8" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- huy hiệu Cờ Đam -->
+<g transform="translate(296 90)">
+<circle r="52" fill="#FFD273" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<g transform="translate(-14 -14)"><circle r="12" fill="#E0432F" stroke="#2a2340" stroke-width="2.5"/><circle r="6.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(14 12)"><circle r="12" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="6.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<text y="-30" text-anchor="middle" font-size="18">👑</text>
+<text y="34" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="20" font-weight="800" fill="#2a2340">CỜ ĐAM</text>
+</g>
+<path d="M214 30 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M368 150 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFB9CF" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

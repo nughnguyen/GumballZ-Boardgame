@@ -9,8 +9,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const CELL = 34; /* px 1 ô ở zoom 1× (kể cả ô nhãn trục) */
 const SIZE = 30;
@@ -269,7 +268,6 @@ $('#btn-new').onclick = () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('caro'); newsBadge($('#btn-news-home'), 'caro');
 
 const ui = gameKit({
   game: 'caro', net: NET,

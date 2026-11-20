@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Icon Tổ Tôm tự vẽ: 3 lá bài Tổ Tôm xòe quạt — Vạn, Văn, Sách (3 chất) + 2 phu úp phía dưới -->
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <rect x="4" y="4" width="112" height="112" rx="20" fill="none" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- lá sau (trái, nghiêng) — Vạn -->
+  <g transform="rotate(-14 40 64)">
+    <rect x="22" y="38" width="36" height="54" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="40" y="74" text-anchor="middle" font-size="26" font-family="serif" font-weight="bold" fill="#4A3E5C">萬</text>
+  </g>
+  <!-- lá giữa — Văn -->
+  <g>
+    <rect x="42" y="30" width="36" height="54" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="60" y="66" text-anchor="middle" font-size="26" font-family="serif" font-weight="bold" fill="#4A3E5C">文</text>
+  </g>
+  <!-- lá trước (phải, nghiêng) — Sách, lá đỏ -->
+  <g transform="rotate(14 80 64)">
+    <rect x="62" y="38" width="36" height="54" rx="6" fill="#FFFDF9" stroke="#E5484D" stroke-width="2.5"/>
+    <text x="80" y="74" text-anchor="middle" font-size="26" font-family="serif" font-weight="bold" fill="#E5484D">索</text>
+  </g>
+  <!-- 2 phu úp phía dưới -->
+  <g>
+    <rect x="30" y="96" width="26" height="10" rx="4" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2"/>
+    <rect x="64" y="96" width="26" height="10" rx="4" fill="#AFD8F3" stroke="#4A3E5C" stroke-width="2"/>
+  </g>
+</svg>

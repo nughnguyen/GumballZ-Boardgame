@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- bàn tròn Avalon nhìn từ trên: 5 ghế quanh bàn (3 Thiện xanh bạc hà, 2 Ác đỏ) + khiên ở giữa -->
+<circle cx="105" cy="90" r="58" fill="#FFD9B0" stroke="#2a2340" stroke-width="3"/>
+<circle cx="105" cy="90" r="44" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".7"/>
+<!-- ghế -->
+<g stroke="#2a2340" stroke-width="2.5">
+<circle cx="105" cy="18" r="11" fill="#ABE0C6"/>
+<circle cx="173.5" cy="67.8" r="11" fill="#FF8A7A"/>
+<circle cx="147.3" cy="148.2" r="11" fill="#ABE0C6"/>
+<circle cx="62.7" cy="148.2" r="11" fill="#ABE0C6"/>
+<circle cx="36.5" cy="67.8" r="11" fill="#FF8A7A"/>
+</g>
+<!-- khiên giữa bàn -->
+<path d="M83 66 L127 66 L127 88 Q127 108 105 118 Q83 108 83 88 Z" fill="#7FB3F0" stroke="#2a2340" stroke-width="3" stroke-linejoin="round"/>
+<path d="M105 74 L109 86 L121 90 L109 94 L105 106 L101 94 L89 90 L101 86 Z" fill="#fff"/>
+<!-- 5 thẻ nhiệm vụ mini dưới bàn -->
+<g stroke="#2a2340" stroke-width="2">
+<rect x="52" y="166" width="18" height="12" rx="3" fill="#ABE0C6"/>
+<rect x="74" y="166" width="18" height="12" rx="3" fill="#ABE0C6"/>
+<rect x="96" y="166" width="18" height="12" rx="3" fill="#FF8A7A"/>
+<rect x="118" y="166" width="18" height="12" rx="3" fill="#ABE0C6"/>
+<rect x="140" y="166" width="18" height="12" rx="3" fill="#FFFDF5"/>
+</g>
+<!-- huy hiệu Avalon -->
+<g transform="translate(296 90)">
+<circle r="52" fill="#FFE3A3" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<text y="-26" text-anchor="middle" font-size="26">🛡️</text>
+<g transform="translate(-14 -2)"><circle r="8" fill="#FF5A4E" stroke="#2a2340" stroke-width="2"/></g>
+<g transform="translate(14 8)"><circle r="8" fill="#3F7FD9" stroke="#2a2340" stroke-width="2"/></g>
+<text y="40" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="17" font-weight="800" fill="#2a2340">AVALON</text>
+</g>
+<path d="M214 30 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M368 150 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFB9CF" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

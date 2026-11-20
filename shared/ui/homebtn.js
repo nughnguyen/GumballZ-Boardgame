@@ -32,16 +32,28 @@ function inject(root) {
 const mo = new MutationObserver(muts => { for (const m of muts) for (const n of m.addedNodes) if (n.nodeType === 1) inject(n.closest ? (n.closest('[class*=modal],dialog,#modal') || n) : n); });
 mo.observe(document.body, { childList: true, subtree: true });
 
+// Chỗ đặt nút Sảnh + link chân trang: chân trang "fan-made" của game cũ;
+// game mới (loveletter, matchu, s2048, domi, wordle, sudoku, spyfall, avalon)
+// không có chân trang đó thì đặt vào cuối thẻ home-card của màn hình đầu.
+function homeAnchor() {
+  const ft = [...document.querySelectorAll('footer, p.note')].find(e => /fan-made/i.test(e.textContent));
+  if (ft) return { el: ft, mode: 'footer' };
+  const card = document.querySelector('#screen-home .home-card') || document.querySelector('#screen-home');
+  return card ? { el: card, mode: 'home' } : null;
+}
+
 // 💌 Góp ý / ☕ Ủng hộ: thêm link vào chân trang của game (dùng shared/ui/feedback.js)
 import('./feedback.js?v=34').then(() => {
-  const ft = [...document.querySelectorAll('footer, p.note')].find(e => /fan-made/i.test(e.textContent));
+  const a = homeAnchor();
   const box = document.createElement('p'); box.className = 'gumballz-fbline';
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';
   box.innerHTML = '<a href="#" data-rank style="color:inherit">🏆 Bảng xếp hạng</a> · <a href="#" data-profile style="color:inherit">🏅 Hồ sơ</a> · <a href="#" data-friends style="color:inherit">🤝 Bạn bè</a> · <a href="#" data-feedback style="color:inherit">💌 Góp ý</a> · <a href="#" data-donate style="color:inherit">☕ Ủng hộ</a>';
   box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=31').then(m => m.openLeaderboard(GAME)); };
-  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=44').then(m => m.openProfile()); };
-  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=32').then(m => m.openFriends()); };
-  if (ft) ft.after(box);
+  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=45').then(m => m.openProfile()); };
+  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=33').then(m => m.openFriends()); };
+  if (!a) return;
+  if (a.mode === 'footer') a.el.after(box);
+  else a.el.append(box);
 }).catch(() => {});
 
 // 🌐 Sảnh chung & ⚡ Tìm trận nhanh trong từng game ở màn hình đầu
@@ -66,20 +78,21 @@ try {
   wantPublic = sessionStorage.getItem('gumballz-pub-next') === '1' || localStorage.getItem('gumballz-pub-default') === '1';
 } catch (e) {}
 (() => {
-  const ft = [...document.querySelectorAll('footer, p.note')].find(e => /fan-made/i.test(e.textContent));
-  if (!ft) return;
+  const a = homeAnchor();
+  if (!a) return;
   const row = document.createElement('div');
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:10px 0 4px';
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
   mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=53').then(m => m.openMatchmaking(GAME));
+  mm.onclick = () => import('./lobby.js?v=55').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
   b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=53').then(m => m.openLobby(GAME));
+  b.onclick = () => import('./lobby.js?v=55').then(m => m.openLobby(GAME));
   row.append(mm, b);
-  ft.before(row);
+  if (a.mode === 'footer') a.el.before(row);
+  else a.el.append(row);
   const on = document.createElement('p'); on.innerHTML = '&nbsp;'; on.style.cssText = 'visibility:hidden;text-align:center;margin:4px 0 8px;font:700 13px Nunito,system-ui,sans-serif;opacity:.85';
   row.after(on);
   import('../net/presence.js?v=26').then(m => { let hide = false; try { hide = localStorage.getItem('gumballz-hide-online') === '1'; } catch (e) {} if (!hide) m.mountOnline(on); }).catch(() => {});
@@ -123,4 +136,45 @@ function inviteBtn() {
   import('./invite.js?v=9').then(m => { m.inviteCss(); b.onclick = () => { const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim(); m.openInvite({ code: c, url: location.origin + location.pathname + '?room=' + encodeURIComponent(c) }); }; });
   anchor.after(b);
 }
-setInterval(() => { pubToggle(); inviteBtn(); }, 1000);
+// 📣 Nút "Mời lên kênh thế giới" ngay dưới nút mời QR – chỉ chủ phòng, chỉ khi phòng đang công khai.
+// Bấm → gửi 1 lời mời vào kênh chat Chung của sảnh (kèm mã phòng để người khác bấm vào chơi).
+function worldInviteBtn() {
+  const host = window.__gumballzHost;
+  const codeEl = document.querySelector('#room-code, #lobby-code');
+  const code = codeEl ? (codeEl.textContent || '').trim() : '';
+  const anchor = codeEl && (document.getElementById('code-box') || codeEl);
+  const qr = document.getElementById('gumballz-invite');
+  const after = qr || anchor; // đặt sau nút QR (không chen giữa mã phòng và nút QR – inviteBtn() kiểm tra vị trí nút QR)
+  let b = document.getElementById('gumballz-world-invite');
+  const show = host && !host.dead && host.pub && /^[A-Z0-9]{5}$/.test(code) && code === host.code;
+  if (!show || !anchor || !anchor.offsetParent) { if (b) b.remove(); return; }
+  if (!b || b.previousElementSibling !== after) {
+    if (b) b.remove();
+    b = document.createElement('button'); b.id = 'gumballz-world-invite'; b.type = 'button';
+    b.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;min-height:44px;padding:8px 20px;border-radius:999px;border:0;cursor:pointer;color:#4A3E5C;font:400 15.5px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 8px 18px -8px rgba(255,185,138,.8)';
+    b.textContent = '📣 Mời lên kênh thế giới';
+    b.onclick = async () => {
+      if (b.disabled || b.dataset.busy === '1') return;
+      const h = window.__gumballzHost; if (!h || h.dead || !h.pub) return;
+      const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim();
+      b.dataset.busy = '1'; b.disabled = true; b.textContent = '📣 Đang mời…';
+      const r = await import('./worldchat.js?v=1').then(m => m.sendWorldInvite({ game: h.game, code: c, k: h.pubK })).catch(() => null);
+      b.dataset.busy = '';
+      if (r && r.ok) {
+        try { localStorage.setItem('gumballz-invite-' + h.game + '-' + c, String(Date.now())); } catch (e) {}
+        import('./dialog.js?v=8').then(m => m.toast('Đã mời lên kênh thế giới 📣')).catch(() => {});
+      } else {
+        import('./dialog.js?v=8').then(m => m.toast((r && r.msg) || 'Không mời được, thử lại sau nha.')).catch(() => {});
+        b.disabled = false; b.textContent = '📣 Mời lên kênh thế giới';
+      }
+    };
+    after.after(b);
+  }
+  // đếm ngược 60 giây sau mỗi lần mời (lưu theo từng phòng)
+  if (b.dataset.busy === '1') return;
+  let cd = 0;
+  try { cd = Math.max(0, 60 - Math.floor((Date.now() - (+localStorage.getItem('gumballz-invite-' + host.game + '-' + code) || 0)) / 1000)); } catch (e) {}
+  if (cd > 0) { b.disabled = true; b.textContent = `📣 Đã mời · gửi lại sau ${cd}s`; }
+  else if (b.disabled || b.textContent.startsWith('📣 Đã mời')) { b.disabled = false; b.textContent = '📣 Mời lên kênh thế giới'; }
+}
+setInterval(() => { pubToggle(); inviteBtn(); worldInviteBtn(); }, 1000);

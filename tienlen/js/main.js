@@ -4,7 +4,7 @@ import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { classify, legalPlays, beats, badFinish, VE_HEO, comboName, comboKind, rankOf, HEO, BETS, TURN_TIMES, DEFAULT_OPTS, START_CHIPS, TOI_TRANG, isHang, cardName } from './engine.js?v=5';
 import { rankPlays, splitHand, LEVELS } from './bot.js?v=7';
 import { cardHTML } from './cards.js?v=9';
@@ -157,9 +157,7 @@ $('#btn-music').onclick = $('#btn-music-home').onclick = () => { fx.actx(); fx.m
 const syncMute = () => { $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊'; };
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openModal(guideHTML((view && view.opts) || (lobby && lobby.opts) || DEFAULT_OPTS), 'guide-box');
-const news = () => { openNews('tienlen'); ['#btn-news-home', '#btn-news'].forEach(k => $(k).classList.remove('gumballz-dot')); };
-$('#btn-news-home').onclick = $('#btn-news').onclick = news;
-newsBadge($('#btn-news-home'), 'tienlen'); newsBadge($('#btn-news'), 'tienlen');
+
 setTheme(theme);
 $$('#theme-seg [data-theme]').forEach(b => b.onclick = () => setTheme(b.dataset.theme));
 $('#btn-theme').onclick = () => { const k = Object.keys(THEMES); setTheme(k[(k.indexOf(theme) + 1) % k.length], true); };

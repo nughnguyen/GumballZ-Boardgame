@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Icon Splendor tự vẽ: viên kim cương trắng lớn ở giữa + 5 viên đá quý nhỏ xung quanh (xanh dương, xanh lá, đỏ, đen, vàng) -->
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <rect x="4" y="4" width="112" height="112" rx="20" fill="none" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- kim cương lớn ở giữa -->
+  <g stroke="#4A3E5C" stroke-width="3" stroke-linejoin="round">
+    <polygon points="60,22 92,48 60,96 28,48" fill="#FFFDF9"/>
+    <polyline points="28,48 92,48" fill="none"/>
+    <polyline points="44,22 52,48 60,96" fill="none"/>
+    <polyline points="76,22 68,48 60,96" fill="none"/>
+  </g>
+  <!-- 5 viên đá quý nhỏ -->
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round">
+    <polygon points="20,86 30,78 40,86 30,98" fill="#4A90D9"/>
+    <polygon points="44,92 54,84 64,92 54,104" fill="#5DBB63"/>
+    <polygon points="68,92 78,84 88,92 78,104" fill="#E5484D"/>
+    <polygon points="92,86 102,78 112,86 102,98" fill="#4A3E5C"/>
+  </g>
+  <circle cx="60" cy="14" r="7" fill="#F2C94C" stroke="#4A3E5C" stroke-width="2.5"/>
+</svg>

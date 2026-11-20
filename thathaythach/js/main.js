@@ -4,7 +4,7 @@ import * as E from './engine.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { API } from '../../shared/net/api.js?v=27';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 
 const TOPIC = Object.fromEntries(E.TOPICS.map(t => [t.id, t])); TOPIC.tuviet = { id: 'tuviet', e: '✍️', name: 'Tự viết' };
 const KIND = { t: ['💬', 'THẬT'], d: ['🔥', 'THÁCH'] };
@@ -143,7 +143,7 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('tht-sound', sound ? '1' : '0'); drawSound(); beep('turn'); };
-$('#btn-news-home').onclick = () => openNews('thathaythach'); newsBadge($('#btn-news-home'), 'thathaythach');
+
 
 const ui = gameKit({
   game: 'thathaythach', net: NET,

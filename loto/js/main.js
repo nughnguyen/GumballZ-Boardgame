@@ -2,7 +2,6 @@
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import * as E from './engine.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet({
   srv: true, /* phòng online do máy chủ giữ ván (server/src/srvhost.js) */
@@ -130,7 +129,6 @@ $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawBtns = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; $('#btn-music').classList.toggle('on', music); }; drawBtns();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('loto-sound', sound ? '1' : '0'); drawBtns(); if (sound) beep('draw'); else try { speechSynthesis.cancel(); } catch (e) {} };
 $('#btn-music').onclick = () => { music = !music; drawBtns(); playMusic(); };
-$('#btn-news-home').onclick = () => openNews('loto'); newsBadge($('#btn-news-home'), 'loto');
 try { speechSynthesis.getVoices(); } catch (e) {} /* gọi sớm để trình duyệt nạp danh sách giọng */
 
 const ui = gameKit({

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hanabi online – game bài hợp tác bắn pháo hoa 2–5 người | GumballZ Boardgame</title>
+<meta name="description" content="Hanabi online: 2–5 người hợp tác bắn pháo hoa — bạn thấy bài của mọi người khác nhưng không thấy bài của chính mình. Gợi ý, đánh, bỏ lá: cả đội cùng thắng khi ≥ 20/25 điểm. Chơi với bạn qua mã phòng, đấu với máy AI hoặc 2–5 người chơi trên cùng 1 máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/hanabi/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hanabi online – game bài hợp tác bắn pháo hoa 2–5 người | GumballZ Boardgame">
+<meta property="og:description" content="Bạn không thấy bài của chính mình — chỉ đồng đội mới thấy! Gợi ý, đánh, bỏ lá: cả đội cùng thắng khi ≥ 20/25 điểm.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/hanabi/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/hanabi.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/hanabi.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/hanabi.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Ha<span>nabi</span></h1>
+    <p class="tag">Game bài hợp tác — bạn không thấy bài của chính mình, chỉ đồng đội mới thấy! Gợi ý, đánh, bỏ lá: cả đội cùng thắng khi ≥ 20/25 điểm. 🎆</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2–5 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="count-box">
+      <label class="fld"><span>Số người chơi (đấu máy)</span></label>
+      <div class="seg" id="count-seg">
+        <button type="button" data-count="2" aria-pressed="false">2 người</button>
+        <button type="button" data-count="3" aria-pressed="false">3 người</button>
+        <button type="button" data-count="4" aria-pressed="false">4 người</button>
+        <button type="button" data-count="5" aria-pressed="false">5 người</button>
+      </div>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧠 Bắt đầu chơi với máy Khó</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2–5 người · hợp tác: cả đội cùng thắng hoặc cùng thua · bộ 50 lá 5 màu (1×3, 2×2, 3×2, 4×2, 5×1) · bạn thấy bài của mọi người khác, không thấy bài của chính mình — chỉ biết những gì đã được gợi ý · 8 token gợi ý, 3 ngòi nổ · mỗi lượt: gợi ý (tốn 1 token) / bỏ 1 lá (hồi 1 token) / đánh 1 lá (đúng số tiếp theo của chồng màu đó thì lên chồng, sai thì mất 1 ngòi) · hết bài thì mỗi người còn 1 lượt nữa · điểm = tổng 5 chồng (tối đa 25), ≥ 20 điểm là cả đội thắng · đấu máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🎆 <b>2–5 người, hợp tác</b>: cả đội cùng thắng khi <b>≥ 20/25 điểm</b>, cùng thua khi dưới 20 hoặc hết 3 ngòi nổ.</li>
+          <li>🙈 Bạn <b>không thấy bài của chính mình</b> — chỉ thấy bài của mọi người khác và những gì đồng đội đã gợi ý cho bạn.</li>
+          <li>💡 Mỗi lượt làm 1 việc: <b>gợi ý</b> 1 số hoặc 1 màu cho người khác (tốn 1 token, phải chỉ ra ít nhất 1 lá) · <b>bỏ 1 lá</b> (hồi 1 token, tối đa 8) · <b>đánh 1 lá</b> (đúng số tiếp theo của chồng màu đó thì lên chồng; đánh lá 5 thì hồi 1 token).</li>
+          <li>🧨 Đánh sai thì lá vào đống bỏ và cả đội <b>mất 1 ngòi nổ</b> — hết 3 ngòi là thua ngay.</li>
+          <li>🃏 Hết bài thì mỗi người còn đúng <b>1 lượt nữa</b>, rồi tính điểm = tổng 5 chồng (tối đa 25).</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🎆 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="hb-wrap">
+    <header class="topbar hb-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🎆 Hanabi</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="hb-status" id="status"></div>
+    <div class="hb-board" id="board"></div>
+    <div class="hb-players" id="players"></div>
+    <div class="hb-hand-wrap" id="hand-wrap">
+      <div class="hb-hand-cover" id="hand-cover" style="display:none">
+        <button class="btn big pri" id="btn-reveal-hand">👁 Xem lượt của bạn</button>
+        <p class="note">Bài trên bàn chỉ hiện cho người tới lượt — bấm để xem, đi xong nhớ che lại trước khi đưa máy.</p>
+      </div>
+      <div class="hb-hand" id="hand"></div>
+      <div class="hb-picked-note" id="picked-note" style="display:none">⏳ Chưa tới lượt bạn — đang chờ…</div>
+    </div>
+    <div class="hb-action-bar" id="action-bar" style="display:none"></div>
+    <div class="hb-clue-bar" id="clue-bar" style="display:none"></div>
+    <div class="hb-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="hb-log" id="log" aria-live="polite"></div>
+    <div class="hb-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

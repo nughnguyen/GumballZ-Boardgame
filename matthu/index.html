@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mật Thư online – đoán từ đồng đội kiểu Codenames | GumballZ Boardgame</title>
+<meta name="description" content="Mật Thư online: bàn 5×5 với 25 lá từ tiếng Việt. Mật vụ ra gợi ý 1 từ + số, điệp viên đoán lá — lộ hết điệp viên phe mình trước thì thắng, chạm sát thủ là thua ngay. Chơi với bạn qua mã phòng, đấu với máy AI hoặc 2–8 người chơi trên cùng 1 máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/matthu/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mật Thư online – đoán từ đồng đội kiểu Codenames | GumballZ Boardgame">
+<meta property="og:description" content="Mật vụ ra gợi ý 1 từ + số, điệp viên đoán lá — lộ hết điệp viên phe mình trước thì thắng, chạm sát thủ là thua ngay!">
+<meta property="og:url" content="https://gumballzgames.vercel.app/matthu/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/matthu.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/matthu.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/matthu.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Mật <span>Thư</span></h1>
+    <p class="tag">Mật vụ ra gợi ý, điệp viên đoán lá — chạm sát thủ là thua ngay! 🔐💀</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2–8 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧠 Bắt đầu chơi với máy Khó</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2–8 người · Đỏ đi trước với 9 điệp viên, Xanh 8 · 1 sát thủ, 7 dân thường · mật vụ ra gợi ý 1 từ + số, điệp viên bấm lá để đoán · đoán trúng sát thủ thì thua ngay · đấu máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🔐 Bàn <b>5×5 = 25 lá từ</b> tiếng Việt. Đội <b>🔴 Đỏ có 9 điệp viên</b>, đội <b>🔵 Xanh có 8</b>, còn <b>7 dân thường</b> và <b>1 sát thủ 💀</b>. <b>Đỏ đi trước.</b></li>
+          <li>🕵️ Mỗi lượt, <b>mật vụ</b> ra gợi ý <b>1 từ + 1 số</b> (1–9, hoặc 0 = đoán thoải mái) — gợi ý không được trùng 1 từ đang còn úp trên bàn.</li>
+          <li>🔍 <b>Điệp viên</b> bấm lá để đoán, tối đa <b>số + 1 lá</b>. Trúng lá phe mình thì được đoán tiếp; trúng dân thường hoặc lá địch thì hết lượt; trúng <b>sát thủ thì thua ngay</b>!</li>
+          <li>🏁 Đội nào <b>lộ hết điệp viên của mình trước</b> thì thắng. Đoán nhầm mà lật trúng lá địch cuối cùng thì đội đó thắng ngay.</li>
+          <li>👁️ Chỉ <b>mật vụ</b> thấy bản đồ mật — chơi chuyền tay nhớ <b>tắt bản đồ mật trước khi đưa máy</b> cho điệp viên!</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🔐 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="mt-wrap">
+    <header class="topbar mt-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🔐 Mật Thư</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="seats" id="seats"></div>
+    <div class="ratiobar" id="ratiobar" aria-hidden="true"><div class="rr" id="ratio-r"></div><div class="ry"></div></div>
+    <div class="ratio-label"><span class="rl" id="ratio-rl">🔴 Đỏ: 0/9</span><span class="al" id="assassin-line">💀 Sát thủ còn ẩn</span><span class="yl" id="ratio-yl">Xanh: 0/8 🔵</span></div>
+    <div class="clue-banner" id="clue-banner" style="display:none" aria-live="polite"></div>
+    <div class="clue-box" id="clue-box" style="display:none">
+      <div class="clue-title" id="clue-title">🕵️ Tới lượt bạn ra gợi ý</div>
+      <div class="clue-row">
+        <input id="clue-word" maxlength="20" placeholder="Gợi ý 1 từ…" autocomplete="off">
+        <div class="numseg" id="clue-num">
+          <button type="button" data-num="0" title="Không giới hạn số lá đoán">0 ∞</button><button type="button" data-num="1">1</button><button type="button" data-num="2" class="on">2</button><button type="button" data-num="3">3</button><button type="button" data-num="4">4</button><button type="button" data-num="5">5</button><button type="button" data-num="6">6</button><button type="button" data-num="7">7</button><button type="button" data-num="8">8</button><button type="button" data-num="9">9</button>
+        </div>
+      </div>
+      <div class="hint-chips" id="hint-chips"></div>
+      <div class="clue-btns">
+        <button class="btn big pri" id="btn-clue">📨 Gửi gợi ý</button>
+        <button class="btn" id="btn-pass-clue">⏭️ Bỏ lượt</button>
+      </div>
+    </div>
+    <div class="guess-bar" id="guess-bar" style="display:none">
+      <span id="guess-info"></span>
+      <button class="btn" id="btn-pass-guess">⏭️ Dừng đoán</button>
+    </div>
+    <div class="key-bar" id="key-bar" style="display:none">
+      <button class="chip" id="btn-key">👁 Bản đồ mật</button>
+      <span class="key-note" id="key-note"></span>
+    </div>
+    <div class="mt-board-wrap">
+      <div class="mt-board" id="board-inner"></div>
+    </div>
+    <div class="mt-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="mt-log" id="log" aria-live="polite"></div>
+    <div class="mt-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

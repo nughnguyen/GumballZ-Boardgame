@@ -774,12 +774,8 @@ label { display: block; font-weight: 700; margin: 12px 0 4px; text-align: left; 
 }
 #btn-recap, #btn-log-toggle { white-space: nowrap; flex: 0 0 auto; }
 @media (max-width: 1180px) { #btn-recap .hide-m { display: none; } }
-/* 📝 Có gì mới */
 .home-help { display: flex; gap: 10px; margin-top: 16px; }
 .home-help .guide-btn { margin-top: 0; flex: 1 1 0; min-height: 44px; }
-.gumballz-dot { position: relative; }
-.gumballz-dot::after { content: ''; position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%; background: #ff4d5e; box-shadow: 0 0 0 2px #fff; }
-.news-btn.gumballz-dot::after { top: -4px; right: -4px; width: 12px; height: 12px; }
 @media (max-width: 380px) { .home-help .guide-btn { font-size: 14px; padding: 9px 8px; } }
 /* nút của hộp nhắc đưa xuống thanh dưới (điện thoại dọc) */
 #actions.prompt-acts { gap: 6px; }

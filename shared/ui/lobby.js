@@ -12,6 +12,7 @@ export const GAME_INFO = {
   scribble: ['🎨', 'Scribble'], tienlen: ['🐷', 'Tiến Lên'], poker: ['♠️', 'Poker'], xidach: ['🂡', 'Xì Dách'], catte: ['🎴', 'Cát Tê'], bacao: ['🀄', 'Ba Cào'],
   cangua: ['🐴', 'Cờ Cá Ngựa'], camel: ['🐪', 'Đua Lạc Đà'], cotuong: ['♟️', 'Cờ tướng'], thathaythach: ['🎯', 'Thật hay Thách'], baitan: ['🃏', 'Bài Tấn'], loto: ['🎪', 'Lô tô'], covua: ['♟️', 'Cờ vua'], tala: ['🀄', 'Tá lả'], cholon: ['🏮', 'Chợ Lớn (Chinatown)'], tusac: ['🀄', 'Tứ sắc'], bantau: ['🚢', 'Bắn tàu (Battleship)'], oanquan: ['🪨', 'Ô Ăn Quan'], caro: ['✖️', 'Cờ Caro'], tictactoe: ['❌', 'TicTacToe'], memory: ['🃏', 'Memory'], covay: ['⚫', 'Cờ Vây'], cothu: ['🦁', 'Cờ Thú'], ranvathang: ['🐍', 'Rắn và Thang'],
   sam: ['🃏', 'Sâm Lốc'], daochinh: ['👑', 'Đảo Chính (Coup)'], xiecthu: ['🎪', 'Gánh Xiếc Thú'], cuuho: ['🚁', 'Đội Cứu Hộ'], khaihoang: ['🏝️', 'Đảo Khai Hoang (Catan)'], xuyenviet: ['🚂', 'Tàu Xuyên Việt (Ticket to Ride)'], noitu: ['🔗', 'Nối Từ'], baucua: ['🎲', 'Bầu Cua'],
+  giandiep: ['🕵️', 'Ai là Gián Điệp'], codam: ['🔴', 'Cờ Đam'], lieng: ['🎴', 'Liêng'], maubinh: ['🀄', 'Mậu Binh'], xito: ['♣️', 'Xì Tố'], colat: ['🔄', 'Cờ Lật'], domino: ['🎲', 'Domino'], connect4: ['🔴', 'Connect 4'], matthu: ['🔐', 'Mật Thư'], avalon: ['🛡️', 'Avalon'], spyfall: ['🕵️', 'Spyfall'], sudoku: ['🔢', 'Sudoku'], wordle: ['🟩', 'Wordle'], domi: ['🧨', 'Dò Mìn'], s2048: ['2️⃣', '2048'], matchu: ['🀅', 'Mạt Chược'], loveletter: ['💌', 'Love Letter'],
 };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const hhmm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
@@ -30,12 +31,20 @@ const CSS = `.lb{--ink:#4A3E5C;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-chips{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-bottom:1.5px solid var(--line);scrollbar-width:none}.lb-chips::-webkit-scrollbar{display:none}
 .lb-chips button{flex:none;border:1.5px solid var(--line);background:#FFFDF9;border-radius:999px;padding:5px 12px;min-height:44px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink)}
 .lb-chips button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lb-groups{display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none}.lb-groups::-webkit-scrollbar{display:none}
+.lb-groups button{flex:1 0 auto;border:1.5px solid var(--line);background:#FFFDF9;border-radius:999px;padding:6px 10px;min-height:40px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);white-space:nowrap}
+.lb-groups button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lb-chat[hidden],.lb-friends[hidden],.lb-gc[hidden]{display:none}
+.lb-friends{flex:1;min-height:0;display:flex;flex-direction:column}
 .lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:8px;align-content:start;min-height:160px}
 .lb-room{display:flex;align-items:center;gap:10px;background:#fffaf3;border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;text-decoration:none;color:inherit}
 .lb-room:hover{border-color:#ffb27a;background:#fff4ea}
 .lb-room .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-room .t{flex:1;min-width:0}.lb-room b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lb-room small{color:var(--mut)}.lb-room .go{flex:none;background:linear-gradient(90deg,#FFB98A,#FFB9CF);color:#4A3E5C;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
-.lb-empty{color:var(--mut);text-align:center;padding:18px 8px}
+.lb-inv{display:flex;align-items:center;gap:10px;background:#fffaf3;border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;text-decoration:none;color:inherit}
+.lb-inv:hover{border-color:#ffb27a;background:#fff4ea}
+.lb-inv .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-inv .t{flex:1;min-width:0}.lb-inv b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-inv small{color:var(--mut)}.lb-inv .go{flex:none;background:linear-gradient(90deg,#FFB98A,#FFB9CF);color:#4A3E5C;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .lb-empty a,.lb-new{color:#2f5fd0}
 .lb-chat{display:flex;flex-direction:column;min-height:0;flex:1}
 .lb-msgs{flex:1;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px}
@@ -89,13 +98,14 @@ function css() { if (document.getElementById('lb-css')) return; const s = docume
 const COLORS = ['#ff4d5e', '#ff9a3d', '#2fc76f', '#3d8bff', '#7b61ff', '#20b2aa', '#e05297', '#c58a1a'];
 const colorOf = s => COLORS[[...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORS.length];
 
-export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(location.search) } = {}) {
+export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(location.search), tab = 'rooms' } = {}) {
   css();
-  let filter = game || 'all', ch = game || 'all', rooms = [], me = null, ws = null, wait = 1000, dead = false, msgs = { [ch]: [] };
+  let filter = game || 'all', grp = game ? 'game' : 'world', selGame = game || null, ch = selGame || 'all', rooms = [], me = null, ws = null, wait = 1000, dead = false, msgs = { [ch]: [] };
   let mmState = null, mmStat = { n: 0, byGame: {} }, mmLowT = 0;
-  const chans = () => game ? [game, 'all'] : ['all', ...(filter !== 'all' ? [filter] : [])];
-  el.innerHTML = `<div class="lb" data-tab="rooms">
-    <div class="lb-tabs" role="tablist"><button data-tab="rooms" aria-pressed="true">🚪 Phòng <span class="n">0</span></button><button data-tab="chat" aria-pressed="false">💬 Chat</button></div>
+  const chans = () => { const s = new Set(['all']); if (game) s.add(game); if (selGame) s.add(selGame); if (filter !== 'all') s.add(filter); return [...s]; };
+  const tab0 = tab === 'chat' ? 'chat' : 'rooms';
+  el.innerHTML = `<div class="lb" data-tab="${tab0}">
+    <div class="lb-tabs" role="tablist"><button data-tab="rooms" aria-pressed="${tab0 === 'rooms'}">🚪 Phòng <span class="n">0</span></button><button data-tab="chat" aria-pressed="${tab0 === 'chat'}">💬 Chat</button></div>
     <section class="lb-col r"><div class="lb-h"><h3>🚪 Phòng đang chờ</h3><span class="lb-st"><i class="lb-dot"></i><small>đang nối…</small></span></div>
       <div class="lb-actbar">
         <button type="button" class="lb-mm-btn">⚡ Tìm trận nhanh <small class="lb-mm-cnt" hidden></small></button>
@@ -105,10 +115,12 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       ${game ? '' : `<div class="lb-chips-w"><button type="button" class="lb-arr" data-sc="-1" aria-label="Cuộn trái" hidden>‹</button><div class="lb-chips lb-gf"><button data-g="all" aria-pressed="true">Tất cả</button>${Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button data-g="${k}" aria-pressed="false">${e} ${n}</button>`).join('')}</div><button type="button" class="lb-arr" data-sc="1" aria-label="Cuộn phải" hidden>›</button></div>`}
       <div class="lb-rooms"></div></section>
     <section class="lb-col c"><div class="lb-h"><h3>💬 Chat</h3></div>
-      <div class="lb-chips lb-cf"></div>
+      <div class="lb-groups" role="tablist"><button type="button" data-grp="world" aria-pressed="true">🌐 Thế giới</button><button type="button" data-grp="game" aria-pressed="false">🎮 Trong game</button><button type="button" data-grp="friends" aria-pressed="false">🤝 Bạn bè</button></div>
+      <div class="lb-chips lb-gc" hidden></div>
       <div class="lb-chat"><div class="lb-msgs" aria-live="polite"></div>
       <p class="lb-rule">💛 Nói chuyện lịch sự nha – từ bậy tự bị che. Bấm vào tên/avatar để kết bạn, 🚩 để báo cáo.</p><p class="lb-err"></p>
-      <form class="lb-in"><div class="lb-who"></div><input maxlength="300" placeholder="Nhắn gì đó…" enterkeyhint="send" aria-label="Tin nhắn"><button type="submit">Gửi</button></form></div></section></div>`;
+      <form class="lb-in"><div class="lb-who"></div><input maxlength="300" placeholder="Nhắn gì đó…" enterkeyhint="send" aria-label="Tin nhắn"><button type="submit">Gửi</button></form></div>
+      <div class="lb-friends" hidden></div></section></div>`;
   const $ = s => el.querySelector(s), root = $('.lb');
   $('.lb-tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; root.dataset.tab = b.dataset.tab; el.querySelectorAll('.lb-tabs button').forEach(x => x.setAttribute('aria-pressed', x === b)); if (b.dataset.tab === 'chat') scrollEnd(); };
   if (!game) {
@@ -117,7 +129,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     gf.addEventListener('scroll', syncG, { passive: true });
     gf.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); gf.scrollLeft += e.deltaY; } }, { passive: false });
     gL.onclick = () => { gf.scrollLeft -= 180; }; gR.onclick = () => { gf.scrollLeft += 180; }; setTimeout(syncG, 40);
-    gf.onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.g; el.querySelectorAll('.lb-gf button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawRooms(); drawChans(); drawMm(); if (mmState) startMm(filter); if (filter !== 'all') { ch = filter; join(); } else { ch = 'all'; drawMsgs(); } };
+    gf.onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.g; el.querySelectorAll('.lb-gf button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawRooms(); drawMm(); if (mmState) startMm(filter); };
   }
 
   const hostNow = g => {
@@ -171,11 +183,29 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     $('.lb-rooms').innerHTML = list.length ? list.map(r => { const [e, n] = GAME_INFO[r.game] || ['🎲', r.game]; return `<a class="lb-room" href="${ROOT}${r.game}/?room=${r.code}"><span class="e">${e}</span><span class="t"><b>${esc(n)} · phòng của ${esc(r.host)}</b><small>👥 ${r.n} người${r.lv ? ' · 🎖️ ' + LV_NAMES[r.lv - 1] : ''} · mở ${ago(r.created)} · mã ${r.code}</small></span><span class="go">Vào ▶</span></a>`; }).join('')
       : `<div class="lb-empty">Chưa có phòng công khai nào${filter !== 'all' ? ' cho ' + esc(GAME_INFO[filter]?.[1] || '') : ''} 🥲<br>Bấm <b>⚡ Tìm trận nhanh</b> ở trên hoặc tạo phòng công khai để người khác vào chơi cùng nha!${filter !== 'all' || game ? `<br><a href="${ROOT}${game || filter}/?public=1&autohost=1">✨ Mở nhanh phòng công khai ${esc(GAME_INFO[game || filter]?.[1] || '')}</a>` : ''}</div>`;
   };
-  const drawChans = () => { const cs = chans(); $('.lb-cf').innerHTML = cs.map(c => `<button data-c="${c}" aria-pressed="${c === ch}">${c === 'all' ? '🌐 Chung' : (GAME_INFO[c]?.[0] + ' ' + GAME_INFO[c]?.[1])}</button>`).join(''); $('.lb-cf').hidden = cs.length < 2; };
-  $('.lb-cf').onclick = e => { const b = e.target.closest('button'); if (!b) return; ch = b.dataset.c; drawChans(); drawMsgs(); };
-  const msgHTML = m => { const mine = !!me && m.who === me.who; return `<div class="lb-m${mine ? ' me' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span><div class="lb-b"><div class="lb-n">${esc(m.name)}${m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : ''}<time>${hhmm(m.ts)}</time></div>${esc(m.text)}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
+  /* ---- 3 nhóm kênh chat: 🌐 Thế giới (ch='all') · 🎮 Trong game (chọn 1 game) · 🤝 Bạn bè (DM nhúng) ---- */
+  let friendsPanel = null, friendsLoading = false;
+  const mountFriends = () => {
+    if (friendsPanel || friendsLoading) return;
+    friendsLoading = true;
+    import('./friends.js?v=33').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
+  };
+  const drawGroups = () => { el.querySelectorAll('.lb-groups button').forEach(b => b.setAttribute('aria-pressed', b.dataset.grp === grp)); };
+  const drawGameChips = () => { const gc = $('.lb-gc'); gc.hidden = grp !== 'game'; if (grp !== 'game') return; gc.innerHTML = Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button type="button" data-g="${k}" aria-pressed="${k === selGame}">${e} ${n}</button>`).join(''); };
+  const drawChatArea = () => {
+    drawGroups(); drawGameChips();
+    const isFr = grp === 'friends';
+    $('.lb-chat').hidden = isFr; $('.lb-friends').hidden = !isFr;
+    if (isFr) { mountFriends(); return; }
+    $('.lb-in').style.display = (grp === 'game' && !selGame) ? 'none' : '';
+    drawMsgs();
+  };
+  const setGrp = g => { grp = g; if (grp === 'world') ch = 'all'; else if (grp === 'game' && selGame) ch = selGame; drawChatArea(); };
+  $('.lb-groups').onclick = e => { const b = e.target.closest('button'); if (!b) return; setGrp(b.dataset.grp); };
+  $('.lb-gc').onclick = e => { const b = e.target.closest('button'); if (!b) return; selGame = b.dataset.g; ch = selGame; drawChatArea(); join(); };
+  const msgHTML = m => { const mine = !!me && m.who === me.who; const body = m.kind === 'invite' ? `<a class="lb-inv" href="${ROOT}${esc(m.game || '')}/?room=${esc(m.code || '')}"><span class="e">${esc((GAME_INFO[m.game] || ['🎲'])[0])}</span><span class="t"><b>${esc((GAME_INFO[m.game] || ['', m.game])[1] || m.game)} · phòng của ${esc(m.name)}</b><small>Mã phòng ${esc(m.code)} · đang chờ người chơi</small></span><span class="go">▶ Vào phòng</span></a>` : esc(m.text); return `<div class="lb-m${mine ? ' me' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span><div class="lb-b"><div class="lb-n">${esc(m.name)}${m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : ''}<time>${hhmm(m.ts)}</time></div>${body}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
   const scrollEnd = () => { const b = $('.lb-msgs'); b.scrollTop = b.scrollHeight; };
-  const drawMsgs = () => { const l = msgs[ch] || []; $('.lb-msgs').innerHTML = l.length ? l.map(msgHTML).join('') : '<div class="lb-empty">Chưa ai nói gì… mở lời trước đi nè 👋</div>'; scrollEnd(); };
+  const drawMsgs = () => { if (grp === 'game' && !selGame) { $('.lb-msgs').innerHTML = '<div class="lb-empty">👆 Chọn 1 game ở trên để xem kênh chat của game đó nha!</div>'; return; } const l = msgs[ch] || []; $('.lb-msgs').innerHTML = l.length ? l.map(msgHTML).join('') : '<div class="lb-empty">Chưa ai nói gì… mở lời trước đi nè 👋</div>'; scrollEnd(); };
   let frN = 0;
   const syncFr = () => { const b = $('.lb-fr b'); if (b) b.textContent = frN ? (frN > 9 ? '9+' : frN) : ''; };
   const drawWho = () => {
@@ -183,7 +213,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     $('.lb-who').innerHTML = (u ? `<span>Chat với tên <b>${esc(u.name)}</b> <span style="color:#2f9e5b">✓</span></span>` : `<span>Tên: <input class="lb-nm" maxlength="20" value="${esc(myName() || 'Khách')}" aria-label="Tên của bạn"> · <a class="lb-login">Đăng nhập</a> để có dấu ✓</span>`) + `<button type="button" class="lb-fr">🤝 Bạn bè<b>${frN ? (frN > 9 ? '9+' : frN) : ''}</b></button>`;
     const nm = $('.lb-nm'); if (nm) nm.onchange = () => { try { localStorage.setItem('gumballz-name', nm.value.trim().slice(0, 20)); } catch (e) {} hello(); };
     const lg = $('.lb-login'); if (lg) lg.onclick = () => openLogin();
-    const fb = $('.lb-fr'); if (fb) fb.onclick = () => import('./friends.js?v=32').then(m => m.openFriends());
+    const fb = $('.lb-fr'); if (fb) fb.onclick = () => setGrp('friends');
   };
   $('.lb-msgs').onclick = async e => {
     const whoHit = e.target.closest('.lb-av, .lb-n');
@@ -192,7 +222,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       if (row && !row.classList.contains('me')) {
         const who = row.dataset.who || '', name = row.dataset.name || '';
         const uid = who.startsWith('u:') ? +who.slice(2) : 0;
-        import('./friends.js?v=32').then(m => m.showPlayerCard({ uid, name }, whoHit));
+        import('./friends.js?v=33').then(m => m.showPlayerCard({ uid, name }, whoHit));
         return;
       }
     }
@@ -234,7 +264,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       else if (m.t === 'mm_host') { clearTimeout(mmLowT); mmState = null; hostNow(m.game); }
       else if (m.t === 'mm_found') { clearTimeout(mmLowT); mmState = null; location.href = `${ROOT}${m.game}/?room=${m.code}`; }
       else if (m.t === 'hist') { msgs[m.ch] = m.msgs; if (m.ch === ch) drawMsgs(); }
-      else if (m.t === 'msg') { const l = msgs[m.m.ch] = msgs[m.m.ch] || []; l.push(m.m); if (l.length > 120) l.shift(); if (m.m.ch === ch) { const box = $('.lb-msgs'); const near = box.scrollHeight - box.scrollTop - box.clientHeight < 120; if (l.length === 1) drawMsgs(); else { box.insertAdjacentHTML('beforeend', msgHTML(m.m)); if (near) scrollEnd(); } } }
+      else if (m.t === 'msg') { const l = msgs[m.m.ch] = msgs[m.m.ch] || []; l.push(m.m); if (l.length > 120) l.shift(); if (m.m.ch === ch && grp !== 'friends' && !(grp === 'game' && !selGame)) { const box = $('.lb-msgs'); const near = box.scrollHeight - box.scrollTop - box.clientHeight < 120; if (l.length === 1) drawMsgs(); else { box.insertAdjacentHTML('beforeend', msgHTML(m.m)); if (near) scrollEnd(); } } }
       else if (m.t === 'del') { for (const k in msgs) msgs[k] = msgs[k].filter(x => x.id !== m.id); el.querySelector(`.lb-m[data-id="${m.id}"]`)?.remove(); }
       else if (m.t === 'err') err(m.msg);
       else if (m.t === 'ok') err(m.msg);
@@ -246,11 +276,11 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   }
   const offFr = e => { frN = (e.detail && e.detail.count) || 0; syncFr(); };
   addEventListener('gumballz-friends', offFr);
-  import('./friends.js?v=32').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=33').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
   const off = auth.onChange(() => { drawWho(); hello(); });
-  drawRooms(); drawChans(); drawWho(); drawMsgs(); drawMm(); connect();
+  drawRooms(); drawChatArea(); drawWho(); drawMm(); connect();
   if (autoMatch) setTimeout(() => startMm(game || filter), 60);
-  return { startMm, stopMm, destroy() { dead = true; clearTimeout(mmLowT); off(); removeEventListener('gumballz-friends', offFr); clearInterval(ka); try { ws.close(); } catch (e) {} } };
+  return { startMm, stopMm, destroy() { dead = true; clearTimeout(mmLowT); off(); removeEventListener('gumballz-friends', offFr); clearInterval(ka); try { friendsPanel && friendsPanel.destroy(); } catch (e) {} try { ws.close(); } catch (e) {} } };
 }
 
 let closeLobby = null; /* sảnh đang mở: mở lại thì huỷ hẳn cái cũ (WebSocket, hàng tìm trận) */
@@ -259,7 +289,7 @@ export function openLobby(game = null, opts = {}) {
   const ov = document.createElement('div'); ov.className = 'lb-ov'; ov.id = 'lb-ov';
   ov.innerHTML = `<div class="lb-mod" role="dialog" aria-modal="true"><header><h2>🌐 Sảnh ${game ? esc(GAME_INFO[game]?.[1] || '') : 'chung'}</h2><a href="${ROOT}sanh/${game ? '?game=' + game : ''}" style="font:800 14px Nunito;color:#2f5fd0">Mở trang Sảnh ↗</a><button class="x" aria-label="Đóng">✕</button></header><div class="lb-host"></div></div>`;
   document.body.append(ov);
-  const L = mountLobby(ov.querySelector('.lb-host'), { game, autoMatch: !!opts.autoMatch });
+  const L = mountLobby(ov.querySelector('.lb-host'), { game, autoMatch: !!opts.autoMatch, tab: opts.tab || 'rooms' });
   ov.querySelector('.lb-host').style.cssText = 'flex:1;min-height:0;display:flex;flex-direction:column';
   ov.querySelector('.lb-host .lb').style.flex = '1';
   const close = () => { if (closeLobby === close) closeLobby = null; L.destroy(); ov.remove(); removeEventListener('keydown', k); };

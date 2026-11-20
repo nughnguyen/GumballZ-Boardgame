@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect x="2" y="2" width="116" height="116" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- 4 lá số xếp dãy: đỏ 5, xanh 6, cam 7, đen 8 -->
+  <g font-family="Baloo 2, Nunito, sans-serif" font-weight="900" font-size="20" text-anchor="middle">
+    <rect x="10" y="22" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="22" y="46" fill="#E05D5D">5</text>
+    <rect x="36" y="22" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="48" y="46" fill="#5B8DEF">6</text>
+    <rect x="62" y="22" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="74" y="46" fill="#F08A24">7</text>
+    <rect x="88" y="22" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="100" y="46" fill="#4A3E5C">8</text>
+  </g>
+  <!-- nhóm cùng số: 9 đỏ, 9 xanh, 9 cam -->
+  <g font-family="Baloo 2, Nunito, sans-serif" font-weight="900" font-size="20" text-anchor="middle">
+    <rect x="22" y="62" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="34" y="86" fill="#E05D5D">9</text>
+    <rect x="48" y="62" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="60" y="86" fill="#5B8DEF">9</text>
+    <rect x="74" y="62" width="24" height="34" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+    <text x="86" y="86" fill="#F08A24">9</text>
+  </g>
+  <!-- joker -->
+  <rect x="98" y="64" width="16" height="22" rx="4" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2" transform="rotate(12 106 75)"/>
+  <text x="106" y="80" font-family="Baloo 2, Nunito, sans-serif" font-weight="900" font-size="13" text-anchor="middle" fill="#4A3E5C" transform="rotate(12 106 75)">★</text>
+</svg>

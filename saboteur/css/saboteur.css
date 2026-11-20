@@ -1,0 +1,94 @@
+/* 😈 Saboteur – đường hầm đào vàng, vai trò bí mật.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.sb-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.sb-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.sb-topbar .back-hub { position: static; flex: none; }
+.sb-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.sb-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.sb-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.sb-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.sb-status .stat b { color: #b3232a; }
+.sb-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+/* hộp vai trò bí mật */
+.sb-role { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-bottom: 10px; font-size: 15px; font-weight: 800; text-align: center; }
+.sb-role .role-val { font-size: 17px; }
+.sb-role .role-val.digger { color: #2e8b57; }
+.sb-role .role-val.sab { color: #b3232a; }
+.sb-role .note { font-size: 13px; font-weight: 700; color: #6b6480; }
+/* bàn đường hầm: 12 cột (x -9..2) x 9 hàng (y -4..4) */
+.sb-board-wrap { overflow-x: auto; margin-bottom: 10px; border: 3px solid #2a2340; border-radius: 18px; background: #6b5a3e; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 8px; box-sizing: border-box; }
+.sb-board { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; min-width: 340px; }
+.sb-cell { aspect-ratio: 1; border-radius: 8px; background: rgba(255, 253, 245, .16); border: 2px solid rgba(255, 253, 245, .22); box-sizing: border-box; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.sb-cell svg { width: 100%; height: 100%; display: block; }
+.sb-cell.sb-start { background: #ffe3a3; border-color: #2a2340; }
+.sb-cell.sb-start .sb-start-ic { font-size: 22px; line-height: 1; }
+.sb-cell.sb-goal { background: #2a2340; border-color: #2a2340; cursor: default; }
+.sb-cell.sb-goal .sb-goal-ic { font-size: 20px; line-height: 1; color: #fff; }
+.sb-cell.sb-goal.gold { background: #ffd273; }
+.sb-cell.sb-goal.coal { background: #4a3e5c; }
+.sb-cell.sb-goal.peeked { outline: 3px dashed #ffd273; outline-offset: 1px; }
+.sb-cell.sb-goal .sb-peek-tag { position: absolute; top: 0; right: 1px; font-size: 10px; line-height: 1; }
+.sb-cell.sb-placed { background: #fffdf5; border-color: #2a2340; }
+.sb-cell.sb-placed.dead { background: #ffe3ec; }
+.sb-cell.placeable { cursor: pointer; outline: 3px solid #2e8b57; outline-offset: 1px; background: rgba(171, 224, 198, .55); animation: sbpulse 1s infinite; }
+.sb-cell.placeable:hover { background: rgba(171, 224, 198, .9); }
+.sb-cell.rockable { cursor: pointer; outline: 3px solid #ff5c5c; outline-offset: 1px; animation: sbpulse 1s infinite; }
+.sb-cell.rockable:hover { background: rgba(255, 92, 92, .35); }
+.sb-cell.mapable { cursor: pointer; outline: 3px solid #7c5cff; outline-offset: 1px; animation: sbpulse 1s infinite; }
+@keyframes sbpulse { 0%, 100% { box-shadow: 0 0 0 rgba(46,139,87,0); } 50% { box-shadow: 0 0 0 4px rgba(255,210,115,.55); } }
+/* hàng người chơi */
+.sb-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .sb-players { grid-template-columns: 1fr; } }
+.sb-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.sb-player.me { outline: 3px solid #ffd273; outline-offset: 2px; }
+.sb-player.turn { outline: 3px solid #7c5cff; outline-offset: 2px; }
+.sb-player.targetable { cursor: pointer; outline: 3px solid #ff5c5c; outline-offset: 2px; animation: sbpulse 1s infinite; }
+.sb-player.targetable:hover { background: #fff0f0; }
+.sb-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sb-pinfo b { font-size: 15px; }
+.sb-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.sb-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.sb-tools { font-size: 13px; font-weight: 800; }
+.sb-tools .broken { color: #b3232a; }
+.sb-tools .ok { color: #2e8b57; }
+/* bài trên tay */
+.sb-hand-wrap { margin-bottom: 10px; }
+.sb-hand-label { font-weight: 800; font-size: 15px; margin-bottom: 8px; text-align: center; }
+.sb-hand { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.sb-hand-cover { text-align: center; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 18px; padding: 18px 14px; }
+.sb-hand-cover .note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b6480; }
+.sb-picked-note { text-align: center; font-weight: 800; font-size: 15px; color: #2e8b57; padding: 14px; background: #eafaf0; border: 3px solid #2a2340; border-radius: 14px; }
+/* lá bài Saboteur */
+.sb-card { width: 76px; min-height: 104px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 12px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 6px 4px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; text-align: center; transition: transform .12s ease, box-shadow .12s ease; flex: none; }
+.sb-card:hover { transform: translateY(-4px); box-shadow: 4px 6px 0 rgba(42,35,64,.16); }
+.sb-card svg { width: 56px; height: 56px; }
+.sb-card .sb-card-name { font-size: 12px; font-weight: 800; line-height: 1.2; }
+.sb-card .sb-card-sub { font-size: 11px; font-weight: 700; color: #6b6480; line-height: 1.2; }
+.sb-card .sb-card-ic { font-size: 30px; line-height: 1; }
+.sb-card.sel { outline: 3px solid #ffd273; outline-offset: 2px; transform: translateY(-4px); }
+.sb-card.cant { cursor: default; }
+.sb-card.cant:hover { transform: none; }
+.sb-card.dead { background: #ffe3ec; }
+.sb-card.action { background: #f3ecff; }
+.sb-card.action.map { background: #eafaf0; }
+.sb-card.action.rock { background: #ffe9e9; }
+/* thanh hành động khi đã chọn 1 lá */
+.sb-action-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 10px 12px; margin-bottom: 10px; font-weight: 800; font-size: 14px; text-align: center; }
+.sb-action-bar .hint { flex: 1 1 100%; }
+.sb-action-bar .btn { flex: 1 1 auto; max-width: 220px; }
+/* hàng nút trong ván */
+.sb-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.sb-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.sb-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.sb-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.sb-log div:last-child { border-bottom: 0; }
+.sb-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .sb-topbar h1 { font-size: 22px; }
+  .sb-cell.sb-start .sb-start-ic { font-size: 16px; }
+  .sb-cell.sb-goal .sb-goal-ic { font-size: 15px; }
+  .sb-card { width: 66px; min-height: 94px; }
+  .sb-card svg { width: 48px; height: 48px; }
+  .sb-card .sb-card-ic { font-size: 26px; }
+}

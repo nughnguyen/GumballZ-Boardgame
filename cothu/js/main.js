@@ -9,8 +9,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const NET = makeNet({
   game: 'cothu', min: 2, max: 2, maxSeats: 10, allowLocal: true,
@@ -259,7 +258,6 @@ $('#btn-resign').onclick = async () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('cothu'); newsBadge($('#btn-news-home'), 'cothu');
 
 const ui = gameKit({
   game: 'cothu', net: NET,

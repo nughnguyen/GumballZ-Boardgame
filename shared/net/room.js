@@ -19,7 +19,7 @@ import('./api.js?v=27').then(m => { if (typeof m.vipCached === 'function') vipCa
 //   người chơi → chủ phòng : {t:'__chat', text}
 //   chủ phòng → mọi người  : {t:'__chat', id, from, text}   (tên do CHỦ PHÒNG gán theo tin 'join' của kết nối đó, không tin client)
 // Ma Sói và Vẽ đoán đã có chat riêng gắn với luật (chat ban đêm, đoán chữ) nên không bật ở đây.
-const NO_CHAT = ['masoi', 'scribble'];
+const NO_CHAT = ['masoi', 'scribble', 'giandiep'];
 const gameOf = ns => String(ns || '').replace(/^gumballz-/, '');
 const chatOn = ns => !NO_CHAT.includes(gameOf(ns));
 const chatText = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -33,7 +33,7 @@ function peersEmit(peers) {
 }
 function netUi(g) { try { import('../ui/netmeter.js?v=4').then(m => m.mountNetMeter(g)).catch(() => {}); } catch (e) {} }
 function netEmit(d) { try { dispatchEvent(new CustomEvent('gumballz-net', { detail: d })); } catch (e) {} }
-function friendsUi() { try { import('../ui/friends.js?v=32').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
+function friendsUi() { try { import('../ui/friends.js?v=33').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
 function showNotice(text) {
   try {
     const d = document.createElement('div');

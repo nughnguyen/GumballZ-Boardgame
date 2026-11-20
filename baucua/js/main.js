@@ -4,7 +4,6 @@ import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
 const NET = makeNet(DEF);
@@ -130,7 +129,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('baucua-sound', sound ? '1' : '0'); drawSound(); beep('bet'); };
-$('#btn-news-home').onclick = () => openNews('baucua'); newsBadge($('#btn-news-home'), 'baucua');
 
 const ui = gameKit({
   game: 'baucua', net: NET,

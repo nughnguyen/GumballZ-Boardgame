@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect x="2" y="2" width="116" height="116" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- bàn 9x9 gợi ý bằng lưới 5x5 ô lớn -->
+  <rect x="16" y="16" width="88" height="88" rx="6" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="3"/>
+  <g stroke="#C9BDF3" stroke-width="2">
+    <line x1="33.6" y1="16" x2="33.6" y2="104"/>
+    <line x1="51.2" y1="16" x2="51.2" y2="104"/>
+    <line x1="68.8" y1="16" x2="68.8" y2="104"/>
+    <line x1="86.4" y1="16" x2="86.4" y2="104"/>
+    <line x1="16" y1="33.6" x2="104" y2="33.6"/>
+    <line x1="16" y1="51.2" x2="104" y2="51.2"/>
+    <line x1="16" y1="68.8" x2="104" y2="68.8"/>
+    <line x1="16" y1="86.4" x2="104" y2="86.4"/>
+  </g>
+  <!-- tường ngang (tím) chặn giữa bàn -->
+  <rect x="36" y="46" width="32" height="9" rx="4" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2.5"/>
+  <!-- tường dọc (xanh mint) -->
+  <rect x="82" y="62" width="9" height="32" rx="4" fill="#ABE0C6" stroke="#4A3E5C" stroke-width="2.5"/>
+  <!-- quân đỏ (dưới) và quân xanh (trên) -->
+  <circle cx="60" cy="95" r="8" fill="#E05D5D" stroke="#4A3E5C" stroke-width="2.5"/>
+  <circle cx="60" cy="25" r="8" fill="#5B8DEF" stroke="#4A3E5C" stroke-width="2.5"/>
+  <!-- mũi tên đích -->
+  <text x="60" y="14" font-family="Baloo 2, Nunito, sans-serif" font-weight="900" font-size="9" text-anchor="middle" fill="#4A3E5C">▲</text>
+</svg>

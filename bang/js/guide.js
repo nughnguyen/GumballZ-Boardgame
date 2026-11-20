@@ -131,7 +131,7 @@ ${ill([[mini('barrel'), 'Lật ra <span class="suit red">♥</span> → né đư
 <li><b>Màu người chơi:</b> mỗi người có 1 màu riêng (chấm màu cạnh tên). Nhật ký và dòng tin giữa bàn tô tên theo màu đó cho dễ theo dõi.</li>
 <li><b>⏪ Lượt vừa rồi</b> (thanh trên hoặc trong Nhật ký): tóm tắt mấy lượt gần nhất – ai bắn ai, né hay trúng, ai Panic! ai, ai nhốt ai… – kèm bảng <b>"Ai tấn công ai"</b> cả ván để đoán vai trò.</li>
 <li><b>😂 Thả emoji / chọc nhau:</b> bấm nút 😂 (điện thoại: trong khung tên của bạn; máy tính: mép dưới bàn) để thả emoji hoặc câu chọc kiểu Viễn Tây như "Né đi cưng!", "Bang bang 🔫", "Uống Beer đi". Cả bàn đều thấy; bot thỉnh thoảng chọc lại.</li>
-<li><b>📝 Có gì mới:</b> xem các bản cập nhật của game (ở trang chủ game hoặc nút ⚙️).</li>
+
 <li><b>Bot</b> chơi theo vai: Phó không bao giờ bắn sếp và ưu tiên bắn kẻ vừa bắn sếp; Cảnh sát trưởng nghi kẻ vừa tấn công mình; Tội phạm dồn sức vào sếp; Kẻ hai mặt giữ sếp sống tới khi hết Tội phạm. Bot chỉ dùng thông tin công khai (ai đã đánh ai), không nhìn trộm vai trò.</li></ul>
 <p class="g-note">Luật theo sách luật chính thức BANG! của Emiliano Sciarra (dV Giochi). Tranh minh hoạ: Remington, Russell, Harnett, Peto và các họa sĩ khác (public domain).</p></section>
 </div>`;

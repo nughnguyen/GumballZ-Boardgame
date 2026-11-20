@@ -1,0 +1,107 @@
+/* 🎨 Azul — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.az-wrap{max-width:960px;margin:0 auto;padding:0 12px 40px}
+.az-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.az-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.az-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.az-status .stat.me{background:#FFE3A3}
+.az-status .stat.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.az-status .dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid #4A3E5C;vertical-align:-1px;margin-right:4px}
+
+/* ----- gạch ----- */
+.az-tile{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:9px;border:2.5px solid #4A3E5C;box-shadow:2px 2px 0 rgba(74,62,92,.25);font-size:19px;font-weight:800;cursor:pointer;flex:0 0 auto;padding:0;background:#FFFDF9}
+.az-tile.c-B{background:#3B82C4;color:#FFF}
+.az-tile.c-Y{background:#F2C230;color:#4A3E5C}
+.az-tile.c-R{background:#D94F3D;color:#FFF}
+.az-tile.c-K{background:#404040;color:#FFF}
+.az-tile.c-W{background:#F7F2E7;color:#4A3E5C}
+.az-tile:disabled{cursor:default;opacity:.55}
+.az-tile.sel{outline:3px solid #FF5CA8;outline-offset:2px;transform:translateY(-2px)}
+.az-tile.empty-tile{background:#F3EDFB;border-style:dashed;box-shadow:none;cursor:default}
+.az-marker{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:2.5px solid #4A3E5C;background:#FFFDF9;font-weight:800;font-size:17px;box-shadow:2px 2px 0 rgba(74,62,92,.25)}
+
+/* ----- xưởng + trung tâm ----- */
+.az-market{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;box-shadow:3px 3px 0 #4A3E5C;padding:12px;margin-bottom:12px}
+.az-market h3{margin:2px 0 8px;font:400 15px/1.3 "Bungee","Baloo 2",sans-serif;color:#4A3E5C}
+.az-market h3 small{font:700 12px Nunito,sans-serif;color:#8B7E9E}
+.az-factories{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.az-factory{display:flex;flex-direction:column;align-items:center;gap:4px;background:#FFF8EE;border:2px solid #4A3E5C;border-radius:50%;width:104px;height:104px;justify-content:center;padding:6px}
+.az-factory .az-frow{display:flex;gap:5px}
+.az-factory .az-tile{width:34px;height:34px;font-size:15px}
+.az-factory .az-flabel{font-size:11px;font-weight:800;color:#8B7E9E}
+.az-centre{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:44px;background:#F3EDFB;border:2px dashed #C9BDF3;border-radius:12px;padding:8px}
+.az-centre .az-note{font-size:12px;font-weight:700;color:#8B7E9E}
+
+/* ----- bàn người chơi ----- */
+.az-boards{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.az-board{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;box-shadow:3px 3px 0 #4A3E5C;padding:12px}
+.az-board.me{background:#FFF6E3}
+.az-board h4{margin:0 0 8px;font:400 15px/1.3 "Bungee","Baloo 2",sans-serif;color:#4A3E5C}
+.az-board h4 small{font:700 12px Nunito,sans-serif;color:#8B7E9E}
+.az-board-grid{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.az-lines{display:flex;flex-direction:column;gap:5px}
+.az-line{display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:9px;border:2px solid transparent;cursor:pointer}
+.az-line .az-lnum{width:18px;font-size:12px;font-weight:800;color:#8B7E9E;text-align:right}
+.az-line .az-slot{width:34px;height:34px;border-radius:8px;border:2px dashed #D8CDEF;background:#F3EDFB;display:inline-flex;align-items:center;justify-content:center}
+.az-line .az-slot .az-tile{width:30px;height:30px;font-size:14px;cursor:default}
+.az-line.targetable{border-color:#00B8A9;background:#E4F7F3}
+.az-line.targetable:hover{border-style:solid;background:#C9F2EB}
+.az-line.sel{outline:3px solid #FF5CA8;outline-offset:1px;background:#FFE9F4}
+.az-line.full{opacity:.85}
+.az-line .az-lhint{font-size:11px;font-weight:700;color:#8B7E9E}
+.az-floor{display:flex;align-items:center;gap:4px;margin-top:8px;padding:4px 6px;border-radius:9px;border:2px solid transparent;cursor:pointer}
+.az-floor .az-lnum{width:18px;font-size:12px;font-weight:800;color:#8B7E9E;text-align:right}
+.az-floor .az-slot{width:30px;height:30px;border-radius:7px;border:2px dashed #D8CDEF;background:#F3EDFB;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#B3232A}
+.az-floor .az-slot .az-tile{width:26px;height:26px;font-size:12px;cursor:default}
+.az-floor .az-slot .az-marker{width:26px;height:26px;font-size:12px}
+.az-floor.targetable{border-color:#00B8A9;background:#E4F7F3}
+.az-floor.sel{outline:3px solid #FF5CA8;outline-offset:1px;background:#FFE9F4}
+.az-floor .az-pen{font-size:11px;font-weight:800;color:#B3232A}
+.az-wall{display:grid;grid-template-columns:repeat(5,40px);grid-template-rows:repeat(5,40px);gap:3px}
+.az-wall .az-wcell{width:40px;height:40px;border-radius:8px;border:2px solid #D8CDEF;background:#F3EDFB;display:flex;align-items:center;justify-content:center}
+.az-wall .az-wcell .az-tile{width:36px;height:36px;font-size:16px;cursor:default}
+.az-wall .az-wcell .az-ghost{width:26px;height:26px;border-radius:7px;opacity:.28}
+.az-wall .az-wcell .az-ghost.c-B{background:#3B82C4}
+.az-wall .az-wcell .az-ghost.c-Y{background:#F2C230}
+.az-wall .az-wcell .az-ghost.c-R{background:#D94F3D}
+.az-wall .az-wcell .az-ghost.c-K{background:#404040}
+.az-wall .az-wcell .az-ghost.c-W{background:#E8DFC8;border:1.5px solid #C9BFA5}
+.az-opponents{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.az-opponents .az-wall{grid-template-columns:repeat(5,30px);grid-template-rows:repeat(5,30px)}
+.az-opponents .az-wall .az-wcell{width:30px;height:30px}
+.az-opponents .az-wall .az-wcell .az-tile{width:26px;height:26px;font-size:12px}
+.az-opponents .az-wall .az-wcell .az-ghost{width:18px;height:18px}
+.az-opponents .az-line .az-slot{width:26px;height:26px}
+.az-opponents .az-line .az-slot .az-tile{width:22px;height:22px;font-size:11px}
+.az-opponents .az-floor .az-slot{width:22px;height:22px}
+.az-opponents .az-floor .az-slot .az-tile{width:18px;height:18px;font-size:10px}
+
+/* ----- thanh hành động ----- */
+.az-action-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.az-action-bar .hint{font-size:14px;font-weight:700}
+.az-action-bar .note{font-size:12px;color:#8B7E9E;font-weight:700}
+.az-action-bar .btn:disabled{opacity:.45;cursor:default}
+
+/* ----- nút + nhật ký ----- */
+.az-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.az-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.az-log .win{font-weight:800;color:#1E7A46}
+.az-log .info{font-weight:700;color:#B3232A}
+.az-log .resign{font-weight:700;color:#8B7E9E}
+.az-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.az-final-scores{width:100%;max-width:460px;margin:8px auto;text-align:left}
+.az-final-scores .row{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;border-bottom:2px dashed #E5DEF5;font-weight:700}
+.az-final-scores .row.winner{background:#FFF3D6;border-radius:8px}
+.az-final-scores .row .sub{display:block;font-size:12px;color:#8B7E9E;font-weight:700}
+
+@media (max-width:480px){
+  .az-tile{width:34px;height:34px;font-size:16px}
+  .az-factory{width:88px;height:88px}
+  .az-factory .az-tile{width:29px;height:29px;font-size:13px}
+  .az-wall{grid-template-columns:repeat(5,34px);grid-template-rows:repeat(5,34px)}
+  .az-wall .az-wcell{width:34px;height:34px}
+  .az-wall .az-wcell .az-tile{width:30px;height:30px;font-size:14px}
+  .round{font-size:15px}
+  /* thanh trên: dãy nút tự xuống hàng ở màn hẹp (giống Skull) */
+  .az-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

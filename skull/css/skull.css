@@ -1,0 +1,75 @@
+/* 🌹 Skull — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.sk-wrap{max-width:860px;margin:0 auto;padding:0 12px 40px}
+.sk-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.sk-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.sk-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.sk-status .stat.me{background:#FFE3A3}
+.sk-status .stat.out{opacity:.55;text-decoration:line-through}
+
+/* ----- thảm từng người ----- */
+.sk-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:12px}
+.sk-player{display:flex;gap:10px;align-items:flex-start;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;box-shadow:3px 3px 0 #4A3E5C}
+.sk-player.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.sk-player.me{background:#FFF3D6}
+.sk-player.out{opacity:.55}
+.sk-player.flippable{cursor:pointer;outline:3px dashed #FF5CA8;outline-offset:1px}
+.sk-pinfo{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.sk-pinfo b{font-size:14px}
+.sk-ptotal,.sk-pmeta{font-size:12px;color:#8B7E9E;font-weight:700}
+.sk-mat{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:56px;margin-top:6px;padding:6px;background:#F3EDFF;border:2px dashed #C9BDF3;border-radius:12px}
+.sk-mat-empty{font-size:12px;color:#8B7E9E;font-weight:700}
+
+/* ----- đĩa ----- */
+.sk-disc{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #4A3E5C;flex:0 0 auto;box-shadow:2px 2px 0 #4A3E5C}
+.sk-disc .sk-disc-ic{font-size:26px;line-height:1}
+.sk-disc.rose{background:#FFB9CF}
+.sk-disc.skull{background:#4A3E5C}
+.sk-disc.back{background:#C9BDF3}
+.sk-disc.flipped{outline:3px solid #FFD34D;outline-offset:1px}
+
+/* ----- bài trên tay ----- */
+.sk-hand-wrap{margin-bottom:12px}
+.sk-hand{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sk-hand-label{width:100%;text-align:center;font-weight:800;font-size:14px;color:#4A3E5C}
+.sk-card{width:104px;border-radius:16px;border:3px solid #4A3E5C;padding:10px 6px 8px;text-align:center;cursor:pointer;background:#FFFDF9;box-shadow:3px 3px 0 #4A3E5C;transition:transform .12s}
+.sk-card:hover{transform:translateY(-3px)}
+.sk-card.cant{opacity:.55;cursor:default}
+.sk-card.cant:hover{transform:none}
+.sk-card.rose{background:#FFE3EC}
+.sk-card.skull{background:#EDE7F6}
+.sk-card .sk-disc-ic{font-size:40px;line-height:1;display:block;margin-bottom:4px}
+.sk-card-name{display:block;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:15px}
+.sk-card-sub{display:block;font-size:11px;color:#8B7E9E;font-weight:700}
+.sk-hand-cover{text-align:center;padding:18px 10px;background:#FFFDF9;border:2px dashed #C9BDF3;border-radius:14px}
+.sk-picked-note{text-align:center;font-weight:800;color:#8B7E9E;margin-top:8px}
+
+/* ----- bảng ra giá + gợi ý lật ----- */
+.sk-bid-panel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.sk-bid-panel .hint{font-size:14px;font-weight:700}
+.sk-bid-panel .bid-ctl{display:flex;align-items:center;gap:8px}
+.sk-bid-panel .bid-num{font-family:"Baloo 2",sans-serif;font-size:26px;font-weight:800;min-width:40px;text-align:center}
+.sk-bid-panel .note{font-size:12px;color:#8B7E9E;font-weight:700}
+.sk-flip-note{text-align:center;font-weight:800;font-size:14px;color:#B3232A;background:#FFE3EC;border:2px solid #FF5CA8;border-radius:12px;padding:10px;margin-bottom:12px}
+
+/* ----- nút + nhật ký ----- */
+.sk-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.sk-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.sk-log .win{font-weight:800;color:#1E7A46}
+.sk-log .info{font-weight:700;color:#B3232A}
+.sk-log .resign{font-weight:700;color:#8B7E9E}
+.sk-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:480px){
+  .sk-disc{width:44px;height:44px}
+  .sk-disc .sk-disc-ic{font-size:22px}
+  .sk-card{width:88px}
+  .sk-card .sk-disc-ic{font-size:32px}
+  .sk-players{grid-template-columns:1fr}
+  .round{font-size:15px}
+  /* thanh trên tràn 43px ở 390px vì nút "Ván mới" có chữ: thu lại thành icon */
+  .sk-topbar #btn-new .btn-new-txt{display:none}
+  /* vẫn còn tràn 34px: .tools là flex không wrap nên không co lại được —
+     cho nó wrap ở màn hẹp, các nút tự xuống hàng */
+  .sk-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

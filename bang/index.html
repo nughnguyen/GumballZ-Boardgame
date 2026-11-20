@@ -43,13 +43,13 @@
           <button id="btn-join" class="btn">Vào phòng</button>
         </div>
         <button id="btn-offline" class="btn ghost small">Chơi một mình với bot (offline)</button>
-      <button id="btn-lobby" class="btn ghost small" type="button" onclick="import('../shared/ui/lobby.js?v=53').then(m=>m.openLobby('bang'))">🌐 Phòng công khai &amp; chat</button>
+      <button id="btn-lobby" class="btn ghost small" type="button" onclick="import('../shared/ui/lobby.js?v=55').then(m=>m.openLobby('bang'))">🌐 Phòng công khai &amp; chat</button>
       </div>
       <div class="theme-pick" id="theme-pick"></div>
       <div class="theme-pick" id="speed-pick"></div>
       <div class="theme-pick"><button id="btn-music-home">🎵 Nhạc nền: tắt</button></div>
     </div>
-    <div class="home-help"><button id="btn-guide-home" class="btn guide-btn">📖 Hướng dẫn chơi</button><button id="btn-news-home" class="btn guide-btn news-btn" data-news="bang">📝 Có gì mới</button></div>
+    <div class="home-help"><button id="btn-guide-home" class="btn guide-btn">📖 Hướng dẫn chơi</button></div>
     <p class="foot">Chủ phòng cần giữ tab mở suốt ván. 4–7 người, có thể thêm bot.</p>
   </div>
 </section>
@@ -87,7 +87,7 @@
       <input id="music-vol" class="vol" type="range" min="0" max="1" step="0.05" title="Âm lượng nhạc">
       <button id="btn-mute" class="btn icon ghost" title="Hiệu ứng âm thanh">🔊</button>
       <button id="btn-newbie-g" class="btn icon ghost" title="Chế độ Người mới">🐣</button>
-      <button id="btn-news-g" data-news="bang" class="btn icon ghost" title="Có gì mới">📝<span class="nb-lbl"> Có gì mới</span></button>
+      
       <button id="btn-home-g" class="btn small ghost" title="Rời ván, về trang chủ GumballZ Boardgame">🏠 Trang chủ</button>
     </div>
     <button id="btn-guide" class="btn icon ghost" title="Hướng dẫn">📖</button>
@@ -127,7 +127,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script type="module" src="js/main.js?v=110"></script>
-<script type="module" async src="../shared/ui/homebtn.js?v=67"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
 <script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
 <script type="module" src="../shared/net/presence.js?v=26"></script>
 <script type="module" async src="../shared/ui/feel.js?v=53"></script>

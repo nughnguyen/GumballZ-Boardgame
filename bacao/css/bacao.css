@@ -113,7 +113,7 @@ input:focus{border-color:var(--acc)}
 .clock{background:var(--ink);color:#fff;border-radius:999px;padding:5px 10px;font-weight:800;font-size:14px;flex:none}
 .clock.low{background:var(--bad);animation:pulse 1s infinite}
 .tools{display:flex;gap:6px;flex:none}
-@media (max-width:420px){#btn-news,#btn-mute{display:none}.topbar{gap:6px;padding:8px}}
+@media (max-width:420px){#btn-mute{display:none}.topbar{gap:6px;padding:8px}}
 /* bàn: viền gỗ + nỉ đỏ */
 .table{flex:1;min-height:0;margin:0 8px;border-radius:28px;position:relative;padding:var(--rim);
   background:repeating-linear-gradient(100deg,var(--grain) 0 2px,#0000 2px 7px,var(--grain) 7px 8px,#0000 8px 15px),var(--wood);

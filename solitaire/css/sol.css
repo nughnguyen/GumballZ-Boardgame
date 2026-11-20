@@ -330,11 +330,4 @@ html.dark .th-pick button.on{border-color:#ffd23f;box-shadow:0 0 0 2px #ffd23f}
 html.dark .credit,html.dark .note,html.dark .muted{color:var(--muted)}
 html.dark .pc{box-shadow:0 1px 1px #0004,0 3px 8px -4px #000c}
 html.dark .pc.sel{box-shadow:0 0 0 3px #ffd23f,0 8px 16px -6px #000c}
-/* hộp "Có gì mới" (shared/ui/news.js) */
-html.dark .gumballz-news .bn-box{background:#1f1a2b;color:var(--ink)}
-html.dark .gumballz-news .bn-hd{background:linear-gradient(135deg,#3a2f1c,#3d2233);border-color:#3a3350}
-html.dark .gumballz-news .bn-x,html.dark .gumballz-news .bn-tabs button{background:#2a2438;color:var(--ink);border-color:#4a4262}
-html.dark .gumballz-news .bn-tabs button.on{background:#ffd23f;color:#241a00;border-color:#ffd23f}
-html.dark .gumballz-news .bn-it{border-color:#3a3350}
-html.dark .gumballz-news .bn-meta{color:var(--muted)}
-html.dark .gumballz-news .bn-tag{background:#3a2f5c;color:#d9ccff}
+

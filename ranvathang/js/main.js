@@ -12,8 +12,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const SNAKE_COLORS = ['#e84393', '#6c5ce7', '#00b894', '#e17055', '#0984e3', '#fdcb6e', '#d63031', '#00cec9', '#a29bfe', '#fd79a8'];
 
@@ -444,7 +443,6 @@ $('#btn-resign').onclick = async () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('ranvathang'); newsBadge($('#btn-news-home'), 'ranvathang');
 
 const ui = gameKit({
   game: 'ranvathang', net: NET,

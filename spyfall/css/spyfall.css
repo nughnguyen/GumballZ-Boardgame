@@ -1,0 +1,79 @@
+/* 🕵️ Spyfall – hỏi đáp tìm gián điệp, thẻ địa điểm bí mật.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.sf-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.sf-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.sf-topbar .back-hub { position: static; flex: none; }
+.sf-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.sf-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* bảng điểm trận */
+.scoreboard { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.scoreboard .sc { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 800; }
+.scoreboard .sc b { color: #b3232a; }
+/* ghế người chơi */
+.seats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .seats { grid-template-columns: 1fr; } }
+.seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; cursor: default; }
+.seat b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.seat small { color: #6b6480; font-weight: 700; white-space: nowrap; }
+.seat.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.seat.sel { background: #fff3c4; }
+.seat.clickable { cursor: pointer; }
+.seat.clickable:hover { background: #fff3c4; }
+.seat .voted { font-size: 12px; font-weight: 800; color: #2e7d32; }
+.seat .asker { font-size: 12px; font-weight: 800; color: #b8860b; }
+/* hộp hành động theo pha */
+.panel { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px 14px; margin-bottom: 10px; }
+.panel h3 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+.panel .sub { font-size: 13px; font-weight: 700; color: #6b6480; margin: -4px 0 8px; }
+.panel .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.panel .btn-row .btn { flex: 1 1 auto; }
+.vote-btns { display: flex; gap: 10px; }
+.vote-btns .btn { flex: 1; font-size: 18px; padding: 12px 8px; }
+.cover { text-align: center; padding: 8px 0 2px; }
+.cover .who { font: 800 18px 'Baloo 2', sans-serif; margin-bottom: 6px; }
+.cover .warn { font-size: 13px; font-weight: 700; color: #b3232a; margin-bottom: 10px; }
+/* thẻ địa điểm bí mật */
+.role-card { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 14px; margin-bottom: 10px; text-align: center; }
+.role-card .ric { font-size: 44px; line-height: 1; }
+.role-card h3 { margin: 4px 0 2px; font-size: 20px; }
+.role-card .rloc { font-weight: 800; font-size: 14px; color: #2e7d32; }
+.role-card.spy .rloc { color: #b3232a; }
+.role-card p { margin: 6px 0; font-size: 14px; font-weight: 700; color: #4a405c; }
+.role-card .know { text-align: left; background: #fff3c4; border: 2px dashed #2a2340; border-radius: 12px; padding: 8px 12px; margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.6; }
+.role-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+/* hỏi đáp */
+.qa-list { margin-bottom: 10px; }
+.qa-item { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; font-size: 14px; font-weight: 700; line-height: 1.5; }
+.qa-item .q { color: #2a2340; }
+.qa-item .a { color: #2e7d32; margin-top: 2px; }
+.qa-item .a.wait { color: #b3232a; }
+.qa-item .who { color: #6b6480; font-size: 12px; }
+.ask-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ask-row select { flex: 0 1 170px; min-height: 44px; border: 3px solid #2a2340; border-radius: 12px; background: #fff; font: 700 15px 'Nunito', sans-serif; padding: 0 10px; }
+.ask-row input { flex: 1 1 220px; min-height: 44px; border: 3px solid #2a2340; border-radius: 12px; background: #fff; font: 700 15px 'Nunito', sans-serif; padding: 0 12px; }
+.ask-row input:focus, .ask-row select:focus { outline: 3px solid #ffd273; outline-offset: 1px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.chips .chip { cursor: pointer; font-size: 13px; }
+/* lưới địa điểm (đoán + xem) */
+.loc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 560px) { .loc-grid { grid-template-columns: repeat(2, 1fr); } }
+.loc-grid .loc { background: #fff; border: 2.5px solid #2a2340; border-radius: 12px; padding: 8px 6px; font: 700 13px 'Nunito', sans-serif; cursor: pointer; text-align: center; }
+.loc-grid .loc.sel { background: #fff3c4; outline: 3px solid #ffd273; outline-offset: 1px; }
+.loc-grid .loc:disabled { cursor: default; opacity: .85; }
+.loc-grid .loc .li { font-size: 22px; display: block; }
+/* hàng nút trong ván */
+.sf-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.sf-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.sf-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.sf-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.sf-log div:last-child { border-bottom: 0; }
+.sf-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* màn lộ bài cuối ván */
+.reveal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0; text-align: left; }
+@media (max-width: 560px) { .reveal-grid { grid-template-columns: 1fr; } }
+.reveal-grid .rv { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 12px; padding: 6px 10px; font-weight: 700; font-size: 14px; }
+.reveal-grid .rv.spy { border-left: 8px solid #b3232a; }
+.reveal-grid .rv.civ { border-left: 8px solid #2e7d32; }
+.timer-chip { display: inline-block; background: #fff3c4; border: 2px solid #2a2340; border-radius: 999px; padding: 1px 10px; font-size: 14px; }
+.timer-chip.low { background: #ffd9d4; }

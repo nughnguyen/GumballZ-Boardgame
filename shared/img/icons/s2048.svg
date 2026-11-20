@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect x="4" y="4" width="112" height="112" rx="22" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="4"/>
+  <g font-family="Nunito, sans-serif" font-weight="800" text-anchor="middle">
+    <g stroke="#4A3E5C" stroke-width="3">
+      <rect x="22" y="22" width="34" height="34" rx="8" fill="#FFFDF9"/>
+      <rect x="64" y="22" width="34" height="34" rx="8" fill="#FFFDF9"/>
+      <rect x="22" y="64" width="34" height="34" rx="8" fill="#FFFDF9"/>
+      <rect x="64" y="64" width="34" height="34" rx="8" fill="#FFB98A"/>
+    </g>
+    <text x="39" y="46" font-size="20" fill="#8B7E9E">2</text>
+    <text x="81" y="46" font-size="20" fill="#8B7E9E">4</text>
+    <text x="39" y="88" font-size="20" fill="#8B7E9E">8</text>
+    <text x="81" y="90" font-size="22" fill="#4A3E5C">16</text>
+  </g>
+  <g transform="translate(102 18)">
+    <path d="M0 6 L14 0 L12 14 Z" fill="#FF4D2E" stroke="#4A3E5C" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+</svg>

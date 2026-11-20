@@ -5,8 +5,8 @@ import { GUIDE_HTML } from './guide.js?v=10';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
+import { stock, useItem } from '../../shared/ui/wallet.js?v=1'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
 
 let sound = ls.get('bantau-sound') !== '0';
 
@@ -129,6 +129,7 @@ $('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
 
 // ---------- ván chơi ----------
 let cur = null, endShown = null, lastFx = '';
+let pendingStock = null; /* 💰 đang chờ xác nhận lấy vật phẩm từ kho ví: { item, before } */
 /* ---------- theo dõi thành tựu Bắn Tàu (ghi vào shared/ui/stats.js) ---------- */
 let achStreak = 0, achGid = '', achFlawlessGid = '';
 /* export để test được trực tiếp trong trình duyệt (import lại cùng module) */
@@ -249,10 +250,11 @@ function shopHTML(v) {
     const left = it.max - owned, canBuy = left > 0 && y.coins >= it.price;
     const canUse = owned > 0 && !used && (it.id !== 'trap' || owned - y.traps.length > 0);
     const using = mode === it.id;
+    const stk = stock('bt-' + it.id); /* vật phẩm mua sẵn ở Cửa hàng, nằm trong kho ví */
     return `<div class="shop-item${using ? ' using' : ''}"><span class="s-ic">${it.icon}</span><span class="s-nm">${it.name}<small>${it.price} xu · còn ${left}/${it.max}${it.id === 'trap' ? ` · đã đặt ${y.traps.length}` : ''}</small></span>
-      <button class="btn sm" data-buy="${it.id}" ${canBuy ? '' : 'disabled'}>Mua</button>
+      <button class="btn sm" data-buy="${it.id}" ${canBuy ? '' : 'disabled'}>Mua</button>${stk > 0 ? `<button class="btn sm" data-stock="${it.id}" ${left > 0 ? '' : 'disabled'}>📦 Kho (${stk})</button>` : ''}
       <button class="btn sm ${using ? 'pri' : ''}" data-use="${it.id}" ${canUse && isMyTurn(v) ? '' : 'disabled'}>${using ? 'Đang chọn…' : 'Dùng'}</button></div>`;
-  }).join('')}</div><p class="shop-note">Trúng +50 xu · chìm tàu +100 xu. Bắn trúng được bắn tiếp, trượt thì đổi lượt. Dùng Bẫy/Radar/Bom là hết lượt (dù trước đó có bắn trúng); mua vật phẩm không tốn lượt.</p>`;
+  }).join('')}</div><p class="shop-note">Trúng +50 xu · chìm tàu +100 xu. Bắn trúng được bắn tiếp, trượt thì đổi lượt. Dùng Bẫy/Radar/Bom là hết lượt (dù trước đó có bắn trúng); mua vật phẩm không tốn lượt. Có vật phẩm trong kho ví (mua sẵn ở 🛍️ Cửa hàng) thì bấm “📦 Kho” để lấy miễn phí, không tốn xu trong trận.</p>`;
 }
 /* tàu địch đã chìm nhưng chưa tới lúc hiện nguyên hình (chờ nổ xong) */
 const pendingWrecks = new Set();
@@ -370,6 +372,7 @@ function sinkFx(boards, grid, v) {
 
 function render(v, prev) {
   cur = v;
+  if (pendingStock && v.you && prev && prev.you) { const now = (v.you.bought || {})[pendingStock.item] || 0; if (now > pendingStock.before) useItem('bt-' + pendingStock.item); pendingStock = null; } /* 💰 kho ví: trừ 1 khi lượt xem sau xác nhận vật phẩm đã vào tay (lấy bằng xu thì không trừ) */
   trackAch(v, prev); /* ghi sự kiện thành tựu Bắn Tàu (chìm tàu, chuỗi trúng, vật phẩm…) */
   planFx(v, prev); /* lập lịch giấu dấu/hiện tàu chìm TRƯỚC khi vẽ lưới */
   const me = v.players.find(p => p.id === v.me), foe = v.players.find(p => p.id !== v.me);
@@ -625,8 +628,9 @@ $('#acts').addEventListener('click', e => {
   else if (a === 'lobby') ui.net.raw.restart();
 });
 $('#shop').addEventListener('click', e => {
-  const b = e.target.closest('[data-buy],[data-use]'); if (!b || !cur) return;
-  if (b.dataset.buy) { ui.act({ type: 'buy', item: b.dataset.buy }); return; } /* mua sai thì máy chủ tự báo lý do qua toast */
+  const b = e.target.closest('[data-buy],[data-use],[data-stock]'); if (!b || !cur) return;
+  if (b.dataset.stock) { pendingStock = { item: b.dataset.stock, before: (cur.you.bought || {})[b.dataset.stock] || 0 }; ui.act({ type: 'buy', item: b.dataset.stock, stock: true }); return; } /* lấy từ kho ví: trừ kho khi lượt xem sau xác nhận đã mua */
+  if (b.dataset.buy) { pendingStock = null; ui.act({ type: 'buy', item: b.dataset.buy }); return; } /* mua sai thì máy chủ tự báo lý do qua toast */
   if (b.dataset.use) {
     mode = mode === b.dataset.use ? null : b.dataset.use;
     render(cur, cur);
@@ -641,7 +645,6 @@ $('#btn-log').onclick = () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('bantau-sound', sound ? '1' : '0'); drawSound(); beep('turn'); };
-$('#btn-news-home').onclick = () => openNews('bantau'); newsBadge($('#btn-news-home'), 'bantau');
 
 const ui = gameKit({
   game: 'bantau', net: NET, offline: h => h.addBot(),

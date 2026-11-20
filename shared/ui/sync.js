@@ -9,7 +9,8 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=27';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=43';
+import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=65';
+import { snapshot, adoptServer } from './wallet.js?v=1'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };
@@ -37,12 +38,13 @@ export async function syncNow() {
     ls.set(META, JSON.stringify(m));
     let av = null; try { av = JSON.parse(ls.get(AV)); } catch (e) {}
     const TT = 'gumballz-title', TTT = 'gumballz-title-t';
-    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace && av && av.e ? { e: av.e, c: num(av.c), t: num(av.t) } : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)) }; /* danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) */
+    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace && av && av.e ? { e: av.e, c: num(av.c), t: num(av.t) } : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot() }; /* danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian */
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
     let r; try { r = await (await fetch(API() + '/auth/profile', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body), signal: ctl.signal })).json(); } finally { clearTimeout(to); }
     if (!r || !r.ok || !r.prof) return; /* lỗi mạng / hết phiên: giữ gói đang gửi dở, lần sau gửi lại */
     { const cur = meta(); if (!cur || !cur.pend || cur.pend.op !== m.pend.op) return; } /* tab khác (hoặc bản module khác) đã gộp gói này rồi: gộp lần nữa là cộng trùng */
     saveServerSnapshot(r.prof); /* tổng máy chủ (mốc cũ + đã xác minh + ván local đã nhận) để hiện riêng với số trên máy này */
+    try { adoptServer(r.prof.wal); } catch (e) {} /* 💰 ví xu: máy chủ trả bản mới nhất — máy này nhận nếu mới hơn bản trên máy */
     // gộp về máy: tổng của máy chủ + những ván vừa chơi trong lúc đang gửi
     const P = r.prof, now = load(), out = { ...now, g: {} };
     const games = new Set([...Object.keys(P.g || {}), ...Object.keys(now.g)]);

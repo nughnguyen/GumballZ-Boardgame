@@ -21,20 +21,20 @@ header.nav.stuck{box-shadow:0 3px 0 rgba(74,62,92,.35)}
 .wm{font:800 24px/0.95 var(--font-display);letter-spacing:.5px;display:flex;flex-direction:column;color:var(--ink)}
 .wm small{font:800 10.5px/1 Nunito,sans-serif;letter-spacing:.3px;color:var(--muted);margin-top:2px}
 .nav-search{flex:1 1 220px;min-width:220px;max-width:560px;margin:0 auto}
-.nav-search input{width:100%;min-height:44px;border:3px solid var(--y2);border-radius:999px;padding:0 16px;font:700 14.5px Nunito,sans-serif;background:var(--card);color:var(--ink)}
+/* ô tìm kiếm kiểu Uiverse anniekoop: nền xám nhạt, rê/chạm vào thì viền tím + vòng sáng, nền trắng */
+.nav-search input{width:100%;min-height:44px;border:2px solid transparent;border-radius:10px;padding:0 16px;font:700 14.5px Nunito,sans-serif;background:#F3F3F3;color:var(--ink);outline:none;overflow:hidden;transition:all .5s}
 .nav-search input::placeholder{color:var(--muted)}
-.nav-search input:focus{outline:3px solid var(--p1);border-color:var(--y2)}
+.nav-search input:hover,.nav-search input:focus{border:2px solid #7C5CFF;box-shadow:0 0 0 7px rgba(124,92,255,.2);background:#fff}
 .links{display:flex;align-items:center;gap:2px;margin-left:6px;flex:1}
 .links a,.links button{position:relative;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font:800 15px Nunito,sans-serif;color:var(--ink);text-decoration:none;background:none;border:0;border-radius:12px;padding:8px 7px;cursor:pointer;transition:background .15s}
 @media (max-width:1350px){.links [data-feedback],.links [data-donate]{display:none}}
 header.nav .links a:hover,header.nav .links button:hover{background:var(--y2)}
-.links .gumballz-dot::after{top:6px;right:4px}
 .acct{position:static;margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
-.newsbtn{width:42px;height:42px;border-radius:50%;border:3px solid var(--ink);background:var(--y2);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;box-shadow:var(--sh-sm);padding:0}
-.newsbtn:hover{transform:translate(-1px,-1px)}
 .setbtn{width:42px;height:42px;border-radius:50%;border:3px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:var(--sh-sm);transition:transform .3s}
 .setbtn:hover{transform:rotate(45deg)}
 .profbtn{border:0;background:none;padding:0;cursor:pointer;border-radius:50%;display:grid;position:relative;transition:transform .2s}
+.xupill{display:inline-flex;align-items:center;gap:4px;min-height:42px;padding:0 12px;border-radius:999px;border:3px solid var(--ink);background:#FFF3D6;color:var(--ink);font:800 14px Nunito,sans-serif;text-decoration:none;box-shadow:var(--sh-sm);white-space:nowrap}.xupill b{font:400 16px/1 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+@media (max-width:480px){.xupill{padding:0 9px}.xupill .xu-t{display:none}}
 .profbtn:hover{transform:scale(1.08)}
 .profbtn .lv{position:absolute;right:-5px;bottom:-4px;min-width:20px;height:20px;padding:0 4px;border-radius:999px;background:var(--ink);color:#fff;font:800 11px/20px Nunito,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--card)}
 
@@ -166,17 +166,18 @@ header.nav .links a:hover,header.nav .links button:hover{background:var(--y2)}
 .tile .info .tags{margin-top:auto}
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tags i{font-style:normal;background:var(--y2);color:var(--ink);border:2px solid var(--ink);border-radius:8px;padding:1px 8px;font-size:11.5px;font-weight:800}
-.play{position:absolute;right:10px;top:10px;display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--y2);font-family:var(--font-display);font-size:13px;border:3px solid var(--ink);border-radius:10px;padding:4px 12px;z-index:2;box-shadow:var(--sh-sm)}
-.play.resume{background:var(--p1);color:var(--ink);box-shadow:0 0 0 3px #fff,0 8px 18px #0004;animation:rz 1.6s ease-in-out infinite}
+/* nút Chơi kiểu Uiverse Voxybuns: lớp dưới màu mực, mặt trên nổi lên khi rê chuột, ấn xuống khi bấm */
+.play{position:absolute;right:10px;top:10px;z-index:2;background:var(--ink);border-radius:10px;padding:0;border:0;box-shadow:var(--sh-sm)}
+.play-top{display:block;background:var(--y2);color:var(--ink);font-family:var(--font-display);font-size:13px;border:2px solid var(--ink);border-radius:10px;padding:4px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
+.tile:hover .play-top{transform:translateY(-0.33em)}
+.tile:active .play-top{transform:translateY(0)}
+.play.resume{box-shadow:0 0 0 3px #fff,0 8px 18px #0004;animation:rz 1.6s ease-in-out infinite}
+.play.resume .play-top{background:var(--p1)}
 .play.resume small{display:block;font:700 11px/1.1 Nunito,sans-serif;opacity:.95;text-align:center}
 @keyframes rz{50%{transform:scale(1.05)}}
-.newtag{display:none;position:absolute;left:10px;top:10px;z-index:3;background:var(--p1);color:var(--ink);font:800 12px/1 Nunito,sans-serif;padding:6px 10px;border-radius:999px;border:2px solid var(--ink);box-shadow:var(--sh-sm);letter-spacing:.5px}
-.newtag.gumballz-dot{display:inline-block}
-.newtag.gumballz-dot::after{display:none}
 .livetag{position:absolute;left:10px;top:10px;z-index:3;display:none;align-items:center;gap:6px;background:#0f2a1ccc;color:#fff;font:800 12px/1 Nunito,sans-serif;padding:7px 11px;border-radius:999px;box-shadow:0 6px 14px #0003}
 .livetag::before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px #3ddc8444;animation:lv 1.6s ease-in-out infinite}
 .livetag.on{display:inline-flex}
-.livetag.on~.newtag{top:52px}
 @keyframes lv{50%{box-shadow:0 0 0 6px #3ddc8400}}
 .badge{position:absolute;z-index:4;right:10px;top:44px;font:800 12px Nunito,sans-serif;letter-spacing:.5px;color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:4px 10px;box-shadow:var(--sh-sm);pointer-events:none}
 .badge.new{background:var(--p1)}
@@ -190,48 +191,43 @@ header.nav .links a:hover,header.nav .links button:hover{background:var(--y2)}
 .daily-hot .daily{margin-top:0;max-width:none}
 .hot{margin:0;display:flex;flex-direction:column}
 .hot h2{font:400 22px/1 var(--font-display);margin:0 0 4px;background:var(--p1);border:3px solid var(--ink);border-radius:12px;padding:7px 14px;box-shadow:var(--sh-sm);transform:rotate(-1deg);display:inline-block;align-self:flex-start}
-.hot-row{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px;margin-top:10px}
-.hot-chip{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:var(--ink);background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:8px 16px 8px 8px;box-shadow:var(--sh-sm);transition:transform .15s}
-.hot-chip>span{min-width:0}
-.hot-chip b{overflow-wrap:break-word}
-.hot-chip:hover{transform:translateY(-3px)}
-.hot-chip i{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font:400 17px var(--font-display);font-style:normal;color:var(--ink);background:var(--y1);border:2px solid var(--ink)}
-.hot-chip b{display:block;font:400 15px/1.15 var(--font-display)}
-.hot-chip small{font:700 12.5px Nunito,sans-serif;color:var(--ink)}
-
-/* ===== hộp giới thiệu game mới ===== */
-.ng-back{position:fixed;inset:0;z-index:90;background:rgba(74,62,92,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .25s}
-.ng-back.on{opacity:1}
-.ng-box{position:relative;width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--card);border:3px solid var(--ink);border-radius:20px;box-shadow:var(--sh);transform:translateY(18px) scale(.96);transition:transform .3s cubic-bezier(.2,.9,.3,1.2)}
-.ng-back.on .ng-box{transform:none}
-.ng-head{background:var(--y1);color:var(--ink);padding:22px 20px 18px;border-bottom:3px solid var(--ink);text-align:center}
-.ng-head b{display:block;font:400 26px/1.15 var(--font-display)}
-.ng-head span{font:700 14.5px Nunito,sans-serif;opacity:.95}
-.ng-x{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:50%;border:3px solid var(--ink);background:var(--y2);color:var(--ink);font:800 16px Nunito;cursor:pointer}
-.ng-list{display:flex;flex-direction:column;gap:10px;padding:14px}
-.ng-item{display:flex;align-items:center;gap:12px;background:var(--card);border:3px solid var(--ink);border-radius:14px;padding:10px;text-decoration:none;color:var(--ink);transition:transform .12s,border-color .12s;box-shadow:var(--sh-sm)}
-.ng-item:hover,.ng-item:focus-visible{border-color:var(--p1);transform:translateY(-2px);outline:0}
-.ng-ic{flex:none;width:68px;height:68px;border-radius:16px;display:grid;place-items:center;overflow:hidden;border:2px solid var(--ink)}
-.ng-ic img{width:82%;height:82%;object-fit:contain}
-.ng-tx{flex:1;min-width:0}
-.ng-tx b{display:block;font:800 19px/1.2 "Baloo 2",Nunito,sans-serif}
-.ng-tx small{display:block;font:600 13px/1.35 Nunito,sans-serif;color:var(--muted)}
-.ng-item i{flex:none;font:800 13.5px Nunito,sans-serif;font-style:normal;background:var(--ink);color:var(--y2);border-radius:999px;padding:8px 12px;white-space:nowrap}
-.ng-later{display:block;margin:0 auto 14px;border:0;background:none;font:800 14px Nunito,sans-serif;color:var(--muted);cursor:pointer;padding:8px 16px;min-height:40px}
-.ng-all{text-align:center;text-decoration:none;color:var(--ink);margin-bottom:0!important}
-
-/* ===== chip "game mới" (không tự mở modal nữa, bấm mới mở) ===== */
-.ng-chip{position:fixed;right:14px;bottom:16px;z-index:55;display:flex;align-items:stretch;background:var(--card);border:3px solid var(--ink);border-radius:999px;box-shadow:var(--sh);overflow:hidden}
-.ng-chip-open{border:0;background:var(--y2);color:var(--ink);font:800 14px Nunito,sans-serif;padding:10px 6px 10px 14px;cursor:pointer;min-height:44px;white-space:nowrap}
-.ng-chip-x{border:0;border-left:2px solid var(--ink);background:var(--card);color:var(--muted);font:800 14px Nunito,sans-serif;padding:0 12px;cursor:pointer;min-height:44px}
-.ng-chip-x:hover{color:var(--ink);background:var(--p1)}
-@media (max-width:1150px){.ng-chip{bottom:calc(88px + env(safe-area-inset-bottom));right:12px}}
-
-/* ===== nút "Có gì mới" + chấm đỏ ===== */
-.news{position:relative;border:0;cursor:pointer;font:400 16px var(--font-display);color:var(--ink);background:var(--p1);border:3px solid var(--ink);border-radius:999px;padding:8px 18px;min-height:44px;box-shadow:var(--sh-sm)}
-.news:hover{filter:brightness(1.06)}
-.gumballz-dot{position:relative}
-.news.gumballz-dot::after{content:"MỚI";position:absolute;top:-8px;right:-6px;background:var(--ink);color:#fff;font:800 10px/1 Nunito,sans-serif;padding:3px 6px;border-radius:999px;box-shadow:0 0 0 2px #fff;width:auto;height:auto}
+/* ===== carousel game hot (kiểu scroll carousel trên CodePen: thẻ số + ảnh + tên, kéo ngang) ===== */
+.hot-carousel{position:relative;flex:1;min-width:0;margin-top:10px}
+.hot-row{flex:1;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 8px;padding:6px 4px 12px;scrollbar-width:none}
+.hot-row::-webkit-scrollbar{display:none}
+.hot-card{flex:0 0 248px;scroll-snap-align:center;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;text-decoration:none;color:var(--ink);background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:14px 16px 12px;box-shadow:var(--sh-sm);transition:transform .15s ease,box-shadow .15s ease}
+.hot-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.hot-card:nth-child(4n+1){background:var(--y2)}
+.hot-card:nth-child(4n+2){background:var(--p1)}
+.hot-card:nth-child(4n+3){background:var(--p2)}
+.hot-card:nth-child(4n+4){background:var(--sky)}
+.hot-num{font:400 26px/1 var(--font-display);font-style:normal;letter-spacing:1px}
+.hot-art{display:grid;place-items:center;width:100%;padding:4px 0 2px}
+.hot-art img{width:104px;height:104px;object-fit:contain;filter:drop-shadow(3px 3px 0 rgba(74,62,92,.18));pointer-events:none}
+/* Rive pilot: canvas thay icon SVG ở card pilot (SVG ở lại làm fallback) */
+.tile .art canvas.rive-cv{width:100%;height:100%;display:block}
+.hot-art canvas.rive-cv{width:104px;height:104px;display:block}
+.hot-tx{min-width:0;width:100%}
+.hot-tx b{display:block;font:400 19px/1.2 var(--font-display);overflow-wrap:break-word}
+.hot-tx small{display:block;margin-top:5px;font:800 13px Nunito,sans-serif}
+.hot-play{margin-top:auto;align-self:stretch;background:var(--ink);border-radius:999px;padding:0;border:0}
+.hot-play-top{display:block;text-align:center;background:var(--y2);color:var(--ink);font:400 15px/1 var(--font-display);border:2px solid var(--ink);border-radius:999px;padding:10px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
+.hot-card:hover .hot-play-top{transform:translateY(-0.33em)}
+.hot-card:active .hot-play-top{transform:translateY(0)}
+.hot-nav{position:absolute;top:50%;z-index:2;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:3px solid var(--ink);background:var(--card);color:var(--ink);font:400 24px/1 var(--font-display);cursor:pointer;box-shadow:var(--sh-sm);display:grid;place-items:center;padding:0 0 2px}
+.hot-nav:hover{background:var(--y1)}
+.hot-nav:disabled{opacity:.35;cursor:default}
+.hot-nav.prev{left:-8px}
+.hot-nav.next{right:-8px}
+/* hiệu ứng kiểu CodePen (chỉ Chrome/Cốc Cốc): thẻ ở rìa nhỏ + nghiêng, thẻ giữa to rõ */
+@supports (animation-timeline:view()){
+  .hot-card{animation:hotIn linear both;animation-timeline:view(inline)}
+  @keyframes hotIn{
+    entry 0%{transform:scale(.86) rotate(-2.5deg);opacity:.55}
+    entry 100%,exit 0%{transform:scale(1) rotate(0deg);opacity:1}
+    exit 100%{transform:scale(.86) rotate(2.5deg);opacity:.55}
+  }
+}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -254,9 +250,10 @@ header.nav .links a:hover,header.nav .links button:hover{background:var(--y2)}
   .spot-art{min-height:190px}
   .spot-tx{padding:16px 18px}
   .daily-hot{grid-template-columns:1fr}
-  .hot-row{display:flex;flex-wrap:nowrap;overflow-x:auto;margin:10px -16px 0;padding:0 16px 10px;scrollbar-width:none}
-  .hot-row::-webkit-scrollbar{display:none}
-  .hot-chip{flex:0 0 250px}
+  .hot-carousel{margin:10px -16px 0}
+  .hot-row{padding:6px 16px 12px}
+  .hot-card{flex-basis:232px}
+  .hot-nav{display:none}
   .shelf-row{display:flex;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:thin}
   .shelf-row .tile{flex:0 0 216px;scroll-snap-align:start}
 }
@@ -266,7 +263,7 @@ header.nav .links a:hover,header.nav .links button:hover{background:var(--y2)}
   .nav-in{gap:8px;padding:6px 8px}
   .nav-search{flex:1 1 0;min-width:0}
   .nav-search input{font-size:13.5px;padding:0 12px}
-  .newsbtn,.setbtn{width:36px;height:36px;font-size:17px}
+  .setbtn{width:36px;height:36px;font-size:17px}
   .acct{gap:6px}
   .acct .ac-btn span{display:none}
   .acct .ac-btn{min-width:40px;min-height:40px;padding:6px 10px;justify-content:center}

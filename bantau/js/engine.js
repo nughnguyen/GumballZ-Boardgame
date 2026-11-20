@@ -154,6 +154,7 @@ export function applyAction(s, pid, a) {
     const it = ITEMS[a.item];
     if (!it) return { ok: false };
     if (me.bought[a.item] >= it.max) return { ok: false, reason: `${it.name} mỗi trận chỉ mua tối đa ${it.max} lần.` };
+    if (a.stock) { me.bought[a.item]++; s.seq++; pushLog(s, `🛒 ${me.name} đã dùng 1 ${it.icon} ${it.name} trong kho ví.`); return { ok: true }; } /* lấy từ kho ví (mua sẵn ở 🛍️ Cửa hàng): không tốn xu trong trận; kho trừ ở máy người chơi khi lượt xem sau xác nhận */
     if (me.coins < it.price) return { ok: false, reason: `Không đủ xu (cần ${it.price} xu).` };
     me.coins -= it.price; me.bought[a.item]++; s.seq++;
     pushLog(s, `🛒 ${me.name} đã mua ${it.icon} ${it.name} (${it.price} xu).`);

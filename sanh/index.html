@@ -33,6 +33,7 @@ h1 span{color:var(--ink)}
 @media (max-width:760px){main{gap:8px;padding-bottom:10px}.sub{display:none}.top h1{font-size:30px}} /* điện thoại: gọn phần đầu để chat/phòng có nhiều chỗ */
 </style>
 <link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=2">
 </head>
 <body>
 <div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
@@ -45,57 +46,18 @@ h1 span{color:var(--ink)}
 </main>
 <script type="module">
 import { mountAccount } from '../shared/ui/account.js?v=49';
-import { mountLobby } from '../shared/ui/lobby.js?v=53';
+import { mountLobby } from '../shared/ui/lobby.js?v=55';
 import { mountOnline } from '../shared/net/presence.js?v=26';
 mountOnline(document.getElementById('online'));
 mountAccount(document.getElementById('acct'));
 const g = new URLSearchParams(location.search).get('game');
 const L = mountLobby(document.getElementById('lobby'), {});
+import('../shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());
 if (g) setTimeout(() => document.querySelector(`.lb-gf button[data-g="${CSS.escape(g)}"]`)?.click(), 0);
 </script>
-  <footer class="gmf">
-<style>
-.gmf{margin:40px 0 0;background:#FFF8EE;color:#4A3E5C;font:600 15px/1.6 Nunito,system-ui,sans-serif}
-.gmf a{color:#4A3E5C}
-.gmf-band{background:#FFE3A3;border-top:3px solid #4A3E5C;border-bottom:3px solid #4A3E5C}
-.gmf-band-in{max-width:1020px;margin:0 auto;padding:26px 18px;display:flex;align-items:center;gap:24px;justify-content:space-between}
-.gmf-band h2{margin:0;font:400 30px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;letter-spacing:.5px}
-.gmf-band p{margin:6px 0 0;font-size:15px;font-weight:800}
-.gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:#FFB98A;color:#4A3E5C;text-decoration:none;font:400 17px/1.2 "Bungee","Baloo 2",Nunito,sans-serif;border:3px solid #4A3E5C;box-shadow:4px 4px 0 rgba(74,62,92,.18);transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
-.gmf-cta:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(74,62,92,.18)}
-.gmf-cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(74,62,92,.18)}
-.gmf-in{max-width:1020px;margin:0 auto;padding:36px 18px 10px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px 36px}
-.gmf-logo{display:flex;align-items:center;gap:10px;text-decoration:none;transition:transform .15s ease}
-.gmf-logo:hover{transform:translateY(-2px)}
-.gmf-logo svg{width:56px;height:56px;flex:none;transition:transform .15s ease}
-.gmf-logo:hover svg{transform:rotate(8deg)}
-.gmf-name{font:400 22px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;letter-spacing:.5px;color:#4A3E5C}
-.gmf-name em{display:block;font-style:normal;font-size:11px;letter-spacing:5px;color:#4A3E5C;background:#FFB98A;border-radius:999px;padding:2px 10px;margin-top:4px;width:max-content}
-.gmf-brand p{margin:14px 0 16px;font-size:14px;font-weight:700;color:#8B7E9E;max-width:340px}
-.gmf-chips{display:flex;flex-wrap:wrap;gap:8px}
-.gmf-chips a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:#FFFDF9;border:2px solid #4A3E5C;box-shadow:2px 2px 0 rgba(74,62,92,.14);text-decoration:none;font-size:14px;font-weight:800;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
-.gmf-chips a:hover{background:#ABE0C6;transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(74,62,92,.14)}
-.gmf-chips a:active{transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(74,62,92,.14)}
-.gmf h3{margin:4px 0 8px;font:400 14px/1.3 "Bungee","Baloo 2",Nunito,sans-serif;color:#4A3E5C;letter-spacing:.5px;display:inline-block;background:#FFB9CF;border-radius:999px;padding:4px 12px}
-.gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;transition:background .15s ease,transform .15s ease}
-.gmf nav a:hover{background:#AFD8F3;transform:translateY(-1px);text-decoration:none}
-.gmf-bot{max-width:1020px;margin:14px auto 0;padding:12px 18px 20px;border-top:1px solid rgba(74,62,92,.14);display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:#8B7E9E}
-.gmf-note{flex-basis:100%;font-size:12.5px;font-weight:600;color:#8B7E9E}
-@media(max-width:760px){.gmf-band-in{flex-direction:column;align-items:flex-start;gap:16px}.gmf-cta{width:100%}.gmf-in{grid-template-columns:1fr 1fr}.gmf-brand{grid-column:1/-1}}
-@media(max-width:430px){.gmf-band h2{font-size:24px}.gmf-in{grid-template-columns:1fr}}
-</style>
-<div class="gmf-band"><div class="gmf-band-in"><div><h2>SẴN SÀNG CHƠI CHƯA?</h2><p>39 game · chơi online cùng bạn bè, miễn phí, không cần cài đặt.</p></div><a class="gmf-cta" href="../#games">▶ Chơi ngay</a></div></div>
-<div class="gmf-in">
-<div class="gmf-brand"><a class="gmf-logo" href="../" aria-label="Về trang chủ GumballZ Boardgame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="16" fill="#FFD98E" stroke="#4A3E5C" stroke-width="3"/><circle cx="32" cy="35" r="16" fill="#FFB9CF" stroke="#4A3E5C" stroke-width="3"/><path d="M22 24 Q25 21 29 20.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="25.5" cy="31" r="2.6" fill="#4A3E5C"/><circle cx="38.5" cy="31" r="2.6" fill="#4A3E5C"/><path d="M25 38 Q32 44.5 39 38" fill="none" stroke="#4A3E5C" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q18 12 25 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="48" cy="15" r="4.5" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2.5"/><circle cx="49" cy="49" r="3.5" fill="#ABE0C6" stroke="#4A3E5C" stroke-width="2.5"/></svg><span class="gmf-name">GUMBALLZ<em>BOARDGAME</em></span></a>
-<p>Board game &amp; game bài tiếng Việt — chơi online cùng bạn bè, miễn phí, không cần cài đặt.</p>
-<div class="gmf-chips"><a href="#" data-feedback="">💌 Góp ý / báo lỗi</a><a href="#" data-donate>☕ Ủng hộ chủ web</a><a href="https://www.facebook.com/hungnq188.2k5/" target="_blank" rel="noopener">Facebook</a><a href="https://zalo.me/0388205003" target="_blank" rel="noopener">Zalo: 0388205003</a></div></div>
-<nav aria-label="Khám phá"><h3>Khám phá</h3><a href="../">Trang chủ</a><a href="../sanh/">Sảnh chung</a><a href="#" data-foot-rank>🏆 Xếp hạng</a><a href="../luat/">Luật chơi</a></nav>
-<nav aria-label="Trợ giúp"><h3>Trợ giúp</h3><a href="../gioi-thieu/">Giới thiệu</a><a href="../credits/">Credits</a><a href="../terms/">Điều khoản</a><a href="../privacy/">Bảo mật</a></nav>
-</div>
-<div class="gmf-bot"><span>© 2026 GumballZ Boardgame</span><span class="gmf-note">Dự án fan-made phi thương mại · Game bài chỉ chơi bằng chip ảo, không cá cược tiền thật · Không liên kết với dV Giochi, Mattel, VNG/ZingPlay, Yoka Games hay Exploding Kittens.</span></div>
+<footer class="gmf"></footer>
+<script src="../shared/ui/footer.js?v=2"></script>
 <script type="module" src="../shared/ui/feedback.js?v=34"></script>
-<script type="module">document.querySelectorAll('[data-foot-rank]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();import('../shared/ui/leaderboard.js?v=31').then(m=>m.openLeaderboard()).catch(()=>{location.href='../';});}));</script>
-</footer>
 <script type="module" async src="../shared/ui/feel.js?v=53"></script>
 </body>
 </html>

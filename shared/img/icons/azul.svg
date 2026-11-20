@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Icon Azul tự vẽ: tường 3×3 gạch đủ màu (xanh, vàng, đỏ, đen, trắng) + 2 viên gạch rời phía dưới -->
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <rect x="4" y="4" width="112" height="112" rx="20" fill="none" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- tường 3x3 -->
+  <g stroke="#4A3E5C" stroke-width="2.5">
+    <rect x="28" y="20" width="20" height="20" rx="5" fill="#4A90D9"/>
+    <rect x="50" y="20" width="20" height="20" rx="5" fill="#F2C94C"/>
+    <rect x="72" y="20" width="20" height="20" rx="5" fill="#E5484D"/>
+    <rect x="28" y="42" width="20" height="20" rx="5" fill="#FFFDF9"/>
+    <rect x="50" y="42" width="20" height="20" rx="5" fill="#4A90D9"/>
+    <rect x="72" y="42" width="20" height="20" rx="5" fill="#F2C94C"/>
+    <rect x="28" y="64" width="20" height="20" rx="5" fill="#4A3E5C"/>
+    <rect x="50" y="64" width="20" height="20" rx="5" fill="#FFFDF9"/>
+    <rect x="72" y="64" width="20" height="20" rx="5" fill="#4A90D9"/>
+  </g>
+  <!-- 2 viên gạch rời phía dưới -->
+  <g transform="rotate(-12 44 100)">
+    <rect x="30" y="90" width="28" height="20" rx="5" fill="#E5484D" stroke="#4A3E5C" stroke-width="2.5"/>
+  </g>
+  <g transform="rotate(12 78 100)">
+    <rect x="64" y="90" width="28" height="20" rx="5" fill="#F2C94C" stroke="#4A3E5C" stroke-width="2.5"/>
+  </g>
+</svg>

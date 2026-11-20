@@ -14,7 +14,7 @@ import { OPTIONS, PRESETS, buildAvatar, portrait } from '../../shared/js/avatar3
 import * as THREE from '../../shared/lib/three.module.min.js';
 import { OrbitControls } from '../../shared/lib/OrbitControls.js';
 import { netStatus } from '../../shared/ui/status.js';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=4';
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -153,8 +153,8 @@ function openSettings() {
     <div class="set-row"><b>🖥️ Chất lượng 3D</b>${seg('quality', [['low', 'Thấp'], ['med', 'Vừa'], ['high', 'Cao']], v => B && B.setQuality(v))}</div>
     <div class="set-row"><b>⏩ Tốc độ hoạt ảnh</b>${seg('speed', [['slow', 'Chậm'], ['normal', 'Vừa'], ['fast', 'Nhanh']])}</div>
     <p class="note">Máy yếu / điện thoại nóng: chọn chất lượng Thấp. Cài đặt được lưu trên máy này.</p>
-    <div class="mbtns">${btn('modal', '📖 Hướng dẫn luật', () => openGuide(), 'ghost')}${btn('modal', '🧭 Xem lại hướng dẫn', () => replayTour(), 'ghost')}<button class="btn ghost" id="btn-news-set">📝 Có gì mới</button></div>`, '', 'settings');
-  const nb = $('#btn-news-set'); newsBadge(nb, 'typhu'); nb.onclick = () => { fx.sfx.click(); news(); };
+    <div class="mbtns">${btn('modal', '📖 Hướng dẫn luật', () => openGuide(), 'ghost')}${btn('modal', '🧭 Xem lại hướng dẫn', () => replayTour(), 'ghost')}</div>`, '', 'settings');
+
   $('#vol-music').oninput = e => { settings.music = +e.target.value; fx.applyVolumes(); fx.saveSettings(); };
   $('#vol-sfx').oninput = e => { settings.sfx = +e.target.value; fx.applyVolumes(); fx.saveSettings(); };
   $('#vol-sfx').onchange = () => fx.sfx.cash();
@@ -166,9 +166,7 @@ for (const b of $$('.btn-music')) b.onclick = () => { fx.actx(); fx.musicToggle(
 syncMusicBtns();
 
 const openGuide = () => openModal(guideHTML(), 'wide', 'guide');
-// 📝 Có gì mới (patch notes dùng chung)
-function news() { openNews('typhu'); $$('.gumballz-dot').forEach(b => b.classList.toggle('gumballz-dot', false)); }
-for (const id of ['#btn-news-home', '#btn-news-lobby']) { const b = $(id); newsBadge(b, 'typhu'); b.onclick = () => { fx.sfx.click(); news(); }; }
+
 $('#btn-guide-home').onclick = openGuide;
 
 // ---------- kết nối ----------

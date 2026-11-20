@@ -3,7 +3,7 @@ import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { OPT_CHOICES } from './engine.js?v=2';
 import { evaluate, preflopTier, TIER_TXT } from './eval.js?v=1';
 import * as fx from './pfx.js?v=6';
@@ -117,9 +117,7 @@ $('#btn-start').onclick = () => { fx.actx(); net && net.start(); };
 const syncMusic = () => $('#btn-music-home').classList.toggle('on', fx.musicIsOn());
 $('#btn-music-home').onclick = () => { fx.actx(); fx.musicToggle(); syncMusic(); }; syncMusic();
 $('#btn-guide-home').onclick = () => openGuide(openModal, cardHTML);
-const news = () => { openNews(GAME); $$('[data-news]').forEach(el => el.classList.remove('gumballz-dot')); };
-$('#btn-news-home').onclick = news;
-newsBadge($('#btn-news-home'), GAME); newsBadge($('#btn-menu'), GAME);
+
 const syncHint = () => { $('#btn-hint').classList.toggle('on', hintOn()); lockToggle($('#btn-hint'), !hintOk()); };
 $('#btn-hint').onclick = () => { if (!hintOk()) { toast('💡 Gợi ý bài: ' + BOT_ONLY_NOTE); return; } ls.set('poker-hint', hintPref() ? '0' : '1'); syncHint(); toast(hintOn() ? '💡 Bật gợi ý: hiện tên bài bạn đang có' : 'Đã tắt gợi ý bài'); render(); }; syncHint();
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
@@ -136,7 +134,7 @@ function openMenu() {
       <div class="m-row"><span>🔊 Hiệu ứng âm thanh</span><button class="opt ${fx.isMuted() ? '' : 'on'}" id="m-mute">${fx.isMuted() ? 'Đang tắt' : 'Đang bật'}</button></div>
       <div class="m-row"><span>⚡ Tốc độ bot & hiệu ứng</span><div class="opt-btns">${sp}</div></div>
       <div class="m-row"><span>💡 Gợi ý bài cho người mới${hintOk() ? '' : `<br><small style="opacity:.7">🔒 ${BOT_ONLY_NOTE}</small>`}</span><button class="opt ${hintOn() ? 'on' : ''}" id="m-hint" ${hintOk() ? '' : 'disabled'}>${!hintOk() ? 'Đang tắt' : hintOn() ? 'Đang bật' : 'Đang tắt'}</button></div>
-      <div class="m-btns"><button class="btn" id="m-guide">📖 Hướng dẫn</button><button class="btn" id="m-news">📝 Có gì mới</button><button class="btn red" id="m-quit">🚪 Rời bàn</button></div>
+      <div class="m-btns"><button class="btn" id="m-guide">📖 Hướng dẫn</button><button class="btn red" id="m-quit">🚪 Rời bàn</button></div>
     </div>`, '', 'menu');
   $('#m-music').onclick = () => { fx.actx(); fx.musicToggle(); syncMusic(); openMenu(); };
   $('#m-vol').oninput = e => fx.musicVolume(+e.target.value);
@@ -146,7 +144,6 @@ function openMenu() {
   $('#m-hint').onclick = () => { if (!hintOk()) return; ls.set('poker-hint', hintPref() ? '0' : '1'); syncHint(); render(); openMenu(); };
   $$('[data-sp]').forEach(b => b.onclick = () => { fx.setSpeed(b.dataset.sp); openMenu(); });
   $('#m-guide').onclick = () => openGuide(openModal, cardHTML);
-  $('#m-news').onclick = () => { closeModal(); news(); };
   $('#m-quit').onclick = askLeave;
 }
 function openBoard() {

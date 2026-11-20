@@ -581,7 +581,7 @@ body.thud #table{animation:thud .28s}
 .reveal .mcard .mc-desc,.reveal .mcard .mc-en{display:none}
 .reveal .mcard.lg .mc-name{font-size:28px}
 @media (max-height:680px){.reveal .mcard.lg{--cw:150px;--ch:212px}}
-/* thanh công cụ điện thoại: ô tốc độ thành nút icon để chừa chỗ nút 📝 Có gì mới */
+/* thanh công cụ điện thoại: ô tốc độ thành nút icon cho gọn */
 #speed-btn{display:none}
 @media (max-width:640px){select#speed{display:none}#speed-btn{display:inline-flex}}
 @media (max-width:380px){.topbar{padding:6px 5px;gap:4px}.tools{gap:3px}.tools .chip{min-width:40px;padding:4px 5px}}

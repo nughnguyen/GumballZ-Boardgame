@@ -1,0 +1,56 @@
+/* 🏰 Carcassonne — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.ca-wrap{max-width:960px;margin:0 auto;padding:0 12px 40px}
+.ca-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.ca-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ca-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.ca-status .stat.me{background:#FFE3A3}
+.ca-status .stat.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.ca-status .dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid #4A3E5C;vertical-align:-1px;margin-right:4px}
+
+/* ----- bàn cờ ----- */
+.ca-board-wrap{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;box-shadow:3px 3px 0 #4A3E5C;margin-bottom:12px;overflow:auto;max-height:62vh}
+.ca-board{display:grid;gap:2px;padding:10px;width:max-content;margin:0 auto}
+.ca-cell{width:72px;height:72px;border-radius:8px;position:relative}
+.ca-cell svg{display:block;width:100%;height:100%;border-radius:8px}
+.ca-cell.tile{box-shadow:1px 1px 0 rgba(74,62,92,.35)}
+.ca-cell.empty{background:#F3EDFB;border:2px dashed #D8CDEF}
+.ca-cell.placeable{cursor:pointer;border:2px dashed #00B8A9;background:#E4F7F3}
+.ca-cell.placeable:hover{border-style:solid;background:#C9F2EB}
+.ca-cell.selected{outline:3px solid #FF5CA8;outline-offset:1px;background:#FFE9F4}
+.ca-cell.last{outline:3px solid #FFD34D;outline-offset:1px}
+
+/* ----- lá trên tay ----- */
+.ca-hand-wrap{margin-bottom:12px}
+.ca-hand{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;box-shadow:3px 3px 0 #4A3E5C}
+.ca-hand .ca-tile-big{width:96px;height:96px;flex:0 0 auto}
+.ca-hand .ca-tile-big svg{width:100%;height:100%;border-radius:10px;box-shadow:2px 2px 0 #4A3E5C}
+.ca-hand .ca-hand-info{font-weight:800;font-size:14px;color:#4A3E5C;text-align:left;min-width:180px}
+.ca-hand .ca-hand-info .sub{display:block;font-size:12px;color:#8B7E9E;font-weight:700;margin-top:2px}
+.ca-hand-cover{text-align:center;padding:18px 10px;background:#FFFDF9;border:2px dashed #C9BDF3;border-radius:14px}
+
+/* ----- thanh hành động ----- */
+.ca-action-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.ca-action-bar .hint{font-size:14px;font-weight:700}
+.ca-action-bar .note{font-size:12px;color:#8B7E9E;font-weight:700}
+.ca-action-bar .btn:disabled{opacity:.45;cursor:default}
+
+/* ----- nút + nhật ký ----- */
+.ca-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.ca-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.ca-log .win{font-weight:800;color:#1E7A46}
+.ca-log .info{font-weight:700;color:#B3232A}
+.ca-log .resign{font-weight:700;color:#8B7E9E}
+.ca-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ca-final-scores{width:100%;max-width:420px;margin:8px auto;text-align:left}
+.ca-final-scores .row{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;border-bottom:2px dashed #E5DEF5;font-weight:700}
+.ca-final-scores .row.winner{background:#FFF3D6;border-radius:8px}
+
+@media (max-width:480px){
+  .ca-cell{width:56px;height:56px}
+  .ca-hand .ca-tile-big{width:80px;height:80px}
+  .ca-hand .ca-hand-info{min-width:140px;font-size:13px}
+  .round{font-size:15px}
+  /* thanh trên: dãy nút tự xuống hàng ở màn hẹp (giống Skull) */
+  .ca-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

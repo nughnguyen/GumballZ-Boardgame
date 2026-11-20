@@ -267,7 +267,7 @@ input:focus{border-color:var(--acc)}
 .ticker div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ticker .now{color:var(--ink);font-size:13.5px;background:#ffffffb8;border-radius:999px;padding:2px 12px;display:inline-block;max-width:100%;box-shadow:0 2px 8px #4a2f8a14}
 .tk-in{animation:tkIn .35s ease-out}@keyframes tkIn{from{opacity:0;transform:translateY(6px)}}
-@media (max-width:420px){#btn-news{display:none}}
+
 /* điểm nhiều ván */
 .seat .pts{position:absolute;left:-10px;bottom:-8px;background:#fff;color:var(--ink);border-radius:999px;padding:0 6px;font:900 11.5px/18px Nunito;box-shadow:0 2px 6px #0002;border:2px solid var(--Y)}
 .mode-tag.btn-like{cursor:pointer;border:2px solid var(--Y)}

@@ -5,7 +5,6 @@ import * as E from './engine.js?v=2';
 import { botAction } from './bot.js?v=2';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { cardHTML, backHTML } from '../../shared/ui/deck/deck.js?v=1';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet({
   srv: true, /* phòng online do máy chủ giữ ván (server/src/srvhost.js) */
@@ -126,7 +125,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('tala-sound', sound ? '1' : '0'); drawSound(); beep('turn'); };
-$('#btn-news-home').onclick = () => openNews('tala'); newsBadge($('#btn-news-home'), 'tala');
 addEventListener('resize', () => { clearTimeout(render.t); render.t = setTimeout(() => ui.view && render(ui.view, null), 150); });
 
 const ui = gameKit({

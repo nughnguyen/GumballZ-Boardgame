@@ -1,0 +1,82 @@
+/* 🀄 Chắn — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.ch-wrap{max-width:860px;margin:0 auto;padding:0 12px 40px}
+.ch-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.ch-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ch-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.ch-status .stat.me{background:#FFE3A3}
+
+/* ----- bàn: nọc + lá ở cửa + lá vừa bốc ----- */
+.ch-board{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.ch-nocol{min-width:64px;text-align:center;background:#EDE7F6;border:2px solid #4A3E5C;border-radius:12px;padding:6px 10px;font-weight:800}
+.ch-nocol b{font-family:"Baloo 2",sans-serif;font-size:20px;display:block;line-height:1}
+.ch-nocol span{font-size:11px;color:#8B7E9E}
+.ch-gate{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ch-gate .lbl{font-size:12px;font-weight:800;color:#8B7E9E}
+.ch-board .ch-note{font-size:12px;color:#8B7E9E;font-weight:700}
+
+/* ----- lá bài ----- */
+.ch-card{width:56px;height:76px;border-radius:10px;border:2.5px solid #4A3E5C;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#FFFDF9;box-shadow:2px 2px 0 #4A3E5C;flex:0 0 auto;cursor:pointer}
+.ch-card .ch-rank{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;line-height:1.1}
+.ch-card .ch-suit{font-size:12px;font-weight:800;line-height:1.2}
+.ch-card.red{color:#B3232A;border-color:#B3232A}
+.ch-card.red .ch-suit{color:#B3232A}
+.ch-card.small{width:40px;height:54px;cursor:default;box-shadow:1px 1px 0 #4A3E5C}
+.ch-card.small .ch-rank{font-size:13px}
+.ch-card.small .ch-suit{font-size:10px}
+.ch-card.big{width:72px;height:96px;cursor:default}
+.ch-card.big .ch-rank{font-size:22px}
+.ch-card.big .ch-suit{font-size:14px}
+.ch-card.sel{outline:3px solid #FF5CA8;outline-offset:1px}
+.ch-card.pairable{outline:3px solid #00B8A9;outline-offset:1px}
+.ch-card.cant{opacity:.55;cursor:default}
+.ch-card.back{background:#C9BDF3;cursor:default}
+
+/* ----- tay bài từng người ----- */
+.ch-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:12px}
+.ch-player{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;box-shadow:3px 3px 0 #4A3E5C}
+.ch-player.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.ch-player.me{background:#FFF3D6}
+.ch-pinfo{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.ch-pinfo b{font-size:14px}
+.ch-pinfo .ch-pmeta{font-size:12px;color:#8B7E9E;font-weight:700}
+.ch-melds{display:flex;gap:6px;flex-wrap:wrap;min-height:54px}
+.ch-meld{display:flex;gap:2px;background:#FFF3D6;border:2px solid #E5DEF5;border-radius:10px;padding:3px}
+.ch-meld.chiu{background:#FFE3A3;border-color:#FFD34D}
+.ch-hand-empty{font-size:12px;color:#8B7E9E;font-weight:700;align-self:center}
+
+/* ----- bài trên tay mình ----- */
+.ch-hand-wrap{margin-bottom:12px}
+.ch-hand{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ch-hand-label{width:100%;text-align:center;font-weight:800;font-size:14px;color:#4A3E5C}
+.ch-hand .ch-card{width:64px;height:88px}
+.ch-hand .ch-card:hover{transform:translateY(-3px)}
+.ch-hand .ch-card .ch-rank{font-size:19px}
+.ch-hand .ch-card .ch-suit{font-size:13px}
+.ch-hand-cover{text-align:center;padding:18px 10px;background:#FFFDF9;border:2px dashed #C9BDF3;border-radius:14px}
+.ch-picked-note{text-align:center;font-weight:800;color:#8B7E9E;margin-top:8px}
+
+/* ----- thanh hành động + chíu ----- */
+.ch-action-bar,.ch-chiu-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.ch-action-bar .hint,.ch-chiu-bar .hint{font-size:14px;font-weight:700}
+.ch-action-bar .note,.ch-chiu-bar .note{font-size:12px;color:#8B7E9E;font-weight:700}
+.ch-chiu-bar{border-color:#FFD34D;background:#FFF8E1}
+
+/* ----- nút + nhật ký ----- */
+.ch-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.ch-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.ch-log .win{font-weight:800;color:#1E7A46}
+.ch-log .info{font-weight:700;color:#B3232A}
+.ch-log .resign{font-weight:700;color:#8B7E9E}
+.ch-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:480px){
+  .ch-hand .ch-card{width:56px;height:80px}
+  .ch-hand .ch-card .ch-rank{font-size:17px}
+  .ch-card{width:48px;height:66px}
+  .ch-card .ch-rank{font-size:15px}
+  .ch-players{grid-template-columns:1fr}
+  .round{font-size:15px}
+  /* thanh trên: dãy nút tự xuống hàng ở màn hẹp (giống Skull) */
+  .ch-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

@@ -1,0 +1,93 @@
+/* 🎲 Backgammon — bàn cờ ngang 24 điểm, tương thích 390px */
+.bg-wrap { max-width: 680px; margin: 0 auto; padding: 0 8px 90px; }
+.bg-players { display: flex; gap: 8px; margin: 10px 0; }
+.bg-player { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--card, #FFFDF9); border: 2px solid var(--line, #E8DFF5); border-radius: 14px; padding: 8px 10px; font-weight: 700; color: var(--ink, #4A3E5C); }
+.bg-player.me-turn { border-color: #FFB98A; box-shadow: 0 0 0 3px #FFE3A3; }
+.bg-player .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; border: 2px solid rgba(0,0,0,.2); }
+.bg-player .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bg-player .pip { margin-left: auto; font-size: 12px; color: #8B7E9E; white-space: nowrap; }
+.bg-player .off-n { font-size: 12px; color: #8B7E9E; white-space: nowrap; }
+
+/* bàn cờ */
+.bg-board { background: linear-gradient(180deg, #EBCB9B, #DFB77E); border: 3px solid #B98A4E; border-radius: 16px; padding: 8px; box-shadow: 0 6px 0 rgba(74,62,92,.15); }
+.bg-half { display: flex; gap: 2px; }
+.bg-half + .bg-half { margin-top: 2px; }
+.bg-point { position: relative; flex: 1 1 0; height: 132px; border-radius: 6px; cursor: default; }
+.bg-point::before { content: ""; position: absolute; inset: 0; clip-path: polygon(50% 100%, 0 0, 100% 0); opacity: .85; }
+.bg-half.bottom .bg-point::before { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+.bg-point.c-a::before { background: #C9BDF3; }
+.bg-point.c-b::before { background: #FFB98A; }
+.bg-point.dest { outline: 3px solid #FFD23E; outline-offset: -1px; z-index: 2; }
+.bg-point.dest::after { content: "●"; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); color: #FFD23E; font-size: 22px; text-shadow: 0 1px 2px rgba(0,0,0,.4); z-index: 3; }
+.bg-point.sel { outline: 3px solid #7C5CFF; outline-offset: -1px; z-index: 2; }
+.pt-num { position: absolute; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 800; color: rgba(74,62,92,.5); z-index: 0; pointer-events: none; }
+.bg-bar { flex: 0 0 30px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 2px 0; background: rgba(74,62,92,.18); border-radius: 6px; }
+.bg-bar .bar-stack { display: flex; flex-direction: column; align-items: center; gap: 1px; min-height: 52px; }
+.bg-mid { display: flex; gap: 2px; margin: 2px 0; }
+.bg-mid .bg-bar { flex: 0 0 30px; min-height: 34px; justify-content: center; }
+.bg-cube { width: 30px; height: 30px; border-radius: 7px; background: #FFFDF9; border: 2px solid #4A3E5C; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: #4A3E5C; }
+.bg-cube.owned-p0 { border-color: #E05D5D; color: #E05D5D; }
+.bg-cube.owned-p1 { border-color: #5B8DEF; color: #5B8DEF; }
+.bg-cube.offer { animation: cubePulse .7s infinite alternate; }
+@keyframes cubePulse { from { box-shadow: 0 0 0 0 rgba(255,77,46,.5); } to { box-shadow: 0 0 0 6px rgba(255,77,46,0); } }
+
+/* quân cờ */
+.bg-checker { position: absolute; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(0,0,0,.28); box-shadow: inset 0 -2px 3px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.3); z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: rgba(255,255,255,.95); text-shadow: 0 1px 1px rgba(0,0,0,.5); }
+.bg-half.top .bg-checker { top: calc(var(--i) * 24px); }
+.bg-half.bottom .bg-checker { bottom: calc(var(--i) * 24px); }
+.bg-checker.c0 { background: radial-gradient(circle at 35% 30%, #F28B8B, #D64545); }
+.bg-checker.c1 { background: radial-gradient(circle at 35% 30%, #7FA8F5, #3B6FD4); }
+.bg-checker.mine { cursor: pointer; }
+.bg-checker.mine:hover { filter: brightness(1.12); }
+.bg-checker.sel { outline: 3px solid #7C5CFF; outline-offset: 1px; z-index: 4; }
+.bg-checker.bar-c { position: static; transform: none; width: 22px; height: 22px; flex: none; }
+
+/* khay ra quân */
+.bg-offrow { display: flex; gap: 8px; margin-top: 8px; }
+.bg-off { flex: 1; display: flex; align-items: center; gap: 6px; background: #FFFDF9; border: 2px dashed #C9BDF3; border-radius: 12px; padding: 6px 10px; font-weight: 700; color: #4A3E5C; font-size: 13px; }
+.bg-off.dest { border-style: solid; border-color: #FFD23E; background: #FFF3C4; cursor: pointer; }
+.bg-off .mini { display: flex; gap: 1px; }
+.bg-off .mini i { width: 10px; height: 10px; border-radius: 50%; display: block; border: 1px solid rgba(0,0,0,.25); }
+.bg-off .mini i.c0 { background: #E05D5D; }
+.bg-off .mini i.c1 { background: #5B8DEF; }
+
+/* xúc xắc + nút */
+.bg-dice { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0 4px; min-height: 52px; }
+.bg-die { width: 48px; height: 48px; border-radius: 10px; background: #FFFDF9; border: 2px solid #4A3E5C; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; box-shadow: 0 3px 0 rgba(74,62,92,.25); }
+.bg-die.used { opacity: .35; filter: grayscale(1); }
+.bg-die.rolling { animation: diceShake .12s infinite alternate; }
+@keyframes diceShake { from { transform: rotate(-6deg) translateY(-2px); } to { transform: rotate(6deg) translateY(2px); } }
+.bg-dice-info { font-size: 13px; color: #8B7E9E; font-weight: 700; }
+.bg-status { text-align: center; font-weight: 700; color: var(--ink, #4A3E5C); min-height: 22px; margin: 4px 0 8px; }
+.bg-action-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin: 8px 0; min-height: 44px; }
+.bg-action-bar .hint { font-size: 13px; color: #8B7E9E; font-weight: 700; text-align: center; }
+.ch-act-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.bg-actions-row { display: flex; justify-content: center; margin: 8px 0; }
+.bg-log { background: #FFFDF9; border: 2px solid #E8DFF5; border-radius: 12px; padding: 8px 12px; margin-top: 12px; max-height: 150px; overflow-y: auto; font-size: 13px; color: #4A3E5C; }
+.bg-log div { padding: 2px 0; border-bottom: 1px dashed #EFE7FA; }
+.bg-log div:last-child { border-bottom: 0; }
+
+@media (max-width: 420px) {
+  .bg-point { height: 118px; }
+  .bg-checker { width: 22px; height: 22px; }
+  .bg-half.top .bg-checker { top: calc(var(--i) * 21px); }
+  .bg-half.bottom .bg-checker { bottom: calc(var(--i) * 21px); }
+  .bg-bar { flex-basis: 26px; }
+  .bg-mid .bg-bar { flex-basis: 26px; }
+  .bg-cube { width: 26px; height: 26px; font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  /* thanh trên tràn ở 390px: ẩn chữ GumballZ, thu nhỏ tiêu đề, cho nút xuống hàng (mẫu Skull) */
+  .ch-topbar .gumballz-chip span { display: none; }
+  .ch-topbar h1 { font-size: 16px; }
+  .ch-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
+  /* thẻ người chơi tràn 171px ở 390px: flex item mặc định không co dưới cỡ nội dung —
+     cho min-width: 0 để co lại, ẩn số pip (chỉ giữ "ra X/15") */
+  .bg-player { min-width: 0; }
+  .bg-player .nm { min-width: 0; flex: 1; }
+  .bg-player .pip { display: none; }
+  /* khay ra quân: cho co lại + chấm nhỏ xuống hàng khi nhiều quân */
+  .bg-off { min-width: 0; flex-wrap: wrap; }
+  .bg-off .mini { flex-wrap: wrap; }
+}

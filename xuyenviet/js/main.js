@@ -6,7 +6,6 @@ import { CITIES, ROUTES, TICKETS, COLORS, COLOR_NAME, ROUTE_PTS } from './map.js
 import { botAction } from './bot.js?v=4';
 import { LAND, LBL, MAP_W, MAP_H } from './geo.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);
@@ -133,5 +132,4 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('xuyenviet-sound', sound ? '1' : '0'); drawSound(); beep('card'); };
-$('#btn-news-home').onclick = () => openNews('xuyenviet'); newsBadge($('#btn-news-home'), 'xuyenviet');
 const ui = gameKit({ game: 'xuyenviet', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else { endShown = null; goal = null; offerKey = ''; } }, offline: h => { h.addBot(); h.addBot(); } });

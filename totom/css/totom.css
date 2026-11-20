@@ -1,0 +1,82 @@
+/* 🀄 Tổ Tôm — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.tt-wrap{max-width:860px;margin:0 auto;padding:0 12px 40px}
+.tt-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.tt-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tt-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.tt-status .stat.me{background:#FFE3A3}
+
+/* ----- bàn: nọc + lá ở cửa + lá vừa bốc ----- */
+.tt-board{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.tt-nocol{min-width:64px;text-align:center;background:#EDE7F6;border:2px solid #4A3E5C;border-radius:12px;padding:6px 10px;font-weight:800}
+.tt-nocol b{font-family:"Baloo 2",sans-serif;font-size:20px;display:block;line-height:1}
+.tt-nocol span{font-size:11px;color:#8B7E9E}
+.tt-gate{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tt-gate .lbl{font-size:12px;font-weight:800;color:#8B7E9E}
+.tt-board .tt-note{font-size:12px;color:#8B7E9E;font-weight:700}
+
+/* ----- lá bài ----- */
+.tt-card{width:56px;height:76px;border-radius:10px;border:2.5px solid #4A3E5C;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#FFFDF9;box-shadow:2px 2px 0 #4A3E5C;flex:0 0 auto;cursor:pointer}
+.tt-card .tt-rank{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;line-height:1.1}
+.tt-card .tt-suit{font-size:12px;font-weight:800;line-height:1.2}
+.tt-card.red{color:#B3232A;border-color:#B3232A}
+.tt-card.red .tt-suit{color:#B3232A}
+.tt-card.small{width:40px;height:54px;cursor:default;box-shadow:1px 1px 0 #4A3E5C}
+.tt-card.small .tt-rank{font-size:13px}
+.tt-card.small .tt-suit{font-size:10px}
+.tt-card.big{width:72px;height:96px;cursor:default}
+.tt-card.big .tt-rank{font-size:22px}
+.tt-card.big .tt-suit{font-size:14px}
+.tt-card.sel{outline:3px solid #FF5CA8;outline-offset:1px}
+.tt-card.pairable{outline:3px solid #00B8A9;outline-offset:1px}
+.tt-card.cant{opacity:.55;cursor:default}
+.tt-card.back{background:#C9BDF3;cursor:default}
+
+/* ----- tay bài từng người ----- */
+.tt-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:12px}
+.tt-player{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;box-shadow:3px 3px 0 #4A3E5C}
+.tt-player.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.tt-player.me{background:#FFF3D6}
+.tt-pinfo{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.tt-pinfo b{font-size:14px}
+.tt-pinfo .tt-pmeta{font-size:12px;color:#8B7E9E;font-weight:700}
+.tt-melds{display:flex;gap:6px;flex-wrap:wrap;min-height:54px}
+.tt-meld{display:flex;gap:2px;background:#FFF3D6;border:2px solid #E5DEF5;border-radius:10px;padding:3px}
+.tt-meld.chiu{background:#FFE3A3;border-color:#FFD34D}
+.tt-hand-empty{font-size:12px;color:#8B7E9E;font-weight:700;align-self:center}
+
+/* ----- bài trên tay mình ----- */
+.tt-hand-wrap{margin-bottom:12px}
+.tt-hand{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tt-hand-label{width:100%;text-align:center;font-weight:800;font-size:14px;color:#4A3E5C}
+.tt-hand .tt-card{width:64px;height:88px}
+.tt-hand .tt-card:hover{transform:translateY(-3px)}
+.tt-hand .tt-card .tt-rank{font-size:19px}
+.tt-hand .tt-card .tt-suit{font-size:13px}
+.tt-hand-cover{text-align:center;padding:18px 10px;background:#FFFDF9;border:2px dashed #C9BDF3;border-radius:14px}
+.tt-picked-note{text-align:center;font-weight:800;color:#8B7E9E;margin-top:8px}
+
+/* ----- thanh hành động + chíu ----- */
+.tt-action-bar,.tt-chiu-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.tt-action-bar .hint,.tt-chiu-bar .hint{font-size:14px;font-weight:700}
+.tt-action-bar .note,.tt-chiu-bar .note{font-size:12px;color:#8B7E9E;font-weight:700}
+.tt-chiu-bar{border-color:#FFD34D;background:#FFF8E1}
+
+/* ----- nút + nhật ký ----- */
+.tt-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.tt-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.tt-log .win{font-weight:800;color:#1E7A46}
+.tt-log .info{font-weight:700;color:#B3232A}
+.tt-log .resign{font-weight:700;color:#8B7E9E}
+.tt-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:480px){
+  .tt-hand .tt-card{width:56px;height:80px}
+  .tt-hand .tt-card .tt-rank{font-size:17px}
+  .tt-card{width:48px;height:66px}
+  .tt-card .tt-rank{font-size:15px}
+  .tt-players{grid-template-columns:1fr}
+  .round{font-size:15px}
+  /* thanh trên: dãy nút tự xuống hàng ở màn hẹp (giống Skull) */
+  .tt-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

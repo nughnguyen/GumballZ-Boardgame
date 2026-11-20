@@ -2,7 +2,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, XD_PHRAS
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { KIND_NAME, OPT_CHOICES, DEFAULT_OPTS, MAX_CARDS } from './engine.js?v=2';
 import { cardHTML } from './cards.js?v=5';
 import * as fx from './xfx.js?v=6';
@@ -138,9 +138,7 @@ $('#btn-music').onclick = $('#btn-music-home').onclick = () => { fx.actx(); fx.m
 const syncMute = () => $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊';
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal, (view && view.opts) || (lobby && lobby.opts) || DEFAULT_OPTS);
-const news = () => { openNews(GAME); ['#btn-news-home', '#btn-news'].forEach(k => $(k).classList.remove('gumballz-dot')); };
-$('#btn-news-home').onclick = $('#btn-news').onclick = news;
-newsBadge($('#btn-news-home'), GAME); newsBadge($('#btn-news'), GAME);
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
 $('#btn-log-close').onclick = () => $('#log').classList.remove('open');
 $('#round-tag').onclick = () => openBoard();

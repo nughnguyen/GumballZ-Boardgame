@@ -10,8 +10,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const CELL = 34; /* px 1 giao điểm ở zoom 1× (kể cả ô nhãn trục) */
 const TAP_PX = 8; /* kéo xa hơn chừng này thì chỉ trượt bàn, không đặt quân */
@@ -365,7 +364,6 @@ $('#btn-finish').onclick = () => { if (cur && cur.phase === 'scoring') ui.act({ 
 $('#btn-resume').onclick = () => { if (cur && cur.phase === 'scoring') ui.act({ type: 'resume' }); };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('covay'); newsBadge($('#btn-news-home'), 'covay');
 
 const ui = gameKit({
   game: 'covay', net: NET,

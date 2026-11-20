@@ -1,12 +1,12 @@
 // Giao diện Xếp bài cổ điển (Klondike): vẽ bàn, kéo-thả / chạm, hoàn tác, gợi ý, tự xếp, bộ giải, thống kê, lưu ván
 import { VARIANTS, newGame, defaultOpts, optsKey, optsName, scoreStart, liveScore, timeBonus, passesLeft, SCORE_NONE, SCORE_VEGAS } from './variants.js?v=1';
 import { apply, canMove, legalMoves, autoMoves, greedyFinish, key, hintMove, idsOf, isSeq, isRed, cardName, top } from './core.js?v=1';
-import { record } from '../../shared/ui/stats.js?v=43';
+import { record } from '../../shared/ui/stats.js?v=65';
 import { solve } from './solver.js?v=1';
 import { faceHTML, backHTML, drawCard, THEMES, getTheme, setTheme, previewHTML } from './cards.js?v=10';
 import * as fx from './sfx.js?v=1';
 import { guideHTML } from './guide.js?v=10';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { rulesFor } from '../../shared/rules.js?v=2';
 // ⚙️ Mặc định cho máy CHƯA từng chơi (luat-mac-dinh.js ở gốc repo). Máy đã chơi thì nhớ tuỳ chọn ván gần nhất ('sol-opts')
 // và nút tự đưa lên đích ('sol-auto') – lựa chọn riêng của máy thắng file luật.
@@ -487,7 +487,6 @@ modal.addEventListener('click', e => {
     new: () => { closeModal(); start(V.id, G.o); },
     opts: () => optsBox(), deal: () => dealBox(), restart: () => { closeModal(); restart(); },
     solve: () => askSolver(), stats: () => showStats(), guide: () => openModal(guideHTML(V.id), 'wide'),
-    news: () => { closeModal(); news(); },
     auto: () => { ls.set('sol-auto', autoOn() ? '0' : '1'); moreMenu(); syncSafeBtn(); toast(autoOn() ? '✅ Bật tự đưa lá an toàn lên đích' : 'Tắt tự đưa lên đích – dùng ⤴️ Lên đích hoặc chuột phải'); },
     dark: () => { setDark(b.dataset.m); moreMenu(); toast({ auto: '🌓 Sáng/tối theo máy', light: '☀️ Giao diện sáng', dark: '🌙 Giao diện tối' }[darkPref()]); },
     solv: () => { ls.set('sol-solvable', solvOn() ? '0' : '1'); moreMenu(); render(); solvSchedule(); toast(solvOn() ? '🧠 Bật báo giải được hay không' : 'Tắt báo giải được hay không'); },
@@ -511,7 +510,6 @@ function moreMenu() {
     <button data-act="music" class="tg ${fx.musicIsOn() ? 'on' : ''}">🎵 Nhạc nền <em>${fx.musicIsOn() ? 'BẬT' : 'TẮT'}</em></button>
     <button data-act="mute" class="tg ${fx.isMuted() ? '' : 'on'}">🔊 Âm thanh <em>${fx.isMuted() ? 'TẮT' : 'BẬT'}</em></button>
     <button data-act="guide">📖 Hướng dẫn</button>
-    <button data-act="news">📝 Có gì mới</button>
   </div><p class="note">Bản fan-made phi thương mại · Chơi một mình, không cần mạng. Chuột phải lên bàn = đưa mọi lá lên được lên đích (y như Windows).</p>
   ${THEMES[getTheme()].credit ? `<p class="credit center">${THEMES[getTheme()].name.split(' ')[0]} ${THEMES[getTheme()].credit}.</p>` : ''}`);
 }
@@ -662,13 +660,12 @@ if (darkMQ) { const f = () => applyDark(); darkMQ.addEventListener ? darkMQ.addE
 let toastT = 0;
 function toast(msg, cls = '', ms = 2200) { const t = $('#toast'); t.textContent = msg; t.className = 'toast on ' + cls; clearTimeout(toastT); toastT = setTimeout(() => { t.className = 'toast ' + cls; }, ms); }
 function syncAudio() { $('#btn-music').classList.toggle('off', !fx.musicIsOn()); $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊'; }
-function news() { openNews('solitaire'); $('#btn-news').classList.remove('gumballz-dot'); }
 $('#btn-undo').onclick = undo; $('#btn-redo').onclick = redo; $('#btn-hint').onclick = doHint; $('#btn-safe').onclick = () => safeUp();
 $('#btn-new').onclick = () => { if (busy) return; start(V.id, G.o); toast(`🆕 Ván #${G.seed}`); };
 $('#btn-more').onclick = moreMenu; $('#btn-variant').onclick = () => optsBox(); $('#btn-deal').onclick = dealBox;
 $('#btn-finish').onclick = () => { if (finishMoves && !busy) playSeq(finishMoves, 95); };
 $('#btn-guide').onclick = () => openModal(guideHTML(V.id), 'wide');
-$('#btn-news').onclick = news; newsBadge($('#btn-news'), 'solitaire');
+
 $('#btn-music').onclick = () => { fx.actx(); fx.musicToggle(); syncAudio(); toast(fx.musicIsOn() ? '🎵 Bật nhạc chill' : '🎵 Tắt nhạc'); };
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncAudio(); };
 syncAudio();

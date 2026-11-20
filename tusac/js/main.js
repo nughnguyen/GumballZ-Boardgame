@@ -4,7 +4,6 @@ import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet({
   srv: true, /* phòng online do máy chủ giữ ván (server/src/srvhost.js) */
@@ -135,7 +134,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('tusac-sound', sound ? '1' : '0'); drawSound(); beep('turn'); };
-$('#btn-news-home').onclick = () => openNews('tusac'); newsBadge($('#btn-news-home'), 'tusac');
 
 const ui = gameKit({
   game: 'tusac', net: NET,

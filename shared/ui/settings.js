@@ -3,7 +3,7 @@ import { auth } from '../net/api.js?v=27';
 import { confirmBox } from './dialog.js?v=8';
 import { volumeRowsHTML, bindVolumeRows } from '../audio/volume.js?v=1';
 const ROOT = new URL('../../', import.meta.url).href;
-const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'solitaire', 'cotuong', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang'];
+const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'solitaire', 'cotuong', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino'];
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
 const CSS = `.st-ov{position:fixed;inset:0;z-index:9999;background:rgba(74,62,92,.66);display:grid;place-items:center;padding:14px}
@@ -73,7 +73,7 @@ export function openSettings() {
   bindVolumeRows(ov); /* hai thanh trượt âm lượng nhạc nền / hiệu ứng (shared/audio/volume.js) */
   $('#st-pub').onchange = e => ls.set('gumballz-pub-default', e.target.checked ? '1' : '0');
   $('#st-online').onchange = e => { ls.set('gumballz-hide-online', e.target.checked ? '0' : '1'); document.querySelectorAll('#online').forEach(el => { el.style.display = e.target.checked ? '' : 'none'; }); };
-  $('#st-prof').onclick = () => { ov.remove(); import('./profile.js?v=44').then(m => m.openProfile()); };
+  $('#st-prof').onclick = () => { ov.remove(); import('./profile.js?v=45').then(m => m.openProfile()); };
   $('#st-clear').onclick = async () => {
     if (!(await confirmBox('Tên, giao diện, luật đã chọn và ván đang chơi dở trên máy này sẽ bị xoá. Tài khoản vẫn còn trên máy chủ, bạn chỉ bị đăng xuất.', { title: '🗑️ Xoá dữ liệu trên máy này?', ok: 'Xoá hết', danger: true }))) return;
     try { Object.keys(localStorage).filter(k => /^(gumballz|bangvn|meono|uno|typhu|sol|tq|masoi|scribble|camel|cangua|poker|tienlen|xidach|catte|bacao|cotuong|tht|tan-|loto|covua|tala|cholon|tusac|bantau|oanquan|caro|tictactoe|memory|covay|cothu|ranvathang)/i.test(k)).forEach(k => localStorage.removeItem(k)); } catch (e) {}

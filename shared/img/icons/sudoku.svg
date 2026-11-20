@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- lưới Sudoku 3×3 (1 khối của lưới 9×9): đủ 9 số 1–9, ô giữa tô vàng -->
+<g transform="translate(58 28)">
+<rect x="0" y="0" width="124" height="124" rx="12" fill="#FFFDF9" stroke="#2a2340" stroke-width="3"/>
+<rect x="41" y="0" width="42" height="124" fill="#FFE3A3" stroke="#2a2340" stroke-width="2"/>
+<line x1="41" y1="0" x2="41" y2="124" stroke="#2a2340" stroke-width="2"/>
+<line x1="83" y1="0" x2="83" y2="124" stroke="#2a2340" stroke-width="2"/>
+<line x1="0" y1="41" x2="124" y2="41" stroke="#2a2340" stroke-width="2"/>
+<line x1="0" y1="83" x2="124" y2="83" stroke="#2a2340" stroke-width="2"/>
+<g font-family="Baloo 2, sans-serif" font-size="26" font-weight="800" fill="#2a2340" text-anchor="middle">
+<text x="20" y="33">5</text><text x="62" y="33">3</text><text x="104" y="33">7</text>
+<text x="20" y="75">6</text><text x="62" y="75" fill="#2E5AAC">1</text><text x="104" y="75">9</text>
+<text x="20" y="117">2</text><text x="62" y="117">8</text><text x="104" y="117">4</text>
+</g>
+</g>
+<!-- bút chì ghi chú -->
+<g transform="translate(196 132) rotate(-32)">
+<rect x="-6" y="-26" width="12" height="44" rx="3" fill="#FFB98A" stroke="#2a2340" stroke-width="2.5"/>
+<path d="M-6 18 L0 30 L6 18 Z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2.5" stroke-linejoin="round"/>
+</g>
+<!-- huy hiệu Sudoku -->
+<g transform="translate(300 90)">
+<circle r="52" fill="#AFD8F3" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<text y="-18" text-anchor="middle" font-size="26">🔢</text>
+<text y="42" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="17" font-weight="800" fill="#2a2340">SUDOKU</text>
+</g>
+<path d="M214 30 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M368 150 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFB9CF" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

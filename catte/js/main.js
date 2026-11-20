@@ -3,7 +3,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, setSpeed
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { cardName, rankLabel, SUIT_SYM, SUIT_NAME, WHITE_NAME, OPT_CHOICES, CUT, REFILL, parseCard } from './engine.js?v=2';
 import { cardHTML, cardTxt, suitTxt } from './cards.js?v=7';
 import { initHandDrag } from '../../shared/ui/handsort.js?v=3';
@@ -129,7 +129,7 @@ $('#btn-music').onclick = $('#btn-music-home').onclick = () => { fx.actx(); fx.m
 const syncMute = () => $('#btn-mute').textContent = fx.isMuted() ? '🔇' : '🔊';
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal);
-for (const id of ['#btn-news', '#btn-news-home']) { newsBadge($(id), 'catte'); $(id).onclick = () => { openNews('catte'); $$('#btn-news, #btn-news-home').forEach(b => b.classList.toggle('gumballz-dot', false)); }; }
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
 $('#btn-log-close').onclick = () => $('#log').classList.remove('open');
 

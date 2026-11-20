@@ -78,7 +78,16 @@ const CSS = `.bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;dis
   .bf-mod[data-chat="0"] .bf-chat{display:none}
   .bf-mod[data-chat="1"] .bf-side{display:none}
   .bf-mod[data-chat="1"] .bf-bk{display:inline-block}
-}`;
+}
+/* Hộp chứa panel khi nhúng vào chỗ khác (mở từ openFriends) */
+.bf-panel-host{flex:1;min-height:0;display:flex;flex-direction:column}
+.bf-panel-host .bf-body{flex:1;min-height:0}
+/* Nhúng vào khung chat Sảnh: 1 cột hẹp như điện thoại (danh sách ↔ đoạn chat) */
+.bf-embed{flex:1;min-height:0;display:flex;flex-direction:column}
+.bf-embed .bf-body{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+.bf-embed[data-chat="0"] .bf-chat{display:none}
+.bf-embed[data-chat="1"] .bf-side{display:none}
+.bf-embed[data-chat="1"] .bf-bk{display:inline-block}`;
 
 function css() {
   if (document.getElementById('bf-css')) return;
@@ -282,26 +291,21 @@ export function mountPlayerClick() {
   window.__gumballzPlayerCard = showPlayerCard;
 }
 
-let closeOpen = null; /* hộp Bạn bè đang mở (mở lại thì đóng hẳn hộp cũ) */
-export function openFriends(initialUid = null) {
-  css();
-  if (closeOpen) closeOpen(); document.getElementById('bf-ov')?.remove();
-  const ov = document.createElement('div'); ov.className = 'bf-ov'; ov.id = 'bf-ov';
-  document.body.append(ov);
-
+/* ---- Bảng Bạn bè dùng chung: hộp nổi (openFriends) + khung chat Sảnh (mountFriendsChat).
+   root: phần tử chứa panel; initialUid: mở sẵn đoạn chat với người này.
+   Trả { destroy } — gọi khi gỡ panel (đóng hộp / đóng Sảnh). Panel không tự xử lý
+   phím Escape (hộp nổi / Sảnh tự xử lý); data-chat đặt trên .bf-mod gần nhất
+   (hộp nổi) hoặc trên chính root (khi nhúng). */
+function createFriendsPanel(root, initialUid = null) {
   let data = { friends: [], incoming: [], outgoing: [] };
   let activeId = initialUid ? +initialUid : null;
   let msgs = [], lastId = 0, pollChat = 0, pollList = 0, closed = false, gen = 0;
 
-  const close = () => {
-    closed = true; if (closeOpen === close) closeOpen = null;
+  const destroy = () => {
+    closed = true;
     clearInterval(pollChat); clearInterval(pollList);
-    removeEventListener('keydown', onKey); offAuth();
-    ov.remove();
+    offAuth();
   };
-  const onKey = e => { if (e.key === 'Escape') close(); };
-  addEventListener('keydown', onKey);
-  ov.addEventListener('click', e => { if (e.target === ov) close(); });
 
   async function loadList() {
     const r = await friends.list();
@@ -326,7 +330,7 @@ export function openFriends(initialUid = null) {
   }
 
   function drawSide() {
-    const list = ov.querySelector('.bf-list'); if (!list) return;
+    const list = root.querySelector('.bf-list'); if (!list) return;
     let html = '';
     const meId = auth.user()?.id;
     const myPid = window.__gumballzRoom && window.__gumballzRoom.myId ? window.__gumballzRoom.myId() : '';
@@ -368,8 +372,8 @@ export function openFriends(initialUid = null) {
   }
 
   function drawChat() {
-    const chatEl = ov.querySelector('.bf-chat'); if (!chatEl) return;
-    const mod = ov.querySelector('.bf-mod');
+    const chatEl = root.querySelector('.bf-chat'); if (!chatEl) return;
+    const mod = root.closest('.bf-mod') || root;
     const fr = (data.friends || []).find(f => f.id === activeId);
     if (!fr) {
       mod.dataset.chat = '0';
@@ -419,35 +423,25 @@ export function openFriends(initialUid = null) {
     clearInterval(pollChat); clearInterval(pollList);
     const u = auth.user();
     if (!u) {
-      ov.innerHTML = `<div class="bf-mod" role="dialog" aria-modal="true"><div class="bf-hd"><h2>🤝 Bạn bè &amp; Tin nhắn</h2><button type="button" class="bf-x" aria-label="Đóng">✕</button></div><div class="bf-login"><p>Đăng nhập tài khoản GumballZ để kết bạn, nhắn tin riêng và mời bạn bè vào bàn nhanh hơn nha!</p><button type="button" id="bf-go-login">👤 Đăng nhập / Tạo tài khoản</button></div></div>`;
-      ov.querySelector('.bf-x').onclick = close;
-      ov.querySelector('#bf-go-login').onclick = () => openLogin();
+      root.innerHTML = `<div class="bf-login"><p>Đăng nhập tài khoản GumballZ để kết bạn, nhắn tin riêng và mời bạn bè vào bàn nhanh hơn nha!</p><button type="button" id="bf-go-login">👤 Đăng nhập / Tạo tài khoản</button></div>`;
+      root.querySelector('#bf-go-login').onclick = () => openLogin();
       return;
     }
-    const tag = `${u.username ? '@' + u.username + ' · ' : ''}#${u.id}`;
-    ov.innerHTML = `<div class="bf-mod" role="dialog" aria-modal="true" data-chat="0">
-      <div class="bf-hd"><h2>🤝 Bạn bè &amp; Tin nhắn</h2><button type="button" class="bf-tag" title="Bấm để sao chép mã kết bạn">${esc(tag)} 📋</button><button type="button" class="bf-x" aria-label="Đóng">✕</button></div>
-      <div class="bf-body">
+    root.innerHTML = `<div class="bf-body">
         <div class="bf-side">
           <form class="bf-add"><input type="text" maxlength="32" placeholder="@tên hoặc #ID…"><button type="submit">＋ Thêm</button></form>
           <div class="bf-list"><div class="bf-empty">Đang tải…</div></div>
         </div>
         <div class="bf-chat"></div>
-      </div>
-    </div>`;
-    ov.querySelector('.bf-x').onclick = close;
-    ov.querySelector('.bf-tag').onclick = () => {
-      const cp = u.username ? '@' + u.username : '#' + u.id;
-      navigator.clipboard?.writeText(cp).then(() => toast(`Đã chép ${cp} 📋`), () => toast(cp));
-    };
-    ov.querySelector('.bf-add').onsubmit = async e => {
+      </div>`;
+    root.querySelector('.bf-add').onsubmit = async e => {
       e.preventDefault();
-      const inp = ov.querySelector('.bf-add input'), q = inp.value.trim(); if (!q) return;
+      const inp = root.querySelector('.bf-add input'), q = inp.value.trim(); if (!q) return;
       inp.value = '';
       await quickAddFriend({ username: q });
       loadList();
     };
-    ov.querySelector('.bf-list').onclick = async e => {
+    root.querySelector('.bf-list').onclick = async e => {
       const addBtn = e.target.closest('[data-room-add]');
       if (addBtn) {
         e.stopPropagation();
@@ -487,6 +481,47 @@ export function openFriends(initialUid = null) {
   }
 
   const offAuth = auth.onChange(() => build());
-  closeOpen = close;
   build();
+  return { destroy };
+}
+
+/* Nhúng bảng Bạn bè vào 1 phần tử (khung chat Sảnh): danh sách + đoạn chat 1-1,
+   dùng chung endpoint/polling với hộp Bạn bè. */
+export function mountFriendsChat(el) {
+  css();
+  el.classList.add('bf-embed');
+  return createFriendsPanel(el);
+}
+
+let closeOpen = null; /* hộp Bạn bè đang mở (mở lại thì đóng hẳn hộp cũ) */
+export function openFriends(initialUid = null) {
+  css();
+  if (closeOpen) closeOpen(); document.getElementById('bf-ov')?.remove();
+  const ov = document.createElement('div'); ov.className = 'bf-ov'; ov.id = 'bf-ov';
+  document.body.append(ov);
+  const u0 = auth.user();
+  ov.innerHTML = `<div class="bf-mod" role="dialog" aria-modal="true" data-chat="0">
+      <div class="bf-hd"><h2>🤝 Bạn bè &amp; Tin nhắn</h2><button type="button" class="bf-tag" title="Bấm để sao chép mã kết bạn">${u0 ? esc(`${u0.username ? '@' + u0.username + ' · ' : ''}#${u0.id}`) + ' 📋' : ''}</button><button type="button" class="bf-x" aria-label="Đóng">✕</button></div>
+      <div class="bf-panel-host"></div>
+    </div>`;
+  const panel = createFriendsPanel(ov.querySelector('.bf-panel-host'), initialUid);
+  const close = () => {
+    if (closeOpen === close) closeOpen = null;
+    panel.destroy(); removeEventListener('keydown', onKey); offTag();
+    ov.remove();
+  };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  addEventListener('keydown', onKey);
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  ov.querySelector('.bf-x').onclick = close;
+  ov.querySelector('.bf-tag').onclick = () => {
+    const u = auth.user(); if (!u) return;
+    const cp = u.username ? '@' + u.username : '#' + u.id;
+    navigator.clipboard?.writeText(cp).then(() => toast(`Đã chép ${cp} 📋`), () => toast(cp));
+  };
+  const offTag = auth.onChange(() => {
+    const u = auth.user(), tagEl = ov.querySelector('.bf-tag');
+    if (tagEl) tagEl.textContent = u ? `${u.username ? '@' + u.username + ' · ' : ''}#${u.id} 📋` : '';
+  });
+  closeOpen = close;
 }

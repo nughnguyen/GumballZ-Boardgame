@@ -1,0 +1,76 @@
+/* 🐂 Lấy 6 (6 Nimmt!) – 104 lá số, 4 dãy, chọn lá đồng thời.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.l6-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.l6-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.l6-topbar .back-hub { position: static; flex: none; }
+.l6-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.l6-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.l6-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.l6-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.l6-status .stat b { color: #b3232a; }
+.l6-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+/* 4 dãy trên bàn */
+.l6-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.l6-row { display: flex; align-items: center; gap: 6px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 10px; min-height: 76px; box-sizing: border-box; }
+.l6-row .l6-row-no { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #2a2340; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.l6-row .l6-row-cards { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; align-items: center; }
+.l6-row .l6-row-heads { flex: none; font-weight: 800; font-size: 13px; color: #b3232a; background: #ffe9e9; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.l6-row.takeable { outline: 4px solid #ff5c5c; outline-offset: 2px; cursor: pointer; animation: l6pulse 1s infinite; }
+.l6-row.takeable:hover { background: #fff0f0; }
+@keyframes l6pulse { 0%, 100% { box-shadow: 3px 3px 0 rgba(42,35,64,.16); } 50% { box-shadow: 3px 3px 0 rgba(255,92,92,.45); } }
+/* lá bài số */
+.l6-card { width: 58px; min-height: 72px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 12px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 4px 2px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; text-align: center; transition: transform .12s ease, box-shadow .12s ease; flex: none; }
+.l6-card:hover { transform: translateY(-4px); box-shadow: 4px 6px 0 rgba(42,35,64,.16); }
+.l6-card .l6-num { font-family: 'Baloo 2', sans-serif; font-size: 24px; font-weight: 800; line-height: 1; }
+.l6-card .l6-heads { font-size: 11px; font-weight: 800; color: #b3232a; line-height: 1.2; }
+.l6-card .l6-heads .bull { font-size: 12px; }
+.l6-card.h1 { background: #fffdf5; }
+.l6-card.h2 { background: #fff3d6; }
+.l6-card.h3 { background: #ffe3c2; }
+.l6-card.h5 { background: #ffe3ec; }
+.l6-card.h7 { background: #ffd2d2; }
+.l6-card.in-row { cursor: default; }
+.l6-card.in-row:hover { transform: none; }
+.l6-card.cant { cursor: default; }
+.l6-card.cant:hover { transform: none; }
+.l6-card.sel { outline: 3px solid #ffd273; outline-offset: 2px; }
+/* hàng người chơi */
+.l6-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .l6-players { grid-template-columns: 1fr; } }
+.l6-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.l6-player.picked { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.l6-player.me { outline: 3px solid #ffd273; outline-offset: 2px; }
+.l6-player.take-turn { outline: 3px solid #ff5c5c; outline-offset: 2px; }
+.l6-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.l6-pinfo b { font-size: 15px; }
+.l6-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.l6-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.l6-picked-tag { color: #2e8b57; font-weight: 800; }
+.l6-picked-wait { color: #b8860b; font-weight: 800; }
+/* banner bắt buộc lấy dãy */
+.l6-take-banner { text-align: center; font-weight: 800; font-size: 16px; color: #b3232a; background: #ffe9e9; border: 3px solid #ff5c5c; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; }
+/* bài trên tay */
+.l6-hand-wrap { margin-bottom: 10px; }
+.l6-hand-label { font-weight: 800; font-size: 15px; margin-bottom: 8px; text-align: center; }
+.l6-hand { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.l6-hand .l6-card { width: 64px; min-height: 84px; }
+.l6-hand .l6-card .l6-num { font-size: 28px; }
+.l6-hand-cover { text-align: center; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 18px; padding: 18px 14px; }
+.l6-hand-cover .note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b6480; }
+.l6-picked-note { text-align: center; font-weight: 800; font-size: 15px; color: #2e8b57; padding: 14px; background: #eafaf0; border: 3px solid #2a2340; border-radius: 14px; }
+/* hàng nút trong ván */
+.l6-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.l6-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.l6-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.l6-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.l6-log div:last-child { border-bottom: 0; }
+.l6-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .l6-topbar h1 { font-size: 22px; }
+  .l6-card { width: 50px; min-height: 64px; }
+  .l6-card .l6-num { font-size: 20px; }
+  .l6-hand .l6-card { width: 54px; min-height: 72px; }
+  .l6-hand .l6-card .l6-num { font-size: 23px; }
+  .l6-row { padding: 6px 8px; }
+}

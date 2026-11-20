@@ -8,7 +8,7 @@ import { coachCheck, coachHide, coachTipEnd } from './coach.js?v=11';
 import { roleCardSVG, cardBackSVG, roleChip, roleDot, bambooSVG, dinhSVG, hillsSVG, starsHTML, firefliesHTML, heroSVG } from './art.js?v=10';
 import * as fx from './fx.js?v=8';
 import { openGuide } from './guide.js?v=12';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 
 const $ = s => document.querySelector(s);
@@ -227,7 +227,7 @@ $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 const syncVoice = () => $('#btn-voice').classList.toggle('on', fx.voiceIsOn());
 $('#btn-voice').onclick = () => { const on = fx.voiceToggle(); syncVoice(); toast(on ? '🗣️ Quản trò sẽ đọc to (nếu máy có giọng tiếng Việt). Chơi chung phòng thì chỉ bật 1 máy thôi nha.' : '🗣️ Tắt giọng quản trò.', 3500); if (on) fx.say('Xin chào cả làng'); }; syncVoice();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal);
-for (const id of ['#btn-news', '#btn-news-home']) { const b = $(id); newsBadge(b, 'masoi'); b.onclick = () => { openNews('masoi'); $$('#btn-news,#btn-news-home').forEach(x => x.classList.toggle('gumballz-dot', false)); }; }
+
 document.addEventListener('pointerdown', () => { fx.actx(); if (!view && !$('#screen-game').classList.contains('active')) moodFor(null); }, { once: true });
 
 // ---------- giữ để xem vai ----------

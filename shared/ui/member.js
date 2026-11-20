@@ -3,9 +3,10 @@
 //   import('…/shared/ui/member.js?v=1').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=27';
-import { profileCss, avatarHTML, AVATARS } from './profile.js?v=44';
-import { ACHS, GAME_NAMES } from './stats.js?v=43';
-import { GAME_WINS } from '../titles.js?v=2';
+import { profileCss, avatarHTML, AVATARS } from './profile.js?v=45';
+import { ACHS, GAME_NAMES } from './stats.js?v=65';
+import { GAME_WINS } from '../titles.js?v=3';
+import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -22,7 +23,7 @@ const CSS = `.mb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
 .mb-load{padding:40px 10px;text-align:center;color:#6b5f7a;font-weight:800}
 .pf-ov.pf-shown,.pf-ov.pf-shown .pf-box{animation:none}`;
 function css() { profileCss(); if (document.getElementById('mb-css')) return; const s = document.createElement('style'); s.id = 'mb-css'; s.textContent = CSS; document.head.append(s); }
-export const titlePill = t => (t ? `<span class="pf-tt" title="${esc(t.desc || '')}">${esc(t.icon)} ${esc(t.name)}</span>` : '');
+export const titlePill = t => (t ? `<span class="pf-tt" tabindex="0" role="button" data-iicon="${esc(t.icon)}" data-iname="${esc(t.name)}" data-ihow="${esc(titleDesc(t))}" data-istate="✅ Đã đạt">${esc(t.icon)} ${esc(t.name)}</span>` : '');
 const titleDesc = t => (t.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[t.game] || t.game}` : t.desc || '');
 
 export function openMember(key) {
@@ -53,12 +54,13 @@ export function openMember(key) {
       <h3>🎖️ Danh hiệu <small>${U.titles.length} đã đạt</small></h3>
       ${U.titles.length ? `<div class="mb-tts">${U.titles.map(t => titlePill({ ...t, desc: titleDesc(t) })).join('')}</div>` : '<div class="pf-empty">Chưa có danh hiệu nào – chơi thêm vài ván là có liền 🎲</div>'}
       <h3>🏅 Thành tích <small>${got.length} / ${ACHS.length}</small></h3>
-      ${got.length ? `<div class="mb-achs">${got.map(a => `<span title="${esc(a.desc)}">${a.icon} ${esc(a.name)}</span>`).join('')}</div>` : '<div class="pf-empty">Chưa mở được thành tích nào.</div>'}
+      ${got.length ? `<div class="mb-achs">${got.map(a => `<span tabindex="0" role="button" data-iicon="${esc(a.icon)}" data-iname="${esc(a.name)}" data-ihow="${esc(a.desc)}" data-istate="✅ Đã mở">${a.icon} ${esc(a.name)}</span>`).join('')}</div>` : '<div class="pf-empty">Chưa mở được thành tích nào.</div>'}
       <h3>🎮 Chơi nhiều nhất <small>${U.kinds} game</small></h3>
       ${U.games.length ? `<div class="pf-g">${U.games.map(g => `<div>${esc(GAME_NAMES[g.g] || g.g)}</div><span>${g.p} ván</span><em>${g.w} thắng</em>`).join('')}</div>` : '<div class="pf-empty">Chưa chơi ván nào khi đã đăng nhập.</div>'}
       <p class="pf-note">Thành viên từ ${new Date(U.created).toLocaleDateString('vi-VN')}${U.days ? ` · đã chơi ${U.days} ngày` : ''}</p>
       ${acts ? `<div class="mb-acts">${acts}</div>` : ''}`);
     if (keepY) ov.querySelector('.pf-box').scrollTop = keepY;
+    ov.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || 'ℹ️', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
   };
   const loadRel = async () => {
     const me = auth.user(); if (!me || !U || me.id === U.id) return;
@@ -68,12 +70,12 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=44').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=45').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=49').then(m => m.openLogin()); }
-    else if (a === 'dm') { close(); import('./friends.js?v=32').then(m => m.openFriends(U.id)); }
+    else if (a === 'dm') { close(); import('./friends.js?v=33').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
-      try { const m = await import('./friends.js?v=32'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
+      try { const m = await import('./friends.js?v=33'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
       busy = false; await loadRel(); if (ov.isConnected && rel == null) draw();
     }
   });

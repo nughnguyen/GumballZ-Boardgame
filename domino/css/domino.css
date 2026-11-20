@@ -1,0 +1,115 @@
+/* 🎲 Domino – bàn nỉ xanh, quân Domino ngà có nút, dây quân cuộn 2 đầu,
+   quân hợp lệ sáng lên, quân mở màn có sao vàng. */
+.dm-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+/* topbar dùng khung chung của gamekit (.topbar: dính trên cùng) */
+.dm-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.dm-topbar .back-hub { position: static; flex: none; }
+.dm-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.dm-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* ghế người chơi: cùng nhịp với .seat của Bắn Tàu / Cờ Vây / Cờ Lật */
+.seats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.seat b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.seat small { color: #6b6480; font-weight: 700; white-space: nowrap; }
+.seat.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.seat .pts { font-family: 'Baloo 2', sans-serif; font-size: 17px; font-weight: 800; color: #b3232a; white-space: nowrap; }
+.seat .pts small { color: #8b7e9e; font-size: 12px; }
+/* ——— quân Domino ——— */
+.dm-tile { position: relative; display: inline-flex; width: 76px; height: 46px; background: #fffdf9; border: 2.5px solid #2a2340; border-radius: 9px; box-shadow: 2px 3px 0 rgba(42,35,64,.28); box-sizing: border-box; flex: none; }
+.dm-half { position: relative; flex: 1; min-width: 0; }
+.dm-div { flex: none; width: 2px; background: #2a2340; opacity: .85; }
+.dm-pip { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: #2a2340; }
+/* quân đôi trong dây: vẽ dọc */
+.dm-tile.dm-vert { width: 46px; height: 76px; flex-direction: column; }
+.dm-tile.dm-vert .dm-div { width: auto; height: 2px; }
+/* lưng quân úp */
+.dm-tile.dm-back { background: #ffe3a3; }
+.dm-tile.dm-back .dm-backdot { position: absolute; inset: 8px; border: 2px dashed rgba(42,35,64,.5); border-radius: 6px; }
+.dm-tile.dm-mini { width: 22px; height: 13px; border-width: 2px; border-radius: 4px; box-shadow: 1px 1px 0 rgba(42,35,64,.25); }
+.dm-tile.dm-mini .dm-backdot { inset: 2px; border-width: 1.5px; border-radius: 2px; }
+/* ——— dây quân ——— */
+.dm-table { background: #2e8b62; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 6px 6px 0 #2a2340; padding: 14px 10px; margin-bottom: 10px; }
+.dm-chain-wrap { display: flex; align-items: center; gap: 8px; }
+.dm-end { flex: none; min-width: 56px; min-height: 56px; border: 3px solid #2a2340; border-radius: 14px; background: #fffdf9; font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 800; color: #2a2340; cursor: default; padding: 4px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.3); }
+.dm-end small { display: block; font-size: 11px; font-family: Nunito, sans-serif; color: #8b7e9e; }
+.dm-end.ok { background: #ffd273; cursor: pointer; animation: dm-pulse 1.4s ease-in-out infinite; }
+.dm-end.no { opacity: .45; }
+@keyframes dm-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+.dm-chain { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 3px; min-height: 60px; padding: 6px; background: rgba(255,255,255,.08); border-radius: 12px; }
+.dm-chain .dm-empty { color: rgba(255,255,255,.85); font-weight: 800; text-align: center; padding: 8px; }
+.dm-chain .dm-tile { width: 56px; height: 34px; border-radius: 7px; }
+.dm-chain .dm-tile.dm-vert { width: 34px; height: 56px; }
+.dm-chain .dm-pip { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; }
+.dm-chain .dm-tile.dm-new { animation: dm-pop .25s ease; }
+@keyframes dm-pop { 0% { transform: scale(.5); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+/* chồng rút + nút rút */
+.dm-bone { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; color: #fff; font-weight: 800; }
+.dm-bone .btn { min-height: 48px; }
+/* ——— tay đối thủ ——— */
+.dm-others { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.dm-other { background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 10px; }
+.dm-other.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.dm-other .oh-name { display: flex; align-items: center; gap: 8px; font-weight: 800; min-width: 0; }
+.dm-other .oh-name b { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dm-other .oh-name .pts { color: #b3232a; font-family: 'Baloo 2', sans-serif; }
+.dm-other .oh-tiles { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; min-height: 15px; }
+.dm-other .oh-st { color: #6b6480; font-weight: 700; font-size: 13px; }
+/* ——— bài của mình ——— */
+.dm-my { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px; margin-bottom: 10px; }
+.dm-my .mh-title { font-weight: 800; text-align: center; margin-bottom: 10px; }
+.dm-hand { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.dm-hand .dm-tile { cursor: default; opacity: .55; }
+.dm-hand .dm-tile.playable { opacity: 1; cursor: pointer; box-shadow: 2px 3px 0 rgba(42,35,64,.28), 0 0 0 3px #ffd273; }
+.dm-hand .dm-tile.playable:hover { transform: translateY(-3px); }
+.dm-hand .dm-tile.sel { opacity: 1; cursor: pointer; transform: translateY(-6px); box-shadow: 2px 6px 0 rgba(42,35,64,.3), 0 0 0 4px #ff5ca8; }
+.dm-hand .dm-tile.starter::after { content: '★'; position: absolute; top: -13px; right: -6px; font-size: 18px; color: #ffb62e; text-shadow: 1px 1px 0 #2a2340; z-index: 2; }
+.dm-hand .dm-tile .dm-tag { position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); background: #ffd273; border: 2px solid #2a2340; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 0 6px; white-space: nowrap; z-index: 2; }
+/* che bài (chuyền tay) */
+.peek-cover { text-align: center; padding: 18px 10px; }
+.peek-cover p { font-weight: 800; margin: 0 0 12px; line-height: 1.6; }
+/* dải hết ván */
+.dm-handend { margin-top: 12px; background: #fff3c4; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 12px; text-align: center; font-weight: 800; }
+.dm-handend .btns { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+.score-tbl { width: 100%; border-collapse: collapse; margin: 8px 0 2px; font-size: 14px; }
+.score-tbl th, .score-tbl td { padding: 5px 6px; border-bottom: 1px dashed #e6ddc8; text-align: center; }
+.score-tbl td:first-child { text-align: left; }
+/* hàng nút trong ván */
+.dm-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.dm-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.dm-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.dm-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.dm-log div:last-child { border-bottom: 0; }
+.dm-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* lớp phủ xem quân đầu ván (chuyền tay) */
+.reveal-ov { position: fixed; inset: 0; z-index: 90; background: rgba(27,20,37,.72); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+.reveal-ov[hidden] { display: none; } /* [hidden] thua display:flex của class — phải ép ẩn, không thì lớp phủ trong suốt chặn hết cú bấm trên màn hình chính */
+.reveal-card { background: #fffdf5; border: 3px solid #2a2340; border-radius: 20px; box-shadow: 6px 6px 0 rgba(42,35,64,.3); max-width: 520px; width: 100%; padding: 20px; text-align: center; }
+.reveal-card h2 { margin: 0 0 8px; }
+.reveal-card p { line-height: 1.6; font-weight: 700; }
+.reveal-card .rv-tiles { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 12px 0; }
+.reveal-card .btn { margin: 4px; }
+/* danh sách luật nhanh trong phòng chờ — cùng class với các game khác */
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+/* hộp thoại hướng dẫn + nhật ký */
+.guide h3 { margin: 14px 0 6px; font-size: 17px; }
+.guide ul { margin: 0 0 6px; padding-left: 20px; line-height: 1.6; }
+.guide p { line-height: 1.6; }
+.logl { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.logl li { padding: 6px 2px; border-bottom: 1px dashed #e6ddc8; font-weight: 700; }
+.logl li.win { color: #b3232a; }
+.reveal-tbl { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+.reveal-tbl th, .reveal-tbl td { padding: 6px; border-bottom: 1px dashed #e6ddc8; text-align: left; }
+.timer-chip { display: inline-block; background: #ffd273; border: 2px solid #2a2340; border-radius: 999px; padding: 1px 10px; font-size: 14px; }
+.timer-chip.low { background: #ff8a7a; color: #fff; }
+@media (max-width: 560px) {
+  .dm-wrap { padding: 8px 8px 80px; }
+  .dm-topbar h1 { font-size: 21px; }
+  .seats { grid-template-columns: 1fr; gap: 6px; }
+  .round { font-size: 14.5px; }
+  .dm-tile { width: 64px; height: 40px; }
+  .dm-pip { width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+  .dm-chain .dm-tile { width: 46px; height: 28px; }
+  .dm-chain .dm-tile.dm-vert { width: 28px; height: 46px; }
+  .dm-end { min-width: 48px; min-height: 48px; font-size: 17px; }
+}

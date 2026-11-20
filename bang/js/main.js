@@ -6,7 +6,7 @@ import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, BANG_PHRASES 
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { confirmBox } from '../../shared/ui/dialog.js?v=8';
 import { netStatus } from '../../shared/ui/status.js';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 import { imgTag, avatarTag } from './images.js';
 import { BANG_DEFAULTS, S, SPEEDS, getSpeed, setSpeed, sfx, cardSfx, gunSfx, fly, shake, flash, floatText, banner, toggleMute, isMuted, shoot, arrows, explode, sparkle, confetti, stamp, screenShake } from './fx.js?v=9';
@@ -156,8 +156,7 @@ $('#btn-recap').onclick = $('#btn-recap-log').onclick = () => showRecap();
 $('#btn-newbie').onclick = () => setNewbie(!newbie);
 $('#btn-newbie-g').onclick = e => { e.stopPropagation(); setNewbie(!newbie); };
 renderNewbieUI();
-// 📝 Có gì mới (patch notes dùng chung)
-for (const id of ['#btn-news-home', '#btn-news-g']) { const b = $(id); newsBadge(b, 'bang'); b.onclick = e => { e.stopPropagation(); $('#tb-opts').classList.remove('open'); openNews('bang'); document.querySelectorAll('#btn-news-home,#btn-news-g').forEach(x => x.classList.remove('gumballz-dot')); }; }
+
 $('#btn-mute').textContent = isMuted() ? '🔇' : '🔊';
 $('#btn-mute').onclick = () => { $('#btn-mute').textContent = toggleMute() ? '🔇' : '🔊'; };
 document.body.appendChild($('#modal')); // nằm trên lớp hiệu ứng

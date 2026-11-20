@@ -10,7 +10,7 @@ import { encodeGif } from './gif.js?v=5';
 import { opsBytes, simplifyOps } from './ops.js?v=5';
 import * as fx from './fx.js?v=10';
 import { guideHTML } from './guide.js?v=12';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const $ = s => document.querySelector(s);
@@ -80,8 +80,7 @@ syncSound();
 const inkFx = { onInk: (d, tool) => fx.scribble(d, tool), onTool: k => (k === 'fill' ? fx.sfx.fill() : k === 'undo' ? fx.sfx.undo() : fx.sfx.crumple()) };
 const openGuide = () => openModal(guideHTML() + '<div class="m-btns"><button class="btn pri" data-close>Hiểu rồi! 👌</button></div>', 'wide');
 $('#btn-guide-home').onclick = $('#g-guide').onclick = $('#t-guide').onclick = openGuide;
-// 📝 Có gì mới (patch notes dùng chung): trang chủ, thanh trên trong ván (màn rộng) và bảng loa (điện thoại)
-$$('.news-btn').forEach(b => { newsBadge(b, 'scribble'); b.onclick = () => { $('#snd-pop').hidden = true; openNews('scribble'); $$('.news-btn').forEach(x => x.classList.remove('gumballz-dot')); }; });
+
 
 // ---------- trang chủ ----------
 $('#name').value = ls.get('gumballz-name') || '';

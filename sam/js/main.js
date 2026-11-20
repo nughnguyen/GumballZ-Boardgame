@@ -6,7 +6,6 @@ import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { cardHTML } from '../../shared/ui/deck/deck.js?v=5';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet(DEF);
 const card = (c, cls = '', attrs = '', tag = 'div') => cardHTML(E.rank(c) + 1, E.SUITS[E.suitOf(c)], { cls, attrs, tag });
@@ -114,7 +113,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('sam-sound', sound ? '1' : '0'); drawSound(); beep('turn'); };
-$('#btn-news-home').onclick = () => openNews('sam'); newsBadge($('#btn-news-home'), 'sam');
 addEventListener('resize', () => { clearTimeout(render.t); render.t = setTimeout(() => ui.view && render(ui.view, null), 150); });
 
 const ui = gameKit({

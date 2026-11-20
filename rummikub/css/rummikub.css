@@ -1,0 +1,73 @@
+/* 🀄 Rummikub – 106 lá, xếp dãy/nhóm trên bàn, bấm để chọn rồi đặt.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.rk-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.rk-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.rk-topbar .back-hub { position: static; flex: none; }
+.rk-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.rk-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.rk-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.rk-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.rk-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+.rk-status .stat .opened { color: #2e8b57; }
+.rk-status .stat .not-opened { color: #b8860b; }
+/* lá bài: số màu trên nền kem */
+.rk-tile { width: 46px; height: 62px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 10px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); display: inline-flex; align-items: center; justify-content: center; font-family: 'Baloo 2', sans-serif; font-size: 26px; font-weight: 800; line-height: 1; cursor: pointer; flex: none; transition: transform .12s ease, box-shadow .12s ease; user-select: none; }
+.rk-tile:hover { transform: translateY(-4px); }
+.rk-tile.cR { color: #d64545; }
+.rk-tile.cB { color: #3b6fd4; }
+.rk-tile.cO { color: #e8821e; }
+.rk-tile.cK { color: #2a2340; }
+.rk-tile.cJ { color: #7c5cff; font-size: 24px; background: linear-gradient(135deg, #fffdf5 55%, #f3edff); }
+.rk-tile.sel { outline: 4px solid #ffd273; outline-offset: 2px; transform: translateY(-6px); }
+.rk-tile.cant { cursor: default; }
+.rk-tile.cant:hover { transform: none; }
+/* bàn: các bộ xếp thành hàng */
+.rk-table { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; min-height: 76px; }
+.rk-meld { display: flex; align-items: center; gap: 6px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 10px; min-height: 78px; box-sizing: border-box; flex-wrap: wrap; }
+.rk-meld .rk-meld-no { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #2a2340; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.rk-meld .rk-meld-tiles { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; align-items: center; min-height: 62px; }
+.rk-meld .rk-meld-info { flex: none; font-weight: 800; font-size: 13px; color: #2e8b57; background: #eafaf0; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.rk-meld .rk-meld-info.bad { color: #b3232a; background: #ffe9e9; }
+.rk-meld.targetable { outline: 4px solid #ffd273; outline-offset: 2px; cursor: pointer; }
+.rk-meld.new { border-style: dashed; background: #f3edff; cursor: pointer; }
+.rk-meld.new:hover { background: #ece2ff; }
+.rk-meld.new .rk-new-label { font-weight: 800; color: #7c5cff; font-size: 15px; }
+.rk-table-empty { text-align: center; font-weight: 700; color: #6b6480; padding: 18px 10px; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 14px; }
+/* hàng người chơi */
+.rk-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .rk-players { grid-template-columns: 1fr; } }
+.rk-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.rk-player.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.rk-player.me { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.rk-player.me.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.rk-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rk-pinfo b { font-size: 15px; }
+.rk-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.rk-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+/* tay bài */
+.rk-hand-wrap { margin-bottom: 10px; }
+.rk-hand-label { font-weight: 800; font-size: 15px; margin-bottom: 8px; text-align: center; }
+.rk-hand { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.rk-hand-cover { text-align: center; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 18px; padding: 18px 14px; }
+.rk-hand-cover .note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b6480; }
+/* thanh trạng thái lượt: đã ra bao nhiêu lá / điểm mở bài */
+.rk-stage { text-align: center; font-weight: 800; font-size: 15px; margin-bottom: 10px; min-height: 22px; }
+.rk-stage .ok { color: #2e8b57; }
+.rk-stage .need { color: #b8860b; }
+/* hàng nút trong ván */
+.rk-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.rk-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.rk-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.rk-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.rk-log div:last-child { border-bottom: 0; }
+.rk-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .rk-topbar h1 { font-size: 22px; }
+  .rk-tile { width: 40px; height: 54px; font-size: 22px; }
+  .rk-tile.cJ { font-size: 20px; }
+  .rk-meld { padding: 6px 8px; }
+}
+@media (max-width: 480px) {
+  .rk-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
+}

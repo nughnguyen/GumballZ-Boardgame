@@ -67,6 +67,15 @@ export const FRAMES = [
   { id: 'tim', name: 'Tím huyền bí', lock: 'top10' },
   { id: 'kimcuong', name: 'Kim cương', lock: 'w200' },
   { id: 'owner', name: 'Chủ web', lock: 'admin' },
+  /* 🛍️ khung bán bằng xu ở Cửa hàng (shop: giá xu) / chỉ mở ra từ rương (chest) — mở khoá bằng ví, xem shared/ui/wallet.js */
+  { id: 'sanho', name: 'Khung San Hô', shop: 150 },
+  { id: 'rungxanh', name: 'Khung Rừng Xanh', shop: 200 },
+  { id: 'bacha', name: 'Khung Bạc Hà', shop: 150 },
+  { id: 'timmong', name: 'Khung Tím Mộng', shop: 250 },
+  { id: 'bongbong', name: 'Khung Bong Bóng', chest: true },
+  { id: 'saobang', name: 'Khung Sao Băng', chest: true },
+  { id: 'keongot', name: 'Khung Kẹo Ngọt', chest: true },
+  { id: 'hoanggia', name: 'Khung Hoàng Gia', chest: true },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -74,6 +83,8 @@ export const FRAME_RING = {
   dem: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 75% 70%,#fff 0 1.2px,transparent 1.8px),linear-gradient(135deg,#4b3aa0,#1b1440)',
   lua: 'conic-gradient(#ff3d3d,#ff9a1f,#ffd23d,#ff6a1f,#ff3d3d)', cauvong: 'conic-gradient(#ff4d6a,#ffb23d,#ffe066,#2fc76f,#3d8bff,#8a5cff,#ff4d6a)',
   vang: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)', tim: 'conic-gradient(#b06bff,#ff5fa2,#6a35e0,#ff5fa2,#b06bff)', owner: 'conic-gradient(#ff3d5a,#ffd84a,#ff7a45,#fff2b3,#ff3d5a)', kimcuong: 'conic-gradient(#e8fbff,#7fd8ff,#ffffff,#b9a8ff,#e8fbff,#7fd8ff,#ffffff)',
+  sanho: 'linear-gradient(135deg,#ff8a7a,#ff5fa2,#ffb23d)', rungxanh: 'linear-gradient(135deg,#2a9d5c,#0b4a3c,#7fe0a4)', bacha: 'linear-gradient(135deg,#a8e6cf,#5ec8a8,#d0f0e4)', timmong: 'conic-gradient(#b06bff,#ff5fa2,#6a35e0,#c9bdf3,#b06bff)',
+  bongbong: 'radial-gradient(circle at 30% 30%,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,#fff 0 1.5px,transparent 2.5px),linear-gradient(135deg,#7fd8ff,#3d8bff,#b9a8ff)', saobang: 'linear-gradient(135deg,#1b1440,#4b3aa0,#ff9a3d)', keongot: 'conic-gradient(#ff9ecf,#ffb23d,#ffe066,#ff9ecf)', hoanggia: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3,#e0a612,#ffd84a)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [
@@ -87,6 +98,12 @@ export const NAME_COLORS = [
   { id: 'lua', name: 'Lửa', lock: 's10', css: 'background:linear-gradient(90deg,#d4202f,#e8650f);-webkit-background-clip:text;background-clip:text;color:transparent' },
   { id: 'owner', name: 'Chủ web', lock: 'admin', css: 'background:linear-gradient(90deg,#d4202f,#e8650f,#b8780a,#d4202f);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none' },
   { id: 'cauvong', name: 'Cầu vồng', lock: 'k20', css: 'background:linear-gradient(90deg,#d4202f,#d97706,#16834a,#1f5fd6,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent' },
+  /* 🛍️ màu tên bán bằng xu / chỉ mở ra từ rương */
+  { id: 'ngoc', name: 'Xanh Ngọc', shop: 150, css: 'color:#0e7490' },
+  { id: 'dodo', name: 'Đỏ Đô', shop: 150, css: 'color:#8a1d1d' },
+  { id: 'chanh', name: 'Vàng Chanh', shop: 200, css: 'color:#a16207' },
+  { id: 'song', name: 'Sóng Biển', chest: true, css: 'background:linear-gradient(90deg,#0e7490,#2563eb);-webkit-background-clip:text;background-clip:text;color:transparent' },
+  { id: 'daquang', name: 'Dạ Quang', chest: true, css: 'background:linear-gradient(90deg,#15803d,#65a30d,#ca8a04);-webkit-background-clip:text;background-clip:text;color:transparent' },
 ];
 /* hiệu ứng khi thắng ván (chỉ hiện trên máy mình) – hình ở shared/ui/winfx.js */
 export const WIN_FX = [

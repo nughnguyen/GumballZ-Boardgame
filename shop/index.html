@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cửa hàng — mua đồ bằng xu | GumballZ Boardgame</title>
+<meta name="description" content="Cửa hàng GumballZ: mua vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và mở rương Gacha bằng xu ảo kiếm được khi chơi game. Tiền ảo, không nạp, không rút.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/shop/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cửa hàng GumballZ — mua đồ bằng xu">
+<meta property="og:description" content="Vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và rương Gacha — mua bằng xu ảo kiếm được khi chơi game.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/shop/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og.jpg?v=8">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="css/shop.css?v=1">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<main class="shop-wrap">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <header class="shop-head">
+    <h1>🛍️ Cửa hàng</h1>
+    <p class="shop-sub">Mua đồ bằng <b>xu ảo</b> kiếm được khi chơi game — không nạp, không rút, không tiền thật.</p>
+    <div class="shop-wallet" id="wallet-card">
+      <div class="sw-bal">🪙 <b id="sw-xu">100</b> xu</div>
+      <div class="sw-rates">Thắng 1 ván +10 xu · Chơi 1 ván +2 xu · Tài khoản mới bắt đầu với 100 xu</div>
+      <button type="button" class="sw-prof" id="btn-profile">👤 Xem hồ sơ</button>
+    </div>
+  </header>
+
+  <section class="shop-sec" id="sec-items">
+    <h2>🎒 Vật phẩm hỗ trợ</h2>
+    <p class="sec-note">Mua sẵn để trong kho ví, dùng trong game khi cần. Vật phẩm Bắn Tàu: vào trận bấm “📦 Kho” để lấy, không tốn xu trong trận.</p>
+    <div class="grid" id="grid-items"></div>
+  </section>
+
+  <section class="shop-sec" id="sec-chest">
+    <h2>🎁 Rương Gacha</h2>
+    <div class="chest-card">
+      <div class="chest-box" id="chest-box" aria-hidden="true">🎁</div>
+      <div class="chest-info">
+        <p><b>100 xu</b> / lần mở — ngẫu nhiên 1 món: đa số là đồ trang trí, đôi khi là vật phẩm hỗ trợ. Không pay-to-win: rương không cho đồ làm bạn mạnh hơn người khác.</p>
+        <button type="button" class="btn-open" id="btn-chest">🎁 Mở rương · 100 xu</button>
+        <p class="chest-count" id="chest-count"></p>
+        <p class="chest-result" id="chest-result" role="status"></p>
+      </div>
+    </div>
+    <details class="drops">
+      <summary>📋 Bảng tỉ lệ rơi (xem trước khi mở)</summary>
+      <ul id="drop-table"></ul>
+      <p class="drop-note">Mở trúng đồ trang trí đã có → hoàn lại 20 xu.</p>
+    </details>
+  </section>
+
+  <section class="shop-sec" id="sec-frames">
+    <h2>🖼️ Khung đại diện</h2>
+    <p class="sec-note">Mua xong bấm “Mặc” là khung hiện ngay ở hồ sơ, thanh trên và trong phòng chơi (trên máy của bạn).</p>
+    <div class="grid" id="grid-frames"></div>
+  </section>
+
+  <section class="shop-sec" id="sec-colors">
+    <h2>✒️ Màu tên</h2>
+    <p class="sec-note">Đổi màu tên hiển thị của bạn ở hồ sơ và trong phòng chơi (trên máy của bạn).</p>
+    <div class="grid" id="grid-colors"></div>
+  </section>
+
+  <section class="shop-sec" id="sec-backs">
+    <h2>🃏 Lưng bài</h2>
+    <p class="sec-note">Lưng bài mới áp dụng cho mọi game bài dùng bộ bài chung (Tiến Lên, Sâm, Phỏm, Xì Dách…).</p>
+    <div class="grid" id="grid-backs"></div>
+  </section>
+
+  <section class="shop-sec">
+    <details class="howto">
+      <summary>ℹ️ Ví xu hoạt động thế nào?</summary>
+      <ul>
+        <li>Chơi 1 ván bất kỳ: <b>+2 xu</b>; thắng ván đó: <b>+10 xu</b> nữa. Ván thắng có dùng “Nhân đôi xu” thì được +20 xu cho ván đó.</li>
+        <li>Tài khoản mới bắt đầu với <b>100 xu</b> — đủ mở 1 rương hoặc mua 3 vật phẩm hỗ trợ.</li>
+        <li>Xu chỉ là tiền ảo trong web: <b>không nạp bằng tiền thật, không rút, không đổi ra tiền thật</b>. Xu lưu trên máy của bạn; ai đăng nhập thì xu đồng bộ theo tài khoản.</li>
+        <li>Đồ đã mua nằm trong kho ví của bạn. Vật phẩm Bắn Tàu mua ở đây rồi vào trận bấm “📦 Kho” để lấy, không tốn thêm xu trong trận.</li>
+        <li>Rương Gacha chỉ cho đồ trang trí và vật phẩm hỗ trợ nhẹ — không có đồ làm bạn mạnh hơn người khác (không pay-to-win).</li>
+      </ul>
+    </details>
+  </section>
+  <p class="shop-foot"><a href="../">← Về trang chủ</a> · <a href="../luat/">Luật chơi</a></p>
+</main>
+<script type="module" src="js/shop.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="22" fill="#FFE3A3"/>
+  <g stroke="#4A3E5C" stroke-width="3" stroke-linejoin="round">
+    <rect x="34" y="34" width="52" height="66" rx="6" fill="#FFFDF9"/>
+    <rect x="28" y="28" width="52" height="66" rx="6" fill="#ABE0C6"/>
+    <rect x="22" y="22" width="52" height="66" rx="6" fill="#FFFDF9"/>
+  </g>
+  <text x="48" y="76" font-family="serif" font-size="38" font-weight="bold" fill="#E5484D" text-anchor="middle">中</text>
+  <g fill="#4A3E5C">
+    <circle cx="90" cy="26" r="5"/>
+    <circle cx="100" cy="38" r="5"/>
+  </g>
+  <g font-family="serif" font-size="13" font-weight="bold" fill="#4A3E5C" text-anchor="middle">
+    <text x="94" y="66">萬</text>
+  </g>
+</svg>

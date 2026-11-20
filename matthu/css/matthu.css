@@ -1,0 +1,109 @@
+/* 🔐 Mật Thư – bàn 5×5 lá từ, mật vụ ra gợi ý, điệp viên đoán lá.
+   Lá chưa lật màu kem, lật rồi tô theo màu phe (Đỏ / Xanh / dân thường / sát thủ). */
+.mt-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.mt-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.mt-topbar .back-hub { position: static; flex: none; }
+.mt-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.mt-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+/* ghế người chơi: 2 cột đội Đỏ / Xanh */
+.seats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.team-col h4 { margin: 0 0 6px; font-size: 15px; font-weight: 800; }
+.team-col .seat { margin-bottom: 6px; }
+.seat { display: flex; align-items: center; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 6px 12px 6px 6px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.seat b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.seat small { color: #6b6480; font-weight: 700; white-space: nowrap; }
+.seat.on { outline: 3px solid #ffd273; outline-offset: 2px; }
+.seat.tr { border-left-width: 8px; border-left-color: #ff5a4e; }
+.seat.tb { border-left-width: 8px; border-left-color: #3f7fd9; }
+.side-badge { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border: 2.5px solid #2a2340; border-radius: 50%; font-size: 15px; line-height: 1; }
+.side-badge.r { background: #ff5a4e; }
+.side-badge.b { background: #7fb3f0; }
+/* thanh tỉ lệ lá đã lộ Đỏ / Xanh */
+.ratiobar { display: flex; height: 16px; border: 3px solid #2a2340; border-radius: 999px; overflow: hidden; margin: 0 0 10px; background: #7fb3f0; }
+.ratiobar .rr { background: #ff5a4e; transition: width .4s ease; }
+.ratiobar .ry { background: #7fb3f0; flex: 1; }
+.ratio-label { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; margin: -6px 2px 10px; gap: 8px; }
+.ratio-label .rl { color: #d92c20; }
+.ratio-label .yl { color: #2456a6; }
+.ratio-label .al { color: #4a405c; flex: 1; text-align: center; }
+/* banner gợi ý hiện tại */
+.clue-banner { background: #fff3c4; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 10px 14px; margin: 0 0 10px; text-align: center; font-size: 16px; font-weight: 700; line-height: 1.5; }
+.clue-banner b { color: #b3232a; }
+/* ô ra gợi ý */
+.clue-box { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px 14px; margin-bottom: 10px; }
+.clue-title { font-weight: 800; font-size: 15px; margin-bottom: 8px; }
+.clue-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.clue-row input { flex: 1 1 180px; min-width: 0; min-height: 46px; font: 800 17px 'Nunito', sans-serif; color: #2a2340; background: #fff; border: 3px solid #2a2340; border-radius: 12px; padding: 6px 12px; box-sizing: border-box; text-transform: uppercase; }
+.numseg { display: flex; gap: 4px; flex-wrap: wrap; }
+.numseg button { min-width: 34px; min-height: 40px; padding: 4px 7px; font: 800 15px 'Nunito', sans-serif; color: #2a2340; background: #fff; border: 2.5px solid #2a2340; border-radius: 10px; cursor: pointer; }
+.numseg button.on { background: #ffd273; }
+.hint-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.hint-chips:empty { display: none; }
+.hint-chip { font: 800 13px 'Nunito', sans-serif; color: #2a2340; background: #e8f5e9; border: 2px solid #2a2340; border-radius: 999px; padding: 5px 11px; cursor: pointer; }
+.hint-chip:active { transform: scale(.96); }
+.clue-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.clue-btns .btn { flex: 1 1 auto; }
+/* thanh dừng đoán + bản đồ mật */
+.guess-bar { display: flex; gap: 8px; align-items: center; justify-content: space-between; background: #e8f0fe; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 12px; margin-bottom: 10px; font-weight: 700; font-size: 14px; }
+.key-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.key-bar .key-note { font-size: 13px; font-weight: 700; color: #6b6480; }
+/* ——— bàn Mật Thư 5×5 ——— */
+.mt-board-wrap { display: flex; justify-content: center; margin-bottom: 6px; }
+.mt-board { display: grid; grid-template-columns: repeat(5, 1fr); width: min(100%, 620px); aspect-ratio: 5/4.2; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 6px 6px 0 #2a2340; user-select: none; -webkit-user-select: none; background: #f3e9d2; padding: 8px; gap: 6px; }
+.mt-card { position: relative; padding: 4px; border: 2.5px solid #2a2340; border-radius: 12px; cursor: default; display: flex; align-items: center; justify-content: center; background: #fffdf5; box-shadow: 2px 2px 0 rgba(42,35,64,.18); font: 800 15px 'Nunito', sans-serif; color: #2a2340; text-align: center; line-height: 1.2; overflow: hidden; }
+.mt-card .w { overflow-wrap: anywhere; hyphens: auto; }
+.mt-card.pick { cursor: pointer; }
+.mt-card.pick:hover { transform: translateY(-2px); box-shadow: 2px 4px 0 rgba(42,35,64,.25); outline: 3px solid #ffd273; outline-offset: 1px; }
+.mt-card.last { outline: 3px solid #ffd273; outline-offset: 1px; }
+.mt-card .mk { position: absolute; left: 4px; top: 3px; font-size: 11px; line-height: 1; }
+.mt-card .kdot { position: absolute; right: 4px; top: 4px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid #2a2340; font-size: 9px; line-height: 1; display: grid; place-items: center; }
+.mt-card .kdot.r { background: #ff5a4e; }
+.mt-card .kdot.b { background: #3f7fd9; }
+.mt-card .kdot.n { background: #d8d2c4; }
+.mt-card .kdot.a { background: #2a2340; width: auto; height: auto; padding: 1px 2px; border-radius: 6px; }
+.mt-card.rev-r { background: #ff8a7a; color: #fff; }
+.mt-card.rev-b { background: #7fb3f0; color: #fff; }
+.mt-card.rev-n { background: #d8d2c4; color: #6b6480; }
+.mt-card.rev-a { background: #2a2340; color: #fff; }
+.mt-card.rev-r, .mt-card.rev-b, .mt-card.rev-a { text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+/* hàng nút trong ván */
+.mt-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.mt-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.mt-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.mt-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.mt-log div:last-child { border-bottom: 0; }
+.mt-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+/* vai trò từng ghế trong phòng chờ */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff; }
+.seat-role.r { background: #ffe1de; }
+.seat-role.b { background: #dbeafe; }
+.role-note { font-weight: 700; color: #4a405c; line-height: 1.6; font-size: 14px; }
+/* danh sách luật nhanh trong phòng chờ */
+.rules-mini { margin: 0; padding-left: 20px; font-weight: 700; color: #4a405c; line-height: 1.6; }
+/* hộp thoại hướng dẫn + nhật ký + bàn đã giải */
+.guide h3 { margin: 14px 0 6px; font-size: 17px; }
+.guide ul { margin: 0 0 6px; padding-left: 20px; line-height: 1.6; }
+.guide p { line-height: 1.6; }
+.logl { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.logl li { padding: 6px 2px; border-bottom: 1px dashed #e6ddc8; font-weight: 700; }
+.logl li.win { color: #b3232a; }
+.solved { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 8px 0 12px; }
+.solved .sv { font-size: 11.5px; font-weight: 800; text-align: center; border: 2px solid #2a2340; border-radius: 8px; padding: 4px 2px; overflow-wrap: anywhere; line-height: 1.2; }
+.solved .sv.r { background: #ff8a7a; color: #fff; }
+.solved .sv.b { background: #7fb3f0; color: #fff; }
+.solved .sv.n { background: #e8e2d2; color: #6b6480; }
+.solved .sv.a { background: #2a2340; color: #fff; }
+.timer-chip { display: inline-block; background: #ffd273; border: 2px solid #2a2340; border-radius: 999px; padding: 1px 10px; font-size: 14px; }
+.timer-chip.low { background: #ff8a7a; color: #fff; }
+@media (max-width: 560px) {
+  .mt-wrap { padding: 8px 8px 80px; }
+  .mt-topbar h1 { font-size: 21px; }
+  .mt-board { width: 100%; border-radius: 14px; padding: 5px; gap: 4px; }
+  .mt-card { font-size: 12.5px; border-radius: 9px; }
+  .mt-card .mk { display: none; }
+  .seats { grid-template-columns: 1fr; gap: 6px; }
+  .round { font-size: 14.5px; }
+  .clue-banner { font-size: 14.5px; }
+  .clue-row input { flex-basis: 100%; }
+}

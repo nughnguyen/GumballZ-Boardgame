@@ -3,7 +3,6 @@ import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 const NET = makeNet(DEF);
 const { ROLES, ROLE_NAME, ACTS } = E, LV = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' };
@@ -164,5 +163,4 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('daochinh-sound', sound ? '1' : '0'); drawSound(); beep('act'); };
-$('#btn-news-home').onclick = () => openNews('daochinh'); newsBadge($('#btn-news-home'), 'daochinh');
 const ui = gameKit({ game: 'daochinh', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else { pick = null; exSel = []; endShown = null; } }, offline: h => { h.addBot(); h.addBot(); } });

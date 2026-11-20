@@ -6,7 +6,7 @@ import { JUDGE_TEXT } from './engine.js?v=15';
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, MAX, MIN, TQ_PHRASES, TRAIN_OPTS } from './net.js?v=66';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 import { portrait, blankPortrait, cardHTML, backHTML, generalCardHTML, kindTag, iconsFor, emoOf } from './art.js?v=12';
 import * as fx from './fx.js?v=12';
@@ -90,8 +90,7 @@ $('#btn-addbot').onclick = () => net && net.addBot && net.addBot();
 $('#opt-exp').onchange = $('#opt-gen').onchange = $('#opt-train').onchange = () => { if (isHost && net && net.setOpts) net.setOpts({ exp: $('#opt-exp').checked, expGen: $('#opt-gen').checked, training: $('#opt-train').checked }); };
 $('#btn-start').onclick = () => { musicResumeIfOn(); net && net.start && net.start(); };
 $('#btn-guide-home').onclick = $('#btn-guide').onclick = $('#btn-guide2').onclick = openGuide;
-$('#btn-news-home').onclick = $('#btn-news').onclick = () => { openNews('tamquoc'); $('#btn-news-home').classList.remove('gumballz-dot'); $('#btn-news').classList.remove('gumballz-dot'); };
-newsBadge($('#btn-news-home'), 'tamquoc'); newsBadge($('#btn-news'), 'tamquoc');
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('hidden');
 $('#btn-log-close').onclick = () => $('#log').classList.add('hidden');
 

@@ -94,7 +94,7 @@ input:focus{border-color:var(--acc)}
 .clock{background:var(--ink);color:#fff;border-radius:999px;padding:6px 10px;font-weight:800;font-size:14px;flex:none}
 .clock.low{background:var(--bad);animation:pulse 1s infinite}
 .tools{display:flex;gap:6px;flex:none}
-@media (max-width:420px){#btn-news,#btn-mute{display:none}.topbar{gap:6px;padding:8px}}
+@media (max-width:420px){#btn-mute{display:none}.topbar{gap:6px;padding:8px}}
 .table{flex:1;min-height:0;overflow:auto;margin:0 8px;border-radius:26px;padding:10px 10px 12px;position:relative;
   background:radial-gradient(ellipse at 50% 0%,#3fd3a3 0,var(--felt1) 45%,var(--felt2) 100%);box-shadow:inset 0 0 0 4px #ffffff55,inset 0 10px 40px #0002,var(--shadow);color:var(--felt-ink);
   display:flex;flex-direction:column;gap:8px}

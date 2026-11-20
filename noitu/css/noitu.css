@@ -24,11 +24,15 @@ body{background:radial-gradient(900px 480px at 0 -10%,#dcd6ff 0,transparent 60%)
 .chain{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 4px;align-items:center;padding:2px 0 6px;min-height:34px} /* chuỗi từ xuống dòng thay vì cuộn ngang (anh dặn 16/11/2026) */
 .chain span{flex:none;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;font:700 13px Nunito,sans-serif;white-space:nowrap}.chain span:last-child{border-color:var(--acc);font-weight:800}.chain em{flex:none;font-style:normal;color:#9a92c2}
 .msg{min-height:40px;text-align:center;font:800 15px/1.35 Nunito,sans-serif;display:grid;place-items:center}.msg small{color:var(--muted);font-weight:700}.msg .hint{color:var(--acc)}
-.say{display:flex;align-items:stretch;gap:0;background:#fff;border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;box-shadow:3px 3px 0 var(--ink)}
-.say .pre{display:grid;place-items:center;padding:0 4px 0 14px;font:800 20px Nunito,Nunito,sans-serif;color:var(--acc);white-space:nowrap}
-.say input{flex:1;min-width:0;border:0;outline:0;font:800 20px Nunito,Nunito,sans-serif;padding:12px 6px;background:none;color:var(--ink)}
-.say .btn{border-radius:0;min-width:84px;min-height:52px;box-shadow:none;margin:0}
+.say{display:flex;align-items:stretch;gap:8px;background:#efeaff;border:3px solid var(--ink);border-radius:18px;padding:6px;box-shadow:3px 3px 0 var(--ink)}
+.say .pre{display:grid;place-items:center;flex:none;background:var(--acc);color:#fff;border-radius:999px;padding:8px 16px;font:800 22px Nunito,Nunito,sans-serif;white-space:nowrap;box-shadow:2px 2px 0 var(--ink)}
+.say input{flex:1;min-width:0;border:2px solid var(--line);border-radius:12px;outline:0;font:800 22px Nunito,Nunito,sans-serif;padding:12px 14px;background:#fff;color:var(--ink)}
+.say input::placeholder{color:#8b7e9e;font-weight:700}
+.say:focus-within{border-color:var(--acc);box-shadow:3px 3px 0 var(--ink),0 0 0 4px #5b4bd633}
+.say input:focus{border-color:var(--acc)}
+.say .btn{flex:none;border-radius:12px;min-width:88px;min-height:60px;box-shadow:none;margin:0;font-size:20px}
 .say.off{opacity:.5;pointer-events:none}
+@media (max-width:420px){.say{gap:6px;padding:5px}.say .pre{font-size:20px;padding:7px 12px}.say input{font-size:20px;padding:11px 10px}.say .btn{min-width:76px;min-height:56px;font-size:18px}}
 .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.acts .btn{min-height:44px}
 @keyframes nt-p{50%{opacity:.5}}@keyframes nt-pop{0%{transform:scale(.94)}60%{transform:scale(1.03)}}
 @media (orientation:landscape) and (max-height:520px){.arena{max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;align-content:start}.seats{grid-column:1/-1}.card{grid-row:2/5;align-self:start}.card .w{font-size:40px}}

@@ -1,0 +1,101 @@
+/* 🕵️ Ai là Gián Điệp – giao diện ván chơi (dùng chung gamekit.css cho màn đầu + sảnh). */
+:root{--acc:#C9BDF3;--acc2:#FFB9CF}
+.arena{max-width:920px;margin:0 auto;padding:14px 16px 48px;display:flex;flex-direction:column;gap:14px}
+.round{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:15px;line-height:1.3}
+
+/* thẻ từ bí mật của mình */
+.rolecard{display:flex;gap:14px;align-items:center;background:linear-gradient(135deg,var(--acc),var(--acc2));border:3px solid var(--ink,#4A3E5C);border-radius:20px;padding:16px 18px;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
+.rolecard .rc-art{flex:none;width:74px;height:74px}
+.rolecard .rc-art svg{width:100%;height:100%}
+.rolecard .rc-tx{flex:1;min-width:0}
+.rolecard .rc-role{display:inline-block;font:400 13px/1 "Bungee","Baloo 2",Nunito,sans-serif;letter-spacing:.5px;background:#fff;border:2px solid var(--ink,#4A3E5C);border-radius:999px;padding:5px 12px;margin-bottom:6px}
+.rolecard .rc-word{font:400 clamp(26px,7vw,36px)/1.1 "Bungee","Baloo 2",Nunito,sans-serif;word-break:break-word}
+.rolecard .rc-sub{font-size:13.5px;font-weight:800;color:#5c5470;margin-top:4px}
+.rolecard.spy{background:linear-gradient(135deg,#4A3E5C,#7C5CFF);color:#FFE3A3}
+.rolecard.spy .rc-sub{color:#C9BDF3}
+.rolecard.spy .rc-role{background:#FFE3A3;color:#4A3E5C}
+.rolecard .rc-eye{flex:none;width:48px;height:48px;border-radius:12px;border:2px solid var(--ink,#4A3E5C);background:#FFFDF9;font-size:20px;cursor:pointer}
+.rolecard.hidden-word .rc-word{filter:blur(9px);user-select:none}
+
+/* hàng người chơi */
+.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.seat{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;min-height:56px;font-weight:800}
+.seat.on{border-color:var(--ink,#4A3E5C);background:var(--y2,#FFE3A3);box-shadow:2px 2px 0 rgba(74,62,92,.13)}
+.seat.out{opacity:.5}
+.seat .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.seat .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .st{font-size:12px;font-weight:800;color:var(--muted,#8B7E9E)}
+.seat .st b{color:var(--ink,#4A3E5C)}
+.seat .badge{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;border:2px solid var(--ink,#4A3E5C);font-size:13px;flex:none}
+.seat .badge.spy{background:#4A3E5C;color:#FFE3A3}
+.seat .badge.civ{background:#ABE0C6;color:#4A3E5C}
+
+/* vòng mô tả: bong bóng mô tả */
+.descs{display:flex;flex-direction:column;gap:10px}
+.desc{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.desc.me{border-color:var(--ink,#4A3E5C);background:var(--y2,#FFE3A3)}
+.desc .d-tx{flex:1;min-width:0}
+.desc .d-tx b{display:block;font-size:15px}
+.desc .d-tx p{margin:2px 0 0;font-size:16px;font-weight:700;line-height:1.45}
+.desc .d-wait{color:var(--muted,#8B7E9E);font-weight:700;font-size:14px}
+.desc-turn{border:3px solid var(--ink,#4A3E5C);background:var(--card);border-radius:18px;padding:14px;box-shadow:2px 2px 0 rgba(74,62,92,.13)}
+.desc-turn h3{font-size:19px;margin-bottom:8px}
+.desc-turn .row{display:flex;gap:10px}
+.desc-turn input{flex:1;min-width:0}
+.desc-turn .btn{flex:none}
+.timer-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid var(--ink,#4A3E5C);background:#FFB9CF;font-weight:800;font-size:15px}
+.timer-chip.low{background:#FF6B5E;color:#fff}
+.hint{color:var(--muted,#8B7E9E);font-weight:800;text-align:center}
+
+/* bỏ phiếu */
+.vote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.vote-btn{display:flex;align-items:center;gap:10px;min-height:56px;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink,#4A3E5C);font:800 16px Nunito,sans-serif;cursor:pointer;text-align:left}
+.vote-btn:hover:not(:disabled){border-color:var(--ink,#4A3E5C);transform:translateY(-1px)}
+.vote-btn:disabled{cursor:default;opacity:.75}
+.vote-btn.picked{border-color:var(--ink,#4A3E5C);background:#FFB9CF;box-shadow:2px 2px 0 rgba(74,62,92,.13)}
+.vote-btn .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vote-btn .vc{flex:none;font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:15px;background:var(--y2,#FFE3A3);border:2px solid var(--ink,#4A3E5C);border-radius:999px;padding:2px 10px}
+.vote-who{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.vote-who .lbl{font-weight:800;font-size:14px;color:var(--muted,#8B7E9E)}
+
+/* thẻ loại + kết thúc */
+.elim-card{background:var(--card);border:3px solid var(--ink,#4A3E5C);border-radius:20px;padding:18px;text-align:center;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
+.elim-card.spy{background:#4A3E5C;color:#FFE3A3}
+.elim-card .e-art{font-size:52px;line-height:1}
+.elim-card h3{font-size:23px;margin:8px 0 4px}
+.elim-card .e-word{font:400 30px/1.2 "Bungee","Baloo 2",Nunito,sans-serif;margin:6px 0}
+.elim-card p{margin:4px 0 0;font-weight:700}
+.elim-card.spy p{color:#C9BDF3}
+.reveal-tbl{width:100%;border-collapse:collapse;margin-top:10px}
+.reveal-tbl td{padding:9px 8px;border-bottom:2px solid var(--line);font-weight:800;text-align:left}
+.reveal-tbl td:last-child{text-align:right}
+.reveal-tbl .r-spy{color:#7C5CFF}
+.logl{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto}
+.logl li{background:var(--bg,#FFF8EE);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14.5px}
+.logl li.caught{border-color:#7C5CFF;background:#EFEAFF}
+.logl li.wrong{border-color:#FFB98A;background:#FFF1E6}
+.logl li.end{border-color:var(--ink,#4A3E5C);background:var(--y2,#FFE3A3)}
+
+/* xem từ chuyền tay (mỗi người xem 1 lần trên cùng máy) */
+.reveal-ov{position:fixed;inset:0;z-index:800;background:rgba(74,62,92,.78);display:grid;place-items:center;padding:16px;backdrop-filter:blur(3px)}
+.reveal-ov[hidden]{display:none} /* display:grid ở trên thắng luật [hidden] mặc định của trình duyệt — không có dòng này thì lớp phủ ẩn vẫn chắn hết cú chạm */
+.reveal-card{width:min(440px,100%);background:var(--card);border:3px solid var(--ink,#4A3E5C);border-radius:20px;padding:22px;text-align:center;box-shadow:4px 4px 0 rgba(74,62,92,.2)}
+.reveal-card .rv-art{width:110px;height:110px;margin:0 auto 8px}
+.reveal-card .rv-art svg{width:100%;height:100%}
+.reveal-card h2{font-size:24px;margin-bottom:6px}
+.reveal-card p{font-weight:700;color:var(--muted,#8B7E9E);margin:6px 0 14px}
+.reveal-card .rv-word{font:400 clamp(30px,8vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;margin:10px 0 4px;word-break:break-word}
+.reveal-card .rv-role{display:inline-block;font:400 14px/1 "Bungee","Baloo 2",Nunito,sans-serif;letter-spacing:.5px;border:2px solid var(--ink,#4A3E5C);border-radius:999px;padding:6px 14px;margin-bottom:8px}
+.reveal-card .rv-role.spy{background:#4A3E5C;color:#FFE3A3}
+.reveal-card .rv-role.civ{background:#ABE0C6;color:#4A3E5C}
+.reveal-card .btn{width:100%;margin-top:8px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.acts .btn{flex:1 1 200px}
+@media (max-width:560px){
+  .rolecard{padding:13px 14px}
+  .rolecard .rc-art{width:58px;height:58px}
+  .seats{grid-template-columns:repeat(2,1fr)}
+  .vote-grid{grid-template-columns:repeat(2,1fr)}
+  .desc-turn .row{flex-direction:column}
+  .desc-turn .btn{width:100%}
+}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Icon Carcassonne tự vẽ: 1 ô đất — thành phố có răng cưa ở trên, đường chạy dọc giữa, ruộng 2 bên, 1 meeple đỏ đứng trên đường -->
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <rect x="4" y="4" width="112" height="112" rx="20" fill="none" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- ô đất -->
+  <rect x="28" y="22" width="64" height="76" rx="8" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+  <!-- ruộng 2 bên (mint) -->
+  <rect x="28" y="52" width="20" height="46" rx="0" fill="#ABE0C6"/>
+  <rect x="72" y="52" width="20" height="46" rx="0" fill="#ABE0C6"/>
+  <!-- thành phố (peach) + răng cưa -->
+  <path d="M28 22 h64 v22 a20 20 0 0 1 -20 12 a20 20 0 0 1 -24 0 a20 20 0 0 1 -20 -12 z" fill="#FFB98A" stroke="#4A3E5C" stroke-width="2.5"/>
+  <g fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2">
+    <rect x="32" y="14" width="10" height="12" rx="2"/>
+    <rect x="46" y="14" width="10" height="12" rx="2"/>
+    <rect x="60" y="14" width="10" height="12" rx="2"/>
+    <rect x="74" y="14" width="10" height="12" rx="2"/>
+  </g>
+  <!-- đường (lavender) chạy dọc -->
+  <rect x="52" y="52" width="16" height="46" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2"/>
+  <!-- khiên trên thành phố -->
+  <path d="M60 30 l7 3 v6 c0 5 -3 8 -7 10 c-4 -2 -7 -5 -7 -10 v-6 z" fill="#7C5CFF" stroke="#4A3E5C" stroke-width="2"/>
+  <!-- meeple đỏ trên đường -->
+  <g transform="translate(60 80)">
+    <circle cx="0" cy="-8" r="5" fill="#E5484D" stroke="#4A3E5C" stroke-width="2"/>
+    <path d="M-7 8 v-6 a7 7 0 0 1 14 0 v6 z" fill="#E5484D" stroke="#4A3E5C" stroke-width="2"/>
+  </g>
+</svg>

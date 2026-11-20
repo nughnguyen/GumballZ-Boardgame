@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2048 online – trượt gộp ô, đua đạt 2048 cùng bạn | GumballZ Boardgame</title>
+<meta name="description" content="2048 online: trượt lưới 4×4 để gộp các ô giống nhau — đạt ô 2048 là thắng! Chơi đơn tính giờ, đua với máy hoặc đua bạn online cùng 1 dãy ô mới mọc.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/s2048/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="2048 online – trượt gộp ô, đua đạt 2048 cùng bạn | GumballZ Boardgame">
+<meta property="og:description" content="Trượt lưới 4×4 để gộp các ô giống nhau — đạt ô 2048 là thắng! Chơi đơn, đua máy hoặc đua bạn online.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/s2048/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/s2048.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/s2048.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/s2048.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">20<span>48</span></h1>
+    <p class="tag">Trượt lưới 4×4 để gộp các ô giống nhau — đạt ô 2048 là thắng! 🔢✨</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="solo" aria-pressed="false">🔢 Chơi đơn</button>
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Đua online</button>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🔢 Bắt đầu trượt một mình</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng đua online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">Lưới 4×4 · trượt 4 hướng bằng phím mũi tên / WASD / vuốt · 2 ô giống nhau gộp thành 1 ô gấp đôi · ô mới mọc 90% là 2, 10% là 4 · đạt ô 2048 là thắng · chơi đơn, đua máy hoặc đua online 2–4 người cùng 1 dãy ô mới mọc.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🔢 <b>Trượt và gộp:</b> trượt cả lưới 1 hướng — 2 ô bằng nhau kề nhau thì gộp thành 1 ô gấp đôi (2+2=4, 4+4=8…). Mỗi ô chỉ gộp 1 lần trong 1 nước.</li>
+          <li>🆕 <b>Ô mới mọc:</b> sau mỗi nước đi thành công thì mọc thêm 1 ô mới (90% là 2, 10% là 4) ở 1 ô trống ngẫu nhiên.</li>
+          <li>🎯 <b>Thắng:</b> đạt ô 2048 là thắng ván — đua thì thắng cuộc đua ngay.</li>
+          <li>😢 <b>Kẹt là thua:</b> lưới đầy 16 ô mà không còn cặp ô bằng nhau nào kề nhau để gộp nữa. Đua thì bạn bị loại, còn lại đua tiếp.</li>
+          <li>🏁 <b>Đua:</b> cùng 1 dãy ô mới mọc, ai đạt 2048 trước thì thắng — thanh tiến độ hiện từng người được bao nhiêu điểm + ô lớn nhất.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🔢 Bắt đầu trượt</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="ft-wrap">
+    <header class="topbar ft-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🔢 2048</h1>
+      <span class="diff-chip">🎯 Đích: 2048</span>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="ft-status" id="status"></div>
+    <div class="race" id="race" style="display:none"></div>
+    <div class="ft-board" id="board-wrap">
+      <div class="ft-grid" id="grid" role="grid" aria-label="Lưới 2048 4×4"></div>
+    </div>
+    <div class="ft-pad" id="pad">
+      <span></span><button type="button" class="ft-arrow" data-dir="up" aria-label="Trượt lên">▲</button><span></span>
+      <button type="button" class="ft-arrow" data-dir="left" aria-label="Trượt sang trái">◀</button><button type="button" class="ft-arrow" data-dir="down" aria-label="Trượt xuống">▼</button><button type="button" class="ft-arrow" data-dir="right" aria-label="Trượt sang phải">▶</button>
+    </div>
+    <div class="ft-actions">
+      <button class="btn" id="btn-undo">↩️ Hoàn tác (5)</button>
+    </div>
+    <div class="ft-actions-row">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="ft-log" id="log" aria-live="polite"></div>
+    <div class="ft-foot">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

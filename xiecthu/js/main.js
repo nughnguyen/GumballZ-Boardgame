@@ -3,7 +3,6 @@ import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 import { toast, confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);
@@ -115,5 +114,4 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('xiecthu-sound', sound ? '1' : '0'); drawSound(); beep('flip'); };
-$('#btn-news-home').onclick = () => openNews('xiecthu'); newsBadge($('#btn-news-home'), 'xiecthu');
 const ui = gameKit({ game: 'xiecthu', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else { endShown = null; look = null; } }, offline: h => { h.addBot(); h.addBot(); } });

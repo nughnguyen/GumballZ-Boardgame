@@ -9,8 +9,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=43';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=175';
+import { recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const NET = makeNet({
   game: 'tictactoe', min: 2, max: 2, maxSeats: 10, allowLocal: true,
@@ -164,7 +163,6 @@ $('#btn-new').onclick = () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('tictactoe'); newsBadge($('#btn-news-home'), 'tictactoe');
 
 const ui = gameKit({
   game: 'tictactoe', net: NET,

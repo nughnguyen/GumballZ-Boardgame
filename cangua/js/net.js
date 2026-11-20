@@ -6,7 +6,7 @@ import { S } from './fx.js?v=8';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=51';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=43';
+import { watch } from '../../shared/ui/stats.js?v=65';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 const NS = 'gumballz-cangua', PREFIX = 'gumballz-cangua-', GAME = 'cangua', SNAP = 'gumballz-hostsnap-' + GAME;

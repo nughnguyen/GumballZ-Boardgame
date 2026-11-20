@@ -1,0 +1,76 @@
+/* 🍣 Sushi Go – 108 lá, chọn đồng thời rồi chuyền tay.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.sg-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.sg-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.sg-topbar .back-hub { position: static; flex: none; }
+.sg-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.sg-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.sg-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.sg-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.sg-status .stat b { color: #b3232a; }
+/* bảng điểm các vòng */
+.sg-scores { background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); padding: 8px 12px; margin-bottom: 10px; overflow-x: auto; }
+.sg-scores table { width: 100%; border-collapse: collapse; font-size: 14px; font-weight: 700; text-align: center; }
+.sg-scores th, .sg-scores td { padding: 3px 8px; white-space: nowrap; }
+.sg-scores th:first-child, .sg-scores td:first-child { text-align: left; }
+.sg-scores .tot { color: #b3232a; }
+/* hàng người chơi */
+.sg-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .sg-players { grid-template-columns: 1fr; } }
+.sg-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.sg-player.picked { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.sg-player.me { outline: 3px solid #ffd273; outline-offset: 2px; }
+.sg-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sg-pinfo b { font-size: 15px; }
+.sg-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.sg-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.sg-picked-tag { color: #2e8b57; font-weight: 800; }
+.sg-picked-wait { color: #b8860b; font-weight: 800; }
+.sg-played { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 13px; font-weight: 700; color: #6b6480; }
+.sg-played .empty { font-weight: 700; }
+/* lá bài */
+.sg-card { width: 118px; min-height: 150px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 8px 8px 6px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; text-align: center; transition: transform .12s ease, box-shadow .12s ease; }
+.sg-card:hover { transform: translateY(-4px); box-shadow: 5px 7px 0 rgba(42,35,64,.16); }
+.sg-card.sel { outline: 3px solid #ffd273; outline-offset: 2px; }
+.sg-card.cant { cursor: default; }
+.sg-card.cant:hover { transform: none; }
+.sg-card .sg-ic { font-size: 34px; line-height: 1.1; }
+.sg-card .sg-name { font-size: 14px; font-weight: 800; }
+.sg-card .sg-desc { font-size: 11px; font-weight: 700; color: #6b6480; line-height: 1.35; }
+.sg-card .sg-wasabi { font-size: 11px; font-weight: 800; color: #b3232a; }
+.sg-card.mini { width: 52px; min-height: 62px; padding: 4px 2px; border-width: 2px; box-shadow: 2px 2px 0 rgba(42,35,64,.16); cursor: default; }
+.sg-card.mini .sg-ic { font-size: 16px; }
+.sg-card.mini .sg-name { font-size: 9px; }
+.sg-card.mini .sg-desc, .sg-card.mini .sg-wasabi { display: none; }
+.sg-card.mini:hover { transform: none; }
+.sg-card.mini.on-wasabi { outline: 2px solid #b3232a; outline-offset: 1px; }
+/* màu pastel riêng từng loại lá */
+.sg-card.k-tempura { background: #fff3d6; }
+.sg-card.k-sashimi { background: #d6ecff; }
+.sg-card.k-dumpling { background: #ffe3ec; }
+.sg-card.k-maki1, .sg-card.k-maki2, .sg-card.k-maki3 { background: #e3dbff; }
+.sg-card.k-salmon, .sg-card.k-squid, .sg-card.k-egg { background: #ffe9d6; }
+.sg-card.k-pudding { background: #f3e3c8; }
+.sg-card.k-wasabi { background: #d9f2c9; }
+.sg-card.k-chopsticks { background: #e8e0d0; }
+/* bài trên tay */
+.sg-hand-wrap { margin-bottom: 10px; }
+.sg-hand-label { font-weight: 800; font-size: 15px; margin-bottom: 8px; text-align: center; }
+.sg-hand { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.sg-hand-cover { text-align: center; background: #fffdf5; border: 3px dashed #2a2340; border-radius: 18px; padding: 18px 14px; }
+.sg-hand-cover .note { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: #6b6480; }
+.sg-chop-row { display: flex; gap: 8px; justify-content: center; align-items: center; margin: 10px 0 0; flex-wrap: wrap; }
+.sg-chop-row .btn.on { background: #fff3c4; outline: 3px solid #ffd273; outline-offset: 1px; }
+.sg-picked-note { text-align: center; font-weight: 800; font-size: 15px; color: #2e8b57; padding: 14px; background: #eafaf0; border: 3px solid #2a2340; border-radius: 14px; }
+/* hàng nút trong ván */
+.sg-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.sg-actions-row .btn { flex: 1 1 auto; max-width: 240px; }
+.sg-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.sg-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.sg-log div:last-child { border-bottom: 0; }
+.sg-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .sg-card { width: 104px; min-height: 140px; }
+  .sg-topbar h1 { font-size: 22px; }
+}

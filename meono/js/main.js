@@ -8,7 +8,7 @@ import { CARD, CATS, NAMEABLE, classify, needsTarget, cardName, deckPlan, isCat,
 import { cardHTML, catSVG, bombSVG, cardIcon, mascotSVG, tint } from './cards.js?v=13';
 import * as fx from './mfx.js?v=16';
 import { openGuide } from './guide.js?v=16';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
+
 import { startPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 setSpeedFn(fx.S);
 
@@ -165,8 +165,7 @@ $('#btn-mute').onclick = () => { fx.toggleMute(); syncMute(); }; syncMute();
 const syncProb = () => { $('#btn-prob').classList.toggle('on', probShown()); lockToggle($('#btn-prob'), !probOk()); };
 $('#btn-prob').onclick = () => { if (!probOk()) { toast('🎲 Xác suất bom: ' + BOT_ONLY_NOTE); return; } probOn = !probOn; ls.set('meono-prob2', probOn ? '1' : '0'); syncProb(); toast(probOn ? '🎲 Đã bật gợi ý xác suất bom' : '🎲 Đã tắt gợi ý xác suất'); view && render(); }; syncProb();
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = () => openGuide(openModal);
-// 📝 Có gì mới (patch notes dùng chung): chấm đỏ khi có bản chưa xem
-for (const id of ['#btn-news', '#btn-news-home']) { newsBadge($(id), 'meono'); $(id).onclick = () => { openNews('meono'); $$('#btn-news, #btn-news-home').forEach(b => b.classList.toggle('gumballz-dot', false)); }; }
+
 $('#btn-log').onclick = () => $('#log').classList.toggle('open');
 $('#btn-log-close').onclick = () => $('#log').classList.remove('open');
 

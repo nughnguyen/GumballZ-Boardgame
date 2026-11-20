@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect x="2" y="2" width="116" height="116" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- bàn 5x5 ô gợi ý -->
+  <g stroke="#4A3E5C" stroke-width="1.5">
+    <rect x="18" y="18" width="84" height="84" fill="#FFFDF9" stroke-width="3"/>
+    <line x1="34.8" y1="18" x2="34.8" y2="102"/>
+    <line x1="51.6" y1="18" x2="51.6" y2="102"/>
+    <line x1="68.4" y1="18" x2="68.4" y2="102"/>
+    <line x1="85.2" y1="18" x2="85.2" y2="102"/>
+    <line x1="18" y1="34.8" x2="102" y2="34.8"/>
+    <line x1="18" y1="51.6" x2="102" y2="51.6"/>
+    <line x1="18" y1="68.4" x2="102" y2="68.4"/>
+    <line x1="18" y1="85.2" x2="102" y2="85.2"/>
+  </g>
+  <!-- mảnh đỏ hình L (góc trên-trái) -->
+  <g fill="#E05D5D" stroke="#4A3E5C" stroke-width="2">
+    <rect x="18" y="18" width="16.8" height="16.8"/>
+    <rect x="18" y="34.8" width="16.8" height="16.8"/>
+    <rect x="18" y="51.6" width="16.8" height="16.8"/>
+    <rect x="34.8" y="51.6" width="16.8" height="16.8"/>
+  </g>
+  <!-- mảnh xanh lá 1 ô — chạm chéo góc với mảnh đỏ -->
+  <rect x="34.8" y="34.8" width="16.8" height="16.8" fill="#58B368" stroke="#4A3E5C" stroke-width="2"/>
+  <!-- mảnh xanh dương hình T (giữa-phải) -->
+  <g fill="#5B8DEF" stroke="#4A3E5C" stroke-width="2">
+    <rect x="51.6" y="51.6" width="16.8" height="16.8"/>
+    <rect x="68.4" y="51.6" width="16.8" height="16.8"/>
+    <rect x="85.2" y="51.6" width="16.8" height="16.8"/>
+    <rect x="68.4" y="68.4" width="16.8" height="16.8"/>
+  </g>
+  <!-- mảnh vàng hình vuông 2x2 (góc dưới-trái) — chạm chéo góc với mảnh đỏ -->
+  <g fill="#F2C230" stroke="#4A3E5C" stroke-width="2">
+    <rect x="18" y="68.4" width="16.8" height="16.8"/>
+    <rect x="34.8" y="68.4" width="16.8" height="16.8"/>
+    <rect x="18" y="85.2" width="16.8" height="16.8"/>
+    <rect x="34.8" y="85.2" width="16.8" height="16.8"/>
+  </g>
+</svg>

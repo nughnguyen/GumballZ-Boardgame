@@ -938,5 +938,237 @@ export const TUT = {
     "img": null
    }
   ]
+ },
+ "giandiep": {
+  "name": "Ai là Gián Điệp",
+  "steps": [
+   {
+    "icon": "🕵️",
+    "html": "<b>Mục tiêu:</b> mỗi vòng mọi người nhận 1 từ bí mật — đa số cùng 1 từ, 1–2 gián điệp nhận 1 từ khác nhưng rất giống. Tìm ra gián điệp trước khi phe mình bị loại hết!",
+    "img": null
+   },
+   {
+    "icon": "💬",
+    "html": "Lần lượt mô tả từ của mình bằng <b>đúng 1 câu</b> — <b>không được nói ra từ đó</b>. Mô tả đủ rõ để phe mình nhận ra, nhưng đừng rõ quá kẻo gián điệp đoán được từ của dân.",
+    "img": null
+   },
+   {
+    "icon": "🗳️",
+    "html": "<b>Bỏ phiếu:</b> hết vòng mô tả thì mọi người cùng bỏ phiếu — ai nhiều phiếu nhất bị loại và <b>lộ từ của mình</b>. Hòa phiếu thì không ai bị loại, chơi vòng mới với cặp từ mới.",
+    "img": null
+   },
+   {
+    "icon": "🏆",
+    "html": "<b>Thắng thua:</b> dân thường thắng khi loại hết gián điệp; gián điệp thắng khi số gián điệp bằng hoặc nhiều hơn số dân còn lại. Hết vòng mà chưa phân thắng bại thì chơi vòng mới: cặp từ mới, vai trò chia lại từ đầu.",
+    "img": null
+   },
+   {
+    "icon": "🌐",
+    "html": "Chơi online 4–12 người qua mã phòng, đấu máy hoặc <b>chuyền tay nhiều người chung 1 máy</b> (mỗi người xem từ 1 lần rồi che lại đưa máy cho người tiếp theo). Chủ phòng chỉnh số gián điệp (1–2) và đồng hồ mô tả (tắt/30/45/60 giây).",
+    "img": null
+   }
+  ]
+ },
+ "codam": {
+  "name": "Cờ Đam",
+  "steps": [
+   {
+    "icon": "🔴",
+    "html": "<b>Mục tiêu:</b> bàn 8×8, mỗi bên 12 quân, <b>Đỏ đi trước</b>. Đi chéo 1 ô về phía trước, nhảy qua quân địch để ăn — ăn hết quân địch hoặc chặn cho địch hết nước đi là thắng!",
+    "img": null
+   },
+   {
+    "icon": "💥",
+    "html": "<b>Ăn là BẮT BUỘC:</b> nếu có nước ăn nào thì bạn chỉ được ăn, không được đi thường. Bấm vào quân của mình để xem các ô đi được — <b>chấm xanh</b> là ô đi thường, <b>viền đỏ</b> là ô ăn được quân địch.",
+    "img": null
+   },
+   {
+    "icon": "🔁",
+    "html": "<b>Nhảy nhiều lần:</b> ăn xong mà cùng quân đó còn ăn tiếp được thì <b>phải ăn tiếp</b> trong cùng 1 lượt — lượt chỉ đổi khi không còn nước ăn nào cho quân đó.",
+    "img": null
+   },
+   {
+    "icon": "👑",
+    "html": "<b>Phong Vua:</b> quân thường lên tới <b>hàng cuối phía địch</b> thì phong Vua ngay — đi và ăn chéo 1 ô <b>mọi hướng</b>. Lưu ý: phong Vua thì <b>dừng lượt</b>, không được nhảy tiếp trong lượt đó.",
+    "img": null
+   },
+   {
+    "icon": "🤝",
+    "html": "<b>Hòa:</b> cả 2 cùng bấm <b>🤝 Xin hòa</b> và đối thủ đồng ý; hoặc <b>40 nước không ăn quân nào</b>; hoặc <b>lặp lại vị trí 3 lần</b>. Đánh bế tắc thì bấm <b>🏳️ Xin thua</b>. Chơi online 2 người qua mã phòng, đấu máy Dễ/Khó hoặc 2 người chung 1 máy.",
+    "img": null
+   }
+  ]
+ },
+ "lieng": {
+  "name": "Liêng",
+  "steps": [
+   {
+    "icon": "🃏",
+    "html": "<b>Mục tiêu:</b> mỗi người <b>3 lá</b>, bài to dần: <b>Sáp</b> (3 lá cùng số) &gt; <b>Liêng</b> (3 lá liên tiếp, Q-K-Át to nhất) &gt; <b>Ảnh</b> (3 lá tây) &gt; <b>Điểm</b> (tổng điểm lấy chữ số hàng đơn vị, Át = 1, 10/J/Q/K = 10). Bài to nhất hốt hết gà!",
+    "img": null
+   },
+   {
+    "icon": "🐔",
+    "html": "<b>Góp gà:</b> đầu ván mỗi người <b>góp gà</b> 5 xu từ ví chung (chủ phòng chọn chơi vui 0 xu / 5 / 10 xu). Không đủ xu thì vẫn chơi được nhưng <b>không được chia gà</b>.",
+    "img": null
+   },
+   {
+    "icon": "🔥",
+    "html": "<b>Cược 1 vòng:</b> tới lượt thì <b>Tố</b> (+5/+10 xu, nâng gà lên), <b>Theo</b> (bỏ thêm cho bằng gà) hoặc <b>Bỏ</b> (úp bài, mất số xu đã bỏ). Mỗi vòng chỉ <b>Tố tối đa 3 lần</b>.",
+    "img": null
+   },
+   {
+    "icon": "🏁",
+    "html": "<b>Hốt gà:</b> hết vòng cược thì <b>lật bài</b> — bài to nhất hốt hết gà, hòa thì chia đều. Mọi người khác đều Bỏ thì hốt gà <b>không cần lật bài</b> — dọa bài nhỏ mà thắng lớn!",
+    "img": null
+   },
+   {
+    "icon": "🌐",
+    "html": "<b>Chế độ chơi:</b> online 2–6 người qua mã phòng, đấu máy Dễ/Khó (chọn 2–6 người) hoặc chuyền tay 2–6 người chung 1 máy — đầu ván mỗi người xem bài 1 lần rồi che lại, tới lượt bấm “👁 Xem bài”.",
+    "img": null
+   }
+  ]
+ },
+ "maubinh": {
+  "name": "Mậu Binh",
+  "steps": [
+   {
+    "icon": "🀄",
+    "html": "<b>Mục tiêu:</b> mỗi người <b>13 lá</b>, xếp thành <b>3 chi</b> — Đầu (3 lá), Giữa (5 lá), Cuối (5 lá). Chi sau phải <b>mạnh hơn hoặc bằng</b> chi trước; xếp ngược thì <b>binh lủng</b>, thua cả 3 chi! So từng chi với từng đối thủ, thắng 1 chi được <b>1 điểm</b>.",
+    "img": null
+   },
+   {
+    "icon": "💪",
+    "html": "<b>Thứ tự bài:</b> 5 lá: Thùng phá sảnh &gt; Tứ quý &gt; Cù lũ &gt; Thùng &gt; Sảnh &gt; Sám cô &gt; Hai đôi &gt; Đôi &gt; Mậu thầu. 3 lá (chi Đầu) chỉ có Sám cô &gt; Đôi &gt; Mậu thầu — sám 3 lá vẫn thắng được đôi 5 lá.",
+    "img": null
+   },
+   {
+    "icon": "🌟",
+    "html": "<b>Bài đặc biệt:</b> chia được 1 trong 5 bộ này thì <b>thắng luôn cả 3 chi</b> mà khỏi xếp: Sảnh rồng (13 lá liên tiếp), 6 đôi, 5 đôi 1 sám, 3 thùng, 3 sảnh.",
+    "img": null
+   },
+   {
+    "icon": "💰",
+    "html": "<b>Cược xu:</b> mỗi chi <b>5 xu</b> (chủ phòng chọn chơi vui 0 xu / 5 / 10 xu). Hết ván trừ/cộng 1 lần theo điểm chi ròng trước từng đối thủ — thắng 3 chi trước 1 người được 15 xu. Thắng ván vẫn +10 xu, chơi 1 ván +2 xu qua đường stats.js chuẩn.",
+    "img": null
+   },
+   {
+    "icon": "🌐",
+    "html": "<b>Chế độ chơi:</b> online 2–4 người qua mã phòng, đấu máy Dễ/Khó (chọn 2–4 người) hoặc chuyền tay 2–4 người chung 1 máy — tới lượt ai thì bấm “👁 Xem bài” rồi xếp riêng 13 lá của mình.",
+    "img": null
+   }
+  ]
+ },
+ "xito": {
+  "name": "Xì Tố",
+  "steps": []
+ },
+ "colat": {
+  "name": "Cờ Lật",
+  "steps": []
+ },
+ "domino": {
+  "name": "Domino",
+  "steps": []
+ },
+ "connect4": {
+  "name": "Connect 4",
+  "steps": []
+ },
+ "matthu": {
+  "name": "Mật Thư",
+  "steps": []
+ },
+ "avalon": {
+  "name": "Avalon",
+  "steps": []
+ },
+ "spyfall": {
+  "name": "Spyfall",
+  "steps": []
+ },
+ "sudoku": {
+  "name": "Sudoku",
+  "steps": []
+ },
+ "wordle": {
+  "name": "Wordle",
+  "steps": []
+ },
+ "domi": {
+  "name": "Dò Mìn",
+  "steps": []
+ },
+ "s2048": {
+  "name": "2048",
+  "steps": []
+ },
+ "matchu": {
+  "name": "Mạt Chược",
+  "steps": []
+ },
+ "loveletter": {
+  "name": "Love Letter",
+  "steps": []
+ },
+ "sushigo": {
+  "name": "Sushi Go",
+  "steps": []
+ },
+ "lay6": {
+  "name": "Lấy 6",
+  "steps": []
+ },
+ "saboteur": {
+  "name": "Saboteur",
+  "steps": []
+ },
+ "skull": {
+  "name": "Skull",
+  "steps": []
+ },
+ "hanabi": {
+  "name": "Hanabi",
+  "steps": []
+ },
+ "chan": {
+  "name": "Chắn",
+  "steps": []
+ },
+ "totom": {
+  "name": "Tổ Tôm",
+  "steps": []
+ },
+ "carcassonne": {
+  "name": "Carcassonne",
+  "steps": []
+ },
+ "azul": {
+  "name": "Azul",
+  "steps": []
+ },
+ "splendor": {
+  "name": "Splendor",
+  "steps": []
+ },
+ "conhay": {
+  "name": "Cờ Nhảy",
+  "steps": []
+ },
+ "backgammon": {
+  "name": "Backgammon",
+  "steps": []
+ },
+ "rummikub": {
+  "name": "Rummikub",
+  "steps": []
+ },
+ "quoridor": {
+  "name": "Quoridor",
+  "steps": []
+ },
+ "blokus": {
+  "name": "Blokus",
+  "steps": []
  }
 };

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180" width="400" height="180">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#2a2340" flood-opacity=".16"/></filter></defs>
+<g filter="url(#sh)">
+<!-- bàn Cờ Lật mini 8x8: nỉ xanh lá + lưới trắng mờ -->
+<rect x="26" y="14" width="160" height="152" rx="12" fill="#2E8B62" stroke="#2a2340" stroke-width="3"/>
+<g stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1.5">
+<path d="M46 14 V166 M66 14 V166 M86 14 V166 M106 14 V166 M126 14 V166 M146 14 V166 M166 14 V166"/>
+<path d="M26 33 H186 M26 52 H186 M26 71 H186 M26 90 H186 M26 109 H186 M26 128 H186 M26 147 H186"/>
+</g>
+<!-- quân Đen ở trên -->
+<g transform="translate(56 43)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(96 43)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(136 43)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(76 62)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- 4 quân giữa bàn: thế cờ ban đầu (Đen/Trắng chéo nhau) -->
+<g transform="translate(96 81)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(116 81)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<g transform="translate(96 100)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<g transform="translate(116 100)"><circle r="8" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<!-- quân đang lật: nửa Đen nửa Trắng + mũi tên cong -->
+<g transform="translate(136 81)">
+<path d="M-9 0 A9 9 0 0 1 9 0 Z" fill="#2a2340"/>
+<path d="M-9 0 A9 9 0 0 0 9 0 Z" fill="#FFFDF9"/>
+<circle r="9" fill="none" stroke="#2a2340" stroke-width="2.5"/>
+<circle r="4.5" fill="none" stroke="#FFD273" stroke-width="1.5"/>
+</g>
+<path d="M128 64 Q150 50 158 66" fill="none" stroke="#FFD273" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M154 60 L162 68 L152 72 Z" fill="#FFD273" stroke="#2a2340" stroke-width="2" stroke-linejoin="round"/>
+<!-- chấm vàng gợi ý nước đi -->
+<circle cx="156" cy="119" r="5" fill="#FFD273" stroke="#2a2340" stroke-width="2"/>
+<!-- quân Trắng ở dưới -->
+<g transform="translate(56 138)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<g transform="translate(96 138)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<g transform="translate(136 138)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<g transform="translate(76 119)"><circle r="8" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="4.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<!-- huy hiệu Cờ Lật -->
+<g transform="translate(296 90)">
+<circle r="52" fill="#ABE0C6" stroke="#2a2340" stroke-width="3"/>
+<circle r="52" fill="none" stroke="#fff" stroke-width="3"/>
+<g transform="translate(-14 -14)"><circle r="12" fill="#2a2340" stroke="#2a2340" stroke-width="2.5"/><circle r="6.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".6"/></g>
+<g transform="translate(14 12)"><circle r="12" fill="#FFFDF9" stroke="#2a2340" stroke-width="2.5"/><circle r="6.5" fill="none" stroke="#8B7E9E" stroke-width="1.5" opacity=".7"/></g>
+<text y="-30" text-anchor="middle" font-size="18">🔄</text>
+<text y="34" text-anchor="middle" font-family="Baloo 2, sans-serif" font-size="20" font-weight="800" fill="#2a2340">CỜ LẬT</text>
+</g>
+<path d="M214 30 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#FFE3A3" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M368 150 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFB9CF" stroke="#2a2340" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+</svg>

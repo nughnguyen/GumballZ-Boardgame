@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Splendor online – thu thập đá quý 2–4 người | GumballZ Boardgame</title>
+<meta name="description" content="Splendor online: game thu thập đá quý kinh điển 2–4 người — lấy đá, mua thẻ phát triển, đón quý tộc, ai đạt 15 điểm trước thì thắng. Chơi với bạn qua mã phòng, đấu với máy AI hoặc 2–4 người chơi trên cùng 1 máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/splendor/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Splendor online – thu thập đá quý 2–4 người | GumballZ Boardgame">
+<meta property="og:description" content="Lấy đá quý, mua thẻ phát triển, đón quý tộc — ai đạt 15 điểm trước thì thắng.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/splendor/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/splendor.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/splendor.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/splendor.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">S<span>plendor</span></h1>
+    <p class="tag">Game thu thập đá quý kinh điển — lấy đá, mua thẻ, đón quý tộc, ai đạt 15 điểm trước thì thắng! 💎</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2–4 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="count-box">
+      <label class="fld"><span>Số người chơi (đấu máy)</span></label>
+      <div class="seg" id="count-seg">
+        <button type="button" data-count="2" aria-pressed="false">2 người</button>
+        <button type="button" data-count="3" aria-pressed="false">3 người</button>
+        <button type="button" data-count="4" aria-pressed="false">4 người</button>
+      </div>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧠 Bắt đầu chơi với máy Khó</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2–4 người · 90 thẻ phát triển (40 cấp 1, 30 cấp 2, 20 cấp 3) · đá quý 5 màu + vàng hoang dã · mỗi lượt làm 1 việc: lấy 3 đá khác màu, lấy 2 đá cùng màu, giữ thẻ + lấy 1 vàng, hoặc mua thẻ · thẻ đã mua cho giảm giá vĩnh viễn · quý tộc ghé thăm +3 điểm · ai đạt 15 điểm trước thì thắng · đấu máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>💎 <b>2–4 người, 90 thẻ</b>: 40 cấp 1, 30 cấp 2, 20 cấp 3; mỗi cấp 4 thẻ ngửa; đá mỗi màu 4/5/7 theo số người, vàng luôn 5.</li>
+          <li>🎴 Mỗi lượt làm <b>ĐÚNG 1 việc</b>: lấy <b>3 đá khác màu</b>, lấy <b>2 đá cùng màu</b> (chỉ khi còn ≥ 4 đá màu đó), <b>giữ 1 thẻ + 1 vàng</b> (tối đa 3 thẻ giữ), hoặc <b>mua 1 thẻ</b>.</li>
+          <li>💰 Thẻ đã mua cho <b>giảm giá vĩnh viễn theo màu</b>; <b>vàng thay cho bất kỳ màu nào</b> còn thiếu.</li>
+          <li>👑 Cuối lượt, đủ điều kiện (theo màu thẻ đã mua) thì <b>quý tộc ghé thăm +3 điểm</b> — tối đa 1 quý tộc/lượt, đủ điều kiện nhiều quý tộc thì <b>được chọn</b>.</li>
+          <li>⚠️ Cuối lượt không giữ quá <b>10 đá</b> (kể cả vàng) — thừa thì trả lại.</li>
+          <li>🏆 Ai đạt <b>15 điểm</b> cuối lượt thì hết vòng rồi tính điểm; hòa điểm thì ai mua <b>ít thẻ hơn</b> thắng.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">💎 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="sp-wrap">
+    <header class="topbar sp-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>💎 Splendor</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="sp-status" id="status"></div>
+    <div class="sp-bank" id="bank">
+      <h3>💎 Ngân hàng đá quý <small id="bank-note"></small></h3>
+      <div class="sp-bank-row" id="bank-row"></div>
+    </div>
+    <div class="sp-nobles" id="nobles"></div>
+    <div class="sp-table" id="table">
+      <h3>🃏 Thẻ phát triển <small id="table-note"></small></h3>
+      <div id="table-rows"></div>
+    </div>
+    <div class="sp-boards">
+      <div class="sp-myboard" id="myboard"></div>
+      <div class="sp-opponents" id="opponents"></div>
+    </div>
+    <div class="sp-action-bar" id="action-bar" style="display:none"></div>
+    <div class="sp-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="sp-log" id="log" aria-live="polite"></div>
+    <div class="sp-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

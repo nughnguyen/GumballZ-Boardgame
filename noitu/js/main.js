@@ -12,7 +12,6 @@ async function reportVoted(w, yes, no) {
   const k = w + '|' + yes + '|' + no; if (k === votedKey) return; votedKey = k;
   try { const ts = await humanToken('noitu'); await fetch(API() + '/noitu/voted', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ w, yes, no, ts }), signal: AbortSignal.timeout(10000) }); } catch (e) {}
 }
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 
 { const get = f => fetch(f).then(r => (r.ok ? r.text() : '')).catch(() => ''); const [a, b, c, d] = await Promise.all([get('words.txt?v=4'), get('words-wikt.txt?v=2'), get('words-gumballz.txt?v=1'), get('words-uts.txt?v=1')]); E.setDict((a + '\n' + b + '\n' + c + '\n' + d).split('\n')); } /* + kho từ cộng đồng: từ cả bàn bỏ phiếu nhận và máy chủ đã kiểm trên web là có thật (GET /noitu/words) */
 fetch(API() + '/noitu/words', { signal: AbortSignal.timeout(8000) }).then(r => r.json()).then(j => j && j.ok && E.addWords(j.words)).catch(() => {}); /* hai kho từ: Hồ Ngọc Đức (GPL) + tên mục từ Wiktionary tiếng Việt (CC BY-SA) */ /* máy nào làm chủ phòng (hoặc chơi với máy) mới cần kho từ để chấm; tải sẵn cho gọn */
@@ -113,5 +112,4 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('noitu-sound', sound ? '1' : '0'); drawSound(); beep('ok'); };
-$('#btn-news-home').onclick = () => openNews('noitu'); newsBadge($('#btn-news-home'), 'noitu');
 const ui = gameKit({ game: 'noitu', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else endShown = null; }, offline: h => { h.addBot(); h.addBot(); } });

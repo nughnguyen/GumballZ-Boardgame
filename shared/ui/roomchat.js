@@ -66,7 +66,7 @@ function build() {
       const meU = auth.user();
       if (m.uid && (!meU || +m.uid !== meU.id)) {
         const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'brc-add'; ab.textContent = '＋ Kết bạn';
-        ab.onclick = () => import('./friends.js?v=32').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
+        ab.onclick = () => import('./friends.js?v=33').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
         s.appendChild(ab);
       }
       el.appendChild(s);

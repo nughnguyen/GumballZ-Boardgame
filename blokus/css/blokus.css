@@ -1,0 +1,91 @@
+/* 🟦 Blokus – bàn 20×20 + khay mảnh, bấm mảnh rồi bấm ô để đặt.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.bk-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.bk-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.bk-topbar .back-hub { position: static; flex: none; }
+.bk-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.bk-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.bk-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.bk-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.bk-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+/* bàn: lưới 20×20 */
+.bk-board-wrap { display: flex; justify-content: center; margin-bottom: 10px; overflow-x: auto; }
+.bk-board {
+  --cell: 26px; --gap: 2px;
+  display: grid; grid-template-columns: repeat(20, var(--cell)); grid-auto-rows: var(--cell); gap: var(--gap);
+  background: #ffe3a3; border: 3px solid #2a2340; border-radius: 16px;
+  box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 8px; box-sizing: border-box; flex: none;
+}
+.bk-cell {
+  width: var(--cell); height: var(--cell); background: #fffdf5; border-radius: 4px;
+  cursor: pointer; box-sizing: border-box; position: relative;
+}
+.bk-cell:hover { background: #fff3d6; }
+.bk-cell.c0 { background: #e05d5d; }
+.bk-cell.c1 { background: #5b8def; }
+.bk-cell.c2 { background: #f2b705; }
+.bk-cell.c3 { background: #3fae6a; }
+.bk-cell.c0, .bk-cell.c1, .bk-cell.c2, .bk-cell.c3 { box-shadow: inset 0 0 0 1.5px rgba(42,35,64,.55); }
+/* chấm góc xuất phát của từng màu */
+.bk-cell.corner::after { content: ''; position: absolute; inset: 22%; border-radius: 50%; border: 2px solid #2a2340; opacity: .55; }
+.bk-cell.corner.c0::after, .bk-cell.corner.c1::after, .bk-cell.corner.c2::after, .bk-cell.corner.c3::after { border-color: #fffdf5; opacity: .9; }
+.bk-cell.corner-hint { outline: 3px solid #ffd273; outline-offset: 1px; animation: bk-pulse 1s infinite; }
+@keyframes bk-pulse { 0%, 100% { outline-color: #ffd273; } 50% { outline-color: #e8a100; } }
+/* xem trước nước đặt: xanh lá = đặt được, đỏ = phạm luật */
+.bk-cell.prev-ok { background: #abe0c6 !important; box-shadow: inset 0 0 0 2px #2e8b57; }
+.bk-cell.prev-bad { background: #ffb9b9 !important; box-shadow: inset 0 0 0 2px #b3232a; }
+/* hàng người chơi */
+.bk-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 560px) { .bk-players { grid-template-columns: 1fr; } }
+.bk-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.bk-player.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.bk-player.me { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.bk-player.me.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.bk-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bk-pinfo b { font-size: 15px; }
+.bk-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.bk-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.bk-dot { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #2a2340; flex: none; margin-top: 2px; }
+.bk-dot.c0 { background: #e05d5d; }
+.bk-dot.c1 { background: #5b8def; }
+.bk-dot.c2 { background: #f2b705; }
+.bk-dot.c3 { background: #3fae6a; }
+.bk-dot.two { background: linear-gradient(135deg, #e05d5d 50%, #f2b705 50%); }
+.bk-dot.two.b { background: linear-gradient(135deg, #5b8def 50%, #3fae6a 50%); }
+/* dòng trạng thái lượt */
+.bk-stage { text-align: center; font-weight: 800; font-size: 15px; margin-bottom: 8px; min-height: 22px; }
+.bk-stage .ok { color: #2e8b57; }
+.bk-stage .need { color: #b8860b; }
+/* khay mảnh */
+.bk-tray-label { text-align: center; font-weight: 800; font-size: 14px; margin-bottom: 6px; }
+.bk-tray { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px; margin-bottom: 10px; min-height: 64px; }
+.bk-tray .empty-note { font-weight: 700; color: #6b6480; padding: 8px; }
+.bk-tpiece { border: 2.5px solid #2a2340; border-radius: 10px; padding: 5px; background: #fffdf5; cursor: pointer; box-sizing: border-box; }
+.bk-tpiece:hover { background: #fff3d6; }
+.bk-tpiece.sel { outline: 3px solid #ffd273; outline-offset: 1px; background: #ffe9a8; }
+.bk-tpiece .bk-tgrid { display: grid; gap: 1px; }
+.bk-tpiece .bk-tsq { width: 11px; height: 11px; border-radius: 2px; background: transparent; }
+.bk-tpiece .bk-tsq.on.c0 { background: #e05d5d; }
+.bk-tpiece .bk-tsq.on.c1 { background: #5b8def; }
+.bk-tpiece .bk-tsq.on.c2 { background: #f2b705; }
+.bk-tpiece .bk-tsq.on.c3 { background: #3fae6a; }
+/* hàng nút trong ván */
+.bk-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.bk-actions-row .btn { flex: 1 1 auto; max-width: 220px; }
+.bk-actions-row .btn.on { outline: 3px solid #ffd273; outline-offset: 2px; background: #ffe9a8; }
+.bk-actions-row .btn.need-pass { outline: 3px solid #e8a100; outline-offset: 2px; background: #ffe9a8; }
+.bk-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.bk-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.bk-log div:last-child { border-bottom: 0; }
+.bk-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .bk-topbar h1 { font-size: 22px; }
+  .bk-board { --cell: 17px; --gap: 1px; padding: 6px; }
+}
+@media (max-width: 400px) {
+  .bk-board { --cell: 15px; --gap: 1px; padding: 5px; }
+}
+@media (max-width: 480px) {
+  .bk-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
+}

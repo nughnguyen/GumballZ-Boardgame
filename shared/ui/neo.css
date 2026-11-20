@@ -44,22 +44,14 @@ body::before{background:radial-gradient(46vmax 46vmax at 4% 2%,#FFB9CF55,transpa
 .online{background:var(--neo-pink);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
 .setbtn{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
 
-/* ---------- trang chủ: nút tin tức, bộ lọc, chip hot, thử thách ---------- */
-.news{background:var(--neo-pink);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
-.news.alt{background:var(--neo-lav);color:var(--neo-ink)}
-.news.alt2{background:var(--neo-mauve);color:var(--neo-ink)}
-.news.alt3{background:var(--card);color:var(--neo-ink);box-shadow:var(--neo-sh-sm)}
+/* ---------- trang chủ: bộ lọc, chip hot, thử thách ---------- */
 .filter{background:var(--card);border:3px solid var(--neo-ink);border-radius:999px;padding:5px;box-shadow:var(--neo-sh-sm)}
 .filter button{border-radius:999px}
 .filter button[aria-pressed="true"]{background:var(--neo-y1);color:var(--neo-ink);border-color:var(--neo-ink);box-shadow:2px 2px 0 rgba(74,62,92,.20)}
-.hot-chip{background:var(--card);border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm)}
-.hot-chip i{background:var(--neo-y1);color:var(--neo-ink);border:2px solid var(--neo-ink)}
-.hot-chip small{color:var(--neo-ink)}
 .daily{background:var(--card);border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh-sm)}
 .daily em{background:var(--neo-y1);color:var(--neo-ink);border:2px solid var(--neo-ink)}
 .lobby-cta{background:var(--neo-lav);color:var(--neo-ink);border:3px solid var(--neo-ink);border-radius:16px;box-shadow:var(--neo-sh)}
 .psel select{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm);box-shadow:var(--neo-sh-sm)}
-.newtag{background:var(--neo-pink);color:var(--neo-ink);border:2px solid var(--neo-ink);box-shadow:var(--neo-sh-sm)}
 .play.resume{background:var(--neo-pink);color:var(--neo-ink)}
 
 /* ---------- trang chủ: các ô game – nền phẳng theo palette, viền mực, shadow nhẹ ---------- */
@@ -110,14 +102,8 @@ body::before{background:radial-gradient(46vmax 46vmax at 4% 2%,#FFB9CF55,transpa
 .tile.xuyenviet{background:var(--neo-lav)}
 .tile.noitu{background:var(--neo-y1)}
 .tile.baucua{background:var(--neo-y2)}
+.tile.giandiep{background:var(--neo-lav)}
 .tile.soon{border:3px dashed var(--neo-ink);background:var(--neo-y2);border-radius:20px;box-shadow:var(--neo-sh-sm)}
-.foot{border-top:3px solid var(--neo-ink)}
-.ng-box{background:var(--card);border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--sh)}
-.ng-head{background:var(--neo-y1);color:var(--neo-ink);border-bottom:3px solid var(--neo-ink)}
-.ng-head span{color:var(--neo-ink)}
-.ng-item{border:3px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh-sm)}
-.ng-item i{background:var(--neo-ink);color:var(--neo-y2)}
-.ng-ic{border:2px solid var(--neo-ink)}
 
 /* ---------- sảnh / lobby dùng chung (gamekit) – chỉ màn hình chờ + lobby, không đụng ván chơi ---------- */
 .home-card{background:var(--card);border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--neo-sh)}
@@ -264,16 +250,6 @@ body .lb-in button{background:var(--neo-y1)!important;color:var(--neo-ink)!impor
 body .lb-tabs{background:var(--neo-y2)!important;border:3px solid var(--neo-ink)!important;border-radius:999px!important}
 body .lb-mod{background:var(--card)!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:var(--sh)!important}
 body .lb-mod > header button.x{border:3px solid var(--neo-ink)!important;background:var(--neo-y2)!important}
-
-/* ---------- hộp "Có gì mới" (news.js) ---------- */
-body .gumballz-news .bn-box{background:var(--card)!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:var(--sh)!important}
-body .gumballz-news .bn-hd{background:var(--neo-y1)!important;color:var(--neo-ink)!important;border-bottom:3px solid var(--neo-ink)!important}
-body .gumballz-news .bn-x{border:3px solid var(--neo-ink)!important;background:var(--neo-y2)!important}
-body .gumballz-news .bn-tabs button{border:3px solid var(--neo-ink)!important;border-radius:12px!important}
-body .gumballz-news .bn-tabs button.on{background:var(--neo-ink)!important;color:var(--neo-y2)!important}
-body .gumballz-news .bn-tag{background:var(--neo-y2)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
-body .gumballz-news .bn-new{background:var(--neo-pink)!important;color:var(--neo-ink)!important;border:2px solid var(--neo-ink)!important}
-body .gumballz-news .bn-it{border:3px solid var(--neo-ink)!important;border-radius:14px!important;padding:12px!important;margin:10px 0!important;box-shadow:var(--neo-sh-sm)!important}
 
 /* ---------- hồ sơ (profile.js) ---------- */
 body .pf-box{background:var(--card)!important;border:3px solid var(--neo-ink)!important;border-radius:20px!important;box-shadow:var(--sh)!important}

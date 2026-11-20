@@ -10,8 +10,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { record, recordEvent } from '../../shared/ui/stats.js?v=43';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=175';
+import { record, recordEvent } from '../../shared/ui/stats.js?v=65';
 
 const HIDE_MS = 900; /* 2 lá trượt giữ ngửa chừng này rồi úp lại */
 const LEVEL_LABEL = { easy: 'Dễ · 12 lá', medium: 'Vừa · 16 lá', hard: 'Khó · 24 lá' };
@@ -307,7 +306,6 @@ $('#btn-new').onclick = () => {
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
-$('#btn-news-home').onclick = () => openNews('memory'); newsBadge($('#btn-news-home'), 'memory');
 
 const ui = gameKit({
   game: 'memory', net: NET,

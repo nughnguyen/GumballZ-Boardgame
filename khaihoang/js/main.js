@@ -5,7 +5,6 @@ import * as E from './engine.js?v=4';
 import { HEXES, VERTS, EDGES, PIP, S } from './map.js?v=2';
 import { botAction } from './bot.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
@@ -262,5 +261,4 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('khaihoang-sound', sound ? '1' : '0'); drawSound(); beep('build'); };
-$('#btn-news-home').onclick = () => openNews('khaihoang'); newsBadge($('#btn-news-home'), 'khaihoang');
 const ui = gameKit({ game: 'khaihoang', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else { endShown = null; mode = null; discFor = stealFor = null; } }, offline: h => { h.addBot(); h.addBot(); } });

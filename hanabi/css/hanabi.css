@@ -1,0 +1,77 @@
+/* 🎆 Hanabi — giao diện pastel, đồng bộ các game khác (ink #4A3E5C). */
+.hb-wrap{max-width:860px;margin:0 auto;padding:0 12px 40px}
+.hb-topbar{position:sticky;top:0;z-index:20}
+.round{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:17px;margin:14px 2px 8px;color:var(--ink,#4A3E5C)}
+.hb-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.hb-status .stat{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700}
+.hb-status .stat.me{background:#FFE3A3}
+
+/* ----- chồng pháo hoa + tài nguyên ----- */
+.hb-board{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.hb-stacks{display:flex;gap:8px;flex-wrap:wrap}
+.hb-stack{width:52px;height:64px;border-radius:12px;border:3px solid #4A3E5C;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;background:#FFFDF9}
+.hb-stack .hb-stack-ic{font-size:20px;line-height:1}
+.hb-stack .hb-stack-num{font-family:"Baloo 2",sans-serif;font-size:20px;line-height:1}
+.hb-stack.done{background:#FFE3A3}
+.hb-board .hb-res{font-size:13px;font-weight:800;color:#4A3E5C}
+.hb-board .hb-res b{color:#B3232A}
+.hb-discard{font-size:12px;color:#8B7E9E;font-weight:700}
+
+/* ----- tay bài từng người ----- */
+.hb-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:12px}
+.hb-player{background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;box-shadow:3px 3px 0 #4A3E5C}
+.hb-player.turn{outline:3px solid #FFD34D;outline-offset:1px}
+.hb-player.me{background:#FFF3D6}
+.hb-pinfo{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.hb-pinfo b{font-size:14px}
+.hb-pinfo .hb-pmeta{font-size:12px;color:#8B7E9E;font-weight:700}
+.hb-pcards{display:flex;gap:6px;flex-wrap:wrap;min-height:64px}
+.hb-pcard{width:46px;height:62px;border-radius:10px;border:2.5px solid #4A3E5C;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#FFFDF9;box-shadow:2px 2px 0 #4A3E5C;flex:0 0 auto}
+.hb-pcard .hb-cnum{font-family:"Baloo 2",sans-serif;font-weight:800;font-size:20px;line-height:1}
+.hb-pcard .hb-csuit{font-size:13px;line-height:1}
+.hb-pcard.back{background:#C9BDF3;cursor:default}
+.hb-pcard.back .hb-cnum{font-size:18px}
+.hb-pcard.sel{outline:3px solid #FF5CA8;outline-offset:1px}
+.hb-pcard.clueable:hover{transform:translateY(-3px)}
+.hb-marks{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px}
+.hb-mark{font-size:10px;font-weight:800;background:#FFE3A3;border:1.5px solid #4A3E5C;border-radius:6px;padding:0 3px;line-height:1.5}
+
+/* ----- bài trên tay mình ----- */
+.hb-hand-wrap{margin-bottom:12px}
+.hb-hand{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.hb-hand-label{width:100%;text-align:center;font-weight:800;font-size:14px;color:#4A3E5C}
+.hb-card{width:88px;border-radius:16px;border:3px solid #4A3E5C;padding:10px 6px 8px;text-align:center;cursor:pointer;background:#EDE7F6;box-shadow:3px 3px 0 #4A3E5C;transition:transform .12s}
+.hb-card:hover{transform:translateY(-3px)}
+.hb-card.cant{opacity:.55;cursor:default}
+.hb-card.cant:hover{transform:none}
+.hb-card.sel{outline:3px solid #FF5CA8;outline-offset:1px}
+.hb-card .hb-card-ic{font-size:34px;line-height:1;display:block;margin-bottom:4px}
+.hb-card-name{display:block;font-family:"Baloo 2",sans-serif;font-weight:800;font-size:15px}
+.hb-card-sub{display:block;font-size:11px;color:#8B7E9E;font-weight:700}
+.hb-hand-cover{text-align:center;padding:18px 10px;background:#FFFDF9;border:2px dashed #C9BDF3;border-radius:14px}
+.hb-picked-note{text-align:center;font-weight:800;color:#8B7E9E;margin-top:8px}
+
+/* ----- thanh hành động (đánh/bỏ) + gợi ý ----- */
+.hb-action-bar,.hb-clue-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#FFFDF9;border:2px solid #4A3E5C;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:3px 3px 0 #4A3E5C}
+.hb-action-bar .hint,.hb-clue-bar .hint{font-size:14px;font-weight:700}
+.hb-clue-bar .note{font-size:12px;color:#8B7E9E;font-weight:700}
+
+/* ----- nút + nhật ký ----- */
+.hb-actions-row{display:flex;justify-content:center;margin-bottom:12px}
+.hb-log{font-size:13px;line-height:1.5;max-height:180px;overflow:auto;background:#FFFDF9;border:2px solid #E5DEF5;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.hb-log .win{font-weight:800;color:#1E7A46}
+.hb-log .info{font-weight:700;color:#B3232A}
+.hb-log .resign{font-weight:700;color:#8B7E9E}
+.hb-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:480px){
+  .hb-pcard{width:40px;height:56px}
+  .hb-pcard .hb-cnum{font-size:17px}
+  .hb-card{width:76px}
+  .hb-card .hb-card-ic{font-size:28px}
+  .hb-players{grid-template-columns:1fr}
+  .round{font-size:15px}
+  .hb-stack{width:46px;height:58px}
+  /* thanh trên: dãy nút tự xuống hàng ở màn hẹp (giống Skull) */
+  .hb-topbar .tools{flex-wrap:wrap;justify-content:flex-end}
+}

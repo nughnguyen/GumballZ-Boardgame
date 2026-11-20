@@ -2,7 +2,7 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
 import { auth } from '../net/api.js?v=27';
 import { promptBox, formBox } from './dialog.js?v=8';
-import { avatarHTML, profileCss, openProfile } from './profile.js?v=44';
+import { avatarHTML, profileCss, openProfile } from './profile.js?v=45';
 
 const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
 .ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
@@ -131,7 +131,7 @@ function menu(anchor) {
     const a = e.target.closest('button')?.dataset.a; if (!a) return; m.remove();
     if (a === 'out') { await auth.logout(); toast('Đã đăng xuất'); }
     if (a === 'admin') location.href = new URL('../../quantri/', import.meta.url).href;
-    if (a === 'friends') import('./friends.js?v=32').then(m => m.openFriends());
+    if (a === 'friends') import('./friends.js?v=33').then(m => m.openFriends());
     if (a === 'prof') openProfile();
     if (a === 'set') import('./settings.js?v=47').then(m => m.openSettings());
     if (a === 'name') { const n = await promptBox('Tên này hiện khi bạn vào phòng và chat (2–20 ký tự).', { title: '✏️ Đổi tên hiển thị', value: u.name, maxlength: 20, ok: 'Đổi tên', required: true }); if (n) { const r = await auth.rename(n); toast(r.ok ? 'Đổi tên rồi nè ✨' : r.msg); } }
@@ -153,7 +153,7 @@ export function mountAccount(el) {
   addEventListener('gumballz-friends', e => { frCount = (e.detail && e.detail.count) || 0; syncBdg(); });
   profileCss(); draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
-  import('./friends.js?v=32').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=33').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
   import('./friends-chat.js?v=1').catch(() => {}); /* hộp chat bạn bè kiểu Messenger (tự bật khi nạp) */
   if (auth.user()) auth.refresh(); // phiên hết hạn → tự đăng xuất
 }

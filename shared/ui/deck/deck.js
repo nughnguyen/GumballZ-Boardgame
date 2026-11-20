@@ -2,6 +2,7 @@
 // Mỗi mặt lá được sinh MỘT lần thành <symbol> trong 1 sprite ẩn, mọi lá trên màn hình chỉ là <use href="#…">
 // → 52+ lá trên điện thoại vẫn nhẹ. Lá nhỏ (< 50px) tự đổi sang kiểu "compact" (chỉ số to + chất to) bằng container query.
 //
+import { owns, equipBack, equippedBack } from '../wallet.js?v=1'; /* 🛍️ lưng bài mua bằng xu / mở rương — kiểm tra sở hữu trong ví */
 // API chính (xem cuối file): cardHTML, backHTML, faceSVG, backSVG, setBack/getBack/BACKS, setFourColor/getFourColor,
 // faceDataURI/backDataURI (SVG độc lập cho <img>/canvas), normRank/normSuit, rankLabel, SUIT_CHAR.
 
@@ -235,6 +236,11 @@ export const BACKS = [
   { id: 'gumballz', name: 'GumballZ ngọc lục bảo' },
   { id: 'red', name: 'Lưới đỏ cổ điển' },
   { id: 'navy', name: 'Hoa văn xanh đêm' },
+  /* 🛍️ lưng bài bán bằng xu (shop: giá) / chỉ mở ra từ rương (chest) — xem shared/ui/wallet.js */
+  { id: 'hongphan', name: 'Hồng Phấn', shop: 200 },
+  { id: 'lucdam', name: 'Lục Bảo Đậm', shop: 200 },
+  { id: 'timbiec', name: 'Tím Biếc', chest: true },
+  { id: 'vangchanh', name: 'Vàng Chanh', chest: true },
 ];
 function backBody(id) {
   const frame = (base, line, accent) => `<rect x="0" y="0" width="${W}" height="${H}" fill="#fbf7ee"/><rect x="9" y="9" width="${W - 18}" height="${H - 18}" rx="9" fill="${base}"/>`
@@ -245,6 +251,10 @@ function backBody(id) {
     let star = ''; for (let i = 0; i < 8; i++) star += `<path transform="rotate(${i * 45})" d="M0 0L5-8 0-28-5-8z" fill="${i % 2 ? '#c9d6f2' : GOLD}"/>`;
     return frame('#17254d', GOLD, '#8ea6dc') + `<g transform="translate(100 140)"><circle r="34" fill="#17254d" stroke="${GOLD}" stroke-width="2"/><circle r="29" fill="none" stroke="#8ea6dc" stroke-width=".8"/>${star}<circle r="5" fill="#17254d" stroke="${GOLD}" stroke-width="1.6"/></g>`;
   }
+  if (id === 'hongphan') return frame('#e75480', '#fff', '#ffd1dc') + `<g transform="translate(100 140)"><circle r="34" fill="#e75480" stroke="#fff" stroke-width="2"/><path d="M0 14 C-20 -2 -12 -22 0 -10 C12 -22 20 -2 0 14z" fill="#fff"/></g>`;
+  if (id === 'lucdam') return frame('#0b4a3c', GOLD, '#8cc7b2') + `<g transform="translate(100 140)"><path d="M0-30 26 0 0 30-26 0z" fill="#0b4a3c" stroke="${GOLD}" stroke-width="2"/><path d="M0-21 18 0 0 21-18 0z" fill="none" stroke="#8cc7b2" stroke-width="1.2"/><circle r="6" fill="${GOLD}"/></g>`;
+  if (id === 'timbiec') { let star = ''; for (let i = 0; i < 8; i++) star += `<path transform="rotate(${i * 45})" d="M0 0L5-8 0-28-5-8z" fill="${i % 2 ? '#d9b8ff' : GOLD}"/>`; return frame('#5b2d8e', GOLD, '#d9b8ff') + `<g transform="translate(100 140)"><circle r="34" fill="#5b2d8e" stroke="${GOLD}" stroke-width="2"/><circle r="29" fill="none" stroke="#d9b8ff" stroke-width=".8"/>${star}<circle r="5" fill="#5b2d8e" stroke="${GOLD}" stroke-width="1.6"/></g>`; }
+  if (id === 'vangchanh') return frame('#e0a612', '#fff', '#fff2b3') + `<g transform="translate(100 140)"><path d="M0-30 26 0 0 30-26 0z" fill="#e0a612" stroke="#fff" stroke-width="2"/><path d="M0-21 18 0 0 21-18 0z" fill="none" stroke="#fff2b3" stroke-width="1.2"/><circle r="6" fill="#fff"/></g>`;
   // gumballz (mặc định): lục bảo + vàng, huy hiệu hoa sen
   let lotus = ''; for (let i = 0; i < 8; i++) lotus += `<path transform="rotate(${i * 45})" d="M0-6C6-12 6-22 0-30-6-22-6-12 0-6z" fill="${i % 2 ? '#0b4a3c' : GOLD}" stroke="${GOLD}" stroke-width="1"/>`;
   return frame('#0f5a49', GOLD, '#8cc7b2') + `<g transform="translate(100 140)"><circle r="40" fill="#0b4a3c" stroke="${GOLD}" stroke-width="2.2"/><circle r="35" fill="none" stroke="${GOLD}" stroke-width=".7" stroke-dasharray="2 2.6"/>${lotus}<circle r="7" fill="${GOLD}"/><circle r="3.2" fill="#0b4a3c"/></g>`
@@ -260,11 +270,15 @@ const DEFS = () => SUIT_KEYS.map(s => `<symbol id="dk-su-${s}" viewBox="0 0 100 
   + `<pattern id="dk-p-flo" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M4.5 2.2 5.4 4.5 4.5 6.8 3.6 4.5z M2.2 4.5 4.5 3.6 6.8 4.5 4.5 5.4z" fill="${GOLD}"/></pattern>`
   + `<pattern id="dk-bp-red" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="translate(9 9)"><path d="M0 0 10 10M10 0 0 10" stroke="#fff" stroke-opacity=".5" stroke-width="1"/><circle cx="5" cy="5" r="1.1" fill="#f3d58a"/></pattern>`
   + `<pattern id="dk-bp-navy" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="translate(100 140)"><circle cx="0" cy="0" r="8" fill="none" stroke="#8ea6dc" stroke-opacity=".55" stroke-width=".9"/><circle cx="16" cy="0" r="8" fill="none" stroke="#8ea6dc" stroke-opacity=".55" stroke-width=".9"/><circle cx="0" cy="16" r="8" fill="none" stroke="#8ea6dc" stroke-opacity=".55" stroke-width=".9"/><circle cx="16" cy="16" r="8" fill="none" stroke="#8ea6dc" stroke-opacity=".55" stroke-width=".9"/><circle cx="8" cy="8" r="8" fill="none" stroke="#8ea6dc" stroke-opacity=".55" stroke-width=".9"/><circle cx="8" cy="8" r="1.3" fill="${GOLD}"/></pattern>`
-  + `<pattern id="dk-bp-gumballz" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="${GOLD}" stroke-opacity=".38" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="${GOLD}" fill-opacity=".7"/></pattern>`;
+  + `<pattern id="dk-bp-gumballz" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="${GOLD}" stroke-opacity=".38" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="${GOLD}" fill-opacity=".7"/></pattern>`
+  + `<pattern id="dk-bp-hongphan" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="#ffd1dc" stroke-opacity=".45" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="#ffd1dc" fill-opacity=".7"/></pattern>`
+  + `<pattern id="dk-bp-lucdam" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="${GOLD}" stroke-opacity=".38" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="#8cc7b2" fill-opacity=".7"/></pattern>`
+  + `<pattern id="dk-bp-timbiec" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="#d9b8ff" stroke-opacity=".45" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="#d9b8ff" fill-opacity=".7"/></pattern>`
+  + `<pattern id="dk-bp-vangchanh" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="translate(100 140) rotate(45)"><rect width="12" height="12" fill="none" stroke="#fff2b3" stroke-opacity=".5" stroke-width=".8"/><circle cx="6" cy="6" r="1.4" fill="#fff2b3" fill-opacity=".8"/></pattern>`;
 
 // ---------- sprite (lazy) ----------
 const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-let sprite = null, backId = BACKS.some(b => b.id === LS.get('gumballz-deck-back')) ? LS.get('gumballz-deck-back') : 'gumballz';
+let sprite = null, backId = (() => { try { const w = equippedBack(); if (w && BACKS.some(b => b.id === w)) return w; } catch (e) {} return BACKS.some(b => b.id === LS.get('gumballz-deck-back')) ? LS.get('gumballz-deck-back') : 'gumballz'; })();
 const made = new Set();
 const hasDOM = () => typeof document !== 'undefined' && !!document.body;
 const SYM = (id, body) => `<symbol id="${id}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${body}</symbol>`;
@@ -306,11 +320,16 @@ export function backHTML({ cls = '', attrs = '', tag = 'div' } = {}) { return `<
 
 export function getBack() { return backId; }
 export function setBack(id) {
-  if (!BACKS.some(b => b.id === id)) return backId;
+  const b = BACKS.find(x => x.id === id);
+  if (!b) return backId;
+  if ((b.shop || b.chest) && !owns('back:' + id)) return backId; /* lưng bài mua bằng xu / mở rương mới dùng được */
   backId = id; LS.set('gumballz-deck-back', id);
+  try { equipBack(id); } catch (e) {} /* nhớ vào ví để đồng bộ lên tài khoản */
   if (hasDOM()) { const old = ensureSprite().querySelector('#dk-back'); if (old) old.remove(); sprite.insertAdjacentHTML('beforeend', SYM('dk-back', backBody(id))); }
   return id;
 }
+/* lưng bài này đã sở hữu (miễn phí, đã mua, hoặc đã mở rương) thì mới cho mặc */
+export const backOwned = id => { const b = BACKS.find(x => x.id === id); return !b ? false : (!b.shop && !b.chest) || owns('back:' + id); };
 // 4 màu: ♠ đen, ♥ đỏ, ♦ xanh dương, ♣ xanh lá
 export function getFourColor() { return LS.get('gumballz-deck-4c') === '1'; }
 export function setFourColor(on) { LS.set('gumballz-deck-4c', on ? '1' : '0'); if (typeof document !== 'undefined') document.documentElement.classList.toggle('dk-4c', !!on); return !!on; }

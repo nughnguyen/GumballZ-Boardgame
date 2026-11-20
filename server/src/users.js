@@ -71,7 +71,7 @@ const VERIFIED_ACHS = [
   { id: 'k5', ok: t => t.kinds >= 5 }, { id: 'k10', ok: t => t.kinds >= 10 }, { id: 'k15', ok: t => t.kinds >= 15 },
   { id: 'k20', ok: t => t.kinds >= 20 }, { id: 'k24', ok: t => t.kinds >= 24 }, { id: 'k25', ok: t => t.kinds >= 25 },
   { id: 'k30', ok: t => t.kinds >= 30 }, { id: 'k35', ok: t => t.kinds >= 35 },
-  { id: 'c-allgames', ok: t => t.kinds >= 39 }, /* đủ 39 game trong GAME_NAMES (shared/ui/stats.js) */
+  { id: 'c-allgames', ok: t => t.kinds >= 71 }, /* đủ 71 game trong GAME_NAMES (shared/ui/stats.js) */
   { id: 'm10', ok: t => t.top >= 10 }, { id: 'c-w50', ok: t => t.top >= 50 }, { id: 'm25', ok: t => t.top >= 25 },
   { id: 'd3', ok: t => t.days >= 3 }, { id: 'd7', ok: t => t.days >= 7 }, { id: 'd14', ok: t => t.days >= 14 }, { id: 'd30', ok: t => t.days >= 30 },
   { id: 'd60', ok: t => t.days >= 60 }, { id: 'd100', ok: t => t.days >= 100 },
@@ -210,6 +210,16 @@ export class Users extends DurableObject {
     let changed = false;
     if (migrateProf(P)) changed = true; /* lần đầu sau bản chống gian lận: chốt mốc legacy + xét lại thành tích từ tổng gộp */
     if (typeof d.title === 'string' && /^[a-z0-9-]{0,24}$/.test(d.title) && num(d.titleT, 4e12) >= num(P.titleT, 4e12)) { P.title = d.title; P.titleT = num(d.titleT, 4e12); changed = true; } /* danh hiệu tự chọn; có còn đạt hay không thì lúc hiện mới xét */
+    /* 💰 Ví xu (tiền ảo, không tiền thật): máy chủ chỉ giữ bản mới nhất theo thời gian (ai mới hơn thì thắng),
+       không cộng dồn — trình duyệt tự cộng/trừ rồi gửi cả ví lên. Chỉ nhận các id đồ đã biết, số xu tối đa 10 triệu. */
+    if (d.wal && typeof d.wal === 'object' && num(d.wal.at, 4e12) > num(P.wal && P.wal.at, 4e12)) {
+      const w = d.wal, inv = {};
+      if (w.inv && typeof w.inv === 'object') for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) inv[k] = Math.min(999, num(w.inv[k]));
+      const own = Array.isArray(w.own) ? [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
+      const eq = {}; if (w.eq && typeof w.eq.back === 'string' && /^[a-z]{2,14}$/.test(w.eq.back)) eq.back = w.eq.back;
+      P.wal = { xu: Math.min(10000000, num(w.xu)), inv, own, eq, dbl: Math.min(99, num(w.dbl)), chest: Math.min(100000, num(w.chest)), at: num(w.at, 4e12) };
+      changed = true;
+    }
     if (d.av && typeof d.av.e === 'string' && d.av.e.length <= 16 && num(d.av.t, 4e12) > num(P.av && P.av.t, 4e12)) { P.av = { e: d.av.e, c: num(d.av.c, 40), t: num(d.av.t, 4e12) }; changed = true; }
     const op = d && typeof d.op === 'string' ? d.op.slice(0, 40) : '';
     if (op && op !== row.profOp && !(Array.isArray(P.ops) && P.ops.includes(op)) && JSON.stringify(d).length < 40000) {
@@ -220,8 +230,8 @@ export class Users extends DurableObject {
       P.syncAt = Date.now(); P.ops = [...(Array.isArray(P.ops) ? P.ops : []), op].slice(-6);
       const syncV = (P.syncV && typeof P.syncV === 'object' ? P.syncV : {}) || {}; /* mốc ván đã xác minh ở lần đồng bộ trước (để trừ trùng) */
       const V = P.v || {};
-      for (const g of Object.keys(add).slice(0, 40)) {
-        if (!/^[a-z]{2,14}$/.test(g) || (!P.g[g] && Object.keys(P.g).length >= 40)) continue;
+      for (const g of Object.keys(add).slice(0, 100)) {
+        if (!/^[a-z]{2,14}$/.test(g) || (!P.g[g] && Object.keys(P.g).length >= 100)) continue; /* tối đa 100 game trong hồ sơ — site đang hướng tới 90 game, mức 40 cũ đã không đủ từ lúc có 41 game */
         const a = add[g] || {}, cur = P.g[g] || { p: 0, w: 0, last: 0 };
         /* trừ ván máy chủ đã ghi kể từ lần đồng bộ trước: ván online do máy chủ giữ đã có trong P.g qua recordGame,
            mà máy người chơi cũng ghi lại trong số local nên sẽ nằm trong add — trừ đi để không cộng 2 lần */

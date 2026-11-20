@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku online – đố số 9×9, đua giải cùng bạn | GumballZ Boardgame</title>
+<meta name="description" content="Sudoku online: điền số 1–9 vào lưới 9×9 sao cho mỗi hàng, cột và khối 3×3 đủ 1–9 — sai 3 lần là thua. Chơi đơn tính giờ, đua với máy hoặc đua bạn online cùng 1 câu đố.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/sudoku/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sudoku online – đố số 9×9, đua giải cùng bạn | GumballZ Boardgame">
+<meta property="og:description" content="Điền số 1–9 vào lưới 9×9: mỗi hàng, cột và khối 3×3 đủ 1–9 — sai 3 lần là thua! Chơi đơn, đua máy hoặc đua bạn online.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/sudoku/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/sudoku.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/sudoku.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/sudoku.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Sudo<span>ku</span></h1>
+    <p class="tag">Điền số 1–9 vào lưới 9×9: mỗi hàng, cột và khối 3×3 đủ 1–9 — sai 3 lần là thua! 🧩🔢</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="solo" aria-pressed="false">🧩 Chơi đơn</button>
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Đua online</button>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧩 Bắt đầu giải một mình</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng đua online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">Lưới 9×9 · 4 độ khó Dễ / Vừa / Khó / Chuyên gia (24–44 số cho sẵn, nghiệm duy nhất) · ghi chú bút chì, gợi ý 3 lần/ván, sai 3 lần là thua · chơi đơn, đua máy hoặc đua online 2–4 người cùng 1 câu đố.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🔢 <b>Lưới 9×9:</b> điền số 1–9 sao cho mỗi hàng, mỗi cột và mỗi khối 3×3 đều đủ 1–9, mỗi số đúng 1 lần. Số cho sẵn in đậm không đổi được.</li>
+          <li>❌ <b>Sai 3 lần là thua:</b> số sai nhấp nháy đỏ và tính 1 lỗi. Chơi đơn thì ván kết thúc, đua thì bạn bị loại khỏi cuộc đua.</li>
+          <li>✏️ <b>Ghi chú bút chì:</b> bật rồi bấm số để ghi nhỏ vào ô, loại trừ dần rồi mới điền chính thức.</li>
+          <li>💡 <b>Gợi ý:</b> mỗi ván có 3 lượt, mở giúp 1 ô bất kỳ bằng đáp án đúng.</li>
+          <li>🏁 <b>Đua:</b> cùng 1 câu đố, ai giải xong trước thì thắng — thanh tiến độ hiện từng người đã điền được bao nhiêu ô.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🔢 Bắt đầu giải</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="sd-wrap">
+    <header class="topbar sd-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🔢 Sudoku</h1>
+      <span class="diff-chip" id="diff-chip">Vừa</span>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="sd-status" id="status"></div>
+    <div class="race" id="race" style="display:none"></div>
+    <div class="sd-board" id="board-wrap">
+      <div class="sd-grid" id="grid" role="grid" aria-label="Lưới Sudoku 9×9"></div>
+      <div class="sd-pause-veil" id="pause-veil" style="display:none">
+        <b>⏸️ Đang tạm dừng</b>
+        <p>Lưới đã che lại — đồng hồ đang đứng yên.</p>
+        <button class="btn big pri" id="btn-resume">▶ Tiếp tục giải</button>
+      </div>
+    </div>
+    <div class="sd-pad" id="pad"></div>
+    <div class="sd-actions">
+      <button class="btn" id="btn-notes" aria-pressed="false">✏️ Ghi chú: Tắt</button>
+      <button class="btn" id="btn-erase">🧽 Xoá</button>
+      <button class="btn" id="btn-hint">💡 Gợi ý (3)</button>
+      <button class="btn" id="btn-pause" style="display:none">⏸️ Tạm dừng</button>
+    </div>
+    <div class="sd-actions-row">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="sd-log" id="log" aria-live="polite"></div>
+    <div class="sd-foot">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

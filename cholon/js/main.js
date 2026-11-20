@@ -3,7 +3,6 @@ import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
-import { openNews, newsBadge } from '../../shared/ui/news.js?v=176';
 /* 🗺️ Bản đồ kiểu nhìn từ trên xuống: tên đường thật ở Chợ Lớn (Q.5–Q.6), mái nhà trang trí ở ô không bán, màu riêng cho từng loại tiệm */
 const STREETS = ['Đ. Tháp Mười', 'Đ. Hải Thượng Lãn Ông', 'Đ. Triệu Quang Phục', 'Đ. Kim Biên', 'Đ. Lương Nhữ Học', 'Đ. Trần Văn Kiểu'];
 const VEH = ['🛵', '🚲', '🛺', '🛵', '🚚', '🚲'], ROOF = ['', '🏯', '🌳', '🛕', '⛲', '⚓'];
@@ -156,7 +155,6 @@ function openGuide() {
 $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('cholon-sound', sound ? '1' : '0'); drawSound(); beep('tap'); };
-$('#btn-news-home').onclick = () => openNews('cholon'); newsBadge($('#btn-news-home'), 'cholon');
 
 const ui = gameKit({
   game: 'cholon', net: NET,

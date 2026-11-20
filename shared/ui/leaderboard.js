@@ -1,10 +1,13 @@
 // 🏆 Bảng xếp hạng toàn server GumballZ: lọc theo Tất cả game hoặc từng game, xếp theo Điểm XP / Ván thắng / Chuỗi thắng.
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
 import { auth, leaderboard } from '../net/api.js?v=27';
-import { GAME_NAMES } from './stats.js?v=43';
-import { AVATARS } from './profile.js?v=44';
+import { GAME_NAMES } from './stats.js?v=65';
+import { AVATARS } from './profile.js?v=45';
 import { openLogin } from './account.js?v=49';
 import { syncNow } from './sync.js?v=44';
+import { ALL_TITLES, GAME_WINS } from '../titles.js?v=3';
+import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
+const titleHow = t => { if (!t) return ''; if (t.id && String(t.id).startsWith('g-')) { const g = String(t.id).slice(2); return `Thắng ${GAME_WINS} ván ${GAME_NAMES[g] || g}`; } const f = ALL_TITLES.find(x => x.id === t.id); return f ? f.desc : (t.desc || ''); };
 
 const BG = ['#ff7a8a,#ffb23d', '#7b61ff,#3d8bff', '#2fc76f,#8fe3a8', '#ff9a3d,#ffd166', '#ff5fa2,#b06bff', '#3dc7d6,#3d8bff'];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -144,7 +147,7 @@ export function openLeaderboard(initialGame = 'all') {
           <span class="rk-no${r.rank <= 3 ? ' medal' : ''}">${medal}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span>${esc(r.name)}</span>${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#C9BDF3;color:#4A3E5C">Bạn</span>' : ''}${r.title ? `<span class="rk-tt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span>${esc(r.name)}</span>${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#C9BDF3;color:#4A3E5C">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-sub">${subVal}</div>
           </div>
           <div class="rk-val"><b>${mainVal}</b><small>${by === 'xp' ? `🔥 chuỗi ${r.best}` : `⭐ ${r.xp} XP`}</small></div>
@@ -159,6 +162,7 @@ export function openLeaderboard(initialGame = 'all') {
     } else {
       ftEl.innerHTML = `<span>Bạn chưa có trận nào ở mục này – vào chơi 1 ván là lên bảng ngay! 🎲</span>`;
     }
+    ov.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || '🏅', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
   };
 
   let reqId = 0;
