@@ -59,7 +59,7 @@ export function mountWorldChat() {
     if (!drag) return; const moved = drag.moved; drag = null;
     if (moved) { ls.set('gumballz-worldchat-y', parseFloat(tab.style.top)); return; }
     u.unread = 0; badge.textContent = ''; peek.hidden = true;
-    import('./lobby.js?v=55').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
+    import('./lobby.js?v=56').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
   };
   tab.addEventListener('pointerup', up); tab.addEventListener('pointercancel', () => { drag = null; });
   // WebSocket nghe tin kênh 'all' để hiện chấm đỏ + bong bóng (chỉ khi hộp Sảnh đang đóng)

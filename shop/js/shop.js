@@ -1,7 +1,7 @@
 // 🛍️ Cửa hàng — mua vật phẩm hỗ trợ, khung avatar, màu tên, lưng bài và mở rương Gacha bằng xu ảo.
 // Tiền ảo, không nạp, không rút, không tiền thật. Mọi giá và tỉ lệ rơi lấy từ shared/ui/wallet.js.
 import { loadWallet, balance, fmt, spend, grantItem, grantCosmetic, owns, widOf, stock, ITEM_DEFS, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=1';
-import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=45';
+import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=46';
 import { FRAMES, NAME_COLORS } from '../../shared/js/avatar-rewards.js';
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
 import { toast } from '../../shared/ui/dialog.js?v=8';
@@ -106,9 +106,19 @@ $('#btn-chest').addEventListener('click', () => {
 });
 
 $('#btn-profile').addEventListener('click', () => {
-  import('../../shared/ui/profile.js?v=45').then(m => m.openProfile());
+  import('../../shared/ui/profile.js?v=46').then(m => m.openProfile());
 });
 
 profileCss();
 draw();
 addEventListener('gumballz-wallet', draw);
+
+/* ---------- lọc danh mục (pill lọc trên đầu trang) ---------- */
+document.querySelectorAll('.shop-filter button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.shop-filter button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  const f = b.dataset.f;
+  ['items', 'chest', 'frames', 'colors', 'backs'].forEach(k => {
+    const s = document.getElementById('sec-' + k);
+    if (s) s.style.display = (f === 'all' || f === k) ? '' : 'none';
+  });
+}));

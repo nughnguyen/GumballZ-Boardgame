@@ -48,8 +48,8 @@ import('./feedback.js?v=34').then(() => {
   const box = document.createElement('p'); box.className = 'gumballz-fbline';
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';
   box.innerHTML = '<a href="#" data-rank style="color:inherit">🏆 Bảng xếp hạng</a> · <a href="#" data-profile style="color:inherit">🏅 Hồ sơ</a> · <a href="#" data-friends style="color:inherit">🤝 Bạn bè</a> · <a href="#" data-feedback style="color:inherit">💌 Góp ý</a> · <a href="#" data-donate style="color:inherit">☕ Ủng hộ</a>';
-  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=31').then(m => m.openLeaderboard(GAME)); };
-  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=45').then(m => m.openProfile()); };
+  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=32').then(m => m.openLeaderboard(GAME)); };
+  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=46').then(m => m.openProfile()); };
   box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=33').then(m => m.openFriends()); };
   if (!a) return;
   if (a.mode === 'footer') a.el.after(box);
@@ -85,11 +85,11 @@ try {
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
   mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=55').then(m => m.openMatchmaking(GAME));
+  mm.onclick = () => import('./lobby.js?v=56').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
   b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=55').then(m => m.openLobby(GAME));
+  b.onclick = () => import('./lobby.js?v=56').then(m => m.openLobby(GAME));
   row.append(mm, b);
   if (a.mode === 'footer') a.el.before(row);
   else a.el.append(row);

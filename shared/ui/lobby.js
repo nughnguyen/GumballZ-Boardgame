@@ -18,33 +18,33 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const hhmm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'vừa mở' : m < 60 ? m + ' phút' : Math.round(m / 60) + ' giờ'; };
 
-const CSS = `.lb{--ink:#4A3E5C;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);font:600 15px/1.45 Nunito,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px;min-height:0}
+const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);font:600 15px/1.45 Nunito,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px;min-height:0}
 .lb *{box-sizing:border-box}
-.lb-col{background:#FFFDF9;border-radius:22px;box-shadow:0 14px 30px -18px rgba(74,62,92,.4);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.lb-col{background:#FFFDF9;border:2px solid var(--ink);border-radius:24px;box-shadow:4px 4px 0 #241A38;display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .lb-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1.5px solid var(--line);flex-wrap:wrap}
-.lb-h h3{margin:0;font:400 19px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);flex:1;min-width:120px}
+.lb-h h3{margin:0;font:400 19px var(--font-display,"Baloo 2",Nunito,sans-serif);flex:1;min-width:120px}
 .lb-dot{width:9px;height:9px;border-radius:50%;background:#bbb;display:inline-block;margin-right:4px}.lb-dot.on{background:#2fc76f;box-shadow:0 0 0 3px #2fc76f33}
 .lb-chips-w{position:relative;display:flex;align-items:center;border-bottom:1.5px solid var(--line)}
 .lb-chips-w .lb-chips{flex:1;border-bottom:0;scroll-behavior:smooth}
 .lb-arr{width:28px;height:28px;margin:0 4px;border-radius:50%;border:1.5px solid var(--line);background:#FFFDF9;color:var(--ink);font:800 16px/1 Nunito,sans-serif;cursor:pointer;flex:none;display:grid;place-items:center;box-shadow:0 2px 6px #0001}
 .lb-arr[hidden]{display:none}
 .lb-chips{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-bottom:1.5px solid var(--line);scrollbar-width:none}.lb-chips::-webkit-scrollbar{display:none}
-.lb-chips button{flex:none;border:1.5px solid var(--line);background:#FFFDF9;border-radius:999px;padding:5px 12px;min-height:44px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink)}
-.lb-chips button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lb-chips button{flex:none;border:2px solid var(--ink);background:#FFFDF9;border-radius:999px;padding:5px 12px;min-height:44px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);box-shadow:3px 3px 0 #241A38}
+.lb-chips button[aria-pressed=true]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
 .lb-groups{display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none}.lb-groups::-webkit-scrollbar{display:none}
-.lb-groups button{flex:1 0 auto;border:1.5px solid var(--line);background:#FFFDF9;border-radius:999px;padding:6px 10px;min-height:40px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);white-space:nowrap}
-.lb-groups button[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lb-groups button{flex:1 0 auto;border:2px solid var(--ink);background:#FFFDF9;border-radius:999px;padding:6px 10px;min-height:40px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);white-space:nowrap;box-shadow:3px 3px 0 #241A38}
+.lb-groups button[aria-pressed=true]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
 .lb-chat[hidden],.lb-friends[hidden],.lb-gc[hidden]{display:none}
 .lb-friends{flex:1;min-height:0;display:flex;flex-direction:column}
-.lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:8px;align-content:start;min-height:160px}
-.lb-room{display:flex;align-items:center;gap:10px;background:#fffaf3;border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;text-decoration:none;color:inherit}
-.lb-room:hover{border-color:#ffb27a;background:#fff4ea}
+.lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:0;align-content:start;min-height:160px}
+.lb-room{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:14px 4px;text-decoration:none;color:inherit}
+.lb-room:hover{background:#FFF8EE}
 .lb-room .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-room .t{flex:1;min-width:0}.lb-room b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-room small{color:var(--mut)}.lb-room .go{flex:none;background:linear-gradient(90deg,#FFB98A,#FFB9CF);color:#4A3E5C;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
-.lb-inv{display:flex;align-items:center;gap:10px;background:#fffaf3;border:1.5px solid var(--line);border-radius:16px;padding:10px 12px;text-decoration:none;color:inherit}
-.lb-inv:hover{border-color:#ffb27a;background:#fff4ea}
+.lb-room small{color:var(--mut)}.lb-room .go{flex:none;background:#2EC5B6;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:3px 3px 0 #241A38}
+.lb-inv{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:10px 4px;text-decoration:none;color:inherit}
+.lb-inv:hover{background:#FFF8EE}
 .lb-inv .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-inv .t{flex:1;min-width:0}.lb-inv b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-inv small{color:var(--mut)}.lb-inv .go{flex:none;background:linear-gradient(90deg,#FFB98A,#FFB9CF);color:#4A3E5C;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+.lb-inv small{color:var(--mut)}.lb-inv .go{flex:none;background:#2EC5B6;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:3px 3px 0 #241A38}
 .lb-empty a,.lb-new{color:#2f5fd0}
 .lb-chat{display:flex;flex-direction:column;min-height:0;flex:1}
 .lb-msgs{flex:1;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px}
@@ -58,21 +58,21 @@ const CSS = `.lb{--ink:#4A3E5C;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-rp{border:0;background:none;cursor:pointer;opacity:.35;font-size:15px;padding:4px;align-self:center;min-width:32px;min-height:32px}.lb-rp:hover,.lb-rp:focus-visible{opacity:1}
 .lb-in{display:flex;gap:8px;padding:10px 12px;border-top:1.5px solid var(--line);align-items:flex-end;flex-wrap:wrap}
 .lb-in input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;font:600 16px Nunito,sans-serif;color:var(--ink);background:#fff}
-.lb-in button{border:0;border-radius:999px;min-height:44px;padding:0 16px;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);background:var(--ink);color:#fff;cursor:pointer}
+.lb-in button{border:0;border-radius:999px;min-height:44px;padding:0 16px;font:400 15px var(--font-display,"Baloo 2",Nunito,sans-serif);background:var(--ink);color:#fff;cursor:pointer}
 .lb-who{width:100%;font-size:12.5px;color:var(--mut);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .lb-who input{flex:0 1 150px;padding:5px 10px;font-size:14px;border-radius:10px}
 .lb-who a{color:#2f5fd0;cursor:pointer}
-.lb-fr{margin-left:auto;border:1.5px solid #ecdfd0;background:#fff6eb;color:#4A3E5C;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.lb-fr b{background:#FFB98A;color:#4A3E5C;border-radius:999px;padding:0 5px;font-size:11px;line-height:1.4}.lb-fr b:empty{display:none}
+.lb-fr{margin-left:auto;border:1.5px solid #ecdfd0;background:#fff6eb;color:#241A38;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.lb-fr b{background:#FACD33;color:#241A38;border-radius:999px;padding:0 5px;font-size:11px;line-height:1.4}.lb-fr b:empty{display:none}
 .lb-actbar{display:flex;gap:8px;padding:8px 12px;border-bottom:1.5px solid var(--line);background:#fffdf9;align-items:center;flex-wrap:wrap}
-.lb-mm-btn{flex:1;min-width:150px;min-height:44px;border:0;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);color:#fff;background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 6px 14px -6px #FFB98Aaa;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.lb-mm-btn{flex:1;min-width:150px;min-height:44px;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);color:#241A38;background:#2EC5B6;box-shadow:3px 3px 0 #241A38;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .lb-mm-btn.on{background:linear-gradient(90deg,#2fc76f,#1ca356);box-shadow:0 6px 14px -6px #2fc76faa}
 .lb-mm-btn small{font:700 11.5px Nunito,sans-serif;background:#ffffff30;padding:1px 7px;border-radius:999px}
-.lb-rk-btn{min-height:44px;border:1.5px solid #f0d8b8;border-radius:999px;padding:7px 12px;font:800 13.5px "Baloo 2",Nunito,sans-serif;color:#7a4300;background:linear-gradient(135deg,#fff8e6,#ffe6b3);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.lb-rk-btn{min-height:44px;border:2px solid #241A38;border-radius:999px;padding:7px 12px;font:800 13.5px "Baloo 2",Nunito,sans-serif;color:#241A38;background:#FFFDF9;box-shadow:3px 3px 0 #241A38;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .lb-mm-bar{margin:8px 12px 0;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,#fff6eb,#ffe9d2);border:1.5px solid #ffc996;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13.5px;font-weight:800}
 .lb-mm-bar .acts{display:flex;gap:6px;flex-wrap:wrap}
 .lb-mm-bar button{border:0;border-radius:999px;padding:5px 11px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
-.lb-mm-bar .go-host{background:#4A3E5C;color:#fff}
+.lb-mm-bar .go-host{background:#241A38;color:#fff}
 .lb-mm-bar .go-cancel{background:#FFFDF9;color:#7a6f8c;border:1px solid #e0d2c2}
 .lb-rule{font-size:12px;color:var(--mut);padding:0 12px 8px}
 .lb-err{font-size:13px;color:#c0263b;padding:0 12px;min-height:0}
@@ -87,9 +87,9 @@ const CSS = `.lb{--ink:#4A3E5C;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
  .lb-col.c .lb-h{display:none} /* điện thoại: đã có tab "💬 Chat" ở trên nên bỏ tiêu đề cột cho rộng chỗ */
  .lb-rule{font-size:12px;margin:2px 12px}
 }
-.lb-ov{position:fixed;inset:0;z-index:9990;background:rgba(74,62,92,.66);display:grid;place-items:center;padding:10px}
+.lb-ov{position:fixed;inset:0;z-index:9990;background:#241A38;display:grid;place-items:center;padding:10px}
 .lb-mod{width:min(980px,100%);height:min(720px,calc(100dvh - 20px));background:#FFF8EE;border-radius:24px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px #0006}
-.lb-mod > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lb-mod > header h2{margin:0;flex:1;font:400 22px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);color:#4A3E5C}
+.lb-mod > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lb-mod > header h2{margin:0;flex:1;font:400 22px var(--font-display,"Baloo 2",Nunito,sans-serif);color:#241A38}
 .lb-mod > header button.x{width:40px;height:40px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer}
 .lb-mod .lb{flex:1;min-height:0}.lb-mod .lb-col{min-height:0}
 /* Scribble có sẵn lớp .lb (bảng điểm) của riêng nó → gỡ khung/độ rộng lạ khỏi sảnh */
@@ -150,7 +150,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
           ? `😕 <b>Hiện có quá ít người đang tìm trận ${esc(gLabel)}</b> (${waitingN <= 1 ? 'chỉ mới có mình bạn' : `mới có ${waitingN} người`}). Bạn có thể đợi thêm chút, mở bàn công khai chờ sẵn hoặc vào chơi với bot nha!`
           : `🔍 Đang tìm đối thủ cho <b>${esc(gLabel)}</b>${waitingN > 1 ? ` · có ${waitingN} người đang tìm!` : '… ưu tiên người cùng trình (nếu ít người quá em sẽ báo sau vài giây)'}`;
       const botTarget = gKey !== 'all' ? gKey : 'uno';
-      slot.innerHTML = `<div class="lb-mm-bar"><span>${txt}</span><div class="acts"><button type="button" class="go-host">🚀 Mở bàn chờ sẵn</button>${mmState.low ? `<a class="go-host" href="${ROOT}${botTarget}/" style="text-decoration:none;padding:5px 11px;border-radius:999px;font:800 12.5px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C;border:1px solid #e0d2c2">🤖 Chơi với bot</a>` : ''}<button type="button" class="go-cancel">Huỷ</button></div></div>`;
+      slot.innerHTML = `<div class="lb-mm-bar"><span>${txt}</span><div class="acts"><button type="button" class="go-host">🚀 Mở bàn chờ sẵn</button>${mmState.low ? `<a class="go-host" href="${ROOT}${botTarget}/" style="text-decoration:none;padding:5px 11px;border-radius:999px;font:800 12.5px Nunito,sans-serif;background:#FFFDF9;color:#241A38;border:1px solid #e0d2c2">🤖 Chơi với bot</a>` : ''}<button type="button" class="go-cancel">Huỷ</button></div></div>`;
       slot.querySelector('.go-host').onclick = () => { stopMm(); hostNow(mmState?.game || gKey); };
       slot.querySelector('.go-cancel').onclick = () => stopMm();
     } else {
@@ -175,12 +175,12 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=31').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=32').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
     const list = rooms.filter(r => filter === 'all' || r.game === filter);
     el.querySelector('.lb-tabs .n').textContent = list.length;
-    $('.lb-rooms').innerHTML = list.length ? list.map(r => { const [e, n] = GAME_INFO[r.game] || ['🎲', r.game]; return `<a class="lb-room" href="${ROOT}${r.game}/?room=${r.code}"><span class="e">${e}</span><span class="t"><b>${esc(n)} · phòng của ${esc(r.host)}</b><small>👥 ${r.n} người${r.lv ? ' · 🎖️ ' + LV_NAMES[r.lv - 1] : ''} · mở ${ago(r.created)} · mã ${r.code}</small></span><span class="go">Vào ▶</span></a>`; }).join('')
+    $('.lb-rooms').innerHTML = list.length ? list.map(r => { const [e, n] = GAME_INFO[r.game] || ['🎲', r.game]; return `<a class="lb-room" href="${ROOT}${r.game}/?room=${r.code}"><span class="e">${e}</span><span class="t"><b>${esc(n)} · phòng của ${esc(r.host)}</b><small>Mã ${r.code} · ${r.n} người trong phòng</small></span><span class="go">Vào</span></a>`; }).join('')
       : `<div class="lb-empty">Chưa có phòng công khai nào${filter !== 'all' ? ' cho ' + esc(GAME_INFO[filter]?.[1] || '') : ''} 🥲<br>Bấm <b>⚡ Tìm trận nhanh</b> ở trên hoặc tạo phòng công khai để người khác vào chơi cùng nha!${filter !== 'all' || game ? `<br><a href="${ROOT}${game || filter}/?public=1&autohost=1">✨ Mở nhanh phòng công khai ${esc(GAME_INFO[game || filter]?.[1] || '')}</a>` : ''}</div>`;
   };
   /* ---- 3 nhóm kênh chat: 🌐 Thế giới (ch='all') · 🎮 Trong game (chọn 1 game) · 🤝 Bạn bè (DM nhúng) ---- */

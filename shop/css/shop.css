@@ -1,52 +1,61 @@
-/* 🛍️ Cửa hàng – pastel, giống phong cách chung của web (xem shared/ui/neo.css) */
-:root{--ink:#4A3E5C;--bg:#FFF8EE;--card:#FFFDF9;--muted:#8B7E9E;--y1:#FFB98A;--y2:#FFE3A3;--p1:#FFB9CF;--p2:#ABE0C6;--p3:#C9BDF3;--sky:#AFD8F3;--sh:3px 3px 0 rgba(74,62,92,.13)}
+/* 🛍️ Cửa hàng – theo thiết kế mới 2026-11-20 (kem · mực #241A38 · đỏ #FF5A60 · vàng #FACD33 · ngọc #2EC5B6 · tím #B9A6FF) */
+:root{--ink:#241A38;--bg:#FFF8EE;--card:#FFFDF9;--muted:#8B7E9E;--y1:#FACD33;--y2:#FFE9A8;--p1:#FF5A60;--p2:#2EC5B6;--p3:#B9A6FF;--sky:#B9A6FF;--sh:4px 4px 0 #241A38;--sh-sm:3px 3px 0 #241A38}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:600 16px/1.55 Nunito,sans-serif;margin:0}
 .shop-wrap{max-width:960px;margin:0 auto;padding:64px 16px 48px}
-.shop-head h1{font:400 34px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;margin:8px 0 4px}
-.shop-sub{color:#6b5f7a;font-weight:800;margin:0 0 16px}
-.shop-wallet{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#FFF3D6;border:2px solid #f0dfb8;border-radius:20px;padding:14px 16px;box-shadow:var(--sh)}
-.sw-bal{font-size:19px;font-weight:900;white-space:nowrap}
-.sw-bal b{font:400 26px/1 "Bungee","Baloo 2",Nunito,sans-serif}
-.sw-rates{flex:1;min-width:200px;color:#8a7f96;font-weight:800;font-size:13.5px;line-height:1.4}
-.sw-prof{min-height:44px;padding:8px 16px;border-radius:999px;border:2px solid var(--ink);background:var(--y2);color:var(--ink);font:800 14.5px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.shop-head h1{font:800 34px/1.15 "Baloo 2",Nunito,sans-serif;margin:8px 0 4px}
+.shop-sub{color:var(--muted);font-weight:800;margin:0 0 16px}
+.shop-wallet{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--card);border:2px solid var(--ink);border-radius:24px;padding:14px 16px;box-shadow:var(--sh)}
+.sw-bal{font-size:19px;font-weight:900;white-space:nowrap;background:var(--y1);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;box-shadow:var(--sh-sm)}
+.sw-bal b{font:400 26px/1 "Baloo 2",Nunito,sans-serif}
+.sw-rates{flex:1;min-width:200px;color:var(--muted);font-weight:800;font-size:13.5px;line-height:1.4}
+.sw-prof{min-height:44px;padding:8px 16px;border-radius:999px;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:800 14.5px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+/* pill lọc danh mục */
+.shop-filter{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.shop-filter button{border:2px solid var(--ink);background:var(--card);font:400 14px "Baloo 2",Nunito,sans-serif;color:var(--ink);border-radius:999px;padding:7px 16px;min-height:42px;cursor:pointer;box-shadow:var(--sh-sm)}
+.shop-filter button:hover{background:var(--y2)}
+.shop-filter button[aria-pressed="true"]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
 .shop-sec{margin-top:30px}
-.shop-sec h2{font:400 22px/1.2 "Bungee","Baloo 2",Nunito,sans-serif;margin:0 0 6px}
-.sec-note{color:#6b5f7a;font-weight:700;font-size:14.5px;margin:0 0 12px}
+.shop-sec h2{font:800 22px/1.2 "Baloo 2",Nunito,sans-serif;margin:0 0 6px}
+.sec-note{color:var(--muted);font-weight:700;font-size:14.5px;margin:0 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.card{background:var(--card);border:2px solid #f0e2d2;border-radius:20px;padding:14px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px}
-.card .prev{display:grid;place-items:center;min-height:86px;background:#FFF8EE;border-radius:14px;padding:8px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:14px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px}
+.card .prev{display:grid;place-items:center;min-height:86px;border:2px solid var(--ink);border-radius:12px;padding:8px}
+.grid .card:nth-child(4n+1) .prev{background:#FF5A60}
+.grid .card:nth-child(4n+2) .prev{background:#FACD33}
+.grid .card:nth-child(4n+3) .prev{background:#2EC5B6}
+.grid .card:nth-child(4n+4) .prev{background:#B9A6FF}
 .card .prev img{max-height:120px;width:auto;border-radius:8px}
 .card h3{margin:0;font:800 16.5px Nunito,sans-serif}
-.card p{margin:0;color:#6b5f7a;font-weight:700;font-size:13.5px;line-height:1.45;flex:1}
-.card .price{font:400 18px/1 "Bungee","Baloo 2",Nunito,sans-serif}
+.card p{margin:0;color:var(--muted);font-weight:700;font-size:13.5px;line-height:1.45;flex:1}
+.card .price{font:400 18px/1 "Baloo 2",Nunito,sans-serif}
 .card .own{font-weight:800;font-size:13.5px;color:#2e8b57}
-.card .btns{display:flex;gap:8px;flex-wrap:wrap}
-.card button,.btn-open{min-height:44px;padding:10px 16px;border-radius:999px;border:2px solid var(--ink);font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.card .btns{display:flex;flex-direction:column;gap:8px}
+.card button,.btn-open{min-height:44px;padding:10px 16px;border-radius:12px;border:2px solid var(--ink);font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 var(--ink);width:100%}
 .card button:disabled{opacity:.55;cursor:default;box-shadow:none}
-.btn-buy{background:var(--y2);color:var(--ink)}
+.btn-buy{background:var(--y1);color:var(--ink)}
 .btn-wear{background:var(--p2);color:var(--ink)}
-.btn-worn{background:#f0e6da;color:#8a7f96;border-color:#d8cbb8;box-shadow:none}
-.btn-chestonly{background:#f0e6da;color:#8a7f96;border-color:#d8cbb8;box-shadow:none;cursor:default}
-.chest-card{display:flex;gap:18px;align-items:center;background:linear-gradient(135deg,#FFF3D6,#FFE3F0);border:2px solid #f0dfb8;border-radius:20px;padding:18px;box-shadow:var(--sh)}
-.chest-box{font-size:76px;line-height:1;flex:none;filter:drop-shadow(3px 3px 0 rgba(74,62,92,.18))}
+.btn-worn{background:#f0e6da;color:var(--muted);border-color:#d8cbb8;box-shadow:none}
+.btn-chestonly{background:#f0e6da;color:var(--muted);border-color:#d8cbb8;box-shadow:none;cursor:default}
+.chest-card{display:flex;gap:18px;align-items:center;background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:18px;box-shadow:var(--sh)}
+.chest-box{font-size:76px;line-height:1;flex:none;filter:drop-shadow(3px 3px 0 #241A38)}
 .chest-box.shake{animation:ch-shake .7s ease}
 .chest-box.open{animation:ch-pop .55s cubic-bezier(.2,1.4,.4,1)}
 @keyframes ch-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg) scale(1.04)}40%{transform:rotate(8deg) scale(1.08)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}}
 @keyframes ch-pop{0%{transform:scale(.7) rotate(-6deg)}60%{transform:scale(1.18) rotate(4deg)}100%{transform:scale(1)}}
 .chest-info{flex:1;min-width:0}
 .chest-info p{margin:0 0 10px;font-weight:700;font-size:14.5px;line-height:1.5}
-.btn-open{background:linear-gradient(120deg,#ff4d6a,#ff8a3d);color:#fff;border-color:var(--ink)}
+.btn-open{background:#FF5A60;color:#fff;border-color:var(--ink)}
 .btn-open:disabled{opacity:.55;cursor:default}
-.chest-count{color:#8a7f96;font-weight:800;font-size:13px;margin:10px 0 0}
+.chest-count{color:var(--muted);font-weight:800;font-size:13px;margin:10px 0 0}
 .chest-result{font-weight:900;font-size:16px;margin:8px 0 0;min-height:24px}
 .chest-result.good{color:#147a44}
 .chest-result.bad{color:#b3261e}
-.drops,.howto{background:var(--card);border:2px solid #f0e2d2;border-radius:16px;padding:12px 16px;margin-top:12px}
+.drops,.howto{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px 16px;margin-top:12px}
 .drops summary,.howto summary{font-weight:900;font-size:15.5px;cursor:pointer;min-height:44px;display:flex;align-items:center}
 .drops ul,.howto ul{margin:8px 0 4px;padding-left:20px;font-weight:700;font-size:14.5px;line-height:1.6}
 .drops li b{font-weight:900}
-.drop-note{color:#8a7f96;font-weight:800;font-size:13px;margin:6px 0 0}
+.drop-note{color:var(--muted);font-weight:800;font-size:13px;margin:6px 0 0}
 .howto li{margin-bottom:6px}
 .shop-foot{text-align:center;margin-top:34px;font-weight:800}
 .shop-foot a{color:var(--ink)}

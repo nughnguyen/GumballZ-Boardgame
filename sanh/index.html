@@ -14,39 +14,77 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#4A3E5C;--muted:#8B7E9E;--bg:#FFF8EE}
+:root{--ink:#241A38;--muted:#8B7E9E;--bg:#FFF8EE}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:600 16px/1.5 Nunito,system-ui,sans-serif;overflow-x:hidden}
 .blob{position:fixed;width:44vmax;height:44vmax;border-radius:50%;filter:blur(80px);opacity:.22;z-index:0;pointer-events:none}
-.b1{background:#FFB98A;left:-14vmax;top:-14vmax}.b2{background:#FFE3A3;right:-14vmax;top:-8vmax}.b3{background:#ABE0C6;left:-8vmax;bottom:-18vmax}.b4{background:#C9BDF3;right:-12vmax;bottom:-16vmax}
+.b1{background:#FACD33;left:-14vmax;top:-14vmax}.b2{background:#FFE3A3;right:-14vmax;top:-8vmax}.b3{background:#2EC5B6;left:-8vmax;bottom:-18vmax}.b4{background:#B9A6FF;right:-12vmax;bottom:-16vmax}
 main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:14px 16px 16px;height:100dvh;min-height:560px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px} /* cao đúng 1 màn hình: danh sách phòng + chat tự cuộn bên trong, trang không dài vô hạn */
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.back{display:inline-flex;align-items:center;min-height:44px;padding:6px 16px;border-radius:999px;background:#FFFDF9;border:2.5px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:800;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
-h1{font-family:var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);font-size:clamp(30px,6vw,44px);line-height:1.05;margin:0;flex:1;text-align:center}
+.back{display:inline-flex;align-items:center;min-height:44px;padding:6px 16px;border-radius:999px;background:#FFFDF9;border:2px solid var(--ink);color:var(--ink);text-decoration:none;font-weight:800;box-shadow:3px 3px 0 #241A38}
+h1{font-family:var(--font-display,"Baloo 2",Nunito,sans-serif);font-weight:800;font-size:clamp(30px,6vw,44px);line-height:1.05;margin:0;flex:1;text-align:center}
 h1 span{color:var(--ink)}
 .sub{text-align:center;color:var(--muted);margin:-4px auto 0;max-width:640px;font-size:15px}
 .online{text-align:center;margin:-6px auto 0;font:700 14px Nunito,sans-serif;color:#137a4c;background:#FFFDF9;border:2px solid #bce8cf;border-radius:999px;padding:4px 14px;width:max-content;max-width:100%}
+.sanh-row{flex:1;min-height:0;display:flex;gap:14px}
+.sanh-row #lobby{flex:1;min-width:0}
+.create-panel{width:320px;flex:none;background:#FFFDF9;border:2px solid var(--ink);border-radius:24px;box-shadow:4px 4px 0 #241A38;padding:18px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.create-panel h2{margin:0;font:800 24px/1.1 "Baloo 2",Nunito,sans-serif}
+.cp-f{display:flex;flex-direction:column;gap:6px;font:800 14px Nunito,sans-serif}
+.cp-f select{appearance:none;font:800 14px Nunito,sans-serif;color:var(--ink);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid var(--ink);border-radius:12px;padding:11px 36px 11px 14px;min-height:48px;cursor:pointer;box-shadow:3px 3px 0 #241A38}
+.cp-check{display:flex;align-items:center;gap:8px;font:700 14px Nunito,sans-serif;cursor:pointer}
+.cp-check input{width:20px;height:20px;accent-color:#2EC5B6;cursor:pointer}
+.cp-create{border:2px solid var(--ink);border-radius:12px;min-height:52px;background:#FF5A60;color:#fff;font:400 18px "Baloo 2",Nunito,sans-serif;cursor:pointer;box-shadow:4px 4px 0 #241A38}
+.cp-mm{border:2px solid var(--ink);border-radius:12px;min-height:52px;background:#2EC5B6;color:#241A38;font:400 18px "Baloo 2",Nunito,sans-serif;cursor:pointer;box-shadow:4px 4px 0 #241A38}
+.cp-create:hover,.cp-mm:hover{transform:translate(-1px,-1px)}
+.cp-create:active,.cp-mm:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
+.cp-note{margin:0;font:600 12.5px/1.5 Nunito,sans-serif;color:var(--muted)}
+@media (max-width:860px){main{height:auto;min-height:100dvh}.sanh-row{flex-direction:column}.sanh-row #lobby{min-height:70dvh}.create-panel{width:100%}}
 #lobby{flex:1;min-height:0;display:flex;flex-direction:column}
 #lobby .lb{flex:1;min-height:0}
 @media (max-width:520px){.top h1{order:3;flex-basis:100%}}
 @media (max-width:760px){main{gap:8px;padding-bottom:10px}.sub{display:none}.top h1{font-size:30px}} /* điện thoại: gọn phần đầu để chat/phòng có nhiều chỗ */
 </style>
 <link rel="stylesheet" href="../shared/ui/shell.css?v=19">
-<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="../shared/css/footer.css?v=5">
 </head>
 <body>
 <div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
 <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
 <main>
-  <div class="top"><a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a><h1>🌐 <span>Sảnh chung</span></h1><div id="acct"></div></div>
-  <p class="sub">Tìm phòng công khai để vào chơi cùng người lạ, hoặc tạo phòng rồi bật <b>🌐 Công khai</b> để rủ thêm người 🥰</p>
+  <div class="top"><a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a><h1><span>Sảnh chung</span></h1><div id="acct"></div></div>
+  <p class="sub">Chọn phòng đang mở hoặc tự tạo phòng cho hội của bạn.</p>
   <p class="online" id="online" style="visibility:hidden">&nbsp;</p>
+  <div class="sanh-row">
   <div id="lobby"></div>
+  <aside class="create-panel" aria-label="Tạo phòng mới">
+    <h2>Tạo phòng mới</h2>
+    <label class="cp-f">Game
+      <select id="cp-game" aria-label="Chọn game"></select>
+    </label>
+    <label class="cp-f">Số người tối đa
+      <select id="cp-max" aria-label="Số người tối đa">
+        <option value="2">2 người</option>
+        <option value="3">3 người</option>
+        <option value="4" selected>4 người</option>
+        <option value="5">5 người</option>
+        <option value="6">6 người</option>
+        <option value="8">8 người</option>
+        <option value="10">10 người</option>
+        <option value="16">16 người</option>
+      </select>
+    </label>
+    <label class="cp-check"><input type="checkbox" id="cp-bots" checked> Thêm bot cho đủ người</label>
+    <button type="button" class="cp-create" id="cp-create">Tạo phòng</button>
+    <button type="button" class="cp-mm" id="cp-mm">Tìm trận nhanh</button>
+    <p class="cp-note">Số người tối đa và bot sẽ chỉnh tiếp trong phòng của game (phòng tạo ở đây luôn là phòng công khai).</p>
+  </aside>
+  </div>
 </main>
 <script type="module">
 import { mountAccount } from '../shared/ui/account.js?v=49';
-import { mountLobby } from '../shared/ui/lobby.js?v=55';
+import { mountLobby, GAME_INFO, openMatchmaking } from '../shared/ui/lobby.js?v=56';
 import { mountOnline } from '../shared/net/presence.js?v=26';
 mountOnline(document.getElementById('online'));
 mountAccount(document.getElementById('acct'));
@@ -54,9 +92,16 @@ const g = new URLSearchParams(location.search).get('game');
 const L = mountLobby(document.getElementById('lobby'), {});
 import('../shared/ui/worldchat.js?v=1').then(m => m.mountWorldChat());
 if (g) setTimeout(() => document.querySelector(`.lb-gf button[data-g="${CSS.escape(g)}"]`)?.click(), 0);
+/* panel Tạo phòng mới: chọn game → tạo phòng công khai (?public=1&autohost=1) hoặc tìm trận nhanh cho game đó */
+const cpGame = document.getElementById('cp-game');
+cpGame.innerHTML = Object.entries(GAME_INFO).map(([k, [, n]]) => `<option value="${k}">${n}</option>`).join('');
+if (g && GAME_INFO[g]) cpGame.value = g;
+const cpSave = () => { try { sessionStorage.setItem('gumballz-create-max', document.getElementById('cp-max').value); sessionStorage.setItem('gumballz-create-bots', document.getElementById('cp-bots').checked ? '1' : '0'); } catch (e) {} };
+document.getElementById('cp-create').onclick = () => { cpSave(); location.href = `../${cpGame.value}/?public=1&autohost=1`; };
+document.getElementById('cp-mm').onclick = () => { cpSave(); openMatchmaking(cpGame.value); };
 </script>
 <footer class="gmf"></footer>
-<script src="../shared/ui/footer.js?v=15"></script>
+<script src="../shared/ui/footer.js?v=16"></script>
 <script type="module" src="../shared/ui/feedback.js?v=34"></script>
 <script type="module" async src="../shared/ui/feel.js?v=53"></script>
 </body>
