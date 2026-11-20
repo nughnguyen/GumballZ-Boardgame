@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#ABE0C6"/>
+  <!-- apple the snake is hunting -->
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M88 22 q-2 -8 4 -10" fill="none"/>
+    <ellipse cx="99" cy="14" rx="8" ry="4.5" fill="#7ED957" transform="rotate(-25 99 14)"/>
+    <circle cx="88" cy="33" r="13" fill="#FF5CA8"/>
+    <path d="M80 29 q4 -5 9 -3" fill="none" stroke="#FFFDF9" stroke-width="2"/>
+  </g>
+  <!-- snake body: ink under-stroke, then green -->
+  <path d="M28 92 C 48 92, 58 76, 74 74 S 96 60, 88 44 C 84 36, 72 34, 64 38" fill="none" stroke="#4A3E5C" stroke-width="17" stroke-linecap="round"/>
+  <path d="M28 92 C 48 92, 58 76, 74 74 S 96 60, 88 44 C 84 36, 72 34, 64 38" fill="none" stroke="#5CB85C" stroke-width="12" stroke-linecap="round"/>
+  <!-- belly segments -->
+  <path d="M44 88 q4 3 8 0 M62 76 q4 3 8 0 M84 64 q3 4 1 8" fill="none" stroke="#4A3E5C" stroke-width="2" stroke-linecap="round"/>
+  <!-- head -->
+  <circle cx="62" cy="40" r="13" fill="#5CB85C" stroke="#4A3E5C" stroke-width="2.5"/>
+  <circle cx="67" cy="35" r="3.2" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="1.5"/>
+  <circle cx="68" cy="35" r="1.6" fill="#4A3E5C"/>
+  <!-- tongue reaching for the apple -->
+  <path d="M74 42 q6 1 10 4 M74 42 q7 -1 11 -4" fill="none" stroke="#FF4D2E" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

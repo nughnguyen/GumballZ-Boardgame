@@ -1,0 +1,38 @@
+/* 🐍 Rắn Săn Mồi — giao diện đồng bộ pastel của site. */
+.rs-topbar { flex-wrap: wrap; }
+.rs-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rs-stage { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-weight: 800; color: #4A3E5C; background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px 14px; margin-bottom: 10px; }
+.rs-stage .rs-status { margin-left: auto; color: #8B7E9E; font-size: 13px; }
+.rs-main { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.rs-side { display: flex; flex-direction: column; gap: 10px; min-width: 120px; }
+.rs-panel { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px; }
+.rs-panel-title { font-weight: 800; font-size: 13px; color: #4A3E5C; margin-bottom: 6px; }
+#rs-boards { display: flex; gap: 16px; flex-wrap: wrap; }
+.rs-board { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px; }
+.rs-board-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: #4A3E5C; margin-bottom: 6px; }
+.rs-board-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: #4A3E5C; margin-top: 6px; }
+.rs-grid { display: grid; grid-template-columns: repeat(20, 18px); grid-auto-rows: 18px; gap: 1px; background: #1B1425; border: 2px solid #1B1425; border-radius: 6px; padding: 1px; }
+.rs-grid .cell { width: 18px; height: 18px; border-radius: 3px; background: #2E2A45; }
+.rs-grid .cell.head { background: #1F9D55; border-radius: 5px; }
+.rs-grid .cell.body { background: #4ADE80; }
+.rs-grid .cell.food { background: #E5484D; border-radius: 50%; }
+.rs-opp { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: #4A3E5C; border-top: 1px dashed #C9BDF3; padding-top: 6px; margin-top: 6px; }
+.rs-opp:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.rs-touch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.rs-touch .btn { min-width: 56px; }
+.rs-touch .rs-pad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 44px); gap: 6px; }
+.rs-touch .rs-pad .btn { min-width: 0; }
+.rs-touch .rs-pad .pad-up { grid-column: 2; grid-row: 1; }
+.rs-touch .rs-pad .pad-left { grid-column: 1; grid-row: 2; }
+.rs-touch .rs-pad .pad-down { grid-column: 2; grid-row: 2; }
+.rs-touch .rs-pad .pad-right { grid-column: 3; grid-row: 2; }
+.rs-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.rs-log { margin-top: 10px; font-size: 13px; color: #8B7E9E; }
+@media (max-width: 640px) {
+  .rs-topbar { flex-wrap: wrap; }
+  .rs-grid { grid-template-columns: repeat(20, 15px); grid-auto-rows: 15px; }
+  .rs-grid .cell { width: 15px; height: 15px; }
+  .rs-stage .rs-status { margin-left: 0; width: 100%; }
+  .rs-main { flex-direction: column; }
+  .rs-side { flex-direction: row; flex-wrap: wrap; }
+}

@@ -1206,5 +1206,9 @@ export const TUT = {
  "tetris": {
   "name": "Tetris — GumballZ Boardgame",
   "steps": []
+ },
+ "ransanmoi": {
+  "name": "Rắn Săn Mồi — GumballZ Boardgame",
+  "steps": []
  }
 };
