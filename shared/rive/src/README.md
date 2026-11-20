@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -158,6 +158,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `xiecthu.riv` | 13184 B | Sân khấu (rèm đỏ + sàn gỗ): 3 lá lật lên lần lượt, sư tử (bờm vàng) → voi (tai tím + vòi) → khỉ (mặt nâu) bật lên trên từng lá + sao vàng bật lên (180f = 3s) |
 | `cuuho.riv` | 4622 B | Bản đồ xanh 3 thành phố: 1 ô cháy (lửa đỏ-cam-vàng nhấp nháy), xe cứu hộ chạy vào, 3 giọt nước rơi xuống, lửa nhỏ dần + sao vàng bật lên (180f = 3s) |
 | `khaihoang.riv` | 8653 B | Biển xanh + 4 ô lục giác (gỗ/lúa/gạch/quặng) + số chit: xúc xắc 6 chấm lắc, thuyền buồm nhấp nhô, nhà làng bật lên + đường mở ra + tài nguyên bật lên + sao vàng trên ô lúa (180f = 3s) |
+| `xuyenviet.riv` | 8169 B | Bản đồ Việt Nam xanh lá trên biển xanh + 5 ga ngọc nối bằng chấm đỏ: tàu (đầu máy đỏ + toa vàng) chạy qua từng ga (mỗi ga 30f), vé đích bật lên + sao vàng ở ga cuối (180f = 3s) |
+| `noitu.riv` | 8795 B | 2 khung từ trắng: "con gà" → "gà mái", ô vàng chung là âm tiết nối, mũi tên vàng nối 2 từ + sao vàng bật lên, 3 tim mạng góc phải (tim giữa đập) (180f = 3s) |
+| `baucua.riv` | 11633 B | 3 xúc xắc lắc rồi dừng ở Bầu (xanh)/Cua (đỏ)/Cá (xanh); bàn cược 6 ô (Bầu/Cua/Cá/Gà/Nai/Tôm) + 3 xu vàng bay vào ô Bầu + sao vàng (180f = 3s) |
+| `giandiep.riv` | 7774 B | 2 lá vai trò úp lật lần lượt: Dân (người xanh) + Gián điệp (mũ đỏ + mặt nạ mực), vòng ngắm đỏ chớp quanh lá gián điệp + sao vàng (180f = 3s) |
+| `codam.riv` | 5684 B | Bàn 5×5: quân đỏ nhảy qua quân đen ăn 1 quân (đen mờ dần), đỏ Ở LẠI ô đáp tới 150f + sao vàng bật lên; 2 quân đứng yên (180f = 3s) |
+| `lieng.riv` | 12853 B | 3 lá lật lần lượt thành Sáp (7♥, 7♠, 7♦) + 3 xu vàng bay vào pot vàng + sao vàng (180f = 3s) |
+| `maubinh.riv` | 22620 B | 13 lá xếp 3 chi (Đầu 3 úp đỏ – Giữa 5 lật ngửa lần lượt – Cuối 5 úp xanh) + sao vàng bật lên (180f = 3s) |
+| `xito.riv` | 19047 B | 2 lá tẩy lật ngửa (A♥ + K♠, hơi xòe) + Flop 3 lá → Turn → River lật dần, 2 chip trượt vào chồng chip pot + sao vàng (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -201,6 +209,44 @@ ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
   scrub tới 2.9s thì vòng quay lại frame ~12 (ảnh "cuối vòng" thực
   ra là đầu vòng: lá úp, lửa to, chỉ 1 quân). Chụp liền sau lệnh
   scrub, hoặc scrub tới 2.0s làm mốc cuối vòng.
+
+## Kiểm chứng (đã làm — batch 6, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): cả 8 file đều đổi, nonBg 4678–5000 (trên ngưỡng 50).
+- Trang chủ Playwright: **91/91 checks passed** (44 canvas mount + 44
+  thẻ `.has-riv` + 44 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 44 canvas, 44 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật): mỗi cảnh đọc ra game ngay và lấp đầy header.
+  1 lỗi thật đã tìm + sửa trong đợt verify: Cờ Đam — quân đỏ nhảy xong
+  mờ hẳn từ frame 43 (theo `hop.opF`) nên 74% vòng lặp bàn chỉ còn
+  2 quân đứng yên; sửa lần 1 (giữ opacity tới 150f) vẫn trượt về ô
+  xuất phát — nguyên nhân: `hopFrames` tự chèn key teleport về ô đầu
+  ở hopEnd+6..+9 (`[teleB, 0]`, `[D, 0]`), thêm key `[D, 60]` sau key
+  `[D, 0]` sẵn có không ăn; sửa lần 2 bằng cách viết key nhảy TAY
+  (không dùng `hopFrames`), quân đỏ ở lại ô đáp tới 150f rồi mờ qua
+  mối nối vòng lặp — đã đo bằng pixel: ở +1.0s/+1.5s/+2.0s/+2.5s quân
+  đỏ đều ở ô đáp (200,70), quân đen bị ăn đã biến mất. File .riv cũ
+  36 file không đổi (md5 khớp sau khi build lại toàn bộ, 3 lần).
+- BÀI HỌC verify (bổ sung): (f) **`hopFrames` tự chèn key teleport về
+  ô đầu** — dxF/dyF/shXF/shYF/shSXF của nó luôn có `[teleA, giá-trị-
+  đích], [teleB, 0], [D, 0]` (dịch về ô đầu trong lúc tàng hình, opF
+  mờ đi nên các cảnh cũ không lộ). Muốn quân/vật Ở LẠI điểm đích thì
+  ĐỪNG dùng `hopFrames` — viết key tay với `[D, giá-trị-đích]`;
+  opacity mờ dần trước mối nối (`[150,1],[155,0],[D,0]`) để vòng lặp
+  nối liền không lộ. Key chốt cuối `[D, v]` GIỮ ĐƯỢC giá trị (đã kiểm
+  chứng bằng file test tối thiểu: hộp đỏ X `[[0,100],[40,200],[180,
+  200]]` ở yên x=200 tới +2.5s). (g) **Trang verify tạm
+  `rive-verify-wide.html` ở gốc repo** (canvas #cv +
+  `__fit/__load/__snap/__stop/__seek`) bị xóa sau mỗi đợt — đợt sau
+  phải tạo lại (không commit). (h) **Đo vị trí bằng screenshot + PIL,
+  không đọc canvas 2D trực tiếp sau scrub** — animation vẫn chạy sau
+  scrub nên canvas đọc được có thể là frame cũ/mới lẫn lộn; screenshot
+  ép render khung mới nên chính xác.
 
 ## Kiểm chứng (đã làm — batch 4, 2026-11-21)
 
