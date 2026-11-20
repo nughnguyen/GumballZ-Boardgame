@@ -1,0 +1,35 @@
+/* 🍬 Xếp Kẹo — giao diện đồng bộ pastel của site. */
+.xc-topbar { flex-wrap: wrap; }
+.xc-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.xc-stage { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-weight: 800; color: #4A3E5C; background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px 14px; margin-bottom: 10px; }
+.xc-stage .xc-status { margin-left: auto; color: #8B7E9E; font-size: 13px; }
+.xc-main { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.xc-side { display: flex; flex-direction: column; gap: 10px; min-width: 120px; }
+.xc-panel { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px; }
+.xc-panel-title { font-weight: 800; font-size: 13px; color: #4A3E5C; margin-bottom: 6px; }
+#xc-boards { display: flex; gap: 16px; flex-wrap: wrap; }
+.xc-board { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px; }
+.xc-board-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: #4A3E5C; margin-bottom: 6px; }
+.xc-board-foot { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: #4A3E5C; margin-top: 6px; }
+.xc-grid { display: grid; grid-template-columns: repeat(8, min(44px, 10.5vw)); grid-auto-rows: min(44px, 10.5vw); gap: 3px; background: #FFE3A3; border: 2px solid #4A3E5C; border-radius: 8px; padding: 3px; }
+.xc-grid .cell { display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 1; border-radius: 8px; cursor: pointer; user-select: none; border: 2px solid rgba(74, 62, 92, 0.18); transition: transform 0.08s ease; }
+.xc-grid .cell:hover { transform: scale(1.06); }
+.xc-grid .cell.t0 { background: #FF6B6B; }
+.xc-grid .cell.t1 { background: #FFC93C; }
+.xc-grid .cell.t2 { background: #6BCB77; }
+.xc-grid .cell.t3 { background: #4D96FF; }
+.xc-grid .cell.t4 { background: #B983FF; }
+.xc-grid .cell.sel { outline: 3px solid #FF4D2E; outline-offset: 1px; transform: scale(1.08); z-index: 1; }
+.xc-grid .cell.deny { animation: xc-shake 0.25s ease; }
+@keyframes xc-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.xc-opp { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: #4A3E5C; border-top: 1px dashed #C9BDF3; padding-top: 6px; margin-top: 6px; }
+.xc-opp:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.xc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.xc-log { margin-top: 10px; font-size: 13px; color: #8B7E9E; }
+@media (max-width: 640px) {
+  .xc-topbar { flex-wrap: wrap; }
+  .xc-grid .cell { font-size: 20px; }
+  .xc-stage .xc-status { margin-left: 0; width: 100%; }
+  .xc-main { flex-direction: column; }
+  .xc-side { flex-direction: row; flex-wrap: wrap; }
+}

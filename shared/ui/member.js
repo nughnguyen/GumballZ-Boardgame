@@ -4,7 +4,7 @@
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=27';
 import { profileCss, avatarHTML, AVATARS } from './profile.js?v=45';
-import { ACHS, GAME_NAMES } from './stats.js?v=75';
+import { ACHS, GAME_NAMES } from './stats.js?v=76';
 import { GAME_WINS } from '../titles.js?v=3';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */

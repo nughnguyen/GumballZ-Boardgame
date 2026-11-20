@@ -87,6 +87,7 @@ NAMES = {
     "vetruyentin": "Vẽ Truyền Tin",
     "tetris": "Tetris",
     "ransanmoi": "Rắn Săn Mồi",
+    "xepkeo": "Xếp Kẹo",
 }
 
 # Illustration crop (x0, y0, x1, y1) inside the game's current og jpg.
@@ -137,6 +138,7 @@ CROPS = {
     "vetruyentin": (60, 40, 620, 600),
     "tetris": (60, 40, 620, 600),
     "ransanmoi": (60, 40, 620, 600),
+    "xepkeo": (60, 40, 620, 600),
     "covay": (700, 70, 1140, 565),
     "ranvathang": (725, 55, 1155, 520),
 }

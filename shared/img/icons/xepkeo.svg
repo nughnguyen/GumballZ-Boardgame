@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round">
+    <!-- row of 3 matching candies (the match!) -->
+    <g>
+      <polygon points="26,44 14,36 14,52 26,52" fill="#FFB9CF"/>
+      <polygon points="54,44 66,36 66,52 54,52" fill="#FFB9CF"/>
+      <rect x="26" y="36" width="28" height="16" rx="8" fill="#FF5CA8"/>
+      <circle cx="40" cy="44" r="3" fill="#FFFDF9"/>
+    </g>
+    <g>
+      <polygon points="62,74 50,66 50,82 62,82" fill="#ABE0C6"/>
+      <polygon points="90,74 102,66 102,82 90,82" fill="#ABE0C6"/>
+      <rect x="62" y="66" width="28" height="16" rx="8" fill="#5CB85C"/>
+      <circle cx="76" cy="74" r="3" fill="#FFFDF9"/>
+    </g>
+    <!-- top candy, tilted -->
+    <g transform="rotate(-18 88 26)">
+      <polygon points="74,18 62,10 62,26 74,26" fill="#C9BDF3"/>
+      <polygon points="102,18 114,10 114,26 102,26" fill="#C9BDF3"/>
+      <rect x="74" y="10" width="28" height="16" rx="8" fill="#B388F5"/>
+      <circle cx="88" cy="18" r="3" fill="#FFFDF9"/>
+    </g>
+    <!-- bottom candy, tilted other way -->
+    <g transform="rotate(14 32 92)">
+      <polygon points="18,84 6,76 6,92 18,92" fill="#AFD8F3"/>
+      <polygon points="46,84 58,76 58,92 46,92" fill="#AFD8F3"/>
+      <rect x="18" y="76" width="28" height="16" rx="8" fill="#5CA8E8"/>
+      <circle cx="32" cy="84" r="3" fill="#FFFDF9"/>
+    </g>
+    <!-- small sparkles -->
+    <path d="M100 96 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#FFE45C"/>
+    <path d="M14 14 l2 4.5 4.5 2 -4.5 2 -2 4.5 -2 -4.5 -4.5 -2 4.5 -2 z" fill="#FFE45C"/>
+  </g>
+</svg>
