@@ -95,6 +95,7 @@ NAMES = {
     "bida8": "Bida 8-ball",
     "dapenalty": "Đá Penalty",
     "phitieu": "Phi Tiêu",
+    "keobuabao": "Kéo Búa Bao",
 }
 
 # Illustration crop (x0, y0, x1, y1) inside the game's current og jpg.
@@ -153,6 +154,7 @@ CROPS = {
     "bida8": (60, 40, 620, 600),
     "dapenalty": (60, 40, 620, 600),
     "phitieu": (60, 40, 620, 600),
+    "keobuabao": (60, 40, 620, 600),
     "covay": (700, 70, 1140, 565),
     "ranvathang": (725, 55, 1155, 520),
 }

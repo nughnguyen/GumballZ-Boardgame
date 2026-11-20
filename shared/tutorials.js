@@ -1242,5 +1242,9 @@ export const TUT = {
  "phitieu": {
   "name": "Phi Tiêu — GumballZ Boardgame",
   "steps": []
+ },
+ "keobuabao": {
+  "name": "Kéo Búa Bao — GumballZ Boardgame",
+  "steps": []
  }
 };

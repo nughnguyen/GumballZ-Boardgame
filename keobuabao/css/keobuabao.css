@@ -1,0 +1,86 @@
+/* ✌️ Kéo Búa Bao — kiểu riêng (đồng bộ pastel với các game khác) */
+.kbb-topbar { flex-wrap: wrap; }
+.kbb-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px;
+  padding: 10px 14px; margin: 12px 0; font-weight: 700; color: #4A3E5C;
+}
+.kbb-stage .kbb-status { color: #8B7E9E; font-weight: 600; }
+.kbb-main { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.kbb-picks-wrap {
+  position: relative; width: 100%; max-width: 640px; margin: 0 auto;
+}
+.kbb-picks {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.kbb-pick {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #FFFDF9; border: 3px solid #4A3E5C; border-radius: 18px;
+  padding: 18px 8px 14px; cursor: pointer; font-family: inherit;
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+.kbb-pick:hover:not(:disabled), .kbb-pick:focus-visible:not(:disabled) {
+  background: #FFE3A3; transform: translateY(-3px); outline: none;
+  box-shadow: 0 6px 0 rgba(74, 62, 92, 0.25);
+}
+.kbb-pick:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.kbb-pick:disabled { cursor: default; opacity: 0.75; }
+.kbb-pick-icon { font-size: clamp(44px, 12vw, 72px); line-height: 1; }
+.kbb-pick-name { font-size: 18px; font-weight: 900; color: #4A3E5C; }
+.kbb-pick-beat { font-size: 12px; font-weight: 600; color: #8B7E9E; }
+.kbb-pick.picked {
+  background: #FFE3A3;
+  box-shadow: inset 0 0 0 3px #7C5CFF, 0 6px 0 rgba(124, 92, 255, 0.35);
+}
+.kbb-pick.reveal-win { background: rgba(30, 125, 50, 0.25); box-shadow: inset 0 0 0 3px #1E7D32; }
+.kbb-pick.reveal-lose { background: rgba(214, 31, 74, 0.18); box-shadow: inset 0 0 0 3px #D61F4A; }
+.kbb-pick.reveal-tie { background: rgba(255, 228, 92, 0.4); box-shadow: inset 0 0 0 3px #FF9F43; }
+.kbb-cover {
+  position: absolute; inset: 0; z-index: 5;
+  background: rgba(43, 36, 64, 0.92); border-radius: 12px;
+  display: flex; flex-direction: column; gap: 12px;
+  align-items: center; justify-content: center; text-align: center;
+  color: #FFFDF9; font-weight: 700; padding: 16px;
+}
+.kbb-reveal {
+  position: absolute; inset: 0; z-index: 4;
+  background: rgba(255, 253, 249, 0.96); border: 3px solid #4A3E5C; border-radius: 18px;
+  display: none; flex-direction: column; gap: 10px;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 16px;
+}
+.kbb-reveal.show { display: flex; }
+.kbb-reveal-row { display: flex; align-items: center; gap: 18px; }
+.kbb-reveal-hand {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-weight: 700; color: #4A3E5C; min-width: 96px;
+}
+.kbb-reveal-icon { font-size: clamp(48px, 13vw, 76px); line-height: 1; }
+.kbb-reveal-hand.win .kbb-reveal-icon { filter: drop-shadow(0 0 10px rgba(30, 125, 50, 0.6)); }
+.kbb-reveal-hand.lose .kbb-reveal-icon { opacity: 0.55; }
+.kbb-reveal-vs { font-size: 22px; font-weight: 900; color: #8B7E9E; }
+.kbb-reveal-text { font-size: 17px; font-weight: 900; color: #4A3E5C; }
+.kbb-prompt {
+  min-height: 26px; font-weight: 800; color: #4A3E5C; text-align: center;
+  font-size: 16px; margin-top: 4px;
+}
+.kbb-side { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 10px; }
+.kbb-side .kbb-panel {
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px 12px;
+}
+.kbb-panel-title { font-weight: 800; color: #4A3E5C; margin-bottom: 6px; }
+.kbb-opp { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.kbb-opp:first-child { border-top: none; }
+.kbb-round-row { padding: 3px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.kbb-round-row:first-child { border-top: none; }
+.kbb-round-row .win { color: #1E7D32; font-weight: 800; }
+.kbb-round-row .tie { color: #FF9F43; font-weight: 800; }
+.kbb-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+.kbb-log { font-size: 13px; color: #8B7E9E; min-height: 18px; text-align: center; }
+@media (max-width: 640px) {
+  .kbb-topbar { flex-wrap: wrap; }
+  .kbb-stage { font-size: 13px; padding: 8px 10px; }
+  .kbb-prompt { font-size: 14px; }
+  .kbb-pick { padding: 12px 4px 10px; }
+  .kbb-pick-name { font-size: 15px; }
+}
