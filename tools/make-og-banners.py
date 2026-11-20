@@ -82,6 +82,7 @@ NAMES = {
     "ailatrieuphu": "Ai Là Triệu Phú",
     "haithat1gia": "2 Thật 1 Giả",
     "doanhdong": "Đoán Hành Động",
+    "wavelength": "Wavelength",
 }
 
 # Illustration crop (x0, y0, x1, y1) inside the game's current og jpg.
@@ -127,6 +128,7 @@ CROPS = {
     "ailatrieuphu": (60, 40, 620, 600),
     "haithat1gia": (60, 40, 620, 600),
     "doanhdong": (60, 40, 620, 600),
+    "wavelength": (60, 40, 620, 600),
     "covay": (700, 70, 1140, 565),
     "ranvathang": (725, 55, 1155, 520),
 }

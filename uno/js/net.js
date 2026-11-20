@@ -7,7 +7,7 @@ import { RemoteBase } from '../../shared/net/remotehost.js?v=1';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=70';
+import { watch } from '../../shared/ui/stats.js?v=71';
 export { MAX, PULL_CD, TURN_TIME, OWE_TIME, UNO_PHRASES, session };
 export function loadSnapshot() { try { const d = JSON.parse(localStorage.getItem(SNAP)); return d && Date.now() - d.ts < 3 * 3600e3 ? d : null; } catch (e) { return null; } }
 // ⚙️ Luật mặc định khi tạo phòng mới: lấy từ luat-mac-dinh.js (gốc repo), sai/thiếu thì dùng luật gốc ở đây

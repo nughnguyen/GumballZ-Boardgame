@@ -1190,5 +1190,9 @@ export const TUT = {
  "doanhdong": {
   "name": "Đoán Hành Động — GumballZ Boardgame",
   "steps": []
+ },
+ "wavelength": {
+  "name": "Wavelength — GumballZ Boardgame",
+  "steps": []
  }
 };
