@@ -1,0 +1,97 @@
+/* ⚽ Đá Penalty — kiểu riêng (đồng bộ pastel với các game khác) */
+.dp-topbar { flex-wrap: wrap; }
+.dp-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px;
+  padding: 10px 14px; margin: 12px 0; font-weight: 700; color: #4A3E5C;
+}
+.dp-stage .dp-status { color: #8B7E9E; font-weight: 600; }
+.dp-main { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.dp-goal-wrap {
+  position: relative; width: 100%; max-width: 640px;
+  aspect-ratio: 2 / 1.15; margin: 0 auto;
+}
+.dp-goal {
+  position: absolute; top: 0; left: 0; right: 0; height: 78%;
+  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+  background: linear-gradient(180deg, #AFD8F3 0%, #D6EDFF 55%, #ABE0C6 100%);
+  border: 4px solid #4A3E5C; border-bottom-width: 6px; border-radius: 10px 10px 4px 4px;
+  overflow: hidden;
+}
+/* lưới khung thành */
+.dp-goal::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(74, 62, 92, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 62, 92, 0.18) 1px, transparent 1px);
+  background-size: 33.333% 33.333%;
+}
+.dp-zone {
+  position: relative; z-index: 1; border: 1px dashed rgba(74, 62, 92, 0.25);
+  background: transparent; cursor: pointer; padding: 0;
+  transition: background 0.12s ease;
+}
+.dp-zone:hover:not(:disabled), .dp-zone:focus-visible:not(:disabled) {
+  background: rgba(124, 92, 255, 0.18); outline: none;
+}
+.dp-zone:disabled { cursor: default; }
+.dp-zone.picked {
+  background: rgba(255, 228, 92, 0.55);
+  box-shadow: inset 0 0 0 3px #7C5CFF;
+}
+.dp-zone.reveal-goal { background: rgba(30, 125, 50, 0.45); box-shadow: inset 0 0 0 3px #1E7D32; }
+.dp-zone.reveal-save { background: rgba(214, 31, 74, 0.45); box-shadow: inset 0 0 0 3px #D61F4A; }
+.dp-keeper {
+  position: absolute; z-index: 2; left: 50%; top: 78%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(28px, 7vw, 44px); line-height: 1;
+  transition: left 0.55s ease, top 0.55s ease, transform 0.55s ease;
+  pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.dp-keeper.dive-left { transform: translate(-50%, -50%) rotate(-28deg) scale(1.05); }
+.dp-keeper.dive-right { transform: translate(-50%, -50%) rotate(28deg) scale(1.05); }
+.dp-ball {
+  position: absolute; z-index: 3; left: 50%; top: 90%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(26px, 6vw, 38px); line-height: 1;
+  transition: left 0.55s ease, top 0.55s ease;
+  pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.dp-cover {
+  position: absolute; inset: 0; z-index: 5;
+  background: rgba(43, 36, 64, 0.92); border-radius: 12px;
+  display: flex; flex-direction: column; gap: 12px;
+  align-items: center; justify-content: center; text-align: center;
+  color: #FFFDF9; font-weight: 700; padding: 16px;
+}
+.dp-reveal {
+  position: absolute; z-index: 4; left: 50%; top: 34%;
+  transform: translate(-50%, -50%) scale(0.9);
+  font-size: clamp(22px, 5.5vw, 34px); font-weight: 900; color: #FFFDF9;
+  text-shadow: 0 2px 0 #4A3E5C, 0 0 14px rgba(0, 0, 0, 0.45);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+.dp-reveal.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.dp-prompt {
+  min-height: 26px; font-weight: 800; color: #4A3E5C; text-align: center;
+  font-size: 16px; margin-top: 4px;
+}
+.dp-side { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 10px; }
+.dp-side .dp-panel {
+  background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px 12px;
+}
+.dp-panel-title { font-weight: 800; color: #4A3E5C; margin-bottom: 6px; }
+.dp-opp { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.dp-opp:first-child { border-top: none; }
+.dp-kick { padding: 3px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; color: #4A3E5C; }
+.dp-kick:first-child { border-top: none; }
+.dp-kick .goal { color: #1E7D32; font-weight: 800; }
+.dp-kick .save { color: #D61F4A; font-weight: 800; }
+.dp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+.dp-log { font-size: 13px; color: #8B7E9E; min-height: 18px; text-align: center; }
+@media (max-width: 640px) {
+  .dp-topbar { flex-wrap: wrap; }
+  .dp-stage { font-size: 13px; padding: 8px 10px; }
+  .dp-prompt { font-size: 14px; }
+}

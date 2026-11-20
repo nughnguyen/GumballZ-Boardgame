@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đá Penalty — GumballZ Boardgame</title>
+<meta property="og:title" content="Đá Penalty · GumballZ Boardgame">
+<meta property="og:description" content="Đá Penalty: sút luân lưu 3×3 — chọn góc sút, thủ môn chọn hướng đổ người, cùng ô thì bị cản phá, khác ô thì vào lưới!">
+<meta property="og:image" content="../shared/img/og/dapenalty.jpg">
+<meta name="description" content="Đá Penalty — sút luân lưu: chọn góc sút bí mật, thủ môn chọn hướng đổ người bí mật. Chơi đơn luyện tập, đấu máy, online 2 người hoặc chung máy!">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="css/dapenalty.css?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+window.GAME_META = { game: 'dapenalty', name: 'Đá Penalty', gid: 'dapenalty', color: '#1E7D32', icon: '⚽' };
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar dp-topbar">
+    <a class="logo" href="../index.html">🎲 GumballZ</a>
+    <span class="game-name">⚽ Đá Penalty</span>
+    <span class="spacer"></span>
+    <div class="tools">
+      <button class="btn small" id="btn-guide-top">📖 Luật chơi</button>
+      <button class="btn small" id="btn-sound">🔊 Âm thanh</button>
+      <button class="btn small danger" id="btn-leave">🏠 Về trang chủ</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- MÀN HÌNH TRANG CHỦ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-card">
+        <div class="home-icon">⚽</div>
+        <h1>Đá Penalty</h1>
+        <p class="tagline">Sút luân lưu — chọn góc sút, thủ môn chọn hướng đổ người, cùng ô thì bị cản phá!</p>
+        <p class="desc">Khung thành chia 3×3 ô. Người sút và thủ môn cùng chọn 1 ô bí mật: cùng ô thì cản phá, khác ô thì vào lưới. Đấu 5 vòng mỗi người, hoà thì luân lưu; chơi đơn sút 10 cú, ghi ≥ 7 bàn thì thắng.</p>
+        <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+        <div class="mode-grid dp-mode-grid">
+          <button class="btn big primary" id="btn-solo">🧍 Chơi đơn</button>
+          <button class="btn big" id="btn-vs-bot">🤖 Đấu với máy</button>
+          <button class="btn big" id="btn-online">🌐 Chơi online</button>
+          <button class="btn big" id="btn-local">👥 2 người cùng máy</button>
+        </div>
+        <div class="solo-row" id="solo-row" style="display:none">
+          <label>Thủ môn máy:
+            <select id="sel-solo-level">
+              <option value="easy">Dễ (đổ người ngẫu nhiên)</option>
+              <option value="hard" selected>Khó (đọc thói quen sút của bạn)</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-solo">▶ Bắt đầu</button>
+          <p class="hint">Luyện tập: sút 10 cú liên tiếp trước thủ môn máy — ghi ≥ 7 bàn thì thắng.</p>
+        </div>
+        <div class="bot-row" id="bot-row" style="display:none">
+          <label>Độ khó máy:
+            <select id="sel-level">
+              <option value="easy">Dễ (chọn ngẫu nhiên)</option>
+              <option value="hard" selected>Khó (đọc thói quen của bạn)</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-bot">▶ Bắt đầu</button>
+          <p class="hint">Đấu luân phiên sút/bắt với máy: 5 vòng mỗi người, hoà thì đá luân lưu.</p>
+        </div>
+        <div class="room-box" id="room-box" style="display:none">
+          <div class="join-row">
+            <input id="join-code" type="text" placeholder="Nhập mã phòng (VD: ABC12)" maxlength="5">
+            <button class="btn" id="btn-join">Vào phòng</button>
+          </div>
+          <button class="btn primary" id="btn-create">＋ Tạo phòng mới</button>
+          <p class="hint">Chia sẻ mã phòng cho bạn bè để cùng đá penalty (2 người, luân phiên sút/bắt).</p>
+        </div>
+        <div class="local-row" id="local-row" style="display:none">
+          <label>Tên người chơi 2:
+            <input id="inp-p2name" maxlength="16" placeholder="Bạn 2" value="Bạn 2">
+          </label>
+          <button class="btn primary" id="btn-start-local">▶ Bắt đầu</button>
+          <p class="hint">2 người chung 1 máy: người sút chọn trước, người bắt chọn sau (có màn che để không nhìn trộm).</p>
+        </div>
+        <div class="home-links">
+          <button class="btn small" id="btn-guide-home">📖 Luật chơi</button>
+          <a class="btn small" href="../luat/dapenalty.html">📜 Luật chi tiết</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH SẢNH CHỜ -->
+    <section class="screen" id="screen-lobby">
+      <div class="card">
+        <h2>🚪 Sảnh chờ</h2>
+        <p>Mã phòng: <b id="room-code">—</b></p>
+        <div id="code-box" class="code-box"></div>
+        <div class="lobby-actions">
+          <button class="btn" id="btn-copy">📋 Sao chép mã</button>
+          <button class="btn danger" id="btn-leave-lobby">Rời phòng</button>
+        </div>
+        <div id="lobby-list" class="lobby-list"></div>
+        <button class="btn primary big" id="btn-start-online">▶ Bắt đầu ván</button>
+        <p class="hint">Chỉ chủ phòng mới bắt đầu được. Đá Penalty cần 2 người.</p>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH CHƠI -->
+    <section class="screen" id="screen-game">
+      <div class="dp-stage">
+        <span class="dp-turn">⚽ Lượt sút: <b id="dp-turn">—</b></span>
+        <span class="dp-round" id="dp-round"></span>
+        <span class="dp-score">🥅 <b id="dp-score">0 – 0</b></span>
+        <span class="dp-status" id="dp-status"></span>
+      </div>
+      <div class="dp-main">
+        <div class="dp-goal-wrap" id="dp-goal-wrap">
+          <div class="dp-goal" id="dp-goal">
+            <button class="dp-zone" data-zone="tl" aria-label="Trên trái"></button>
+            <button class="dp-zone" data-zone="tc" aria-label="Trên giữa"></button>
+            <button class="dp-zone" data-zone="tr" aria-label="Trên phải"></button>
+            <button class="dp-zone" data-zone="ml" aria-label="Giữa trái"></button>
+            <button class="dp-zone" data-zone="mc" aria-label="Giữa"></button>
+            <button class="dp-zone" data-zone="mr" aria-label="Giữa phải"></button>
+            <button class="dp-zone" data-zone="bl" aria-label="Dưới trái"></button>
+            <button class="dp-zone" data-zone="bc" aria-label="Dưới giữa"></button>
+            <button class="dp-zone" data-zone="br" aria-label="Dưới phải"></button>
+            <div class="dp-keeper" id="dp-keeper">🧍</div>
+          </div>
+          <div class="dp-ball" id="dp-ball">⚽</div>
+          <div class="dp-cover" id="dp-cover" style="display:none">
+            <p id="dp-cover-text"></p>
+            <button class="btn primary" id="btn-cover-ok">🙈 Tôi đã sẵn sàng</button>
+          </div>
+          <div class="dp-reveal" id="dp-reveal"></div>
+        </div>
+        <div class="dp-prompt" id="dp-prompt"></div>
+        <div class="dp-side">
+          <div class="dp-panel"><div class="dp-panel-title">Tỉ số</div><div id="dp-opps"></div></div>
+          <div class="dp-panel"><div class="dp-panel-title">Lịch sử sút</div><div id="dp-kicks"></div></div>
+        </div>
+      </div>
+      <div class="dp-actions">
+        <button class="btn danger" id="btn-resign">🏳️ Xin thua</button>
+      </div>
+      <div class="dp-log" id="dp-log"></div>
+    </section>
+
+    <!-- MÀN HÌNH KẾT THÚC -->
+    <section class="screen" id="screen-end">
+      <div class="card end-card">
+        <h2 id="end-title">🏆 Kết thúc!</h2>
+        <div id="end-body"></div>
+        <div class="end-actions">
+          <button class="btn primary big" id="btn-again">🔄 Chơi lại</button>
+          <a class="btn big" href="../index.html">🏠 Về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gmf"></footer>
+</div>
+
+<div id="modal" class="modal">
+  <div id="modal-box" class="modal-box"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="../shared/ui/footer.js?v=11"></script>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>

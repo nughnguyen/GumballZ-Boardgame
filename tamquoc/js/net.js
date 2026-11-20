@@ -6,7 +6,7 @@ import { S } from './fx.js?v=12';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=51';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=81';
+import { watch } from '../../shared/ui/stats.js?v=82';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30; // giây: hết giờ thì máy tự đánh thay (chống treo máy)
