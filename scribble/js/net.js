@@ -3,7 +3,7 @@
 import { createGame, applyAction, viewFor, tick, addDraw, addPlayer, setOnline, dropPlayer, bookItems, shiftTime, cleanOpts, DEFAULT_OPTS, maxPlayers, MAX_CROWD, MAX_NORMAL, checkTease } from './engine.js?v=13';
 import { RoomHost, RoomClient, token, session, makeCode } from '../../shared/net/room.js?v=51';
 import { announceRoom, myLevel } from '../../shared/net/api.js?v=27';
-import { watch } from '../../shared/ui/stats.js?v=77';
+import { watch } from '../../shared/ui/stats.js?v=78';
 import { isReact, hostLimiter } from '../../shared/ui/react.js?v=6';
 import { CATS } from './words.js?v=7';
 import { GMODES, REVEAL_AUTO } from './engine.js?v=13';

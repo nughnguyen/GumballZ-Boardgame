@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#C9BDF3"/>
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round">
+    <!-- clue numbers top + left -->
+    <text x="62" y="18" font-family="Nunito, sans-serif" font-size="12" font-weight="bold" fill="#4A3E5C" text-anchor="middle">3</text>
+    <text x="86" y="18" font-family="Nunito, sans-serif" font-size="12" font-weight="bold" fill="#4A3E5C" text-anchor="middle">2</text>
+    <text x="14" y="50" font-family="Nunito, sans-serif" font-size="12" font-weight="bold" fill="#4A3E5C" text-anchor="middle">2</text>
+    <text x="14" y="74" font-family="Nunito, sans-serif" font-size="12" font-weight="bold" fill="#4A3E5C" text-anchor="middle">3</text>
+    <text x="14" y="98" font-family="Nunito, sans-serif" font-size="12" font-weight="bold" fill="#4A3E5C" text-anchor="middle">1</text>
+    <!-- 3x3 grid -->
+    <g>
+      <rect x="26" y="26" width="24" height="24" rx="3" fill="#FFFDF9"/>
+      <rect x="50" y="26" width="24" height="24" rx="3" fill="#2B2440"/>
+      <rect x="74" y="26" width="24" height="24" rx="3" fill="#FFFDF9"/>
+      <rect x="26" y="50" width="24" height="24" rx="3" fill="#2B2440"/>
+      <rect x="50" y="50" width="24" height="24" rx="3" fill="#2B2440"/>
+      <rect x="74" y="50" width="24" height="24" rx="3" fill="#FFFDF9"/>
+      <rect x="26" y="74" width="24" height="24" rx="3" fill="#FFFDF9"/>
+      <rect x="50" y="74" width="24" height="24" rx="3" fill="#2B2440"/>
+      <rect x="74" y="74" width="24" height="24" rx="3" fill="#FFFDF9"/>
+    </g>
+    <!-- X mark on an empty cell -->
+    <path d="M78 78 l16 16 M94 78 l-16 16" fill="none" stroke="#FF5CA8" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nonogram — GumballZ Boardgame</title>
+<meta property="og:title" content="Nonogram · GumballZ Boardgame">
+<meta property="og:description" content="Tô ô đen theo số gợi ý để lộ ra bức tranh — chơi đơn, đấu máy, online hoặc chung máy!">
+<meta property="og:image" content="../shared/img/og/nonogram.jpg">
+<meta name="description" content="Nonogram — tô đen các ô theo số gợi ý để tạo thành hình ẩn. Chơi đơn 5×5/10×10/15×15, đua với máy hoặc bạn bè online!">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=4">
+<link rel="stylesheet" href="css/nonogram.css?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+window.GAME_META = { game: 'nonogram', name: 'Nonogram', gid: 'nonogram', color: '#7C5CFF', icon: '🧩' };
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar ng-topbar">
+    <a class="logo" href="../index.html">🎲 GumballZ</a>
+    <span class="game-name">🧩 Nonogram</span>
+    <span class="spacer"></span>
+    <div class="tools">
+      <button class="btn small" id="btn-guide">📖 Luật chơi</button>
+      <button class="btn small" id="btn-sound">🔊 Âm thanh</button>
+      <button class="btn small danger" id="btn-leave">🏠 Về trang chủ</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- MÀN HÌNH TRANG CHỦ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-card">
+        <div class="home-icon">🧩</div>
+        <h1>Nonogram</h1>
+        <p class="tagline">Tô ô theo số gợi ý để lộ hình ẩn — đừng tô sai quá 3 lần!</p>
+        <p class="desc">Đầu mỗi hàng và cột có dãy số gợi ý: độ dài các đoạn ô đen liên tiếp. Bấm ô để tô đen, bấm chuột phải để đánh dấu ✕ ô chắc chắn trắng. Tô đủ hết các ô đen thì thắng!</p>
+        <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+        <div class="mode-grid ng-mode-grid">
+          <button class="btn big primary" id="btn-solo">🧍 Chơi đơn</button>
+          <button class="btn big" id="btn-vs-bot">🤖 Đấu với máy</button>
+          <button class="btn big" id="btn-online">🌐 Chơi online</button>
+          <button class="btn big" id="btn-local">👥 2 người cùng máy</button>
+        </div>
+        <div class="solo-row" id="solo-row" style="display:none">
+          <label>Kích thước bảng:
+            <select id="sel-solo-size">
+              <option value="5">Dễ — 5×5</option>
+              <option value="10" selected>Vừa — 10×10</option>
+              <option value="15">Khó — 15×15</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-solo">▶ Bắt đầu</button>
+          <p class="hint">Chơi đơn: tô đủ hết các ô đen trước khi hết 3 mạng thì thắng.</p>
+        </div>
+        <div class="bot-row" id="bot-row" style="display:none">
+          <label>Độ khó máy:
+            <select id="sel-level">
+              <option value="easy">Dễ (tô bừa)</option>
+              <option value="hard" selected>Khó (suy luận)</option>
+            </select>
+          </label>
+          <label>Kích thước bảng:
+            <select id="sel-size">
+              <option value="5">Dễ — 5×5</option>
+              <option value="10" selected>Vừa — 10×10</option>
+              <option value="15">Khó — 15×15</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-bot">▶ Bắt đầu</button>
+          <p class="hint">Đua cùng 1 câu đố: ai tô đủ trước thì thắng; hết 180 giây thì so % hoàn thành.</p>
+        </div>
+        <div class="room-box" id="room-box" style="display:none">
+          <div class="join-row">
+            <input id="join-code" type="text" placeholder="Nhập mã phòng (VD: ABC12)" maxlength="5">
+            <button class="btn" id="btn-join">Vào phòng</button>
+          </div>
+          <button class="btn primary" id="btn-create">＋ Tạo phòng mới</button>
+          <p class="hint">Chia sẻ mã phòng cho bạn bè để cùng đua 1 câu đố (2–4 người). Chủ phòng chọn kích thước bảng trong sảnh chờ.</p>
+        </div>
+        <div class="local-row" id="local-row" style="display:none">
+          <label>Tên người chơi 2:
+            <input id="inp-p2name" maxlength="16" placeholder="Bạn 2" value="Bạn 2">
+          </label>
+          <label>Kích thước bảng:
+            <select id="sel-local-size">
+              <option value="5">Dễ — 5×5</option>
+              <option value="10" selected>Vừa — 10×10</option>
+              <option value="15">Khó — 15×15</option>
+            </select>
+          </label>
+          <button class="btn primary" id="btn-start-local">▶ Bắt đầu</button>
+          <p class="hint">2 người chung 1 màn hình, thay phiên bấm vào bảng của mình. Chỉ tiện trên máy tính.</p>
+        </div>
+        <div class="home-links">
+          <button class="btn small" id="btn-guide-home">📖 Luật chơi</button>
+          <a class="btn small" href="../luat/nonogram.html">📜 Luật chi tiết</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH SẢNH CHỜ -->
+    <section class="screen" id="screen-lobby">
+      <div class="card">
+        <h2>🚪 Sảnh chờ</h2>
+        <p>Mã phòng: <b id="room-code">—</b></p>
+        <div id="code-box" class="code-box"></div>
+        <div class="lobby-actions">
+          <button class="btn" id="btn-copy">📋 Sao chép mã</button>
+          <button class="btn danger" id="btn-leave-lobby">Rời phòng</button>
+        </div>
+        <div id="lobby-list" class="lobby-list"></div>
+        <button class="btn primary big" id="btn-start-online">▶ Bắt đầu ván</button>
+        <p class="hint">Chỉ chủ phòng mới bắt đầu được. Đua cần ít nhất 2 người.</p>
+      </div>
+    </section>
+
+    <!-- MÀN HÌNH CHƠI -->
+    <section class="screen" id="screen-game">
+      <div class="ng-stage">
+        <span class="ng-score">⭐ <b id="ng-score">0</b> điểm</span>
+        <span class="ng-filled">🧩 Đã tô <b id="ng-filled">0/0</b></span>
+        <span class="ng-lives">❤️ Mạng <b id="ng-lives">3</b></span>
+        <span class="ng-time">⏱️ <b id="ng-time">0:00</b></span>
+        <span class="ng-status" id="ng-status"></span>
+      </div>
+      <div class="ng-main">
+        <div class="ng-side">
+          <div class="ng-panel"><div class="ng-panel-title">Đối thủ</div><div id="ng-opps"></div></div>
+        </div>
+        <div id="ng-boards"></div>
+      </div>
+      <div class="ng-tools">
+        <button class="btn" id="btn-tool">✏️ Chế độ: Tô đen</button>
+        <button class="btn" id="btn-hint">💡 Gợi ý (<span id="ng-hints">3</span>)</button>
+        <button class="btn danger" id="btn-resign">🏳️ Xin thua</button>
+      </div>
+      <div class="ng-log" id="ng-log"></div>
+    </section>
+
+    <!-- MÀN HÌNH KẾT THÚC -->
+    <section class="screen" id="screen-end">
+      <div class="card end-card">
+        <h2 id="end-title">🏆 Kết thúc!</h2>
+        <div id="end-body"></div>
+        <div class="end-actions">
+          <button class="btn primary big" id="btn-again">🔄 Chơi lại</button>
+          <a class="btn big" href="../index.html">🏠 Về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="gmf"></footer>
+</div>
+
+<div id="modal" class="modal">
+  <div id="modal-box" class="modal-box"></div>
+</div>
+
+<script src="../shared/ui/footer.js?v=9"></script>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>

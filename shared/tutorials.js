@@ -1218,5 +1218,9 @@ export const TUT = {
  "banbong": {
   "name": "Bắn Bóng · GumballZ Boardgame",
   "steps": []
+ },
+ "nonogram": {
+  "name": "Nonogram — GumballZ Boardgame",
+  "steps": []
  }
 };

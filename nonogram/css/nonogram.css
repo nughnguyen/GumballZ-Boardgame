@@ -1,0 +1,62 @@
+/* 🧩 Nonogram — giao diện đồng bộ pastel của site. */
+.ng-topbar { flex-wrap: wrap; }
+.ng-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ng-stage { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-weight: 800; color: #4A3E5C; background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px 14px; margin-bottom: 10px; }
+.ng-stage .ng-status { margin-left: auto; color: #8B7E9E; font-size: 13px; }
+.ng-main { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.ng-side { display: flex; flex-direction: column; gap: 10px; min-width: 120px; }
+.ng-panel { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 8px; }
+.ng-panel-title { font-weight: 800; font-size: 13px; color: #4A3E5C; margin-bottom: 6px; }
+#ng-boards { display: flex; gap: 16px; flex-wrap: wrap; }
+.ng-board-wrap { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px; }
+.ng-board-head { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: #4A3E5C; margin-bottom: 8px; }
+.ng-board { display: grid; grid-template-columns: max-content max-content; grid-template-rows: max-content max-content; }
+.ng-corner { grid-column: 1; grid-row: 1; }
+.ng-colclues { grid-column: 2; grid-row: 1; display: grid; grid-auto-flow: column; gap: 1px; padding: 1px; }
+.ng-colclues .ng-cc { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; font-size: 11px; font-weight: 800; line-height: 1.25; color: #4A3E5C; }
+.ng-rowclues { grid-column: 1; grid-row: 2; display: grid; gap: 1px; padding: 1px; }
+.ng-rowclues .ng-rc { display: flex; justify-content: flex-end; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; line-height: 1.25; color: #4A3E5C; padding-right: 4px; white-space: nowrap; }
+.ng-grid { grid-column: 2; grid-row: 2; display: grid; gap: 1px; background: #1B1425; border: 2px solid #1B1425; border-radius: 6px; padding: 1px; }
+.ng-grid .cell { background: #FFFDF9; border-radius: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; user-select: none; }
+.ng-grid .cell:hover { background: #FFE3A3; }
+.ng-grid .cell.filled { background: #1B1425; }
+.ng-grid .cell.marked { color: #8B7E9E; }
+.ng-grid .cell.marked::after { content: "✕"; }
+.ng-grid .cell.locked { background: #FFE0E0; color: #E5484D; }
+.ng-grid .cell.locked::after { content: "✕"; }
+/* kích thước ô theo bảng */
+.ng-n5 .ng-grid { grid-template-columns: repeat(5, 40px); grid-auto-rows: 40px; }
+.ng-n5 .cell { width: 40px; height: 40px; font-size: 20px; }
+.ng-n5 .ng-cc { width: 40px; }
+.ng-n5 .ng-rc { height: 40px; min-width: 44px; }
+.ng-n10 .ng-grid { grid-template-columns: repeat(10, 30px); grid-auto-rows: 30px; }
+.ng-n10 .cell { width: 30px; height: 30px; font-size: 16px; }
+.ng-n10 .ng-cc { width: 30px; }
+.ng-n10 .ng-rc { height: 30px; min-width: 44px; }
+.ng-n15 .ng-grid { grid-template-columns: repeat(15, 22px); grid-auto-rows: 22px; }
+.ng-n15 .cell { width: 22px; height: 22px; font-size: 12px; }
+.ng-n15 .ng-cc { width: 22px; }
+.ng-n15 .ng-rc { height: 22px; min-width: 40px; }
+.ng-opp { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: #4A3E5C; border-top: 1px dashed #C9BDF3; padding-top: 6px; margin-top: 6px; }
+.ng-opp:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.ng-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.ng-tools .btn { min-width: 56px; }
+.ng-log { margin-top: 10px; font-size: 13px; color: #8B7E9E; }
+@media (max-width: 640px) {
+  .ng-topbar { flex-wrap: wrap; }
+  .ng-stage .ng-status { margin-left: 0; width: 100%; }
+  .ng-main { flex-direction: column; }
+  .ng-side { flex-direction: row; flex-wrap: wrap; }
+  .ng-n5 .ng-grid { grid-template-columns: repeat(5, 34px); grid-auto-rows: 34px; }
+  .ng-n5 .cell { width: 34px; height: 34px; }
+  .ng-n5 .ng-cc { width: 34px; }
+  .ng-n5 .ng-rc { height: 34px; }
+  .ng-n10 .ng-grid { grid-template-columns: repeat(10, 26px); grid-auto-rows: 26px; }
+  .ng-n10 .cell { width: 26px; height: 26px; }
+  .ng-n10 .ng-cc { width: 26px; }
+  .ng-n10 .ng-rc { height: 26px; }
+  .ng-n15 .ng-grid { grid-template-columns: repeat(15, 18px); grid-auto-rows: 18px; }
+  .ng-n15 .cell { width: 18px; height: 18px; font-size: 10px; }
+  .ng-n15 .ng-cc { width: 18px; }
+  .ng-n15 .ng-rc { height: 18px; }
+}
