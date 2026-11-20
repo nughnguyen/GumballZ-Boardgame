@@ -1250,5 +1250,9 @@ export const TUT = {
  "dovui": {
   "name": "Đố Vui Siêu Tốc",
   "steps": []
+ },
+ "hoisanquai": {
+  "name": "Hội Săn Quái (Here to Slay)",
+  "steps": []
  }
 };

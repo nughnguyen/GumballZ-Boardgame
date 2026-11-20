@@ -71,7 +71,7 @@ const VERIFIED_ACHS = [
   { id: 'k5', ok: t => t.kinds >= 5 }, { id: 'k10', ok: t => t.kinds >= 10 }, { id: 'k15', ok: t => t.kinds >= 15 },
   { id: 'k20', ok: t => t.kinds >= 20 }, { id: 'k24', ok: t => t.kinds >= 24 }, { id: 'k25', ok: t => t.kinds >= 25 },
   { id: 'k30', ok: t => t.kinds >= 30 }, { id: 'k35', ok: t => t.kinds >= 35 },
-  { id: 'c-allgames', ok: t => t.kinds >= 91 }, /* đủ 91 game trong GAME_NAMES (shared/ui/stats.js) */
+  { id: 'c-allgames', ok: t => t.kinds >= 92 }, /* đủ 92 game trong GAME_NAMES (shared/ui/stats.js) */
   { id: 'm10', ok: t => t.top >= 10 }, { id: 'c-w50', ok: t => t.top >= 50 }, { id: 'm25', ok: t => t.top >= 25 },
   { id: 'd3', ok: t => t.days >= 3 }, { id: 'd7', ok: t => t.days >= 7 }, { id: 'd14', ok: t => t.days >= 14 }, { id: 'd30', ok: t => t.days >= 30 },
   { id: 'd60', ok: t => t.days >= 60 }, { id: 'd100', ok: t => t.days >= 100 },
@@ -231,7 +231,7 @@ export class Users extends DurableObject {
       const syncV = (P.syncV && typeof P.syncV === 'object' ? P.syncV : {}) || {}; /* mốc ván đã xác minh ở lần đồng bộ trước (để trừ trùng) */
       const V = P.v || {};
       for (const g of Object.keys(add).slice(0, 100)) {
-        if (!/^[a-z]{2,14}$/.test(g) || (!P.g[g] && Object.keys(P.g).length >= 100)) continue; /* tối đa 100 game trong hồ sơ — site đang hướng tới 90 game, mức 40 cũ đã không đủ từ lúc có 41 game */
+        if (!/^[a-z]{2,14}$/.test(g) || (!P.g[g] && Object.keys(P.g).length >= 100)) continue; /* tối đa 100 game trong hồ sơ — site đang hướng tới 92 game, mức 40 cũ đã không đủ từ lúc có 41 game */
         const a = add[g] || {}, cur = P.g[g] || { p: 0, w: 0, last: 0 };
         /* trừ ván máy chủ đã ghi kể từ lần đồng bộ trước: ván online do máy chủ giữ đã có trong P.g qua recordGame,
            mà máy người chơi cũng ghi lại trong số local nên sẽ nằm trong add — trừ đi để không cộng 2 lần */
