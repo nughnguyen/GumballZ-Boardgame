@@ -1182,5 +1182,9 @@ export const TUT = {
  "ailatrieuphu": {
   "name": "Ai Là Triệu Phú",
   "steps": []
+ },
+ "haithat1gia": {
+  "name": "2 Thật 1 Giả",
+  "steps": []
  }
 };

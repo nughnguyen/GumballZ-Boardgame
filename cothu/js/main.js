@@ -9,7 +9,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=49';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=68';
+import { recordEvent } from '../../shared/ui/stats.js?v=69';
 
 const NET = makeNet({
   game: 'cothu', min: 2, max: 2, maxSeats: 10, allowLocal: true,

@@ -1,0 +1,50 @@
+/* 🤥 2 Thật 1 Giả — pastel chung web, thẻ câu hỏi ở giữa, bảng điểm phía trên */
+.ht-wrap { max-width: 960px; margin: 0 auto; padding: 0 12px 40px; }
+.ht-topbar { position: sticky; top: 0; z-index: 5; }
+.ht-status { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.ht-status .stat { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: 14px; color: #4A3E5C; }
+.ht-status .stat.me { background: #FFE3A3; }
+.ht-status .stat.turn { border-color: #7C5CFF; background: #EDE7FF; }
+.ht-timer { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; }
+.ht-timer .t-num { font-family: "Bungee", sans-serif; font-size: 26px; color: #4A3E5C; min-width: 64px; }
+.ht-timer .t-num.low { color: #FF4D2E; }
+.ht-timer .t-bar { flex: 1; height: 12px; background: #F0E9DC; border: 2px solid #4A3E5C; border-radius: 999px; overflow: hidden; }
+.ht-timer .t-bar i { display: block; height: 100%; background: #00B8A9; }
+.ht-timer .t-bar.low i { background: #FF4D2E; }
+.ht-card { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 16px; padding: 16px; }
+.ht-card h2 { font-family: "Baloo 2", sans-serif; font-size: 19px; margin: 0 0 6px; color: #4A3E5C; }
+.ht-card .topic { display: inline-block; background: #C9BDF3; border-radius: 999px; padding: 3px 10px; font-weight: 800; font-size: 13px; color: #4A3E5C; margin-bottom: 10px; }
+.ht-stmts { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.ht-stmt { display: flex; align-items: flex-start; gap: 10px; text-align: left; background: #FFF8EE; border: 2px solid #4A3E5C; border-radius: 12px; padding: 12px; font-family: "Nunito", sans-serif; font-weight: 800; font-size: 15px; line-height: 1.4; color: #4A3E5C; cursor: pointer; width: 100%; }
+.ht-stmt:hover:not(:disabled) { background: #C9BDF3; }
+.ht-stmt:disabled { cursor: default; opacity: 0.55; }
+.ht-stmt.sel { background: #FFE3A3; }
+.ht-stmt.right { background: #ABE0C6; border-color: #1E7A4C; }
+.ht-stmt.wrong { background: #FFB9CF; border-color: #FF4D2E; }
+.ht-stmt .k { font-family: "Bungee", sans-serif; font-size: 15px; color: #7C5CFF; flex: none; }
+.ht-stmt .who { display: block; font-size: 12px; font-weight: 700; color: #8B7E9E; margin-top: 4px; }
+.ht-submit { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.ht-submit .fld { display: flex; flex-direction: column; gap: 4px; font-weight: 800; font-size: 14px; color: #4A3E5C; }
+.ht-submit input[type="text"] { width: 100%; box-sizing: border-box; border: 2px solid #4A3E5C; border-radius: 10px; padding: 10px 12px; font-family: "Nunito", sans-serif; font-weight: 700; font-size: 15px; color: #4A3E5C; background: #FFFDF9; }
+.ht-submit .lie-pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.ht-submit .lie-pick .btn { flex: 1 1 30%; }
+.ht-submit .lie-pick .btn.sel { background: #FFB9CF; border-color: #FF4D2E; }
+.ht-reveal { margin-top: 6px; }
+.ht-reveal .res-line { font-weight: 800; font-size: 16px; color: #4A3E5C; margin: 8px 0; }
+.ht-reveal .guess-list { margin: 8px 0; font-weight: 700; color: #4A3E5C; }
+.ht-reveal .guess-list li { margin: 3px 0; }
+.ht-stage { font-weight: 700; color: #8B7E9E; margin: 10px 0; min-height: 20px; }
+.ht-actions-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.ht-players { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.ht-players .ht-player { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px 12px; font-weight: 700; color: #4A3E5C; min-width: 150px; }
+.ht-players .ht-player.turn { border-color: #7C5CFF; background: #EDE7FF; }
+.ht-players .ht-player.me { background: #FFE3A3; }
+.ht-log { margin-top: 12px; font-size: 14px; color: #8B7E9E; }
+.ht-log p { margin: 3px 0; }
+.ht-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+@media (max-width: 640px) {
+  .ht-topbar { flex-wrap: wrap; }
+  .ht-topbar h1 { font-size: 18px; }
+  .ht-stmt { font-size: 14px; }
+  .ht-players .ht-player { min-width: 120px; }
+}
