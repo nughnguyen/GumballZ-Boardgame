@@ -1,0 +1,101 @@
+<!-- LƯU Ý: RML này là bản đặc tả v1 (chỉ để tham khảo/kiểm tra bằng CLI). Nguồn build .riv CHÍNH THỨC là build.mjs (kiến trúc v2). -->
+<!-- Cờ Cá Ngựa — quân ngựa ngọc nhảy từng bước qua các ô đá + lắc nhẹ.
+     Artboard 200×200, animation "loop" 144 frames @60fps = 2.4s, lặp vô hạn.
+     Nguồn RML (bản đặc tả, biên dịch được bằng Rive CLI: rive . --verify).
+     File .riv đi kèm được build bằng shared/rive/src/build.mjs (thư viện
+     @stevysmith/rive-generator) vì CLI không xuất .riv khi chưa đăng nhập.
+     Màu: ngọc #2EC5B6, mực #241A38, kem #FFF8EE. -->
+<Rive version="1" kind="fragment">
+    <Artboard width="200" height="200" name="cangua" id="0:1">
+        <!-- 3 ô đá để nhảy qua -->
+        <Shape x="0" y="0" name="Stones" id="0:2">
+            <Ellipse originX="0.5" originY="0.5" x="60" y="152" width="12" height="12" name="Stone"/>
+            <Ellipse originX="0.5" originY="0.5" x="100" y="152" width="12" height="12" name="Stone"/>
+            <Ellipse originX="0.5" originY="0.5" x="140" y="152" width="12" height="12" name="Stone"/>
+            <Fill name="Fill">
+                <SolidColor colorValue="FF2EC5B6" name="Color"/>
+            </Fill>
+        </Shape>
+        <!-- LƯU Ý thứ tự vẽ (Rive): con ĐẦU TIÊN trong danh sách vẽ Ở TRÊN cùng.
+             Nên xếp từ trước ra sau: mắt/mõm -> thân -> tai (tai nằm sau mép trên). -->
+        <!-- Quân ngựa: node để nhảy + lắc cả cụm -->
+        <Node x="60" y="100" name="Horse" id="0:3">
+            <Shape x="0" y="0" name="Eye" id="0:8">
+                <Ellipse originX="0.5" originY="0.5" x="10" y="-8" width="7" height="7" name="Path"/>
+                <Fill name="Fill">
+                    <SolidColor colorValue="FF241A38" name="Color"/>
+                </Fill>
+            </Shape>
+            <Shape x="0" y="0" name="Muzzle" id="0:7">
+                <Ellipse originX="0.5" originY="0.5" x="14" y="10" width="20" height="14" name="Path"/>
+                <Fill name="Fill">
+                    <SolidColor colorValue="FFFFF8EE" name="Color"/>
+                </Fill>
+            </Shape>
+            <Shape x="0" y="0" name="Body" id="0:6">
+                <Ellipse originX="0.5" originY="0.5" width="60" height="60" name="Path"/>
+                <Fill name="Fill">
+                    <SolidColor colorValue="FF2EC5B6" name="Color"/>
+                </Fill>
+                <Stroke thickness="4" name="Stroke">
+                    <SolidColor colorValue="FF241A38" name="Color"/>
+                </Stroke>
+            </Shape>
+            <Shape x="0" y="0" name="EarL" id="0:4">
+                <PointsPath isClosed="true" name="Path">
+                    <StraightVertex x="-24" y="-26"/>
+                    <StraightVertex x="-8" y="-26"/>
+                    <StraightVertex x="-16" y="-44"/>
+                </PointsPath>
+                <Fill name="Fill">
+                    <SolidColor colorValue="FF2EC5B6" name="Color"/>
+                </Fill>
+                <Stroke thickness="3" name="Stroke">
+                    <SolidColor colorValue="FF241A38" name="Color"/>
+                </Stroke>
+            </Shape>
+            <Shape x="0" y="0" name="EarR" id="0:5">
+                <PointsPath isClosed="true" name="Path">
+                    <StraightVertex x="8" y="-26"/>
+                    <StraightVertex x="24" y="-26"/>
+                    <StraightVertex x="16" y="-44"/>
+                </PointsPath>
+                <Fill name="Fill">
+                    <SolidColor colorValue="FF2EC5B6" name="Color"/>
+                </Fill>
+                <Stroke thickness="3" name="Stroke">
+                    <SolidColor colorValue="FF241A38" name="Color"/>
+                </Stroke>
+            </Shape>
+        </Node>
+        <LinearAnimation duration="144" fps="60" loopValue="loop" name="loop" id="0:9">
+            <KeyedObject objectId="0:3">
+                <KeyedProperty property="x">
+                    <KeyFrameDouble frame="0" value="60" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="36" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="72" value="140" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="108" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="144" value="60" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                </KeyedProperty>
+                <KeyedProperty property="y">
+                    <KeyFrameDouble frame="0" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="18" value="68" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="36" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="54" value="68" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="72" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="90" value="68" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="108" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="126" value="68" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="144" value="100" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                </KeyedProperty>
+                <KeyedProperty property="rotation">
+                    <KeyFrameDouble frame="0" value="-0.06" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="36" value="0.06" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="72" value="-0.06" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="108" value="0.06" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                    <KeyFrameDouble frame="144" value="-0.06" interpolationType="cubic"><CubicEaseInterpolator/></KeyFrameDouble>
+                </KeyedProperty>
+            </KeyedObject>
+        </LinearAnimation>
+    </Artboard>
+</Rive>

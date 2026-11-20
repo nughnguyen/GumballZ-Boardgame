@@ -103,6 +103,15 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .tile .art .ic{display:block;height:100%;max-width:68%;margin:0 auto;object-fit:contain;animation:tb 3.2s ease-in-out infinite;pointer-events:none}
 .tile:hover .art .ic{animation-duration:1.4s}
 .tile.asleep .art .ic,.tile.asleep .art span,.tile.asleep .livetag::before{animation-play-state:paused}
+/* ===== animation Rive riêng từng game trên thẻ (đợt 1: typhu/cotuong/cangua/camel) ===== */
+/* canvas 104×104 vừa đúng khối đầu thẻ (khối cao 104px) — bằng đúng chỗ icon cũ, không đẩy nút "Chơi".
+   Icon SVG vẫn ở trong DOM làm dự phòng: chỉ ẩn khi file .riv đã nạp xong (thẻ có .has-riv);
+   prefers-reduced-motion thì module JS không mount nên icon cũ vẫn hiện. */
+.tile .art canvas.riv-cv{display:none;height:104px;width:104px;margin:0 auto;pointer-events:none}
+.tile.has-riv .art .ic{display:none}
+.tile.has-riv .art canvas.riv-cv{display:block;position:relative;z-index:1}
+/* đĩa sáng sau animation để hình nổi trên nền màu đầu thẻ (ngựa ngọc trùng màu ngọc, lạc đà vàng trùng màu vàng) */
+.tile.has-riv .art::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,253,249,.94) 0 50px,rgba(255,253,249,0) 72px)}
 @keyframes tb{50%{transform:translateY(-10px)}}
 @keyframes tin{from{opacity:0;transform:translateY(18px)}}
 .bang .art{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);z-index:0}
