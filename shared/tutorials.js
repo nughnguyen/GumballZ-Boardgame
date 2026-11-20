@@ -1178,5 +1178,9 @@ export const TUT = {
  "mastermind": {
   "name": "Mastermind",
   "steps": []
+ },
+ "ailatrieuphu": {
+  "name": "Ai Là Triệu Phú",
+  "steps": []
  }
 };

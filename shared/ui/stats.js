@@ -5,7 +5,7 @@ import { questWin } from '../js/daily.js?v=1'; /* 📅 Thử thách hôm nay: gh
 import { earnGame } from './wallet.js?v=1'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
 const KEY = 'gumballz-stats';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-export const GAME_NAMES = { bang: 'CÀ ĐÙNG!', uno: 'UNÔ', typhu: 'Cờ Tỷ Phú', scribble: 'Scribble it!', meono: 'Mèo Nổ', tamquoc: 'Tam Quốc Sát', masoi: 'Ma Sói', camel: 'Đua Lạc Đà', cangua: 'Cờ cá ngựa', tienlen: 'Tiến Lên', catte: 'Cát tê', bacao: 'Ba Cào', xidach: 'Xì dách', poker: 'Poker', solitaire: 'Xếp bài', cotuong: 'Cờ tướng', thathaythach: 'Thật hay Thách', baitan: 'Bài Tấn', loto: 'Lô tô', covua: 'Cờ vua', tala: 'Tá lả', cholon: 'Chợ Lớn', tusac: 'Tứ sắc', bantau: 'Bắn Tàu', oanquan: 'Ô Ăn Quan', caro: 'Cờ Caro', tictactoe: 'TicTacToe', memory: 'Memory', covay: 'Cờ Vây', cothu: 'Cờ Thú', ranvathang: 'Rắn và Thang', sam: 'Sâm lốc', baucua: 'Bầu cua', noitu: 'Nối từ', xuyenviet: 'Tàu Xuyên Việt', khaihoang: 'Đảo Khai Hoang', daochinh: 'Đảo Chính', cuuho: 'Đội Cứu Hộ', xiecthu: 'Gánh Xiếc Thú', giandiep: 'Ai là Gián Điệp', codam: 'Cờ Đam', lieng: 'Liêng', maubinh: 'Mậu Binh', xito: 'Xì Tố', colat: 'Cờ Lật', domino: 'Domino', connect4: 'Connect 4', matthu: 'Mật Thư', avalon: 'Avalon', spyfall: 'Spyfall', sudoku: 'Sudoku', wordle: 'Wordle', domi: 'Dò Mìn', s2048: '2048', matchu: 'Mạt Chược', loveletter: 'Love Letter', sushigo: 'Sushi Go', lay6: 'Lấy 6', saboteur: 'Saboteur', skull: 'Skull', hanabi: 'Hanabi', chan: 'Chắn', totom: 'Tổ Tôm', carcassonne: 'Carcassonne', azul: 'Azul', splendor: 'Splendor', conhay: 'Cờ Nhảy', backgammon: 'Backgammon', rummikub: 'Rummikub', quoridor: 'Quoridor', blokus: 'Blokus', scrabble: 'Scrabble', mastermind: 'Mastermind' };
+export const GAME_NAMES = { bang: 'CÀ ĐÙNG!', uno: 'UNÔ', typhu: 'Cờ Tỷ Phú', scribble: 'Scribble it!', meono: 'Mèo Nổ', tamquoc: 'Tam Quốc Sát', masoi: 'Ma Sói', camel: 'Đua Lạc Đà', cangua: 'Cờ cá ngựa', tienlen: 'Tiến Lên', catte: 'Cát tê', bacao: 'Ba Cào', xidach: 'Xì dách', poker: 'Poker', solitaire: 'Xếp bài', cotuong: 'Cờ tướng', thathaythach: 'Thật hay Thách', baitan: 'Bài Tấn', loto: 'Lô tô', covua: 'Cờ vua', tala: 'Tá lả', cholon: 'Chợ Lớn', tusac: 'Tứ sắc', bantau: 'Bắn Tàu', oanquan: 'Ô Ăn Quan', caro: 'Cờ Caro', tictactoe: 'TicTacToe', memory: 'Memory', covay: 'Cờ Vây', cothu: 'Cờ Thú', ranvathang: 'Rắn và Thang', sam: 'Sâm lốc', baucua: 'Bầu cua', noitu: 'Nối từ', xuyenviet: 'Tàu Xuyên Việt', khaihoang: 'Đảo Khai Hoang', daochinh: 'Đảo Chính', cuuho: 'Đội Cứu Hộ', xiecthu: 'Gánh Xiếc Thú', giandiep: 'Ai là Gián Điệp', codam: 'Cờ Đam', lieng: 'Liêng', maubinh: 'Mậu Binh', xito: 'Xì Tố', colat: 'Cờ Lật', domino: 'Domino', connect4: 'Connect 4', matthu: 'Mật Thư', avalon: 'Avalon', spyfall: 'Spyfall', sudoku: 'Sudoku', wordle: 'Wordle', domi: 'Dò Mìn', s2048: '2048', matchu: 'Mạt Chược', loveletter: 'Love Letter', sushigo: 'Sushi Go', lay6: 'Lấy 6', saboteur: 'Saboteur', skull: 'Skull', hanabi: 'Hanabi', chan: 'Chắn', totom: 'Tổ Tôm', carcassonne: 'Carcassonne', azul: 'Azul', splendor: 'Splendor', conhay: 'Cờ Nhảy', backgammon: 'Backgammon', rummikub: 'Rummikub', quoridor: 'Quoridor', blokus: 'Blokus', scrabble: 'Scrabble', mastermind: 'Mastermind', ailatrieuphu: 'Ai Là Triệu Phú' };
 const byId = (v, id) => (v.players || []).find(p => p.id === id);
 const isMe = (v, me) => id => id === me;
 const SIDE = { bang: { law: ['sheriff', 'deputy'], outlaw: ['outlaw'], renegade: ['renegade'] }, tamquoc: { lord: ['lord', 'loyal'], rebel: ['rebel'], spy: ['spy'] } };
@@ -79,6 +79,7 @@ const OVER = {
   blokus: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = tổng điểm cao nhất khi tất cả hết nước đặt / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
   scrabble: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = điểm cao nhất khi hết túi + 1 khay hết / mọi người đều bỏ lượt 2 vòng / đối thủ xin thua; mọi chế độ đều qua simplenet nên watch() tự record, main.js KHÔNG gọi record() tay */
   mastermind: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = đoán ra mã trước / hơn lượt tốt nhất khi cả 2 hết 10 lượt / đối thủ xin thua; hòa (cả 2 hết lượt mà bằng nhau) trả null — không tính thắng/thua */
+  ailatrieuphu: (v, me) => v.phase === 'ended' ? { won: v.winner === me ? true : (v.losers || []).includes(me) ? false : null } : null, /* thắng = 150 triệu (chơi đơn) / hơn tiền đối thủ (đua) / đối thủ xin thua; hòa đua trả null — không tính thắng/thua; chơi đơn trả lời sai thì losers có mình → thua */
 };
 
 export function load() { let s = null; try { s = JSON.parse(ls.get(KEY)); } catch (e) {} s = s && typeof s === 'object' ? s : {}; s.g = s.g || {}; s.ach = s.ach || {}; s.days = s.days || []; s.streak = s.streak || 0; s.best = s.best || 0; s.ev = s.ev || {}; s.dd = s.dd || { d: '', n: 0, k: [], w: [] }; s.ls = s.ls || 0; s.marks = s.marks || {}; s.cnt = s.cnt || {}; return s; }
@@ -220,7 +221,7 @@ export const ACHS = [
   { id: 'c-lose500', icon: '🎲', name: 'Thua là mẹ thành công', desc: 'Thua tổng cộng 500 ván', ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 500, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 500), 500] },
 ];
 /* thành tích theo từng game: thắng đầu tiên + 10 ván thắng; game không tính thắng thua thì chơi đầu tiên + 10 ván */
-const GAME_ICON = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', baitan: '🃏', loto: '🎪', covua: '♟️', tala: '🀄', cholon: '🏮', tusac: '🀄', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍', sam: '🃏', baucua: '🎲', noitu: '🔤', xuyenviet: '🚂', khaihoang: '🏝️', daochinh: '🎭', cuuho: '🦸', xiecthu: '🎪', giandiep: '🕵️', codam: '🔴', lieng: '🎴', maubinh: '🀄', xito: '♣️', colat: '🔄', domino: '🎲', connect4: '🔴', matthu: '🔐', avalon: '🛡️', spyfall: '🕵️', sudoku: '🔢', wordle: '🟩', domi: '🧨', s2048: '2️⃣', matchu: '🀅', loveletter: '💌', sushigo: '🍣', lay6: '🐂', saboteur: '⛏️', skull: '💀', hanabi: '🎆', chan: '🀄', totom: '👴', carcassonne: '🏰', azul: '🎨', splendor: '💎', conhay: '⭐', backgammon: '🎲', rummikub: '🧩', quoridor: '🧱', blokus: '🟦', scrabble: '🔤', mastermind: '🧠' };
+const GAME_ICON = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', baitan: '🃏', loto: '🎪', covua: '♟️', tala: '🀄', cholon: '🏮', tusac: '🀄', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍', sam: '🃏', baucua: '🎲', noitu: '🔤', xuyenviet: '🚂', khaihoang: '🏝️', daochinh: '🎭', cuuho: '🦸', xiecthu: '🎪', giandiep: '🕵️', codam: '🔴', lieng: '🎴', maubinh: '🀄', xito: '♣️', colat: '🔄', domino: '🎲', connect4: '🔴', matthu: '🔐', avalon: '🛡️', spyfall: '🕵️', sudoku: '🔢', wordle: '🟩', domi: '🧨', s2048: '2️⃣', matchu: '🀅', loveletter: '💌', sushigo: '🍣', lay6: '🐂', saboteur: '⛏️', skull: '💀', hanabi: '🎆', chan: '🀄', totom: '👴', carcassonne: '🏰', azul: '🎨', splendor: '💎', conhay: '⭐', backgammon: '🎲', rummikub: '🧩', quoridor: '🧱', blokus: '🟦', scrabble: '🔤', mastermind: '🧠', ailatrieuphu: '💰' };
 for (const [g, name] of Object.entries(GAME_NAMES)) {
   const ic = GAME_ICON[g] || '🎲';
   if (g === 'thathaythach') {
@@ -415,6 +416,10 @@ const SPECIAL = [
   { id: 'mm-sharp', icon: '🔍', name: 'Đọc mã', desc: 'Thắng 1 trận Mastermind mà đoán ra mã trong 4 lượt', ok: () => false },
   { id: 'mm-comeback', icon: '🔄', name: 'Lội ngược dòng', desc: 'Thắng 1 trận Mastermind khi đối thủ đã đoán được 3 chốt đen', ok: () => false },
   { id: 'mm-last', icon: '⏳', name: 'Tới hơi thở cuối', desc: 'Thắng 1 trận Mastermind mà cả 2 đều hết 10 lượt đoán', ok: () => false },
+  { id: 'al-150', icon: '💰', name: 'Triệu phú', desc: 'Thắng 150 triệu — trả lời đúng cả 15 câu trong 1 ván Ai Là Triệu Phú', ok: () => false },
+  { id: 'al-safe10', icon: '🛡️', name: 'Mốc an toàn', desc: 'Lên tới câu 10 (mốc an toàn 14 triệu) trong 1 ván Ai Là Triệu Phú', ok: () => false },
+  { id: 'al-streak', icon: '🔥', name: 'Chuỗi nóng', desc: 'Trả lời đúng 5 câu liên tiếp trong 1 ván Ai Là Triệu Phú', ok: () => false },
+  { id: 'al-race', icon: '🏁', name: 'Vượt mặt máy Khó', desc: 'Thắng 1 ván đua Ai Là Triệu Phú với máy Khó', ok: () => false },
   { id: 'tl-trang', icon: '🙏', name: 'Ơn trên phù hộ', desc: 'Thắng trắng (tới trắng)', ok: () => false },
   { id: 'tl-chop', icon: '🐷', name: 'HEO HẢ MẢY???', desc: 'Chặt heo', ok: () => false },
   { id: 'tl-cong', icon: '🥶', name: 'Cold Palmer', desc: 'Thua cóng', ok: () => false },
@@ -923,6 +928,16 @@ const SP = {
       if (sum.cracked && (sum.guesses || 99) <= 4) out.push('mm-sharp');
       if ((osum.bestBlack || 0) >= 3) out.push('mm-comeback');
       if (!sum.cracked && (sum.guesses || 0) >= 10 && (osum.guesses || 0) >= 10) out.push('mm-last');
+      return out; } },
+  ailatrieuphu: {
+    end(v, me, m, w) { const out = [];
+      const sum = ((v.final || {}).summary || {})[me] || {};
+      if (!w) return out;
+      if ((sum.level || 0) >= 15) out.push('al-150');
+      if ((sum.level || 0) >= 10) out.push('al-safe10');
+      if ((sum.bestStreak || 0) >= 5) out.push('al-streak');
+      const opp = (v.players || []).find(p => p.id !== me);
+      if ((v.players || []).length === 2 && opp && opp.isBot && opp.level === 'hard') out.push('al-race');
       return out; } },
   tienlen: {
     tick(v, me, m) { for (const e of spFx(v, m)) {

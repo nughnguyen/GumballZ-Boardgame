@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ai Là Triệu Phú online – 15 câu hỏi, 150 triệu đồng, ai nhanh hơn thì thắng | GumballZ Boardgame</title>
+<meta name="description" content="Ai Là Triệu Phú online: trả lời đúng 15 câu hỏi để giành 150.000.000 đồng, mốc an toàn câu 5 và câu 10, 4 quyền trợ giúp 50:50, gọi điện, hỏi khán giả, đổi câu hỏi. Chơi đơn, đấu với máy AI hoặc đua online với bạn qua mã phòng.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/ailatrieuphu/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ai Là Triệu Phú online – 15 câu hỏi, 150 triệu đồng!">
+<meta property="og:description" content="Trả lời đúng 15 câu để giành 150.000.000 đồng — mốc an toàn câu 5 và câu 10, 4 quyền trợ giúp. Đua với máy hoặc với bạn!">
+<meta property="og:url" content="https://gumballzgames.vercel.app/ailatrieuphu/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/ailatrieuphu.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/ailatrieuphu.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=2">
+<script>window.GAME_META = { game: 'ailatrieuphu', name: 'Ai Là Triệu Phú', gid: 'ailatrieuphu', color: '#7c5cff', icon: '💰' };</script>
+<script src="../shared/ui/footer.js?v=4"></script>
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/ailatrieuphu.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Ai Là Triệu Phú</h1>
+    <p class="tag">Trả lời đúng 15 câu để giành 150.000.000 đồng — mốc an toàn câu 5 và câu 10, 4 quyền trợ giúp! 💰</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="solo" aria-pressed="false">🎮 Chơi đơn</button>
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🎮 Bắt đầu chơi đơn</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">1–2 người · 15 câu hỏi (Dễ → Vừa → Khó) · mỗi câu 30 giây · mốc an toàn câu 5 (1.000.000đ) và câu 10 (14.000.000đ) · 4 quyền trợ giúp: 50:50, gọi điện, hỏi khán giả, đổi câu hỏi · đua máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+        <div class="row-btns">
+          <button class="btn" id="btn-copy-code">📋 Sao chép mã phòng</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>💰 <b>1–2 người</b>, cùng trả lời <b>15 câu hỏi</b> (câu 1–5 Dễ, 6–10 Vừa, 11–15 Khó), mỗi câu <b>30 giây</b>.</li>
+          <li>🎯 Trả lời đúng thì lên 1 bậc tiền thưởng; sai hoặc hết giờ thì chỉ giữ tiền ở <b>mốc an toàn</b> gần nhất (câu 5: 1.000.000đ, câu 10: 14.000.000đ).</li>
+          <li>🛑 Sau mỗi câu đúng, được bấm <b>Dừng lại lấy tiền</b> để mang số tiền hiện tại về.</li>
+          <li>🆘 4 quyền trợ giúp, mỗi quyền 1 lần: <b>50:50</b>, <b>Gọi điện</b>, <b>Hỏi khán giả</b>, <b>Đổi câu hỏi</b>.</li>
+          <li>🏆 Đua 2 người: ai được <b>nhiều tiền hơn</b> thắng; hòa tiền thì ai trả lời <b>nhanh hơn</b> thắng.</li>
+          <li>💡 Mẹo: đừng vội dùng trợ giúp ở câu dễ — để dành cho câu 11–15!</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">💰 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="at-wrap">
+    <header class="topbar at-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>💰 Ai Là Triệu Phú</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="at-status" id="status"></div>
+    <div class="at-main">
+      <div class="at-left">
+        <div class="at-ladder" id="ladder"></div>
+      </div>
+      <div class="at-right">
+        <div class="at-timer" id="timer" aria-live="polite"></div>
+        <div class="at-q" id="q-box">
+          <div class="at-qtext" id="q-text"></div>
+          <div class="at-opts" id="q-opts"></div>
+        </div>
+        <div class="at-life" id="lifelines">
+          <button class="btn life" id="btn-life-fifty" data-life="fifty">✂️ 50:50</button>
+          <button class="btn life" id="btn-life-phone" data-life="phone">📞 Gọi điện</button>
+          <button class="btn life" id="btn-life-audience" data-life="audience">📊 Hỏi khán giả</button>
+          <button class="btn life" id="btn-life-switch" data-life="switch">🔄 Đổi câu hỏi</button>
+        </div>
+        <div class="at-life-info" id="life-info" aria-live="polite"></div>
+        <div class="at-stage" id="stage-info" aria-live="polite"></div>
+        <div class="at-actions-row" id="action-bar">
+          <button class="btn big" id="btn-stop">🛑 Dừng lại lấy tiền</button>
+        </div>
+      </div>
+    </div>
+    <div class="at-players" id="players"></div>
+    <div class="at-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="at-log" id="log" aria-live="polite"></div>
+    <div class="at-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<footer class="gmf"></footer>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

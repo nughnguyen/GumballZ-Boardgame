@@ -1,0 +1,55 @@
+/* 💰 Ai Là Triệu Phú — pastel chung web, thang tiền bên trái, câu hỏi bên phải */
+.at-wrap { max-width: 960px; margin: 0 auto; padding: 0 12px 40px; }
+.at-topbar { position: sticky; top: 0; z-index: 5; }
+.at-status { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.at-status .stat { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: 14px; color: #4A3E5C; }
+.at-status .stat.me { background: #FFE3A3; }
+.at-main { display: flex; gap: 16px; align-items: flex-start; }
+.at-left { flex: 0 0 210px; }
+.at-right { flex: 1; min-width: 0; }
+.at-ladder { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; overflow: hidden; }
+.at-ladder .lad-row { display: flex; justify-content: space-between; padding: 5px 12px; font-weight: 700; font-size: 13px; color: #8B7E9E; border-bottom: 1px solid #F0E9DC; }
+.at-ladder .lad-row.safe { background: #FFE3A3; color: #4A3E5C; }
+.at-ladder .lad-row.cur { background: #7C5CFF; color: #fff; }
+.at-ladder .lad-row.done { background: #ABE0C6; color: #4A3E5C; }
+.at-ladder .lad-row:last-child { border-bottom: 0; }
+.at-timer { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; }
+.at-timer .t-num { font-family: "Bungee", sans-serif; font-size: 26px; color: #4A3E5C; min-width: 64px; }
+.at-timer .t-num.low { color: #FF4D2E; }
+.at-timer .t-bar { flex: 1; height: 12px; background: #F0E9DC; border: 2px solid #4A3E5C; border-radius: 999px; overflow: hidden; }
+.at-timer .t-bar i { display: block; height: 100%; background: #00B8A9; }
+.at-timer .t-bar.low i { background: #FF4D2E; }
+.at-q { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 16px; padding: 16px; }
+.at-qtext { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 19px; line-height: 1.45; color: #4A3E5C; margin-bottom: 14px; }
+.at-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.at-opt { display: flex; align-items: center; gap: 8px; text-align: left; background: #FFF8EE; border: 2px solid #4A3E5C; border-radius: 12px; padding: 12px; font-family: "Nunito", sans-serif; font-weight: 800; font-size: 15px; color: #4A3E5C; cursor: pointer; }
+.at-opt:hover:not(:disabled) { background: #C9BDF3; }
+.at-opt:disabled { cursor: default; opacity: 0.55; }
+.at-opt.sel { background: #FFE3A3; }
+.at-opt.right { background: #ABE0C6; border-color: #1E7A4C; }
+.at-opt.wrong { background: #FFB9CF; border-color: #FF4D2E; }
+.at-opt .k { font-family: "Bungee", sans-serif; font-size: 15px; color: #7C5CFF; }
+.at-life { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.at-life .life { flex: 1 1 40%; }
+.at-life .life.used { opacity: 0.4; text-decoration: line-through; }
+.at-life-info { margin: 4px 0 10px; font-weight: 700; color: #4A3E5C; }
+.at-life-info .aud-bar { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 14px; }
+.at-life-info .aud-bar .ab { flex: 1; height: 14px; background: #F0E9DC; border: 2px solid #4A3E5C; border-radius: 999px; overflow: hidden; }
+.at-life-info .aud-bar .ab i { display: block; height: 100%; background: #7C5CFF; }
+.at-stage { font-weight: 700; color: #8B7E9E; margin: 6px 0; min-height: 20px; }
+.at-actions-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.at-players { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.at-players .at-player { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px 12px; font-weight: 700; color: #4A3E5C; min-width: 150px; }
+.at-players .at-player.turn { border-color: #7C5CFF; background: #EDE7FF; }
+.at-players .at-player.me { background: #FFE3A3; }
+.at-log { margin-top: 12px; font-size: 14px; color: #8B7E9E; }
+.at-log p { margin: 3px 0; }
+.at-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+@media (max-width: 640px) {
+  .at-main { flex-direction: column; }
+  .at-left { flex: none; width: 100%; }
+  .at-ladder .lad-row { padding: 4px 10px; font-size: 12px; }
+  .at-opts { grid-template-columns: 1fr; }
+  .at-qtext { font-size: 17px; }
+  .at-life .life { flex: 1 1 45%; }
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="4" y="4" width="112" height="112" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- chồng tiền vàng: 3 đồng xu -->
+  <g stroke="#4A3E5C" stroke-width="2.5">
+    <ellipse cx="60" cy="88" rx="34" ry="12" fill="#FFB84D"/>
+    <ellipse cx="60" cy="72" rx="34" ry="12" fill="#FFD93D"/>
+    <ellipse cx="60" cy="56" rx="34" ry="12" fill="#FFE89A"/>
+  </g>
+  <!-- dấu đồng tiền trên đồng trên cùng -->
+  <text x="60" y="66" font-family="Nunito, sans-serif" font-weight="800" font-size="24" fill="#4A3E5C" text-anchor="middle">₫</text>
+  <!-- tia sáng -->
+  <g fill="#FFFDF9" stroke="#4A3E5C" stroke-width="1.5">
+    <path d="M92 24 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z"/>
+    <path d="M28 30 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2 z"/>
+  </g>
+</svg>
