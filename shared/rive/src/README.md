@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -142,6 +142,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `baitan.riv` | 26957 B | Tấn 7♥, đỡ 9♥ chồng lên; tấn K♠, đỡ Át ♠ chồng lên; tay trên 3 lá úp xanh + tay dưới 3 lá úp đỏ; lá chủ (tim đỏ) + dấu chủ nhấp nháy (180f = 3s) |
 | `loto.riv` | 6472 B | Vé 3 hàng × 9 cột: số đã ra chấm đỏ (2 dấu cuối hiện dần), hàng giữa đủ 5 số (ô vàng), bóng số rơi vào khay + nảy đều, sao vàng KINH! bật lên + nhấp nháy (180f = 3s) |
 | `covua.riv` | 11706 B | 1 góc bàn cờ 5×4 ô; Mã trắng nhảy chữ L đi + về (2 ô ngang + 1 ô lên); Vua đen nhún nhẹ; Tốt trắng đứng yên (180f = 3s) |
+| `tala.riv` | 20952 B | Bộ bài úp rút 1 lá (lật lên K♦) → phỏm 7-8-9♥ xếp thành bộ (vòng vàng + sao), lá Q♠ đánh ra; bộ bài úp + chồng bài bỏ (180f = 3s) |
+| `cholon.riv` | 9621 B | Khu 5×3 lô đất: 3 cửa hàng đỏ cùng loại kề nhau tạo chuỗi (vòng vàng bao quanh), 3 xu vàng bay vào đống xu + sao vàng bật lên (180f = 3s) |
+| `tusac.riv` | 9311 B | 4 lá Tướng 4 màu (đỏ/ngọc/vàng/đen, vương miện) lật lên lần lượt thành bộ, sao vàng bật lên (180f = 3s) |
+| `bantau.riv` | 8809 B | Lưới 10×10 căn giữa: tâm ngắm đỏ di chuyển → bắn trúng tàu 3 ô (nổ sao vàng + khói, tàu hiện ra, dấu X đỏ) → bắn trượt (bọt nước + chấm trắng) (180f = 3s) |
+| `oanquan.riv` | 6682 B | Bàn 12 ô + 2 ô quan: tay rải 5 sỏi từng ô, sỏi cuối rơi vào ô trống → ăn 2 sỏi ô kế bay vào ô quan, sao vàng bật lên (180f = 3s) |
+| `caro.riv` | 8921 B | Bàn 5×5: X/O đánh lần lượt, X đủ 5 ở hàng giữa → vạch thắng đỏ gạch ngang 5 X + sao vàng bật lên (180f = 3s) |
+| `tictactoe.riv` | 4939 B | Bàn 3×3 nền tối: X/O đánh lần lượt, X đủ 3 ở đường chéo chính → vạch thắng vàng gạch chéo + sao vàng bật lên (180f = 3s) |
+| `memory.riv` | 26701 B | 12 lá úp 4×3: 2 lá ♥ lật lên trùng nhau → sao vàng, giữ ngửa; 2 lá ♠ vs ♦ lật lên lệch nhau → úp lại (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -151,6 +159,49 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 4, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): tala 659, cholon 478, tusac 402, bantau 79, oanquan 92, caro 80,
+  tictactoe 84, memory 251 (đều trên ngưỡng 50).
+- Trang chủ Playwright: **59/59 checks passed** (28 canvas mount + 28
+  thẻ `.has-riv` + 28 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 28 canvas, 28 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.9)` — và cả 8 thẻ ở cỡ thẻ thật): mỗi cảnh
+  đọc ra game ngay và lấp đầy header. 5 lỗi thật đã tìm + sửa trong
+  đợt verify: (1) Chợ Lớn: cửa hàng + vòng bị lô đất che mất (tạo
+  cửa hàng SAU lô → lô nằm trên) + chuyển động đầu vòng quá muộn —
+  sửa bằng cách tạo xu bay → cửa hàng → vòng TRƯỚC lô, dời nhịp
+  sớm (cửa hàng bật 0/15/30, vòng 45–65, xu 65–105, sao 110–130) →
+  pixel 1 → 478; (2) Ô Ăn Quan: sỏi + sỏi quan bị ô che mất (tạo
+  sỏi SAU ô) + rải quá muộn — sửa bằng cách tạo sỏi TRƯỚC ô/vòng
+  quan, rải từ frame 0, sỏi to lên w=10 → pixel 6 → 92; (3) Bắn Tàu:
+  lưới lệch trái (X0=95, nửa phải trống) — dời X0 95→125 (lưới
+  125–275 căn giữa) + toàn bộ tâm ngắm/tàu/nổ/trượt theo; (4) Cờ
+  Caro: vạch thắng đặt nhầm y=84 (nằm TRÊN hàng X thắng, không gạch
+  qua) — sửa y=100 (tâm hàng r=2) + sao theo; (5) Memory: 2 lá
+  lệch (♠/♦) sau khi úp lại hiện thành lá xanh trơn ở khung mờ cuối
+  vòng — nguyên nhân là `flipCard()` rồi ghi đè thêm key SX (2
+  KeyedProperty cho cùng part) — sửa bằng cách viết 1 bộ key SX duy
+  nhất cho mỗi part (bỏ key thừa trùng giá trị kề trước). File .riv
+  cũ 20 file không đổi (md5 khớp sau khi build lại toàn bộ).
+- BÀI HỌC verify (bổ sung): (a) **KHÔNG bao giờ ghi 2 KeyedProperty
+  cho cùng (part, property)** — ghi đè key sau `flipCard()`/`keys()`
+  làm runtime vẽ sai; muốn đổi nhịp thì viết lại 1 bộ key duy nhất
+  từ đầu. (b) **fadeEnds CHỈ cho part KHÔNG có key opacity riêng** —
+  fadeEnds ghi đè key opacity riêng (key sau thắng) khiến vụ nổ/bọt
+  nước/tay bốc không bao giờ tắt (Bắn Tàu, Ô Ăn Quan); part có key
+  opacity riêng phải tự mờ vào/ra ở đầu/cuối vòng trong bộ key của
+  nó. (c) **Seek bằng `inst.scrub([''], t)`** — tên animation do thư
+  viện ghi sai key nên `animationNames` = `[""]`; `inst.time = t`
+  không có tác dụng (không có property `time`), `pause()` không giữ
+  được — scrub tua + vẽ 1 frame ngay, chụp liền sau đó. (d) Ảnh cuối
+  vòng bằng scrub đáng tin hơn ảnh chờ theo đồng hồ (shell chậm,
+  frame thực tế không đoán được từ thời gian chờ).
 
 ## Kiểm chứng (đã làm — batch 3, 2026-11-21)
 
