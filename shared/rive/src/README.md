@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9 + batch 10)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -190,6 +190,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `splendor.riv` | 3058 B | 3 viên đá quý (ruby/sapphire/emerald) trượt vào từ trái; thẻ phát triển lật lên (kim cương đỏ) + sao vàng (180f = 3s) |
 | `conhay.riv` | 6217 B | Bàn cờ nhảy góc 5×5 lỗ: quân đỏ nhảy liên tiếp qua 2 bi xanh, đáp ô cuối rồi ở lại tới 150f (KHÔNG có ăn quân trong Cờ Nhảy — chỉ nhảy qua để di chuyển; nhảy tay, KHÔNG dùng hopFrames) + sao vàng (180f = 3s) |
 | `backgammon.riv` | 10324 B | 2 xúc xắc lắc rồi dừng ở 6 và 3; quân trắng trượt 6 ô dọc hàng dưới, đánh trúng blot đỏ ở ô đích (blot bay lên + mờ) + sao vàng (180f = 3s) |
+| `rummikub.riv` | 7424 B | Nhóm 3 lá 7 (đỏ/xanh/vàng) trượt vào giá gỗ, lá joker lật lên (ngôi sao vàng), vòng vàng ôm cả bộ + sao vàng (180f = 3s) |
+| `quoridor.riv` | 5220 B | Góc bàn 5×5 + hàng đích ngọc: quân đỏ tiến 2 ô lên, ở lại ô đích tới 150f (nhảy tay); tường gỗ nâu dựng lên chắn đường; quân xanh đứng yên phía trên (180f = 3s) |
+| `blokus.riv` | 8280 B | Góc bàn 6×6: mảnh đỏ L-3 ở góc, mảnh xanh 2×2, mảnh vàng I-3; mảnh ngọc L-3 trượt vào từ phải khớp vào khoảng trống + sao vàng (180f = 3s) |
+| `scrabble.riv` | 9971 B | Góc bàn 5×5: ô chữ gỗ bật lần lượt thành GAME ngang rồi PLAY dọc, chung chữ A ở ô sao giữa bàn + sao vàng (180f = 3s) |
+| `mastermind.riv` | 8264 B | Hàng mã bí mật úp (4 chốt xám) ở trên; hàng đoán 4 chốt màu (đỏ/xanh/vàng/trắng) trượt vào lần lượt; khung gợi ý bật 4 chốt nhỏ (2 đen + 2 trắng) + sao vàng (180f = 3s) |
+| `ailatrieuphu.riv` | 4783 B | Thanh câu hỏi ở trên; 4 ô đáp án 2×2, ô B bật lớp vàng + tia sáng, 3 ô còn lại mờ xuống 0.35 + sao vàng (180f = 3s) |
+| `haithat1gia.riv` | 6873 B | 3 lá câu lật lần lượt: 2 lá thật (tick xanh) + 1 lá giả (dấu X đỏ); lá giả rung lắc, vòng ngắm đỏ chớp quanh nó + sao vàng (180f = 3s) |
+| `doanhdong.riv` | 7460 B | Lá hành động (vũ công giơ tay trên nền tròn ngọc) lật lên giữa trên; 2 avatar dưới gật đầu liên tục, tick vàng bật lên trên mỗi avatar + sao vàng (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -199,6 +207,42 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 10, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): rummikub 688, quoridor 83, blokus 352, scrabble 161, mastermind
+  184, ailatrieuphu 1088, haithat1gia 276 → 285 sau sửa, doanhdong 323 →
+  320 sau sửa (đều trên ngưỡng 50 — Quoridor thấp nhất vì chuyển động
+  chính là 1 quân tiến 2 ô + 1 tường dựng trên bàn lớn).
+- Trang chủ Playwright: **155/155 checks passed** (76 canvas mount + 76
+  thẻ `.has-riv` + 76 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 76 canvas, 76 has-riv, không tràn ngang. (Lần
+  chạy đầu 154/155: codam — file batch 6, byte không đổi — 2 mẫu bắt
+  đúng lúc quân đỏ đứng yên trên ô đáp (~1,8s tĩnh trong vòng 3s);
+  chạy lại 155/155. Đây là nhiễu pha lấy mẫu, không phải lỗi file.)
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. Ảnh thẻ Rummikub/Blokus bắt đúng pha đầu
+  vòng (lá đang trượt vào / mảnh ngọc chưa tới) — không phải lỗi, ảnh
+  cuối vòng cho thấy đủ bộ 3 lá 7 + joker và mảnh ngọc đã khớp vào.
+- 1 lỗi thật đã sửa trong lúc verify: dấu tick ✓ trên lá thật (2 Thật
+  1 Giả) và trên 2 avatar (Đoán Hành Động) vẽ bằng 1 poly 3 điểm kín
+  nên hiện thành tam giác đặc (mũi tên) chứ không phải dấu tick — đã
+  vẽ lại bằng 2 vạch xoay (tay ngắn 11px góc 0.785 + tay dài 21px góc
+  -0.785), ảnh kiểm lại thấy ✓ rõ; kích thước file đổi (haithat1gia
+  6314 → 6873 B, doanhdong 6628 → 7460 B), pixel đổi vẫn trên ngưỡng
+  (285 / 320), trang chủ chạy lại 155/155.
+- File .riv cũ 68 game không đổi (md5 khớp sau khi build lại toàn bộ —
+  domi.riv lại đổi vô cớ như batch 9 (8394 B thay vì 8407 B dù scene
+  không đổi), đã khôi phục từ git lần nữa; generator không hoàn toàn
+  xác định với file này — bài học: sau mỗi lần build lại, diff md5 và
+  khôi phục file cũ nào đổi vô cớ, đừng commit).
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 9
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 9, 2026-11-21)
 
