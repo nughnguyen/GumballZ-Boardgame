@@ -257,8 +257,8 @@ function render(v, prev) {
   }).join('');
 
   $('#wl-spectrum-area').innerHTML = spectrumAreaHtml(v, ctrl);
-  /* ô gợi ý: chỉ vẽ lại khi giai đoạn đổi (giữ nguyên input khi đang gõ) */
-  const ck = v.solo ? 'solo' : `${v.stage}|${ctrl || ''}|${v.current ? v.current.shown : false}|${v.current ? !!v.current.clue : false}|${v.gid}`;
+  /* ô gợi ý: chỉ vẽ lại khi giai đoạn đổi (giữ nguyên input khi đang gõ) — chơi đơn phải kèm số lượt, không thì gợi ý kẹt ở lượt 1 (key 'solo' hằng số) */
+  const ck = v.solo ? `solo|${v.soloSet ? v.soloSet.index : 0}` : `${v.stage}|${ctrl || ''}|${v.current ? v.current.shown : false}|${v.current ? !!v.current.clue : false}|${v.gid}`;
   if (ck !== clueAreaKey) {
     clueAreaKey = ck;
     $('#wl-clue-area').innerHTML = clueAreaHtml(v, ctrl);
