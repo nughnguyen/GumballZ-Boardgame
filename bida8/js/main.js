@@ -372,21 +372,30 @@ function animateShot(prev, v) {
   for (const b of v.balls) byId[b.id] = b;
   cancelAnimationFrame(animRaf);
   const frame = now => {
-    const k = Math.min(1, (now - t0) / dur);
-    const fi = k * (path.length - 1);
-    const i0 = Math.floor(fi), i1 = Math.min(path.length - 1, i0 + 1);
-    const f = fi - i0;
-    const frame0 = path[i0], frame1 = path[i1];
-    const balls = frame0.map((b0, i) => {
-      const b1 = frame1[i];
-      const final = byId[b0.id];
-      if (b0.potted) return { id: b0.id, x: final ? final.x : -100, y: final ? final.y : -100, potted: true };
-      return { id: b0.id, x: b0.x + (b1.x - b0.x) * f, y: b0.y + (b1.y - b0.y) * f, potted: false };
-    });
-    drawTable(v, balls, null);
-    if (k < 1) { animRaf = requestAnimationFrame(frame); return; }
-    animating = false;
-    drawTable(v, v.balls, null);
+    try {
+      /* k phải kẹp cả 2 đầu: timestamp của rAF có thể sớm hơn t0 vài ms
+         (khung hình cũ / headless) → k âm → i0 = -1 → path[-1] là undefined
+         và frame0.map nổ, làm animating kẹt true mãi mãi, khóa cứng cả ván */
+      const k = Math.max(0, Math.min(1, (now - t0) / dur));
+      const fi = k * (path.length - 1);
+      const i0 = Math.floor(fi), i1 = Math.min(path.length - 1, i0 + 1);
+      const f = fi - i0;
+      const frame0 = path[i0], frame1 = path[i1];
+      const balls = frame0.map((b0, i) => {
+        const b1 = frame1[i];
+        const final = byId[b0.id];
+        if (b0.potted) return { id: b0.id, x: final ? final.x : -100, y: final ? final.y : -100, potted: true };
+        return { id: b0.id, x: b0.x + (b1.x - b0.x) * f, y: b0.y + (b1.y - b0.y) * f, potted: false };
+      });
+      drawTable(v, balls, null);
+      if (k < 1) { animRaf = requestAnimationFrame(frame); return; }
+      animating = false;
+      drawTable(v, v.balls, null);
+    } catch (e) {
+      /* một khung hình lỗi không được khóa cứng ván: dừng hoạt hình, vẽ bàn cuối */
+      animating = false;
+      drawTable(v, v.balls, null);
+    }
   };
   animRaf = requestAnimationFrame(frame);
 }
