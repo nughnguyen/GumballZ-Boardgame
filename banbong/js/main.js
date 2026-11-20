@@ -35,7 +35,7 @@ try {
   if (n) p2name = n;
 } catch (e) {}
 function toggleBox(id) {
-  for (const b of ['solo-row', 'bot-row', 'room-box', 'local-row']) {
+  for (const b of ['solo-row', 'bot-row', 'online-row', 'room-box', 'local-row']) {
     const el = document.getElementById(b);
     if (el) el.style.display = b === id ? (el.style.display === 'none' ? '' : 'none') : 'none';
   }
@@ -43,7 +43,7 @@ function toggleBox(id) {
 $('#btn-solo').onclick = () => toggleBox('solo-row');
 $('#btn-start-solo').onclick = () => { mode = 'solo'; ui.startHost(true); };
 $('#btn-vs-bot').onclick = () => toggleBox('bot-row');
-$('#btn-online').onclick = () => { mode = 'online'; toggleBox('room-box'); };
+$('#btn-online').onclick = () => { mode = 'online'; toggleBox('online-row'); };
 $('#btn-local').onclick = () => toggleBox('local-row');
 $('#btn-start-bot').onclick = () => {
   botLevel = $('#sel-level').value === 'easy' ? 'easy' : 'hard';
