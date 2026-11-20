@@ -4,7 +4,7 @@ import { botAction, LEVELS } from './bot.js?v=7';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=51';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=7';
-import { watch } from '../../shared/ui/stats.js?v=84';
+import { watch } from '../../shared/ui/stats.js?v=85';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=5';
 import { rulesFor } from '../../shared/rules.js?v=2';
 // ⚙️ Luật mặc định khi tạo phòng mới: lấy từ luat-mac-dinh.js (gốc repo); giá trị sai/thiếu → giữ luật gốc trong code

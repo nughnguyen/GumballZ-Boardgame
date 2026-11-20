@@ -54,7 +54,7 @@ if (!want.length || want.includes('hub')) {
   p{font:800 25px/1.4 Nunito;color:#6E6480;margin-top:18px}.u{margin-top:auto;align-self:flex-start;background:#1B1425;color:#fff;font:800 34px/1 'Baloo 2';padding:14px 30px 16px;border-radius:999px;box-shadow:0 8px 0 #FF4D2E}
   .r{flex:1;position:relative}.g{position:absolute;left:40px;top:-40px;display:grid;grid-template-columns:repeat(3,200px);gap:18px;transform:rotate(7deg)}
   .g img{width:200px;height:236px;border-radius:22px;box-shadow:0 18px 34px -16px rgba(27,20,37,.66)}.g img:nth-child(3n+2){transform:translateY(46px)}.g img:nth-child(3n){transform:translateY(-20px)}</style>
-  <div class="l"><div class="b"><img src="${MARK}">GumballZ Games</div><h1>Board game tiếng Việt.<br><span>Mở link là chơi.</span></h1><p>90 game chơi cùng hội bạn hoặc với bot. Không cần cài app, miễn phí.</p><div class="u">gumballzgames.vercel.app</div></div>
+  <div class="l"><div class="b"><img src="${MARK}">GumballZ Games</div><h1>Board game tiếng Việt.<br><span>Mở link là chơi.</span></h1><p>91 game chơi cùng hội bạn hoặc với bot. Không cần cài app, miễn phí.</p><div class="u">gumballzgames.vercel.app</div></div>
   <div class="r"><div class="g">${th.map(t => `<img src="data:image/png;base64,${t}">`).join('')}</div></div>`);
   await page.evaluate(() => document.fonts.ready); await page.waitForTimeout(500);
   await page.screenshot({ path: OUT + '../og.jpg', type: 'jpeg', quality: 88 }); console.log('og hub');

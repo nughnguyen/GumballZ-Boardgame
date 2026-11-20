@@ -1,0 +1,24 @@
+/* Sinh bởi tools/dark/make-dark.mjs – dovui: chỉ màn hình đầu + phòng chờ */
+html[data-scheme=dark] body:has(#screen-home.active,#screen-lobby.active){--bg:#201b29;--line:#403753}
+html[data-scheme=dark] body:has(#screen-home.active,#screen-lobby.active){background:radial-gradient(900px 520px at 0 -10%,#262131 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#2e2a42 0,transparent 60%),var(--bg)}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .round{background:#1a162214;border:1.5px solid #40375324}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .round .tm{background:#1a1622;color:#d9d1e9}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .tbar{background:#1a16221a}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .tbar i.soft{background:#1a162240}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .seg button{background:#1a1622}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .cats button{background:#1a1622}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .qcard{background:#1a1622}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .ans .lt{background:#1a162238}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .ans.right::after{border:3px solid #bdb6d8}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .ans.wrong::after{border:3px solid #bdb6d8}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .fact{background:#1a162212;border:1.5px solid #40375322}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .hb{border:1.5px solid #40375338;background:#1a162214}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .board .row{background:#1a162212;border:1.5px solid #4037531f}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .hostbar .chip{background:#1a162214;border-color:#40375324}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .pd.p2{background:#1a162214}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .pd.p3{background:#1a16220e}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .lst .row{background:#1a162212;border:1.5px solid #4037531f}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .aud{background:#1a162212;border:1.5px solid #40375322}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .call{background:#1a162212;border:1.5px solid #40375322}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .hk-meta i{background:#2c2540;color:#ece6f7;border-color:#3a3150}
+html[data-scheme=dark] :is(#screen-home,#screen-lobby) .hk-grid>button,html[data-scheme=dark] :is(#screen-home,#screen-lobby) .hk-grid>a{background:#231d30!important;color:#ece6f7!important;border-color:#3a3150!important}

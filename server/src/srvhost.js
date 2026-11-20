@@ -49,6 +49,7 @@ import { DEF as D_khaihoang } from '../../khaihoang/js/def.js';
 import { DEF as D_daochinh } from '../../daochinh/js/def.js';
 import { DEF as D_cuuho } from '../../cuuho/js/def.js';
 import { DEF as D_xiecthu } from '../../xiecthu/js/def.js';
+import { DEF as D_dovui } from '../../dovui/js/def.js';
 import { setDict as noituDict, addWords as noituAdd, norm as noituNorm } from '../../noitu/js/engine.js';
 import noituW1 from '../../noitu/words.txt';
 import noituW2 from '../../noitu/words-wikt.txt';
@@ -185,7 +186,7 @@ export function makeSimpleHost(cfg, env) {
 }
 
 /* game nhỏ dùng khung chung (shared/net/simplenet.js): luật khai báo ở <game>/js/def.js */
-const SIMPLE = { baitan: D_baitan, cholon: D_cholon, loto: D_loto, tala: D_tala, thathaythach: D_thathaythach, tusac: D_tusac, sam: D_sam, baucua: D_baucua, noitu: D_noitu, xuyenviet: D_xuyenviet, khaihoang: D_khaihoang, daochinh: D_daochinh, cuuho: D_cuuho, xiecthu: D_xiecthu };
+const SIMPLE = { baitan: D_baitan, cholon: D_cholon, loto: D_loto, tala: D_tala, thathaythach: D_thathaythach, tusac: D_tusac, sam: D_sam, baucua: D_baucua, noitu: D_noitu, xuyenviet: D_xuyenviet, khaihoang: D_khaihoang, daochinh: D_daochinh, cuuho: D_cuuho, xiecthu: D_xiecthu, dovui: D_dovui };
 let noituReady = false, noituExtraAt = 0;
 const noituBase = () => { if (!noituReady) { noituDict((noituW1 + '\n' + noituW2 + '\n' + noituW3 + '\n' + noituW4).split('\n')); noituReady = true; } };
 /* kho từ cộng đồng (từ được bỏ phiếu nhận, chờ duyệt tay) – nạp lại tối đa 10 phút/lần khi mở phòng Nối từ */
