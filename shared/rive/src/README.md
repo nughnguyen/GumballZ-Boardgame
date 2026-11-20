@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9 + batch 10)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9 + batch 10 + batch 11)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -198,6 +198,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `ailatrieuphu.riv` | 4783 B | Thanh câu hỏi ở trên; 4 ô đáp án 2×2, ô B bật lớp vàng + tia sáng, 3 ô còn lại mờ xuống 0.35 + sao vàng (180f = 3s) |
 | `haithat1gia.riv` | 6873 B | 3 lá câu lật lần lượt: 2 lá thật (tick xanh) + 1 lá giả (dấu X đỏ); lá giả rung lắc, vòng ngắm đỏ chớp quanh nó + sao vàng (180f = 3s) |
 | `doanhdong.riv` | 7460 B | Lá hành động (vũ công giơ tay trên nền tròn ngọc) lật lên giữa trên; 2 avatar dưới gật đầu liên tục, tick vàng bật lên trên mỗi avatar + sao vàng (180f = 3s) |
+| `wavelength.riv` | 7771 B | Thang quang phổ ngang: kim chỉ trượt từ trái tới vùng vàng giữa, 3 lá gợi ý lật lên lần lượt, sao vàng bật lên (180f = 3s) |
+| `resistance.riv` | 8738 B | 5 lá vai trò úp; lá giữa lật lên thành gián điệp (mặt nạ), vòng ngắm đỏ chớp quanh nó; lá nhiệm vụ dưới có tick xanh bật lên (180f = 3s) |
+| `vetruyentin.riv` | 6128 B | Mặt trời vẽ từng nét trên bảng trắng (tròn + 8 tia bật lần lượt), lá đáp án dưới lật lên thành mặt trời nhỏ + tick vàng bật ở góc lá (180f = 3s) |
+| `tetris.riv` | 6607 B | Giếng 10 cột: khối T rơi từ trên xuống khớp vào hàng, 2 hàng đủ sáng lên rồi biến mất, sao vàng bật lên (180f = 3s) |
+| `ransanmoi.riv` | 3652 B | Rắn xanh trườn sang phải ăn táo đỏ, dài thêm 1 đốt ở đuôi, táo mới bật lên chỗ khác, sao vàng bật lên (180f = 3s) |
+| `xepkeo.riv` | 6262 B | Lưới 3×3: hàng giữa 3 kẹo đỏ bật lần lượt, sáng lên rồi biến mất, 3 kẹo mới rơi từ trên xuống lấp đầy, sao vàng bật lên (180f = 3s) |
+| `banbong.riv` | 3291 B | Thanh đỡ trượt qua lại, bóng nảy lên phá 3 viên gạch giữa hàng dưới, bóng rơi về thanh đỡ, sao vàng bật lên (180f = 3s) |
+| `nonogram.riv` | 6327 B | Lưới 10×10 + dải gợi ý xanh trên/trái: con trỏ khung mực chạy tới từng ô, 5 ô tô đen lần lượt thành hình, 1 ô đánh X đỏ sai + rung lắc, sao vàng bật lên (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -207,6 +215,58 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 11, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): wavelength 387, resistance 94, vetruyentin 128, tetris 128,
+  ransanmoi 148, xepkeo 218, banbong 271, nonogram 62 (đều trên ngưỡng 50
+  — Nonogram thấp nhất vì chuyển động chính là 5 ô nhỏ tô đen + con trỏ
+  trên lưới lớn; đã đo 2 lần (56 rồi 62, ổn định) sau khi thêm con trỏ).
+- Trang chủ Playwright: **171/171 checks passed** (84 canvas mount + 84
+  thẻ `.has-riv` + 84 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 84 canvas, 84 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. 2 điểm đã kiểm và kết luận KHÔNG phải lỗi:
+  ảnh thẻ Resistance bắt đúng pha đầu vòng (5 lá đang úp, chưa lật gián
+  điệp) và ảnh thẻ Vẽ Truyền Tin bắt đúng lúc mặt trời mới vẽ xong vòng
+  tròn + lá đáp án đang lật — ảnh cuối vòng cho thấy đủ mặt nạ gián điệp
+  + vòng ngắm + tick xanh và đủ mặt trời 8 tia + lá đáp án + tick vàng.
+- 3 lỗi thật đã sửa trong lúc verify: (1) Vẽ Truyền Tin: pixel 35 < 50
+  — chuyển động chính (lật lá đáp án 90–110f) rơi SAU cửa sổ lấy mẫu
+  0,4–1,2s, trong cửa sổ chỉ có 8 tia nhỏ bật — sửa bằng cách dời nhịp
+  lật lá về sớm (50–70f), tick 75–90, sao 95–115, tia to hơn (5×18,
+  bán kính 32) → pixel 35 → 128; (2) Nonogram: pixel 56, sát ngưỡng —
+  thêm con trỏ khung mực chạy tới từng ô 5f trước khi ô đó tô đen →
+  56 → 62 (đo 2 lần, ổn định); (3) Resistance: tick xanh trên lá nhiệm
+  vụ KHÔNG hiện — tick add SAU nền kem đục của lá nên nền (thêm trước =
+  vẽ trên cùng) che mất tick — đã sửa bằng cách add tick TRƯỚC nền,
+  ảnh kiểm lại ở scrub 2.5s thấy ✓ xanh rõ + vòng ngắm đỏ + sao vàng.
+  Suýt mắc lỗi (đã chặn trước khi build): kẹo mới rơi xuống của Xếp Kẹo
+  mà để fadeEnds sẽ hiện sẵn ở mép trên (y=10) suốt 0–95f — đã cho key
+  opacity riêng (tàng hình tới lúc rơi), không cho vào fadeEnds.
+- File .riv cũ 76 game không đổi (git status sạch ngoài 2 file sửa +
+  8 file mới — domi.riv lại đổi vô cớ sau build dù scene không đổi, đã
+  khôi phục từ git lần nữa; LƯU Ý MỚI: vetruyentin/nonogram đổi hash
+  giữa 2 lần build của cùng 1 nguồn (kích thước không đổi 6128/6327 B)
+  — generator không hoàn toàn xác định với cả 2 file này, không chỉ
+  domi.riv; sau mỗi lần build lại, diff md5 và khôi phục file cũ nào
+  đổi vô cớ, đừng commit).
+- Restart 20 (~04:47) xen vào giữa lúc verify: dọn sạch /tmp/pwtest +
+  /tmp/rive-gen (script verify + homepage + rive-generator mất), server
+  8128 SỐNG SÓT lần này (200) nên không cần khởi động lại. Script viết
+  lại từ đầu (verify theo mẫu b10; homepage khôi phục script gốc
+  rive-wide-home-pw.mjs 4587 B từ session jsonl của coordinator
+  wide-format agent-9b1fb39b rồi sửa thành 84 game), Playwright cài lại
+  1.65.1, TOÀN BỘ kiểm chứng chạy lại từ đầu — số liệu trên là số đo
+  mới sau restart (wavelength 395 → 387 giữa 2 lần đo = nhiễu pha lấy
+  mẫu, các file khác giữ nguyên).
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 10
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 10, 2026-11-21)
 

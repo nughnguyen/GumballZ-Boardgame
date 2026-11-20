@@ -8,7 +8,7 @@
 // matthu/avalon/spyfall/sudoku/wordle + đợt 8: domi/s2048/matchu/
 // loveletter/sushigo/lay6/saboteur/skull + đợt 9: hanabi/chan/totom/
 // carcassonne/azul/splendor/conhay/backgammon + đợt 10: rummikub/quoridor/
-// blokus/scrabble/mastermind/ailatrieuphu/haithat1gia/doanhdong — 76 game,
+// blokus/scrabble/mastermind/ailatrieuphu/haithat1gia/doanhdong/wavelength/resistance/vetruyentin/tetris/ransanmoi/xepkeo/banbong/nonogram — 84 game,
 // 16 game còn lại làm sau).
 // Gắn canvas vào đúng khối .art của thẻ — canvas lấp đầy toàn bộ đầu thẻ
 // (full tile width × 104px), artboard 400×200 + Fit.Cover.
@@ -22,7 +22,7 @@
 // - prefers-reduced-motion: không mount, giữ icon SVG cũ. File .riv lỗi: giữ icon SVG cũ.
 // - Tạm dừng animation khi thẻ ra khỏi màn hình (IntersectionObserver) để đỡ tốn pin/CPU.
 (function () {
-  var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang', 'scribble', 'meono', 'tamquoc', 'masoi', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'daochinh', 'xiecthu', 'cuuho', 'khaihoang', 'xuyenviet', 'noitu', 'baucua', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong'];
+  var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang', 'scribble', 'meono', 'tamquoc', 'masoi', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'daochinh', 'xiecthu', 'cuuho', 'khaihoang', 'xuyenviet', 'noitu', 'baucua', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram'];
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') return;
   try { window.rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm'); } catch (e) { return; }
