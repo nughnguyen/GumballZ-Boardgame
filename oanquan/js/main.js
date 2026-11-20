@@ -13,7 +13,7 @@ import { loadSprites } from './sprites.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { record, recordEvent } from '../../shared/ui/stats.js?v=72';
 import { toast } from '../../shared/ui/dialog.js?v=8';
-import { makeNet } from '../../shared/net/simplenet.js?v=49';
+import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));

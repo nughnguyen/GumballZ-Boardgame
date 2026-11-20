@@ -1,5 +1,5 @@
 // 🚁 Đội Cứu Hộ – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js. Bản đồ dùng chung hình Việt Nam của Tàu Xuyên Việt.
-import { makeNet } from '../../shared/net/simplenet.js?v=49';
+import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
 import { CITIES, ROUTES } from '../../xuyenviet/js/map.js?v=4';

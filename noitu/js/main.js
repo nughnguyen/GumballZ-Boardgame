@@ -1,5 +1,5 @@
 // 🔗 Nối từ – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js. Kho từ: words.txt (Hồ Ngọc Đức, GPL – xem credits/).
-import { makeNet } from '../../shared/net/simplenet.js?v=49';
+import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=16';
 import * as E from './engine.js?v=16';
 import { botAction } from './bot.js?v=16';

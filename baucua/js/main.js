@@ -1,5 +1,5 @@
 // 🎲 Bầu cua tôm cá – giao diện. Luật ở engine.js, bot ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=49';
+import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';

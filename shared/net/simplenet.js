@@ -94,7 +94,12 @@ export function makeNet(cfg) {
     schedule() { // bot và người rớt mạng: máy đi thay
       this.clearTimers(); const s = this.state; if (!s || !cfg.actors) return;
       for (const pid of cfg.actors(s) || []) {
-        const p = this.players.find(x => x.id === pid), away = p && !p.isBot && !p.local && !p.connected && pid !== 'host';
+        /* bot do ENGINE tự thêm vào s.players (vd. chơi đơn The Resistance:
+           engine thêm 4 máy vào ván, lobby chỉ có 1 người) không có trong
+           this.players (danh sách phòng chờ) — tìm trong s.players nữa,
+           không thì bot không bao giờ được hẹn và ván kẹt ở lượt máy đầu
+           tiên (đã kẹt 82s ở lượt bỏ phiếu ván đơn The Resistance) */
+        const p = this.players.find(x => x.id === pid) || (s.players || []).find(x => x.id === pid), away = p && !p.isBot && !p.local && !p.connected && pid !== 'host';
         if (!p || !(p.isBot || (away && cfg.bot && cfg.autoAway !== false))) continue;
         const d = away ? AWAY_MS : (cfg.botDelay ? cfg.botDelay(s, pid) : 700 + Math.random() * 600);
         const seq = s.seq; /* bot có thể trả Promise (vd. động cơ cờ chạy trong worker) */

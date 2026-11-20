@@ -8,7 +8,7 @@ import { createGame, applyAction, viewFor, serialize, deserialize, actors, DIFFS
 import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
-import { makeNet } from '../../shared/net/simplenet.js?v=49';
+import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { gameKit, $, $$, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
