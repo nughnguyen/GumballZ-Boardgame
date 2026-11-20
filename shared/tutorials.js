@@ -1222,5 +1222,9 @@ export const TUT = {
  "nonogram": {
   "name": "Nonogram — GumballZ Boardgame",
   "steps": []
+ },
+ "ghephinh": {
+  "name": "Ghép Hình — GumballZ Boardgame",
+  "steps": []
  }
 };

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <g stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round">
+    <!-- 2x2 jigsaw pieces, one lifted -->
+    <path d="M22 22 h30 a7 7 0 0 1 14 0 h18 v30 a7 7 0 0 1 0 14 v18 h-30 a7 7 0 0 1 -14 0 h-18 v-30 a7 7 0 0 1 0 -14 z" fill="#FF9F43"/>
+    <path d="M52 22 h14 a7 7 0 0 1 14 0 h14 v14 a7 7 0 0 1 0 14 v14 h-14 a7 7 0 0 1 -14 0 h-14 v-14 a7 7 0 0 1 0 -14 z" fill="#FFB9CF" transform="translate(14,-6) rotate(4 73 43)"/>
+    <path d="M22 52 h18 a7 7 0 0 1 14 0 h30 v14 a7 7 0 0 1 0 14 v14 h-14 a7 7 0 0 1 -14 0 h-14 a7 7 0 0 1 0 -14 v-14 a7 7 0 0 1 -14 0 z" fill="#ABE0C6" transform="translate(-4,8)"/>
+    <path d="M62 62 h22 v22 h-22 a7 7 0 0 1 -7 -7 v-8 a7 7 0 0 1 7 -7 z" fill="#AFD8F3"/>
+  </g>
+</svg>

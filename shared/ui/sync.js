@@ -9,7 +9,7 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=27';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=78';
+import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=79';
 import { snapshot, adoptServer } from './wallet.js?v=1'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar';

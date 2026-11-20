@@ -1,0 +1,52 @@
+/* 🧩 Ghép Hình — giao diện riêng (theo mẫu các game khác). */
+.gh-topbar { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .gh-topbar { flex-wrap: wrap; }
+  .gh-topbar .tools { flex-wrap: wrap; }
+}
+.gh-stage {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+  justify-content: center; margin: 8px 0 12px; font-size: 15px;
+}
+.gh-stage b { font-weight: 800; }
+.gh-status { color: #8B7E9E; }
+.gh-main { display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+.gh-side { min-width: 180px; max-width: 240px; }
+.gh-panel { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 12px; padding: 10px; }
+.gh-panel-title { font-weight: 800; margin-bottom: 6px; }
+.gh-opp { display: flex; flex-direction: column; gap: 2px; padding: 6px 0; border-top: 1px dashed #C9BDF3; font-size: 14px; }
+.gh-opp:first-child { border-top: none; }
+.gh-opp i { color: #8B7E9E; font-style: normal; }
+#gh-boards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.gh-board-wrap { background: #FFFDF9; border: 2px solid #4A3E5C; border-radius: 14px; padding: 10px; }
+.gh-board-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 14px; }
+.gh-board-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 13px; color: #8B7E9E; }
+.gh-board { display: grid; gap: 3px; background: #C9BDF3; padding: 3px; border-radius: 10px; }
+.gh-board.gh-n3 { grid-template-columns: repeat(3, 110px); }
+.gh-board.gh-n4 { grid-template-columns: repeat(4, 88px); }
+.gh-board.gh-n5 { grid-template-columns: repeat(5, 70px); }
+.gh-tile {
+  display: block; border-radius: 6px; cursor: pointer;
+  border: 2px solid rgba(74, 62, 92, 0.35); touch-action: manipulation;
+  width: 100%; height: auto;
+}
+.gh-tile.sel { outline: 3px solid #FF4D2E; outline-offset: 1px; border-color: #FF4D2E; }
+.gh-tile.ok { border-color: #2E9E5B; box-shadow: inset 0 0 0 2px rgba(46, 158, 91, 0.55); }
+.gh-actions { display: flex; gap: 10px; justify-content: center; margin: 14px 0 6px; flex-wrap: wrap; }
+.gh-log { max-width: 640px; margin: 6px auto 0; font-size: 13px; color: #8B7E9E; text-align: center; }
+.gh-peek {
+  position: fixed; inset: 0; z-index: 60; display: flex; align-items: center;
+  justify-content: center; background: rgba(27, 20, 37, 0.55);
+}
+.gh-peek-card {
+  background: #FFFDF9; border: 3px solid #4A3E5C; border-radius: 16px;
+  padding: 14px; text-align: center; display: flex; flex-direction: column; gap: 10px;
+}
+.gh-peek-card canvas { border-radius: 10px; border: 2px solid #4A3E5C; }
+@media (max-width: 640px) {
+  .gh-board.gh-n3 { grid-template-columns: repeat(3, 104px); }
+  .gh-board.gh-n4 { grid-template-columns: repeat(4, 80px); }
+  .gh-board.gh-n5 { grid-template-columns: repeat(5, 64px); }
+  .gh-side { min-width: 0; width: 100%; max-width: none; }
+  .gh-peek-card canvas { width: 280px; height: 280px; }
+}
