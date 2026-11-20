@@ -9,7 +9,7 @@ export const GUIDE_HTML = `
 <h3>🎯 Nước đầu tiên</h3>
 <p>Từ đầu tiên của ván <b>phải phủ ô trung tâm ★</b> (ô hồng ở giữa bàn). Từ thứ 2 trở đi phải <b>nối với chữ đã có</b>: dùng chung ít nhất 1 chữ có sẵn, hoặc chạm (lên / xuống / trái / phải) ít nhất 1 chữ có sẵn.</p>
 <h3>✅ Từ hợp lệ và từ phụ</h3>
-<p>Từ đặt phải có trong <b>từ điển tiếng Việt không dấu</b> của game (từ 5 chữ lấy từ danh sách Wordle của web, cộng thêm từ 2–4 và 6 chữ thông dụng). Mọi <b>từ phụ</b> (từ vuông góc tạo ra khi đặt chữ kề chữ có sẵn) cũng phải hợp lệ — nếu không, cả nước đi bị từ chối. Đặt 1 chữ kề 2 chữ có sẵn cùng lúc có thể tạo 2 từ phụ, cả 2 đều phải hợp lệ và đều được tính điểm!</p>
+<p>Từ đặt phải có trong <b>từ điển tiếng Việt không dấu</b> của game (~45.000 từ: 710 từ gốc + kho từ Nối từ — từ ghép 2 âm tiết và các âm tiết đơn, nguồn Hồ Ngọc Đức, Wiktionary và cộng đồng). Mọi <b>từ phụ</b> (từ vuông góc tạo ra khi đặt chữ kề chữ có sẵn) cũng phải hợp lệ — nếu không, cả nước đi bị từ chối. Đặt 1 chữ kề 2 chữ có sẵn cùng lúc có thể tạo 2 từ phụ, cả 2 đều phải hợp lệ và đều được tính điểm!</p>
 <h3>🎉 Bingo +50</h3>
 <p>Dùng hết <b>7 chữ trên khay</b> trong 1 nước đi thì được thưởng thêm <b>+50 điểm</b>. Ô trống (★) dùng làm chữ nào cũng được, nhưng luôn tính 0 điểm — bấm vào ô trống trên khay rồi chọn chữ muốn dùng.</p>
 <h3>🔀 Đổi chữ và bỏ lượt</h3>

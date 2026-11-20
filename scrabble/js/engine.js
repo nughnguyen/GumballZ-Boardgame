@@ -1,6 +1,7 @@
 // 🔤 Scrabble — luật chơi (thuần logic, không chạm DOM).
 // Bàn 15×15, từ điển tiếng Việt không dấu (js/words.js: danh sách Wordle
-// + từ ngắn tự biên). Túi 100 chữ theo phân phối chuẩn, điểm chữ chuẩn.
+// + từ ngắn tự biên + kho từ Nối từ nạp thêm lúc chạy, tổng ~45.000 từ).
+// Túi 100 chữ theo phân phối chuẩn, điểm chữ chuẩn.
 // Ô thưởng chuẩn 15×15: TW 8, DW 17 (gồm ô trung tâm), TL 12, DL 24.
 // Nước đầu phải phủ ô trung tâm (7,7). Từ đặt phải hợp lệ trong từ điển
 // VÀ mọi từ phụ (vuông góc) cũng phải hợp lệ; từ phải nối với chữ đã có
@@ -14,7 +15,7 @@
 // người khác; không có trường `you`.
 // summary cuối trận (theo người chơi): score, wordsPlayed, bingoCount,
 // tilesLeft, turns. Điểm nằm ở final.scores + p.score.
-import { DICT, WORDS_BY_LEN } from './words.js';
+import { DICT, WORDS_BY_LEN, DICT_VERSION } from './words.js?v=1';
 
 export const SIZE = 15;
 export const CENTER = 7;
@@ -267,11 +268,37 @@ export function validatePlace(s, pid, act) {
    ~200k ứng viên và 1 ván mất ~7 giây. */
 const _byLenPos = {};
 function byLenPos(L, k, ch) {
-  const key = L + ':' + k + ':' + ch;
+  /* khóa gồm DICT_VERSION: từ điển nạp thêm lúc chạy làm bộ đệm cũ hết hạn */
+  const key = DICT_VERSION + ':' + L + ':' + k + ':' + ch;
   if (!_byLenPos[key]) {
     _byLenPos[key] = (WORDS_BY_LEN[L] || []).filter(w => w[k] === ch);
   }
   return _byLenPos[key];
+}
+/* Lọc nhanh trước tryPlacement (patch 20261119-50): từ điển ~45.000 từ
+   nên không thể thử đặt từng ứng viên — loại trước các từ mà khay không
+   đủ chữ (kể cả ô trống) hoặc không khớp chữ đã có trên bàn trong đoạn
+   đặt. Lọc này là điều kiện cần của tryPlacement nên không đổi kết quả,
+   chỉ giảm số lần gọi tryPlacement (đắt: kiểm từ phụ + tính điểm). */
+function rackCanCover(seg, word, rackCounts, blankCount) {
+  const need = {};
+  for (let i = 0; i < seg.length; i++) {
+    if (seg[i].board) {
+      if (seg[i].ch !== word[i]) return false;
+    } else {
+      const ch = word[i];
+      need[ch] = (need[ch] || 0) + 1;
+    }
+  }
+  let blanks = 0;
+  for (const ch in need) {
+    const short = need[ch] - (rackCounts[ch] || 0);
+    if (short > 0) {
+      blanks += short;
+      if (blanks > blankCount) return false;
+    }
+  }
+  return true;
 }
 export function legalMoves(s, pid) {
   const p = pOf(s, pid);
@@ -290,6 +317,12 @@ export function legalMoves(s, pid) {
   }
   const rackSet = new Set(rack);
   const hasBlank = rack.includes('*');
+  const rackCounts = {};
+  let blankCount = 0;
+  for (const ch of rack) {
+    if (ch === '*') blankCount++;
+    else rackCounts[ch] = (rackCounts[ch] || 0) + 1;
+  }
   const out = [];
   const seen = new Set();
   for (const [ar, ac] of anchors) {
@@ -302,11 +335,13 @@ export function legalMoves(s, pid) {
           if (r < 0 || c < 0) continue;
           const endR = r + (dir === 'V' ? L - 1 : 0), endC = c + (dir === 'H' ? L - 1 : 0);
           if (endR >= SIZE || endC >= SIZE) continue;
-          /* chữ đã có trên bàn trong đoạn đặt (nếu có) */
+          /* chữ đã có trên bàn trong đoạn đặt (nếu có) + đoạn bàn để lọc nhanh */
           let pattern = null;
+          const seg = [];
           for (let i = 0; i < L; i++) {
             const cell = board[idx(r + (dir === 'V' ? i : 0), c + (dir === 'H' ? i : 0))];
-            if (cell) { pattern = [i, cell.ch]; break; }
+            seg.push(cell ? { board: true, ch: cell.ch } : { board: false, ch: null });
+            if (cell && !pattern) pattern = [i, cell.ch];
           }
           let candidates;
           if (pattern) {
@@ -326,6 +361,7 @@ export function legalMoves(s, pid) {
             const key = dir + '|' + r + '|' + c + '|' + w;
             if (seen.has(key)) continue;
             seen.add(key);
+            if (!rackCanCover(seg, w, rackCounts, blankCount)) continue;
             const res = tryPlacement(board, rack, dir, r, c, w, firstMove);
             if (res.ok) {
               out.push({

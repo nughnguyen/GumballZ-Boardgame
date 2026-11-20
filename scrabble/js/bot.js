@@ -4,7 +4,7 @@
 // Máy Khó: tham lam — chọn nước có điểm cao nhất, cộng thêm điểm "giữ khay"
 // (khay còn lại có cả nguyên âm lẫn phụ âm thì dễ đi tiếp).
 // Hết nước đặt: đổi chữ nếu túi còn ≥ 7 chữ, không thì bỏ lượt.
-import { viewFor, legalMoves, TILE_VALUE } from './engine.js?v=1';
+import { viewFor, legalMoves, TILE_VALUE } from './engine.js?v=2';
 
 const rnd = n => Math.floor(Math.random() * n);
 const pick = arr => arr[rnd(arr.length)];

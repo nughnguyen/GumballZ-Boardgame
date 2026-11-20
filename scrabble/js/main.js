@@ -6,13 +6,19 @@
 // tạm phải thẳng 1 hàng ngang hoặc 1 cột dọc; bấm ✅ Đặt từ để đánh.
 // Ô trống (★): bấm vào ô trên bàn sẽ hỏi dùng làm chữ nào. Đổi chữ: bấm
 // 🔀 Đổi chữ rồi chọn các chữ trên khay, bấm ✅ Đổi chữ.
-import { createGame, applyAction, viewFor, actors, validatePlace, TILE_VALUE, SIZE, CENTER, PREMIUM } from './engine.js?v=1';
-import { botAction } from './bot.js?v=1';
-import { GUIDE_HTML } from './guide.js?v=1';
+import { createGame, applyAction, viewFor, actors, validatePlace, TILE_VALUE, SIZE, CENTER, PREMIUM } from './engine.js?v=2';
+import { botAction } from './bot.js?v=2';
+import { GUIDE_HTML } from './guide.js?v=2';
+import { loadExtraDict } from './words.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=11';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
+
+/* ---------- từ điển mở rộng: nạp kho từ Nối từ trước khi mở phòng ----------
+   (words.js: ~710 từ gốc → ~45.000 từ). Nạp lỗi (mất mạng/file://) thì
+   chơi tiếp với từ điển gốc, không chặn trang. */
+try { await loadExtraDict(); } catch (e) {}
 
 const NET = makeNet({
   game: 'scrabble', min: 2, max: 4, maxSeats: 4, allowLocal: true,
