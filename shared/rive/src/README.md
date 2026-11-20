@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -166,6 +166,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `lieng.riv` | 12853 B | 3 lá lật lần lượt thành Sáp (7♥, 7♠, 7♦) + 3 xu vàng bay vào pot vàng + sao vàng (180f = 3s) |
 | `maubinh.riv` | 22620 B | 13 lá xếp 3 chi (Đầu 3 úp đỏ – Giữa 5 lật ngửa lần lượt – Cuối 5 úp xanh) + sao vàng bật lên (180f = 3s) |
 | `xito.riv` | 19047 B | 2 lá tẩy lật ngửa (A♥ + K♠, hơi xòe) + Flop 3 lá → Turn → River lật dần, 2 chip trượt vào chồng chip pot + sao vàng (180f = 3s) |
+| `colat.riv` | 13887 B | Bàn 6×6: quân đen mới đặt xuống (1,2) làm lật 2 quân trắng (2,2),(3,2) thành đen (neo đen ở (4,2)), sao vàng bật lên (180f = 3s) |
+| `domino.riv` | 6953 B | Quân 6-3 đứng sẵn, quân 3-5 trượt từ phải vào khớp số 3, vòng vàng quanh chỗ khớp + sao vàng (180f = 3s) |
+| `connect4.riv` | 11572 B | Đỏ/vàng thả xen kẽ (7 lượt), đỏ đủ 4 dọc cột 2 → vạch thắng đỏ dọc + sao vàng (180f = 3s) |
+| `matthu.riv` | 17092 B | Lưới 5×5 lá từ: 2 lá lật lên đúng phe mình (ngọc) → sao vàng bật lên (180f = 3s) |
+| `avalon.riv` | 7951 B | 3 lá vai trò lật lần lượt (Merlin vương miện vàng, Sát thủ bích đỏ, Dân tim xanh) + đĩa nhiệm vụ xanh (tick trắng) + sao vàng (180f = 3s) |
+| `spyfall.riv` | 4942 B | Lá địa điểm lật lên thành bãi biển (mặt trời + sóng ngọc), lá gián điệp lật lên (mặt nạ mực + 2 mắt) rồi rung lắc, vòng ngắm đỏ chớp + sao vàng (180f = 3s) |
+| `sudoku.riv` | 7356 B | Lưới 9×9: 12 số cho sẵn (ô vuông mực), số mới (chấm đỏ) điền đúng vào ô trống, hàng + cột sáng vàng + sao vàng (180f = 3s) |
+| `wordle.riv` | 7061 B | Hàng trên: lượt đoán trước (xám/xanh/vàng/xám/xanh). Hàng dưới: lật từng ô (xanh/xanh/vàng/xám/xanh) → đúng từ, sao vàng bật lên (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -175,6 +183,28 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 7, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): colat 142, domino 299, connect4 209, matthu 66, avalon 349,
+  spyfall 279, sudoku 232, wordle 220 (đều trên ngưỡng 50 — Mật Thư thấp
+  nhất vì chỉ 2 lá nhỏ lật trên nền tối, vẫn đạt).
+- Trang chủ Playwright: **107/107 checks passed** (52 canvas mount + 52
+  thẻ `.has-riv` + 52 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 52 canvas, 52 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. Không tìm thấy lỗi thật nào trong đợt verify
+  (ảnh pha ngẫu nhiên chỉ bắt đúng lúc lá đang lật/quân đang rơi — xem
+  thêm pha cuối vòng mới kết luận được; vạch thắng Connect 4 đã kiểm
+  riêng bằng scrub 2.8s: vạch đỏ dọc nối 4 quân đỏ + sao vàng hiện rõ).
+  File .riv cũ 44 file không đổi (md5 khớp sau khi build lại toàn bộ).
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 6
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 5, 2026-11-21)
 
