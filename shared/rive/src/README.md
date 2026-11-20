@@ -16,7 +16,28 @@ node build.mjs   # ghi ra shared/rive/<game>.riv
 đường dẫn thật — chạy trực tiếp trong repo sẽ không tìm thấy package.)
 
 Nguồn chính thức là **`build.mjs`**. Các file `*.rml` là bản đặc tả v1 chỉ
-để tham khảo / kiểm tra bằng Rive CLI, KHÔNG dùng để build `.riv` nữa.
+để tham khảo / kiểm tra bằng Rive CLI, KHÔNG dùng để build `.riv` nữa
+(đã lỗi thời so với v2/v3/v4).
+
+## Quy tắc thiết kế — CHỈ LẤY PHẦN CHƠI THẬT (anh Hưng đặt 2026-11-21)
+
+Mỗi file `.riv` CHỈ lấy phần chơi thật của game đó — một lát cắt nhỏ cho
+người xem biết lúc chơi game như thế nào. KHÔNG làm "cảnh mini" trang trí
+(xúc xắc + nhà + tiền, ngựa phi nguyên con, 2 lạc đà đua trên cồn cát) —
+hướng đó đã làm ở v3 và bị bỏ vì nhìn không ra cách chơi.
+
+Ví dụ gốc của anh Hưng:
+- typhu: 1 nhân vật nhảy từng ô trên bàn cờ tỷ phú, CHỈ HIỆN 1 GÓC VUÔNG
+  của bàn (vài ô quanh góc, có nhà trên ô).
+- caro: các ô X, O được đánh lần lượt, bên nào chạm 5 trước thì WIN và
+  gạch đường win đó.
+- cangua: 1 quân cờ cá ngựa nhảy từng ô trên bàn cờ cá ngựa.
+- xidach: 2 lá bài được lật lại, thấy 1 con XÌ (Át) và 1 con TÂY (lá hình).
+
+Áp dụng cho batch sau: tìm "lát cắt chơi" của game rồi vẽ đúng lát cắt đó
+(quân di chuyển / đánh dấu / lật bài / bước tiến), không vẽ thêm đồ trang
+trí ngoài cách chơi. Chuyển động phải RÕ ở 104×104 (nhảy từng ô, bước
+tiến, lật bài), biên độ lớn, không nhích nhẹ.
 
 ## Công cụ — cái nào chạy được
 
@@ -76,23 +97,38 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 
 | File | Dung lượng | Nội dung (artboard 200×200) |
 |---|---|---|
-| `typhu.riv` | 3403 B | Xúc xắc đỏ nảy + xoay, đổi mặt 5 ↔ 2, bóng đổ co giãn (120f = 2s) |
-| `cotuong.riv` | 932 B | Quân Tướng đỏ trượt qua lại + nhún trên vạch bàn ngọc (180f = 3s) |
-| `cangua.riv` | 1689 B | Ngựa ngọc phi từng bước, tai + mắt + mõm (144f = 2,4s) |
-| `camel.riv` | 2108 B | Lạc đà vàng bước đi, 4 chân đung đưa xen kẽ, thân nhún (180f = 3s) |
+| `typhu.riv` | 5548 B | v4: nhân vật (mũ đỏ) nhảy từng ô quanh 1 góc bàn, ô góc vàng + 2 nhà nhỏ, nhảy hết vòng rồi mờ về ô đầu (168f = 2,8s) |
+| `cotuong.riv` | 4569 B | v4: cung 3×3 có chéo X + sông, Mã đỏ (vòng trong vàng) nhảy chữ L rồi nhảy về, Tướng đỏ + quân đen đứng yên (180f = 3s) |
+| `cangua.riv` | 8850 B | v4: quân ngựa nhảy từng ô dọc đường ô màu (xuất phát đỏ, an toàn ngọc, đích vàng có sao đỏ), nhảy hết vòng rồi mờ về ô đầu (168f = 2,8s) |
+| `camel.riv` | 14723 B | v4: 2 lạc đà (vàng sau, tím trước) xếp 1 hàng, xen kẽ bước 3 bước về phía cờ caro, chân sải 1 nhịp mỗi bước, rồi mờ về vạch xuất phát (180f = 3s) |
+| `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
+| `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
+
+Nguồn build hộp quà: `src/build-gacha.mjs` (riêng, không đụng `build.mjs`). Mount ở
+`shop/js/shop.js`: idle autoplay lúc tải trang, khi bấm Mua thì `reset()` + `play()`
+file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng).
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
 
-## Kiểm chứng (đã làm)
+## Kiểm chứng (đã làm — v4, 2026-11-21)
 
-- Nạp cả 4 file bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
   (headless shell + server tĩnh cổng 8128): tất cả `loaded: true`,
-  0 lỗi JS, số pixel vẽ thay đổi theo thời gian (animation chạy).
-- Ảnh chụp canvas đã xác nhận bằng mắt: xúc xắc đủ 5 chấm ở mặt 5 và
-  2 chấm ở mặt 2 (đổi mặt bằng opacity hoạt động), bóng đổ hiện;
-  quân Tướng có chấm đỏ giữa + vạch bàn ngọc; ngựa có tai/mõm/mắt;
-  lạc đà đủ 2 bướu, đầu, cổ, 4 chân, đuôi.
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 10000 điểm, 2 ảnh cách nhau
+  0,8s): typhu 317, cotuong 553, cangua 454, camel 1297.
+- Ảnh chụp canvas đã xác nhận bằng mắt: typhu = nhân vật mũ đỏ nhảy
+  quanh góc bàn, 2 nhà nhỏ + ô góc vàng; cotuong = cung có chéo X +
+  sông, Mã vòng trong vàng nhảy chữ L; cangua = quân ngựa nhảy dọc
+  đường ô màu, ô đích vàng có sao đỏ; camel = 2 lạc đà xếp hàng bước
+  về phía cờ caro (v3 xếp 2 làn chồng nhau nên chỉ thấy 1 con — đã sửa
+  thành 1 hàng dọc đường đua đơn).
+- BÀI HỌC verify: nạp 4 file WebGL CÙNG LÚC làm headless shell kẹt CPU
+  (SwiftShader) tới mức CDP treo — verify treo >60s. Phải nạp từng file,
+  chụp xong thì `cleanup()` rồi mới nạp file sau. Đọc pixel canvas
+  WebGL: KHÔNG dùng `getContext('2d')` trên chính canvas đó (trả `null`
+  vì đã có context WebGL) — vẽ sang canvas 2D mới bằng `drawImage`
+  trong `requestAnimationFrame` rồi đọc `getImageData`.
 
 ## Môi trường (ghi chú)
 
