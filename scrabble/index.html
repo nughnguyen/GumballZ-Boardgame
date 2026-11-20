@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
-<link rel="stylesheet" href="css/scrabble.css?v=1">
+<link rel="stylesheet" href="css/scrabble.css?v=2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="../shared/ui/shell.css?v=19">
 <link rel="stylesheet" href="../shared/css/footer.css?v=2">
@@ -30,9 +30,9 @@
     </div>
   </header>
 
-  <main class="screen">
+  <main>
     <!-- ================= MÀN HÌNH CHÍNH ================= -->
-    <section id="screen-home" class="game-home">
+    <section id="screen-home" class="screen game-home active">
       <div class="home-hero">
         <div class="game-emoji">🔤</div>
         <h1>Scrabble</h1>
@@ -85,7 +85,7 @@
     </section>
 
     <!-- ================= PHÒNG CHỜ ================= -->
-    <section id="screen-lobby" class="lobby" hidden>
+    <section id="screen-lobby" class="screen lobby">
       <div class="lobby-card">
         <h2>🕹️ Phòng chờ Scrabble</h2>
         <div class="room-code-box" id="code-box">
@@ -111,7 +111,7 @@
     </section>
 
     <!-- ================= MÀN CHƠI ================= -->
-    <section id="screen-game" hidden>
+    <section id="screen-game" class="screen">
       <div id="round" class="round-line">🔤 Scrabble</div>
       <div id="status" class="status-line"></div>
       <div class="sc-layout">

@@ -74,4 +74,9 @@
 @media (max-width: 480px) {
   .sc-rack-tile { width: 36px; height: 36px; font-size: 17px; }
   .sc-cell .prem { font-size: 6px; }
+  /* ô nhập mã phòng không co được dưới độ rộng nội dung → nút Vào phòng tràn 1px ở 390px.
+     Gốc: gamekit.css .btn.big{width:100%} + .join-row .btn{flex:none} khiến nút chiếm trọn
+     chiều rộng hàng, bóp ô nhập còn 32px và tràn ra ngoài. Sửa trong phạm vi Scrabble. */
+  .join-row .input { flex: 1; min-width: 0; }
+  .join-row .btn.big { width: auto; }
 }
