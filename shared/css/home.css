@@ -103,15 +103,22 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .tile .art .ic{display:block;height:100%;max-width:68%;margin:0 auto;object-fit:contain;animation:tb 3.2s ease-in-out infinite;pointer-events:none}
 .tile:hover .art .ic{animation-duration:1.4s}
 .tile.asleep .art .ic,.tile.asleep .art span,.tile.asleep .livetag::before{animation-play-state:paused}
-/* ===== animation Rive riêng từng game trên thẻ (đợt 1: typhu/cotuong/cangua/camel) ===== */
-/* canvas 104×104 vừa đúng khối đầu thẻ (khối cao 104px) — bằng đúng chỗ icon cũ, không đẩy nút "Chơi".
-   Icon SVG vẫn ở trong DOM làm dự phòng: chỉ ẩn khi file .riv đã nạp xong (thẻ có .has-riv);
+/* ===== animation Rive riêng từng game trên thẻ — KHỔ RỘNG (đợt 1+2: 12 game) ===== */
+/* canvas lấp đầy toàn bộ khối đầu thẻ (full tile width × 104px): artboard
+   400×200 + Fit.Cover nên không còn ô vuông 104×104; file .riv tự mang nền
+   full-bleed nên bỏ đĩa sáng trắng cũ. Icon SVG vẫn ở trong DOM làm dự
+   phòng: chỉ ẩn khi file .riv đã nạp xong (thẻ có .has-riv);
    prefers-reduced-motion thì module JS không mount nên icon cũ vẫn hiện. */
-.tile .art canvas.riv-cv{display:none;height:104px;width:104px;margin:0 auto;pointer-events:none}
+.tile .art canvas.riv-cv{display:none;height:104px;width:100%;margin:0;pointer-events:none}
 .tile.has-riv .art .ic{display:none}
 .tile.has-riv .art canvas.riv-cv{display:block;position:relative;z-index:1}
-/* đĩa sáng sau animation để hình nổi trên nền màu đầu thẻ (ngựa ngọc trùng màu ngọc, lạc đà vàng trùng màu vàng) */
-.tile.has-riv .art::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,253,249,.94) 0 50px,rgba(255,253,249,0) 72px)}
+/* 2 thẻ có .art đặc biệt (uno: neo 0×0 cho quạt bài; bang: lưới 3 ảnh phủ
+   cả thẻ) — khi có Rive thì trả .art về đúng khối đầu thẻ 104px và ẩn
+   phần art cũ. */
+.tile.uno.has-riv .art{left:0;right:0;top:0;width:auto;height:104px}
+.tile.uno.has-riv .uc{display:none}
+.tile.bang.has-riv .art{display:block;bottom:auto;height:104px}
+.tile.bang.has-riv .art img{display:none}
 @keyframes tb{50%{transform:translateY(-10px)}}
 @keyframes tin{from{opacity:0;transform:translateY(18px)}}
 .bang .art{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);z-index:0}
@@ -141,10 +148,10 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .play.resume .play-top{background:var(--p1)}
 .play.resume small{display:block;font:700 11px/1.1 Nunito,sans-serif;opacity:.95;text-align:center}
 @keyframes rz{50%{transform:scale(1.05)}}
-.livetag{position:absolute;left:10px;top:10px;z-index:3;display:none;align-items:center;gap:6px;background:#0f2a1ccc;color:#fff;font:800 12px/1 Nunito,sans-serif;padding:7px 11px;border-radius:999px;box-shadow:0 6px 14px #0003}
+.livetag{position:absolute;left:10px;top:10px;z-index:3;display:none;align-items:center;gap:6px;background:#0f2a1ce6;color:#fff;font:800 12px/1 Nunito,sans-serif;padding:7px 11px;border-radius:999px;box-shadow:0 6px 14px #0003}
 .livetag::before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px #3ddc8444;animation:lv 1.6s ease-in-out infinite}
 .livetag.on{display:inline-flex}
-@keyframes lv{50%{box-shadow:0 0 0 6px #3ddc8400}}
+@keyframes lv{50%{opacity:.35;transform:scale(.8)}}
 .badge{position:absolute;z-index:4;right:10px;top:10px;font:800 12px Nunito,sans-serif;letter-spacing:.5px;color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:4px 10px;box-shadow:var(--sh-sm);pointer-events:none}
 .badge.new{background:var(--p1)}
 .badge.hot{background:var(--y1)}
