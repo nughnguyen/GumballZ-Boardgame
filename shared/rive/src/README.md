@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9 + batch 10 + batch 11)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9 + batch 10 + batch 11 + batch 12 — ĐỢT CUỐI, đủ 92/92)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -206,6 +206,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `xepkeo.riv` | 6262 B | Lưới 3×3: hàng giữa 3 kẹo đỏ bật lần lượt, sáng lên rồi biến mất, 3 kẹo mới rơi từ trên xuống lấp đầy, sao vàng bật lên (180f = 3s) |
 | `banbong.riv` | 3291 B | Thanh đỡ trượt qua lại, bóng nảy lên phá 3 viên gạch giữa hàng dưới, bóng rơi về thanh đỡ, sao vàng bật lên (180f = 3s) |
 | `nonogram.riv` | 6327 B | Lưới 10×10 + dải gợi ý xanh trên/trái: con trỏ khung mực chạy tới từng ô, 5 ô tô đen lần lượt thành hình, 1 ô đánh X đỏ sai + rung lắc, sao vàng bật lên (180f = 3s) |
+| `ghephinh.riv` | 4037 B | 3 mảnh ghép trượt vào khớp thành hình mặt trời (trời xanh 2 hàng trên, đồi xanh hàng dưới, mặt trời + 4 tia bật lên ở ô giữa trên, mảnh góc xoay rồi khớp vào) + sao vàng (180f = 3s) |
+| `nhen.riv` | 22338 B | 3 cột bài, cột giữa là dãy 13 lá bích K→A; dãy bay lên + mờ đi rồi hiện lại ở cuối vòng, sao vàng bật lên (180f = 3s) |
+| `bida8.riv` | 3245 B | Gậy kéo về chọc bi cái trắng lăn tới chạm bi 8, bi 8 lăn chéo vào lỗ góc trên-phải + chìm xuống, sao vàng bật lên (180f = 3s) |
+| `dapenalty.riv` | 3113 B | Bóng lăn vào góc trái trên khung thành, thủ môn bay người sang phải (sai hướng) + xoay, sao vàng bật lên (180f = 3s) |
+| `phitieu.riv` | 3292 B | Bia 5 vòng đồng tâm, 3 phi tiêu bay lần lượt găm vào (20 trên, 20 trái, bull giữa), bia rung nhẹ mỗi lần trúng, sao vàng (180f = 3s) |
+| `keobuabao.riv` | 4941 B | Tay kéo (2 ngón chéo) vs tay bao (xòe) trượt vào từ 2 bên, kéo cắt thắng ở 60f, tay bao nghiêng + mờ xuống 0.35, chấm điểm vàng đầu tiên sáng lên + sao vàng (180f = 3s) |
+| `dovui.riv` | 8304 B | Thanh câu hỏi + 4 ô đáp án 2×2, ô C (dưới trái) bật lớp vàng + 4 tia sáng, 5 sao thang sáng dần vàng, sao vàng (180f = 3s) |
+| `hoisanquai.riv` | 10272 B | 3 lá quái lật lên lần lượt (troll xanh, rồng đỏ, yêu tinh tím), rồng giữa bị chém (vết chém trắng + rung + mờ xuống 0.45), lá anh hùng (kiếm vàng) bật lên dưới + sao vàng (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -215,6 +223,58 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 12 — ĐỢT CUỐI, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s, số đo CUỐI sau khi sửa lỗi): ghephinh 532, nhen 450, bida8 72,
+  dapenalty 216, phitieu 173, keobuabao 273, dovui 319, hoisanquai 562
+  (đều trên ngưỡng 50).
+- Trang chủ Playwright: **187/187 checks passed** (92 canvas mount + 92
+  thẻ `.has-riv` + 92 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 92 canvas, 92 has-riv, không tràn ngang.
+  **Đủ 92/92 game có animation — đây là đợt cuối, không còn game nào
+  chưa có .riv.**
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. Ảnh thẻ ở pha ngẫu nhiên có thể bắt đúng lúc
+  đầu vòng (thẻ Hội Săn Quái chỉ thấy 1 lá lật + 2 lá úp, thẻ Đố Vui
+  chưa thấy ô vàng) — ảnh cuối vòng cho thấy đủ 3 lá quái + vết chém
+  trắng + lá anh hùng và đủ ô vàng + 5 sao vàng thang.
+- 5 lỗi thật đã sửa trong lúc verify: (1) Nhện: pixel 0 < 50 — chuyển
+  động chính (dãy bay lên 90–130f) rơi SAU cửa sổ lấy mẫu 0,4–1,2s —
+  dời nhịp bay lên về sớm (30–70f), dãy reset trong lúc tàng hình
+  (95–105f), hiện lại trước cuối vòng (115f), sao 100–120f → 0 → 450;
+  (2) Bida 8: pixel 59, sát ngưỡng — dời toàn bộ nhịp sớm (gậy chọc
+  12–20f, bi cái 20–55f, bi 8 lăn 55–95f, chìm 95–108f, sao 108–128f)
+  → 59 → 72; (3) Kéo Búa Bao: chấm điểm vàng KHÔNG hiện — chấm vàng
+  add SAU chấm xám cùng vị trí nên bị chấm xám che (lấy mẫu pixel:
+  chấm 130 = xám #C9C4D6) — sửa bằng cách add chấm vàng TRƯỚC chấm
+  xám → chấm 130 = vàng #E8A93D; (4) Đố Vui: sao thang vàng + lớp vàng
+  ô đúng + chấm màu các ô đều KHÔNG hiện — cùng nguyên nhân (sao vàng
+  add sau sao xám, lớp vàng + chấm màu add sau các ô; lấy mẫu pixel:
+  sao xám, ô C kem, chấm kem) — sửa bằng cách đảo thứ tự tạo
+  (sao vàng trước sao xám; lớp vàng + chấm màu trước các ô) → sao/ô/
+  chấm đều hiện đúng màu, pixel 94 → 319; (5) Hội Săn Quái: vết chém
+  add SAU lá rồng nên bị nền lá che — lúc đầu chỉ thấy mờ mờ vì rồng
+  mờ xuống 0.45 ở cuối vòng — sửa bằng cách tạo vết chém TRƯỚC 3 lá
+  quái → vết chém trắng rõ trên lá rồng.
+  Bài học ghi lại từ đợt này: quy tắc "thêm trước = vẽ TRÊN" vẫn đúng
+  — lúc verify đã suýt kết luận ngược (tưởng chấm bi cái / ngũ giác
+  trên bóng là bằng chứng "thêm sau = vẽ trên"), nhưng đọc lại code
+  thấy cueDot/eDot/bDot đều được tạo TRƯỚC bi/bóng của chúng (chi tiết
+  add trước nền, đúng quy tắc). Lỗi ở (3)(4)(5) là do chính tay viết
+  scene add phần "hiện lên trên" SAU phần nó cần phủ — cứ phần nào phải
+  hiện trên thì add TRƯỚC, không có ngoại lệ.
+- File .riv cũ 84 game không đổi (diff md5 sạch sau khi khôi phục
+  domi.riv — domi.riv lại đổi vô cớ sau build dù scene không đổi, đã
+  khôi phục từ git 2 lần trong đợt này; vetruyentin/nonogram lần này
+  KHÔNG đổi).
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 11
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 11, 2026-11-21)
 

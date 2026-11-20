@@ -1,4 +1,4 @@
-// Build 84 file .riv — KHỔ RỘNG v5 (2026-11-21) + batch 2/3/4/5/6/7/8/9/10/11.
+// Build 92 file .riv — KHỔ RỘNG v5 (2026-11-21) + batch 2/3/4/5/6/7/8/9/10/11/12.
 // QUY TẮC THIẾT KẾ (anh Hưng đặt 2026-11-21 ~01:47): MỖI FILE .riv CHỈ LẤY
 // PHẦN CHƠI THẬT của game đó — một lát cắt nhỏ cho người xem biết lúc chơi
 // game như thế nào. KHÔNG làm "cảnh mini" trang trí.
@@ -4234,6 +4234,408 @@ function makeCamel(riv, root, o) {
   keys(riv, an, star.id, SY, [[0, 0], [130, 0], [141, 1.2], [150, 1], [D, 1]]);
   fadeEnds(riv, an, [star, cursor, ...fillCells, x1, x2], D);
   save('nonogram', riv);
+}
+
+// ---- 85. ghephinh: 3 MẢNH TRƯỢT VÀO KHỚP THÀNH HÌNH MẶT TRỜI (180f = 3s).
+// Lưới 3×3: hàng trên trời xanh + mặt trời vàng ở ô giữa, hàng dưới đồi
+// xanh; 3 mảnh trượt vào từ 3 hướng, mảnh góc dưới phải xoay rồi khớp.
+{
+  const { riv, ab, root } = newFile('ghephinh');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Mặt trời trên ô giữa hàng trên (ô này đứng yên): 4 tia + vòng tròn.
+  const rays = [
+    rect(riv, root, { name: 'RayT', x: 200, y: 52, w: 3, h: 8, color: YELLOW }),
+    rect(riv, root, { name: 'RayB', x: 200, y: 88, w: 3, h: 8, color: YELLOW }),
+    rect(riv, root, { name: 'RayL', x: 182, y: 70, w: 8, h: 3, color: YELLOW }),
+    rect(riv, root, { name: 'RayR', x: 218, y: 70, w: 8, h: 3, color: YELLOW }),
+  ];
+  const sun = ell(riv, root, { name: 'Sun', x: 200, y: 70, w: 22, color: YELLOW, stroke: INK, strokeW: 2 });
+  // 9 mảnh 40×40: trên trời xanh, dưới đồi xanh.
+  const SKY = hex('#A8D8EA'), HILL = hex('#58A05C');
+  const grid = [
+    [160, 70, SKY], [200, 70, SKY], [240, 70, SKY],
+    [160, 110, SKY], [200, 110, SKY], [240, 110, SKY],
+    [160, 150, HILL], [200, 150, HILL], [240, 150, HILL],
+  ].map(([x, y, c], i) => rect(riv, root, { name: 'P' + i, x, y, w: 40, h: 40, color: c, stroke: INK, strokeW: 2 }));
+  bg(riv, root, CREAM);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Mảnh (0,0) trượt từ trái (10-30), (2,0) trượt từ phải (20-40).
+  keys(riv, an, grid[0].id, X, [[0, 100], [10, 100], [30, 160], [D, 160]]);
+  keys(riv, an, grid[2].id, X, [[0, 300], [20, 300], [40, 240], [D, 240]]);
+  // Mảnh góc dưới phải xoay + trượt từ dưới phải vào (60-90).
+  keys(riv, an, grid[8].id, X, [[0, 280], [60, 280], [90, 240], [D, 240]]);
+  keys(riv, an, grid[8].id, Y, [[0, 180], [60, 180], [90, 150], [D, 150]]);
+  keys(riv, an, grid[8].id, ROT, [[0, 0.6], [60, 0.6], [90, 0], [D, 0]]);
+  // Mặt trời bật lên (45-65).
+  for (const p of [...rays, sun]) {
+    keys(riv, an, p.id, SX, [[0, 0], [45, 0], [56, 1.15], [65, 1], [D, 1]]);
+    keys(riv, an, p.id, SY, [[0, 0], [45, 0], [56, 1.15], [65, 1], [D, 1]]);
+  }
+  // Sao vàng bật (110-130).
+  keys(riv, an, star.id, SX, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ...rays, sun, grid[0], grid[2], grid[8]], D);
+  save('ghephinh', riv);
+}
+
+// ---- 86. nhen: DÃY 13 LÁ K→A BAY LÊN KHỎI CỘT THÀNH BỘ (180f = 3s).
+// 3 cột bài: cột giữa là 1 dãy 13 lá cùng chất bích (K→A) xếp chồng,
+// dãy bay lên + mờ đi (đã thu đủ 1 bộ); 2 cột bên đứng yên.
+{
+  const { riv, ab, root } = newFile('nhen');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Dãy 13 lá cột giữa: mỗi lá là 1 dải 48×16, chất bích mực.
+  const run = [];
+  for (let i = 0; i < 13; i++) {
+    const y = 25 + i * 11;
+    run.push(...suitPip(riv, root, 200, y, 9, 'spade', INK));
+    run.push(rect(riv, root, { name: 'R' + i, x: 200, y, w: 48, h: 16, color: CREAM, stroke: INK, strokeW: 1 }));
+  }
+  // 2 cột bên: vài lá úp/ngửa đứng yên.
+  const side = [];
+  const sideCols = [
+    [130, [60, 71, 82, 93], ['heart', 'diamond', 'club', 'spade']],
+    [270, [70, 81, 92], ['diamond', 'heart', 'club']],
+  ];
+  for (const [cx, ys, suits] of sideCols) {
+    ys.forEach((y, i) => {
+      side.push(...suitPip(riv, root, cx, y, 9, suits[i], suits[i] === 'heart' || suits[i] === 'diamond' ? RED : INK));
+      side.push(rect(riv, root, { name: 'S' + cx + i, x: cx, y, w: 48, h: 16, color: CREAM, stroke: INK, strokeW: 1 }));
+    });
+  }
+  bg(riv, root, FELT);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Dãy bay lên (30-70) + mờ đi, reset trong lúc tàng hình (95-105),
+  // hiện lại trước cuối vòng — key opacity RIÊNG, KHÔNG cho vào fadeEnds.
+  // (Nhịp cũ 90-130 rơi sau cửa sổ lấy mẫu 0,4-1,2s nên pixel đổi = 0.)
+  for (const p of run) {
+    keys(riv, an, p.id, Y, [[0, p.y], [30, p.y], [70, p.y - 70], [95, p.y - 70], [105, p.y], [D, p.y]]);
+    keys(riv, an, p.id, OPACITY, [[0, 1], [30, 1], [70, 0], [95, 0], [115, 1], [D, 1]], 'linear');
+  }
+  // Sao vàng bật (100-120).
+  keys(riv, an, star.id, SX, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  fadeEnds(riv, an, [star], D);
+  save('nhen', riv);
+}
+
+// ---- 87. bida8: BI CÁI LĂN TỚI ĐÁNH BI 8 RƠI VÀO LỖ GÓC (180f = 3s).
+// Bàn nỉ xanh + 6 lỗ đen: gậy kéo về rồi chọc, bi cái trắng lăn tới chạm
+// bi 8 đen, bi 8 lăn chéo vào lỗ góc trên phải rồi chìm xuống, sao vàng.
+{
+  const { riv, ab, root } = newFile('bida8');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Gậy (sau bi cái, kéo về 0-15 rồi chọc 15-25).
+  const stick = rect(riv, root, { name: 'Stick', x: 102, y: 100, w: 56, h: 5, r: 2, color: SAND2, stroke: INK, strokeW: 1 });
+  // Bi cái trắng + bi 8 đen (chấm trắng giữa).
+  const cueDot = ell(riv, root, { name: 'CueDot', x: 140, y: 100, w: 3, color: INK });
+  const cue = ell(riv, root, { name: 'Cue', x: 140, y: 100, w: 16, color: WHITE, stroke: INK, strokeW: 2 });
+  const eDot = ell(riv, root, { name: 'EDot', x: 250, y: 100, w: 7, color: WHITE });
+  const eight = ell(riv, root, { name: 'Eight', x: 250, y: 100, w: 18, color: INK, stroke: WHITE, strokeW: 1 });
+  // 3 bi màu tĩnh làm nền.
+  const b1 = ell(riv, root, { name: 'B1', x: 170, y: 75, w: 14, color: RED, stroke: INK, strokeW: 1 });
+  const b2 = ell(riv, root, { name: 'B2', x: 230, y: 125, w: 14, color: YELLOW, stroke: INK, strokeW: 1 });
+  const b3 = ell(riv, root, { name: 'B3', x: 272, y: 75, w: 14, color: hex('#2B6CB0'), stroke: INK, strokeW: 1 });
+  // 6 lỗ đen (add trước bàn nỉ = nằm trên mép bàn).
+  const pockets = [[105, 55], [200, 55], [295, 55], [105, 145], [200, 145], [295, 145]]
+    .map(([x, y], i) => ell(riv, root, { name: 'Pocket' + i, x, y, w: 14, color: INK }));
+  // Bàn nỉ + ray gỗ (ray add sau bàn = nằm dưới, lộ viền quanh).
+  rect(riv, root, { name: 'Felt', x: 200, y: 100, w: 200, h: 100, r: 8, color: FELT, stroke: INK, strokeW: 2 });
+  rect(riv, root, { name: 'Rail', x: 200, y: 100, w: 220, h: 120, r: 10, color: hex('#8B5A2B'), stroke: INK, strokeW: 2 });
+  bg(riv, root, CREAM);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Gậy kéo về rồi chọc (nhịp dời sớm để cửa sổ lấy mẫu 0,4-1,2s bắt
+  // được cả cú lăn của bi cái + bi 8 — nhịp cũ chỉ đo được 59).
+  keys(riv, an, stick.id, X, [[0, 102], [12, 88], [20, 102], [D, 102]]);
+  // Bi cái lăn tới chạm bi 8 (20-55), nhích thêm chút sau va chạm.
+  for (const p of [cue, cueDot]) {
+    keys(riv, an, p.id, X, [[0, 140], [20, 140], [55, 233], [62, 238], [D, 238]]);
+  }
+  // Bi 8 lăn chéo vào lỗ góc (55-95) rồi chìm xuống (95-108).
+  for (const p of [eight, eDot]) {
+    keys(riv, an, p.id, X, [[0, 250], [55, 250], [95, 288], [108, 293], [D, 293]]);
+    keys(riv, an, p.id, Y, [[0, 100], [55, 100], [95, 62], [108, 57], [D, 57]]);
+    keys(riv, an, p.id, SX, [[0, 1], [95, 1], [108, 0.3], [D, 0.3]]);
+    keys(riv, an, p.id, SY, [[0, 1], [95, 1], [108, 0.3], [D, 0.3]]);
+  }
+  // Sao vàng bật (108-128).
+  keys(riv, an, star.id, SX, [[0, 0], [108, 0], [119, 1.2], [128, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [108, 0], [119, 1.2], [128, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, stick, cue, cueDot, eight, eDot], D);
+  save('bida8', riv);
+}
+
+// ---- 88. dapenalty: BÓNG LĂN VÀO GÓC LƯỚI, THỦ MÔN BAY SAI HƯỚNG (180f = 3s).
+// Khung thành 3×3 + lưới: bóng từ chấm phạt đền lăn vào góc trên trái,
+// thủ môn bay người sang phải (sai hướng), sao vàng bật lên.
+{
+  const { riv, ab, root } = newFile('dapenalty');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Thủ môn (đầu + thân xanh lá): bay sang phải + nghiêng (10-50).
+  const kHead = ell(riv, root, { name: 'KHead', x: 200, y: 92, w: 18, color: CREAM, stroke: INK, strokeW: 2 });
+  const kBody = rect(riv, root, { name: 'KBody', x: 200, y: 118, w: 26, h: 30, r: 8, color: hex('#58A05C'), stroke: INK, strokeW: 2 });
+  // Bóng trắng + chấm đen.
+  const bDot = poly(riv, root, { name: 'BDot', cx: 200, cy: 172, points: [[200, 167], [205, 171], [203, 177], [197, 177], [195, 171]], color: INK });
+  const ball = ell(riv, root, { name: 'Ball', x: 200, y: 172, w: 18, color: WHITE, stroke: INK, strokeW: 2 });
+  // Lưới (add trước khung = nằm dưới khung, lộ qua ô lưới).
+  const net = [];
+  for (const x of [165, 200, 235]) net.push(rect(riv, root, { name: 'NV' + x, x, y: 97, w: 1, h: 105, color: hex('#9DB8C4') }));
+  for (const y of [80, 115]) net.push(rect(riv, root, { name: 'NH' + y, x: 200, y, w: 140, h: 1, color: hex('#9DB8C4') }));
+  // Khung thành trắng: 2 cột + xà ngang.
+  rect(riv, root, { name: 'PostL', x: 130, y: 97, w: 6, h: 110, color: WHITE, stroke: INK, strokeW: 2 });
+  rect(riv, root, { name: 'PostR', x: 270, y: 97, w: 6, h: 110, color: WHITE, stroke: INK, strokeW: 2 });
+  rect(riv, root, { name: 'Bar', x: 200, y: 45, w: 146, h: 6, color: WHITE, stroke: INK, strokeW: 2 });
+  bg(riv, root, hex('#3E9B4F'));
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Bóng lăn vào góc trên trái (0-40).
+  for (const p of [ball, bDot]) {
+    keys(riv, an, p.id, X, [[0, 200], [40, 142], [D, 142]]);
+    keys(riv, an, p.id, Y, [[0, 172], [40, 58], [D, 58]]);
+    keys(riv, an, p.id, SX, [[0, 1], [40, 0.9], [D, 0.9]]);
+    keys(riv, an, p.id, SY, [[0, 1], [40, 0.9], [D, 0.9]]);
+  }
+  // Thủ môn bay sang phải + nghiêng (10-50).
+  for (const p of [kHead, kBody]) {
+    keys(riv, an, p.id, X, [[0, p.x], [10, p.x], [50, p.x + 55], [D, p.x + 55]]);
+    keys(riv, an, p.id, Y, [[0, p.y], [10, p.y], [50, p.y + 12], [D, p.y + 12]]);
+    keys(riv, an, p.id, ROT, [[0, 0], [10, 0], [50, 0.5], [D, 0.5]]);
+  }
+  // Sao vàng bật (60-80).
+  keys(riv, an, star.id, SX, [[0, 0], [60, 0], [71, 1.2], [80, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [60, 0], [71, 1.2], [80, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ball, bDot, kHead, kBody], D);
+  save('dapenalty', riv);
+}
+
+// ---- 89. phitieu: 3 PHI TIÊU BAY LẦN LƯỢT GĂM VÀO BIA (180f = 3s).
+// Bia phi tiêu 5 vòng đồng tâm: phi tiêu 1 găm 20 trên, phi tiêu 2 găm
+// 20 trái, phi tiêu 3 găm bull giữa; bia rung nhẹ mỗi lần trúng, sao vàng.
+{
+  const { riv, ab, root } = newFile('phitieu');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // 3 phi tiêu (1 poly mỗi cái, mũi hướng trái): bay vào rồi găm.
+  const dartPts = (cx, cy) => [[cx - 19, cy], [cx - 9, cy - 3], [cx + 11, cy - 3], [cx + 19, cy - 9], [cx + 19, cy + 9], [cx + 11, cy + 3], [cx - 9, cy + 3]];
+  const d1 = poly(riv, root, { name: 'D1', cx: 254, cy: 70, points: dartPts(254, 70), color: RED, stroke: INK, strokeW: 1 });
+  const d2 = poly(riv, root, { name: 'D2', cx: 187, cy: 78, points: dartPts(187, 78), color: TEAL, stroke: INK, strokeW: 1 });
+  const d3 = poly(riv, root, { name: 'D3', cx: 219, cy: 100, points: dartPts(219, 100), color: YELLOW, stroke: INK, strokeW: 1 });
+  // Bia: thêm từ trong ra ngoài (thêm trước = vẽ trên) — tâm đỏ, vòng
+  // xanh, kem, đỏ, kem, vành đen ngoài cùng.
+  const bull = ell(riv, root, { name: 'Bull', x: 200, y: 100, w: 16, color: RED });
+  const ringG = ell(riv, root, { name: 'RingG', x: 200, y: 100, w: 36, color: hex('#2E7D32') });
+  const ringC1 = ell(riv, root, { name: 'RingC1', x: 200, y: 100, w: 56, color: CREAM });
+  const ringR = ell(riv, root, { name: 'RingR', x: 200, y: 100, w: 80, color: RED });
+  const ringC2 = ell(riv, root, { name: 'RingC2', x: 200, y: 100, w: 104, color: CREAM });
+  const ringB = ell(riv, root, { name: 'RingB', x: 200, y: 100, w: 130, color: INK, stroke: INK, strokeW: 2 });
+  bg(riv, root, NIGHT);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Phi tiêu 1 bay vào (0-30), góc -0.12.
+  keys(riv, an, d1.id, X, [[0, 400], [30, 254], [D, 254]]);
+  keys(riv, an, d1.id, Y, [[0, 40], [30, 70], [D, 70]]);
+  keys(riv, an, d1.id, ROT, [[0, -0.12], [D, -0.12]]);
+  // Phi tiêu 2 bay vào (35-65), góc 0.1.
+  keys(riv, an, d2.id, X, [[0, 400], [35, 400], [65, 187], [D, 187]]);
+  keys(riv, an, d2.id, Y, [[0, 140], [35, 140], [65, 78], [D, 78]]);
+  keys(riv, an, d2.id, ROT, [[0, 0.1], [D, 0.1]]);
+  // Phi tiêu 3 bay vào bull (70-100), ngang.
+  keys(riv, an, d3.id, X, [[0, 400], [70, 400], [100, 219], [D, 219]]);
+  keys(riv, an, d3.id, Y, [[0, 80], [70, 80], [100, 100], [D, 100]]);
+  keys(riv, an, d3.id, ROT, [[0, 0], [D, 0]]);
+  // Bia rung nhẹ mỗi lần trúng (30 / 65 / 100).
+  for (const p of [bull, ringG, ringC1, ringR, ringC2, ringB]) {
+    keys(riv, an, p.id, ROT, [[0, 0], [30, 0.02], [36, -0.02], [42, 0], [65, 0.02], [71, -0.02], [77, 0], [100, 0.02], [106, -0.02], [112, 0], [D, 0]]);
+  }
+  // Sao vàng bật (110-130).
+  keys(riv, an, star.id, SX, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, d1, d2, d3], D);
+  save('phitieu', riv);
+}
+
+// ---- 90. keobuabao: KÉO THẮNG BAO — TAY BAO MỜ ĐI (180f = 3s).
+// 2 tay trượt vào từ 2 bên: tay kéo (2 ngón chéo) bên trái, tay bao
+// (bàn tay xòe) bên phải; kéo cắt thắng ở 60f, tay bao nghiêng + mờ đi,
+// chấm điểm vàng đầu tiên sáng lên, sao vàng bật lên.
+{
+  const { riv, ab, root } = newFile('keobuabao');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Tay kéo: 2 ngón chéo + lòng bàn tay + ngón cái.
+  const f1 = poly(riv, root, { name: 'F1', cx: 138, cy: 82, points: rotRectPoints(138, 82, 8, 26, -0.5), color: CREAM, stroke: INK, strokeW: 2 });
+  const f2 = poly(riv, root, { name: 'F2', cx: 162, cy: 82, points: rotRectPoints(162, 82, 8, 26, 0.5), color: CREAM, stroke: INK, strokeW: 2 });
+  const thumbS = ell(riv, root, { name: 'ThumbS', x: 168, y: 112, w: 10, color: CREAM, stroke: INK, strokeW: 2 });
+  const palmS = ell(riv, root, { name: 'PalmS', x: 150, y: 105, w: 38, color: CREAM, stroke: INK, strokeW: 2 });
+  // Tay bao: bàn tay xòe + 4 đầu ngón trên mép.
+  const bumps = [[232, 84], [242, 80], [258, 80], [268, 84]]
+    .map(([x, y], i) => ell(riv, root, { name: 'Bump' + i, x, y, w: 10, color: CREAM, stroke: INK, strokeW: 2 }));
+  const palmP = rect(riv, root, { name: 'PalmP', x: 250, y: 105, w: 42, h: 46, r: 8, color: CREAM, stroke: INK, strokeW: 2 });
+  // 3 chấm điểm trên tay kéo: chấm vàng add TRƯỚC chấm xám (thêm trước
+  // = vẽ TRÊN) để chấm vàng hiện lên trên chấm xám ở 90f.
+  const goldDot = ell(riv, root, { name: 'GoldDot', x: 130, y: 45, w: 12, color: GOLD, stroke: INK, strokeW: 2 });
+  const dots = [130, 150, 170].map((x) => ell(riv, root, { name: 'Dot' + x, x, y: 45, w: 12, color: hex('#C9C4D6'), stroke: INK, strokeW: 2 }));
+  bg(riv, root, FELT);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // 2 tay trượt vào (0-25) rồi nhún nhẹ (30-55).
+  const scis = [f1, f2, thumbS, palmS];
+  const paper = [...bumps, palmP];
+  for (const p of scis) {
+    keys(riv, an, p.id, X, [[0, p.x - 90], [25, p.x], [D, p.x]]);
+    keys(riv, an, p.id, Y, [[0, p.y], [30, p.y], [40, p.y - 4], [50, p.y], [60, p.y], [75, p.y - 10], [90, p.y], [D, p.y]]);
+  }
+  for (const p of paper) {
+    keys(riv, an, p.id, X, [[0, p.x + 90], [25, p.x], [D, p.x]]);
+    keys(riv, an, p.id, Y, [[0, p.y], [30, p.y], [40, p.y - 4], [50, p.y], [60, p.y], [100, p.y + 15], [D, p.y + 15]]);
+    keys(riv, an, p.id, ROT, [[0, 0], [60, 0], [100, 0.35], [D, 0.35]]);
+    // Mờ đi sau khi thua (60-100) + mờ vào/ra ở 2 đầu vòng — key
+    // opacity RIÊNG, KHÔNG cho vào fadeEnds.
+    keys(riv, an, p.id, OPACITY, [[0, 0], [6, 1], [60, 1], [100, 0.35], [168, 0.35], [180, 0]], 'linear');
+  }
+  // Chấm điểm vàng đầu tiên sáng lên (90-100).
+  keys(riv, an, goldDot.id, SX, [[0, 0], [90, 0], [96, 1.2], [100, 1], [D, 1]]);
+  keys(riv, an, goldDot.id, SY, [[0, 0], [90, 0], [96, 1.2], [100, 1], [D, 1]]);
+  // Sao vàng bật (100-120).
+  keys(riv, an, star.id, SX, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, goldDot, ...scis], D);
+  save('keobuabao', riv);
+}
+
+// ---- 91. dovui: Ô ĐÚNG BẬT VÀNG — THANG SAO SÁNG DẦN (180f = 3s).
+// Thanh câu hỏi trên + 4 ô đáp án 2×2: ô C (dưới trái) bật lớp vàng +
+// tia sáng; 5 sao thang trên cùng sáng dần từ trái sang phải; sao vàng.
+{
+  const { riv, ab, root } = newFile('dovui');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // 5 sao thang: sao VÀNG add TRƯỚC sao xám (thêm trước = vẽ TRÊN) để
+  // sao vàng hiện lên trên sao xám khi bật dần 20-70.
+  const goldStars = [130, 165, 200, 235, 270].map((x) =>
+    poly(riv, root, { name: 'LS' + x, cx: x, cy: 32, points: starPoints(x, 32, 7), color: GOLD, stroke: INK, strokeW: 1 }));
+  const grayStars = [130, 165, 200, 235, 270].map((x) =>
+    poly(riv, root, { name: 'GS' + x, cx: x, cy: 32, points: starPoints(x, 32, 7), color: hex('#C9C4D6'), stroke: INK, strokeW: 1 }));
+  // Ô đúng (C, dưới trái): lớp vàng + chấm màu add TRƯỚC các ô đáp án
+  // để lớp vàng phủ lên trên ô C và chấm màu hiện trên các ô.
+  const goldLay = rect(riv, root, { name: 'GoldLay', x: 150, y: 150, w: 80, h: 34, r: 6, color: GOLD, stroke: INK, strokeW: 2 });
+  const cellDots = [[126, 105, RED], [226, 105, TEAL], [126, 150, GOLD], [226, 150, LAVENDER]].map(([x, y, c], i) =>
+    ell(riv, root, { name: 'CD' + i, x, y, w: 10, color: c }));
+  // 4 ô đáp án 2×2.
+  const cells = [[150, 105], [250, 105], [150, 150], [250, 150]].map(([x, y], i) =>
+    rect(riv, root, { name: 'Cell' + i, x, y, w: 80, h: 34, r: 6, color: CREAM, stroke: INK, strokeW: 2 }));
+  // Thanh câu hỏi: nền kem + 3 vạch chữ xám (vạch add trước = trên).
+  const qLines = [[170, 58], [200, 58], [230, 58]].map(([x, y], i) =>
+    rect(riv, root, { name: 'QL' + i, x, y, w: 44, h: 4, color: hex('#9DB8C4') }));
+  rect(riv, root, { name: 'QBar', x: 200, y: 62, w: 240, h: 22, r: 8, color: CREAM, stroke: INK, strokeW: 2 });
+  // 4 tia sáng quanh ô đúng.
+  const rays = [
+    rect(riv, root, { name: 'RayT', x: 150, y: 122, w: 3, h: 10, color: GOLD }),
+    rect(riv, root, { name: 'RayB', x: 150, y: 178, w: 3, h: 10, color: GOLD }),
+    rect(riv, root, { name: 'RayL', x: 102, y: 150, w: 10, h: 3, color: GOLD }),
+    rect(riv, root, { name: 'RayR', x: 198, y: 150, w: 10, h: 3, color: GOLD }),
+  ];
+  bg(riv, root, NIGHT);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // 5 sao thang sáng dần (20-70).
+  goldStars.forEach((s, i) => {
+    const t = 20 + i * 10;
+    keys(riv, an, s.id, SX, [[0, 0], [t, 0], [t + 6, 1.2], [t + 10, 1], [D, 1]]);
+    keys(riv, an, s.id, SY, [[0, 0], [t, 0], [t + 6, 1.2], [t + 10, 1], [D, 1]]);
+  });
+  // 4 ô đáp án bật lần lượt (0-30).
+  cells.forEach((c, i) => {
+    const t = i * 6;
+    keys(riv, an, c.id, SX, [[0, 0], [t, 0], [t + 8, 1.1], [t + 12, 1], [D, 1]]);
+    keys(riv, an, c.id, SY, [[0, 0], [t, 0], [t + 8, 1.1], [t + 12, 1], [D, 1]]);
+  });
+  // Lớp vàng ô đúng bật lên (70-85) — key opacity RIÊNG, KHÔNG fadeEnds.
+  keys(riv, an, goldLay.id, OPACITY, [[0, 0], [70, 0], [85, 1], [168, 1], [180, 0]], 'linear');
+  // 4 tia sáng bật (85-100).
+  for (const p of rays) {
+    keys(riv, an, p.id, SX, [[0, 0], [85, 0], [92, 1.2], [100, 1], [D, 1]]);
+    keys(riv, an, p.id, SY, [[0, 0], [85, 0], [92, 1.2], [100, 1], [D, 1]]);
+  }
+  // Sao vàng bật (100-120).
+  keys(riv, an, star.id, SX, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [100, 0], [111, 1.2], [120, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ...goldStars, ...rays, ...cells, ...cellDots], D);
+  save('dovui', riv);
+}
+
+// ---- 92. hoisanquai: QUÁI BỊ CHÉM — ANH HÙNG BẬT LÊN (180f = 3s).
+// 3 lá quái lật lên lần lượt (troll xanh, rồng đỏ, yêu tinh tím); lá
+// rồng giữa bị chém (vết chém trắng + rung + mờ xuống), lá anh hùng
+// (kiếm vàng) bật lên dưới, sao vàng bật lên.
+{
+  const { riv, ab, root } = newFile('hoisanquai');
+  const D = 180;
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Vết chém trắng chéo qua lá rồng — add TRƯỚC các lá quái (thêm trước
+  // = vẽ TRÊN) để vết chém hiện lên trên lá rồng; key opacity RIÊNG,
+  // KHÔNG cho vào fadeEnds.
+  const slash = poly(riv, root, { name: 'Slash', cx: 200, cy: 85, points: rotRectPoints(200, 85, 64, 6, -0.6), color: WHITE, stroke: INK, strokeW: 1 });
+  // Lá quái: lưng tím + mặt quái riêng (đặc điểm add trước nền mặt).
+  const mkMonster = (cx, cy, bgColor, kind) => {
+    const back = [];
+    back.push(ell(riv, root, { name: 'BDot', x: cx, y: cy, w: 9, color: WHITE }));
+    back.push(rect(riv, root, { name: 'BIn', x: cx, y: cy, w: 42, h: 60, r: 4, color: CREAM }));
+    back.push(rect(riv, root, { name: 'BBg', x: cx, y: cy, w: 54, h: 72, r: 6, color: VIOLET, stroke: INK, strokeW: 2 }));
+    const face = [];
+    if (kind === 'dragon') {
+      face.push(poly(riv, root, { name: 'HornL', cx: cx - 12, cy: cy - 22, points: [[cx - 16, cy - 14], [cx - 8, cy - 14], [cx - 12, cy - 26]], color: GOLD }));
+      face.push(poly(riv, root, { name: 'HornR', cx: cx + 12, cy: cy - 22, points: [[cx + 8, cy - 14], [cx + 16, cy - 14], [cx + 12, cy - 26]], color: GOLD }));
+      face.push(ell(riv, root, { name: 'EyeL', x: cx - 8, y: cy - 6, w: 6, color: WHITE }));
+      face.push(ell(riv, root, { name: 'EyeR', x: cx + 8, y: cy - 6, w: 6, color: WHITE }));
+      face.push(poly(riv, root, { name: 'FangL', cx: cx - 6, cy: cy + 12, points: [[cx - 9, cy + 8], [cx - 3, cy + 8], [cx - 6, cy + 16]], color: WHITE }));
+      face.push(poly(riv, root, { name: 'FangR', cx: cx + 6, cy: cy + 12, points: [[cx + 3, cy + 8], [cx + 9, cy + 8], [cx + 6, cy + 16]], color: WHITE }));
+    } else if (kind === 'troll') {
+      face.push(ell(riv, root, { name: 'Nose', x: cx, y: cy + 2, w: 12, color: hex('#2E7D32'), stroke: INK, strokeW: 1 }));
+      face.push(ell(riv, root, { name: 'EyeL', x: cx - 9, y: cy - 10, w: 6, color: WHITE }));
+      face.push(ell(riv, root, { name: 'EyeR', x: cx + 9, y: cy - 10, w: 6, color: WHITE }));
+      face.push(rect(riv, root, { name: 'Mouth', x: cx, y: cy + 14, w: 18, h: 3, color: INK }));
+    } else {
+      face.push(poly(riv, root, { name: 'HornL', cx: cx - 12, cy: cy - 20, points: [[cx - 16, cy - 12], [cx - 8, cy - 12], [cx - 12, -0 + cy - 24]], color: INK }));
+      face.push(poly(riv, root, { name: 'HornR', cx: cx + 12, cy: cy - 20, points: [[cx + 8, cy - 12], [cx + 16, cy - 12], [cx + 12, cy - 24]], color: INK }));
+      face.push(ell(riv, root, { name: 'EyeL', x: cx - 8, y: cy - 4, w: 6, color: YELLOW }));
+      face.push(ell(riv, root, { name: 'EyeR', x: cx + 8, y: cy - 4, w: 6, color: YELLOW }));
+      face.push(rect(riv, root, { name: 'Grin', x: cx, y: cy + 12, w: 20, h: 6, r: 3, color: WHITE, stroke: INK, strokeW: 1 }));
+    }
+    face.push(rect(riv, root, { name: 'FFg', x: cx, y: cy, w: 54, h: 72, r: 6, color: bgColor, stroke: INK, strokeW: 2 }));
+    return { back, face, all: [...back, ...face] };
+  };
+  const troll = mkMonster(120, 85, hex('#58A05C'), 'troll');
+  const dragon = mkMonster(200, 85, RED, 'dragon');
+  const imp = mkMonster(280, 85, VIOLET, 'imp');
+  // Lá anh hùng: kiếm vàng (lưỡi + chắn + chuôi) add trước nền vàng.
+  const blade = poly(riv, root, { name: 'Blade', cx: 200, cy: 152, points: rotRectPoints(200, 152, 8, 34, 0.5), color: WHITE, stroke: INK, strokeW: 1 });
+  const guard = rect(riv, root, { name: 'Guard', x: 200, y: 172, w: 18, h: 5, r: 2, color: GOLD, stroke: INK, strokeW: 1 });
+  const hilt = rect(riv, root, { name: 'Hilt', x: 200, y: 180, w: 6, h: 10, color: INK });
+  const heroBg = rect(riv, root, { name: 'HeroBg', x: 200, y: 162, w: 42, h: 52, r: 6, color: GOLD, stroke: INK, strokeW: 2 });
+  const hero = [blade, guard, hilt, heroBg];
+  bg(riv, root, NIGHT);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // 3 lá quái lật lên lần lượt (10-30 / 25-45 / 40-60).
+  flipCard(riv, an, troll, 10, 18, 30, D);
+  flipCard(riv, an, dragon, 25, 33, 45, D);
+  flipCard(riv, an, imp, 40, 48, 60, D);
+  // Vết chém hiện (65-75), lá rồng rung (70-95) + mờ xuống (85-110).
+  keys(riv, an, slash.id, OPACITY, [[0, 0], [65, 0], [75, 1], [168, 1], [180, 0]], 'linear');
+  for (const p of dragon.all) {
+    keys(riv, an, p.id, ROT, [[0, 0], [70, 0], [76, 0.08], [82, -0.08], [88, 0.08], [94, -0.08], [100, 0], [D, 0]]);
+    keys(riv, an, p.id, OPACITY, [[0, 0], [6, 1], [85, 1], [110, 0.45], [168, 0.45], [180, 0]], 'linear');
+  }
+  // Lá anh hùng bật lên (100-125).
+  for (const p of hero) {
+    keys(riv, an, p.id, SX, [[0, 0], [100, 0], [112, 1.2], [125, 1], [D, 1]]);
+    keys(riv, an, p.id, SY, [[0, 0], [100, 0], [112, 1.2], [125, 1], [D, 1]]);
+  }
+  // Sao vàng bật (125-145).
+  keys(riv, an, star.id, SX, [[0, 0], [125, 0], [136, 1.2], [145, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [125, 0], [136, 1.2], [145, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ...troll.all, ...imp.all, ...hero], D);
+  save('hoisanquai', riv);
 }
 
 console.log('done');
