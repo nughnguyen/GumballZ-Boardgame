@@ -1198,5 +1198,9 @@ export const TUT = {
  "resistance": {
   "name": "The Resistance — GumballZ Boardgame",
   "steps": []
+ },
+ "vetruyentin": {
+  "name": "Vẽ Truyền Tin — GumballZ Boardgame",
+  "steps": []
  }
 };

@@ -84,6 +84,7 @@ NAMES = {
     "doanhdong": "Đoán Hành Động",
     "wavelength": "Wavelength",
     "resistance": "The Resistance",
+    "vetruyentin": "Vẽ Truyền Tin",
 }
 
 # Illustration crop (x0, y0, x1, y1) inside the game's current og jpg.
@@ -131,6 +132,7 @@ CROPS = {
     "doanhdong": (60, 40, 620, 600),
     "wavelength": (60, 40, 620, 600),
     "resistance": (60, 40, 620, 600),
+    "vetruyentin": (60, 40, 620, 600),
     "covay": (700, 70, 1140, 565),
     "ranvathang": (725, 55, 1155, 520),
 }

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <rect width="120" height="120" rx="24" fill="#FFE3A3"/>
+  <!-- sketchbook page -->
+  <rect x="22" y="24" width="60" height="72" rx="8" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- spiral binding -->
+  <circle cx="30" cy="38" r="3" fill="#FFB9CF" stroke="#4A3E5C" stroke-width="2"/>
+  <circle cx="30" cy="54" r="3" fill="#ABE0C6" stroke="#4A3E5C" stroke-width="2"/>
+  <circle cx="30" cy="70" r="3" fill="#AFD8F3" stroke="#4A3E5C" stroke-width="2"/>
+  <circle cx="30" cy="86" r="3" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2"/>
+  <!-- squiggle drawing: sun + house -->
+  <circle cx="58" cy="44" r="8" fill="#FFE45C" stroke="#4A3E5C" stroke-width="2.5"/>
+  <path d="M42 78 L58 62 L74 78 Z" fill="#FFB98A" stroke="#4A3E5C" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="54" y="76" width="8" height="7" fill="#C9BDF3" stroke="#4A3E5C" stroke-width="2"/>
+  <path d="M38 88 Q50 82 62 88 T76 88" fill="none" stroke="#00B8A9" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- paintbrush -->
+  <path d="M74 96 L96 60" stroke="#4A3E5C" stroke-width="7" stroke-linecap="round"/>
+  <path d="M74 96 L96 60" stroke="#FF5CA8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M96 60 L104 48" stroke="#4A3E5C" stroke-width="6" stroke-linecap="round"/>
+  <path d="M104 48 L110 38" stroke="#7C5CFF" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="72" cy="98" r="5" fill="#FF5CA8" stroke="#4A3E5C" stroke-width="2"/>
+</svg>

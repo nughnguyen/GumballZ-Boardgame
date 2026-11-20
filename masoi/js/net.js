@@ -19,7 +19,7 @@ async function aiLine(s, b, hint, code) {
 }
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=72';
+import { watch } from '../../shared/ui/stats.js?v=73';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 // câu chọc riêng của Ma Sói (bảng thả emoji – shared/ui/react.js)

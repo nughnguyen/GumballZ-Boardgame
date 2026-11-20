@@ -1,0 +1,51 @@
+/* 🎨 Vẽ Truyền Tin — pastel, đồng bộ các game khác (ink #4A3E5C, nền #FFF8EE) */
+.vt-topbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vt-topbar h1 { margin: 0; font-size: 22px; }
+.vt-round { font-weight: 800; color: var(--ink, #4A3E5C); background: #FFE3A3; border: 2px solid #4A3E5C; border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+.vt-score { font-weight: 800; color: #1F9D55; background: #ABE0C6; border: 2px solid #4A3E5C; border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+.vt-timer { font-weight: 800; color: #E5484D; font-size: 16px; }
+.vt-word { font-size: 30px; font-weight: 900; color: #7C5CFF; text-align: center; margin: 8px 0 4px; letter-spacing: .5px; }
+.vt-hint { text-align: center; color: #8B7E9E; font-size: 14px; margin: 0 0 10px; }
+.vt-canvas-wrap { border: 3px solid #4A3E5C; border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 4px 4px 0 rgba(74,62,92,.18); max-width: 660px; margin: 0 auto; }
+#vt-canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; background: #fff; }
+#vt-canvas.guess-mode { cursor: default; }
+.vt-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin: 12px 0; }
+.vt-tools .lbl { font-weight: 800; font-size: 13px; color: #8B7E9E; }
+.vt-swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #4A3E5C; cursor: pointer; padding: 0; }
+.vt-swatch.sel { outline: 3px solid #7C5CFF; outline-offset: 2px; }
+.vt-brush { border: 2px solid #4A3E5C; border-radius: 999px; background: #FFFDF9; padding: 4px 10px; font-weight: 800; cursor: pointer; }
+.vt-brush.sel { background: #7C5CFF; color: #fff; }
+.vt-strokes { font-size: 13px; color: #8B7E9E; font-weight: 700; }
+.vt-guess-row { display: flex; gap: 8px; max-width: 660px; margin: 12px auto; }
+.vt-guess-row input { flex: 1; min-width: 0; font-size: 18px; padding: 10px 14px; border: 2px solid #4A3E5C; border-radius: 12px; background: #FFFDF9; }
+.vt-bot-guess { text-align: center; font-size: 17px; font-weight: 800; margin: 8px 0; min-height: 24px; }
+.vt-bot-guess .ok { color: #1F9D55; }
+.vt-bot-guess .bad { color: #E5484D; }
+.vt-chain { border: 2px solid #4A3E5C; border-radius: 14px; padding: 12px; margin: 12px 0; background: #FFFDF9; }
+.vt-chain h3 { margin: 0 0 8px; font-size: 16px; }
+.vt-chain .vt-steps { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.vt-step { border: 2px solid #C9BDF3; border-radius: 10px; padding: 6px 10px; background: #fff; font-size: 14px; max-width: 220px; }
+.vt-step.word { background: #FFE3A3; font-weight: 800; }
+.vt-step.guess-ok { background: #ABE0C6; }
+.vt-step.guess-bad { background: #FFB9CF; }
+.vt-step canvas { display: block; width: 200px; height: 125px; border-radius: 8px; background: #fff; }
+.vt-arrow { font-weight: 900; color: #8B7E9E; }
+.vt-wait { text-align: center; padding: 24px 8px; color: #8B7E9E; font-weight: 700; }
+.vt-players { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.vt-players .vt-p { border: 2px solid #4A3E5C; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 700; background: #FFFDF9; }
+.vt-players .vt-p.done { background: #ABE0C6; }
+.vt-players .vt-p.out { opacity: .5; text-decoration: line-through; }
+.vt-log { font-size: 13px; color: #8B7E9E; max-height: 110px; overflow-y: auto; margin-top: 10px; }
+.vt-cover { position: fixed; inset: 0; background: #FFF8EE; z-index: 60; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+.vt-cover-card { max-width: 420px; }
+.vt-cover h2 { margin: 0 0 8px; }
+.vt-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+.vt-mode-grid .btn.big { width: 100%; }
+@media (max-width: 640px) {
+  .vt-topbar { flex-wrap: wrap; }
+  .vt-topbar h1 { font-size: 18px; }
+  .vt-word { font-size: 24px; }
+  .vt-mode-grid { grid-template-columns: 1fr; }
+  .vt-guess-row { flex-wrap: wrap; }
+  .vt-guess-row .btn { flex: 1; }
+}
