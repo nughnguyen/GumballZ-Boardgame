@@ -23,6 +23,9 @@
 //   KHÔNG thấy hạng/chất); đối thủ chỉ thấy tóm tắt (dãy đã thu, điểm,
 //   trạng thái). Hết ván thì thấy bảng xếp hạng.
 export const SUITS = { easy: 1, medium: 2, hard: 4 };
+
+/* Bộ đếm gid duy nhất cho mỗi ván trong tiến trình (xem createGame). */
+let gidSeq = 0;
 export const RACE_TIME_MS = 180000; /* đua: hết 180s thì so dãy, rồi điểm */
 export const HINTS = 5; /* gợi ý tối đa 5 lần/ván */
 export const UNDOS = 10; /* hoàn tác tối đa 10 lần/ván */
@@ -307,7 +310,11 @@ export function createGame(players, opts = {}) {
   const suits = SUITS[opts.suits] || 1;
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
   const s = {
-    gid: Math.random().toString(36).slice(2, 9), seq: 0,
+    /* gid phải DUY NHẤT cho mỗi lần tạo ván: bot giữ bộ nhớ chống lặp
+       theo gid, mà gid cũ lấy từ Math.random() nên khi test seed
+       Math.random (chuẩn của mọi test node) hai ván cùng seed sẽ trùng
+       gid và ván sau thừa hưởng bộ nhớ của ván trước → bot xin thua sớm. */
+    gid: 'g' + (++gidSeq) + '-' + Math.random().toString(36).slice(2, 7), seq: 0,
     seed, rng: seed,
     phase: 'playing', /* 'playing' | 'ended' */
     mode, solo: mode === 'solo', race: mode === 'race',
