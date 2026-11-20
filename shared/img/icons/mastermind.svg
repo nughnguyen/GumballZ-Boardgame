@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="4" y="4" width="112" height="112" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <!-- bảng đoán -->
+  <rect x="14" y="16" width="92" height="52" rx="12" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+  <!-- 4 chốt màu đã đoán -->
+  <g stroke="#4A3E5C" stroke-width="2.5">
+    <circle cx="28" cy="42" r="12" fill="#FF6B6B"/>
+    <circle cx="52" cy="42" r="12" fill="#5B8DEF"/>
+    <circle cx="76" cy="42" r="12" fill="#FFD93D"/>
+    <circle cx="100" cy="42" r="12" fill="#6BCB77"/>
+  </g>
+  <!-- hàng phản hồi: 2 đen, 1 trắng, 1 lỗ trống -->
+  <rect x="14" y="76" width="92" height="28" rx="12" fill="#FFFDF9" stroke="#4A3E5C" stroke-width="2.5"/>
+  <g stroke="#4A3E5C" stroke-width="2">
+    <circle cx="36" cy="90" r="7" fill="#4A3E5C"/>
+    <circle cx="56" cy="90" r="7" fill="#4A3E5C"/>
+    <circle cx="76" cy="90" r="7" fill="#FFFDF9"/>
+    <circle cx="96" cy="90" r="7" fill="#E8E0F0"/>
+  </g>
+</svg>

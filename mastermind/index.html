@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mastermind online – đoán mã bí mật 4 chốt, ai đoán ra trước thì thắng | GumballZ Boardgame</title>
+<meta name="description" content="Mastermind online: mỗi người giấu 1 mã bí mật 4 chốt (6 màu), luân phiên đoán mã của nhau bằng phản hồi chốt đen / chốt trắng. Chơi với bạn qua mã phòng, đấu với máy AI hoặc 2 người trên cùng 1 máy.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/mastermind/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mastermind online – đoán mã bí mật 4 chốt, ai đoán ra trước thì thắng | GumballZ Boardgame">
+<meta property="og:description" content="Đặt mã bí mật 4 chốt rồi đoán mã của đối thủ qua phản hồi đen / trắng — 10 lượt, ai đoán ra trước thì thắng!">
+<meta property="og:url" content="https://gumballzgames.vercel.app/mastermind/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og/mastermind.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/mastermind.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=2">
+<script>window.GAME_META = { game: 'mastermind', name: 'Mastermind', gid: 'mastermind', color: '#e05d5d', icon: '🔴' };</script>
+<script src="../shared/ui/footer.js?v=3"></script>
+</head>
+<body>
+<div id="gumballz-splash" aria-hidden="true"><i></i><b></b></div><script>(function(){var s=document.getElementById("gumballz-splash");function h(){if(!s)return;var x=s;s=null;x.className="out";setTimeout(function(){x.remove()},320)}addEventListener("load",h);addEventListener("pageshow",h);setTimeout(h,4500)})()</script>
+
+<!-- MÀN HÌNH CHÍNH -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/mastermind.svg?v=1" alt=""></div>
+    <h1 class="logo" translate="no">Mastermind</h1>
+    <p class="tag">Đặt mã bí mật 4 chốt rồi đoán mã của đối thủ qua phản hồi đen / trắng — ai đoán ra trước thì thắng 🔴</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <label class="fld"><span>Chế độ chơi</span></label>
+    <div class="seg">
+      <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+      <button type="button" data-mode="ai-hard" aria-pressed="false">🧠 Máy Khó</button>
+      <button type="button" data-mode="pvp" aria-pressed="false">👥 2 Người</button>
+      <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+    </div>
+    <div id="local-box">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-start">🧠 Bắt đầu chơi với máy Khó</button>
+      </div>
+    </div>
+    <div id="online-box" style="display:none">
+      <div class="btn-col">
+        <button class="btn big pri" id="btn-create">🌐 Tạo phòng online</button>
+        <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      </div>
+      <p class="note">Tạo phòng rồi gửi mã 5 ký tự (hoặc link mời) cho bạn — bạn nhập mã rồi bấm Vào.</p>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2 người · mã bí mật 4 chốt · 6 màu (màu được lặp lại) · tối đa 10 lượt đoán mỗi người · ⚫ chốt đen = đúng màu đúng chỗ, ⚪ chốt trắng = đúng màu sai chỗ · ai đoán ra trước thì thắng · đấu máy, chuyền tay chung máy hoặc online với bạn qua mã phòng.</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ ONLINE -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts"></div>
+        <div class="row-btns">
+          <button class="btn" id="btn-copy-code">📋 Sao chép mã phòng</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Luật nhanh</h3>
+        <ul class="rules-mini">
+          <li>🔴 <b>2 người</b>, mỗi người đặt 1 mã bí mật <b>4 chốt</b> (6 màu, màu được lặp lại).</li>
+          <li>🎯 Luân phiên đoán mã của nhau: xếp 4 chốt rồi bấm <b>✅ Đoán</b>.</li>
+          <li>⚫ <b>Chốt đen</b> = đúng màu đúng vị trí; ⚪ <b>chốt trắng</b> = đúng màu sai vị trí (mỗi chốt của mã chỉ tính tối đa 1 lần).</li>
+          <li>🏆 Đoán đúng cả 4 vị trí thì <b>thắng ngay</b>; tối đa <b>10 lượt</b> mỗi người — hết lượt thì so lượt đoán tốt nhất.</li>
+          <li>💡 Mẹo: nước đầu đoán 2 màu mỗi màu 2 lần để loại được nhiều mã nhất!</li>
+        </ul>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start-online">🔴 Bắt đầu chơi</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <div class="mm-wrap">
+    <header class="topbar mm-topbar">
+      <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+      <h1>🔴 Mastermind</h1>
+      <span class="sp"></span>
+      <div class="tools">
+        <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
+        <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+        <button class="chip ic" id="btn-log" title="Nhật ký trận đấu" aria-label="Nhật ký trận đấu">📜</button>
+        <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+        <button class="chip" id="btn-new" title="Ván mới">🆕 Ván mới</button>
+      </div>
+    </header>
+    <div class="round" id="round" aria-live="polite"></div>
+    <div class="mm-status" id="status"></div>
+
+    <!-- Đặt mã bí mật (đầu ván) -->
+    <div class="mm-setup" id="setup-box" style="display:none">
+      <h3 id="setup-title">🔒 Đặt mã bí mật của bạn</h3>
+      <p class="setup-note" id="setup-note">Chọn 4 chốt màu (màu được lặp lại) — chỉ mình bạn thấy mã này. Bấm vào 1 ô rồi chọn màu, hoặc bấm 1 màu rồi bấm vào các ô.</p>
+      <div class="mm-slots" id="setup-slots"></div>
+      <div class="mm-palette" id="setup-palette"></div>
+      <div class="mm-actions-row">
+        <button class="btn" id="btn-setup-random">🎲 Mã bừa</button>
+        <button class="btn big pri" id="btn-setup-done">✅ Xong — giữ kín mã này</button>
+      </div>
+    </div>
+
+    <!-- 2 bảng đoán song song -->
+    <div class="mm-boards" id="boards">
+      <div class="mm-board-panel">
+        <h3 id="board-title">🎯 Bảng đoán của bạn</h3>
+        <div class="mm-secret" id="my-secret"></div>
+        <div class="mm-board" id="board"></div>
+      </div>
+      <div class="mm-board-panel">
+        <h3 id="board-opp-title">👀 Bảng đoán của đối thủ</h3>
+        <div class="mm-secret" id="opp-secret"></div>
+        <div class="mm-board" id="board-opp"></div>
+      </div>
+    </div>
+
+    <!-- Soạn lượt đoán -->
+    <div class="mm-guess" id="guess-box">
+      <div class="mm-slots" id="guess-slots"></div>
+      <div class="mm-palette" id="palette"></div>
+      <div class="mm-actions-row" id="action-bar">
+        <button class="btn" id="btn-clear-guess">↩️ Xóa hết</button>
+        <button class="btn big pri" id="btn-guess">✅ Đoán</button>
+      </div>
+      <div class="mm-stage" id="stage-info" aria-live="polite"></div>
+    </div>
+
+    <div class="mm-players" id="players"></div>
+    <div class="mm-actions-row" id="game-actions">
+      <button class="btn" id="btn-resign">🏳️ Xin thua</button>
+    </div>
+    <div class="mm-log" id="log" aria-live="polite"></div>
+    <div class="mm-actions">
+      <a class="chip" href="huong-dan/">📖 Hướng dẫn chi tiết</a>
+      <a class="chip" href="../" id="btn-home-bottom">🏠 Về trang chủ</a>
+    </div>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<footer class="gmf"></footer>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=69"></script>
+<script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
+<script type="module" async src="../shared/ui/feel.js?v=53"></script>
+</body>
+</html>

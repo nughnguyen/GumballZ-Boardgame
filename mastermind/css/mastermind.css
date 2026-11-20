@@ -1,0 +1,98 @@
+/* 🔴 Mastermind – 2 bảng đoán song song + hàng đặt mã / hàng đoán,
+   theo hệ pastel chung của web (kem/vàng/bơ). */
+.mm-wrap { max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; }
+.mm-topbar { flex-wrap: wrap; margin-bottom: 10px; }
+.mm-topbar .back-hub { position: static; flex: none; }
+.mm-topbar h1 { font-family: 'Baloo 2', sans-serif; font-size: 26px; margin: 0; }
+.mm-topbar .sp { flex: 1; }
+.round { text-align: center; font-weight: 800; font-size: 16px; margin: 4px 0 10px; min-height: 24px; }
+.mm-status { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+.mm-status .stat { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.mm-status .stat.me { outline: 3px solid #ffd273; outline-offset: 1px; }
+/* chốt màu */
+.mm-peg { display: inline-block; width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #2a2340; box-sizing: border-box; vertical-align: middle; box-shadow: inset -3px -3px 0 rgba(0,0,0,.18); }
+.mm-peg.c0 { background: #e05d5d; }
+.mm-peg.c1 { background: #5b8def; }
+.mm-peg.c2 { background: #f2b705; }
+.mm-peg.c3 { background: #3fae6a; }
+.mm-peg.c4 { background: #f28c38; }
+.mm-peg.c5 { background: #9b6dd6; }
+.mm-peg.e { background: #f3ead3; border-style: dashed; box-shadow: none; opacity: .7; }
+.mm-peg.q { background: #c9bdf3; color: #4a3e5c; font-weight: 800; font-size: 15px; line-height: 21px; text-align: center; box-shadow: none; }
+.mm-peg.sm { width: 18px; height: 18px; }
+/* hộp đặt mã */
+.mm-setup { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 14px; margin-bottom: 12px; text-align: center; }
+.mm-setup h3 { margin: 0 0 6px; font-size: 18px; }
+.mm-setup .setup-note { font-size: 14px; font-weight: 700; color: #6b6480; margin: 0 0 12px; line-height: 1.5; }
+/* hàng ô chốt (đặt mã / đoán) */
+.mm-slots { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+.mm-slot { width: 52px; height: 52px; border-radius: 50%; border: 3px solid #2a2340; background: #f3ead3; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; color: #8b7e9e; box-sizing: border-box; }
+.mm-slot:hover { background: #fff3d6; }
+.mm-slot.sel { outline: 3px solid #ffd273; outline-offset: 2px; background: #ffe9a8; }
+.mm-slot .mm-peg { width: 38px; height: 38px; }
+/* bảng màu chọn */
+.mm-palette { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.mm-pal { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #2a2340; cursor: pointer; padding: 0; box-shadow: 2px 2px 0 rgba(42,35,64,.25); box-sizing: border-box; }
+.mm-pal:hover { transform: translateY(-2px); }
+.mm-pal.c0 { background: #e05d5d; }
+.mm-pal.c1 { background: #5b8def; }
+.mm-pal.c2 { background: #f2b705; }
+.mm-pal.c3 { background: #3fae6a; }
+.mm-pal.c4 { background: #f28c38; }
+.mm-pal.c5 { background: #9b6dd6; }
+/* 2 bảng đoán */
+.mm-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.mm-board-panel { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 12px; min-width: 0; }
+.mm-board-panel h3 { margin: 0 0 6px; font-size: 16px; text-align: center; }
+.mm-secret { text-align: center; font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+.mm-secret .mm-peg { width: 20px; height: 20px; margin: 0 1px; }
+.mm-board { display: flex; flex-direction: column; gap: 4px; }
+.mm-row { display: flex; align-items: center; gap: 8px; background: #fff8ee; border: 2px solid #e6ddc8; border-radius: 10px; padding: 4px 8px; }
+.mm-row.latest { border-color: #e8a100; background: #ffe9a8; }
+.mm-row.empty { opacity: .55; }
+.mm-num { width: 18px; font-weight: 800; font-size: 13px; color: #8b7e9e; text-align: right; flex: none; }
+.mm-pegs { display: flex; gap: 5px; flex: none; }
+.mm-pegs .mm-peg { width: 22px; height: 22px; }
+.mm-fb { display: grid; grid-template-columns: repeat(2, 10px); gap: 3px; margin-left: auto; flex: none; }
+.mm-fb-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #2a2340; box-sizing: border-box; }
+.mm-fb-dot.fb-b { background: #2a2340; }
+.mm-fb-dot.fb-w { background: #fffdf5; }
+.mm-fb-dot.fb-e { background: transparent; border-color: #d8cdb4; }
+/* hàng soạn lượt đoán */
+.mm-guess { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 14px; margin-bottom: 12px; text-align: center; }
+.mm-stage { text-align: center; font-weight: 800; font-size: 15px; margin-top: 10px; min-height: 22px; }
+.mm-stage .need { color: #b8860b; }
+/* hàng người chơi */
+.mm-players { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.mm-player { display: flex; gap: 10px; background: #fffdf5; border: 3px solid #2a2340; border-radius: 14px; padding: 8px 12px 8px 8px; box-shadow: 3px 3px 0 rgba(42,35,64,.16); min-width: 0; }
+.mm-player.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.mm-player.me { outline: 3px solid #abe0c6; outline-offset: 2px; }
+.mm-player.me.turn { outline: 3px solid #ffd273; outline-offset: 2px; }
+.mm-pinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mm-pinfo b { font-size: 15px; }
+.mm-ptotal { font-size: 14px; font-weight: 800; color: #b3232a; }
+.mm-pmeta { font-size: 13px; font-weight: 700; color: #6b6480; }
+.mm-dot { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #2a2340; flex: none; margin-top: 2px; background: linear-gradient(135deg, #e05d5d 50%, #5b8def 50%); }
+/* hàng nút trong ván */
+.mm-actions-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.mm-actions-row .btn { flex: 1 1 auto; max-width: 220px; }
+.mm-log { background: #fffdf5; border: 3px solid #2a2340; border-radius: 18px; box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 10px 14px; margin-top: 12px; max-height: 170px; overflow: auto; font-size: 14px; }
+.mm-log div { padding: 2px 0; border-bottom: 1px dashed #e6ddc8; }
+.mm-log div:last-child { border-bottom: 0; }
+.mm-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+@media (max-width: 560px) {
+  .mm-topbar h1 { font-size: 22px; }
+  .mm-boards { grid-template-columns: 1fr; }
+  .mm-players { grid-template-columns: 1fr; }
+  .mm-slot { width: 46px; height: 46px; }
+  .mm-slot .mm-peg { width: 32px; height: 32px; }
+  .mm-pal { width: 40px; height: 40px; }
+}
+@media (max-width: 400px) {
+  .mm-slot { width: 42px; height: 42px; }
+  .mm-slot .mm-peg { width: 30px; height: 30px; }
+  .mm-pegs .mm-peg { width: 20px; height: 20px; }
+}
+@media (max-width: 480px) {
+  .mm-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
+}

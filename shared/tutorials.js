@@ -1174,5 +1174,9 @@ export const TUT = {
  "scrabble": {
   "name": "🔤 Scrabble — GumballZ Boardgame",
   "steps": []
+ },
+ "mastermind": {
+  "name": "Mastermind",
+  "steps": []
  }
 };
