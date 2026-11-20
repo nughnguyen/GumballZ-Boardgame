@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -150,6 +150,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `caro.riv` | 8921 B | Bàn 5×5: X/O đánh lần lượt, X đủ 5 ở hàng giữa → vạch thắng đỏ gạch ngang 5 X + sao vàng bật lên (180f = 3s) |
 | `tictactoe.riv` | 4939 B | Bàn 3×3 nền tối: X/O đánh lần lượt, X đủ 3 ở đường chéo chính → vạch thắng vàng gạch chéo + sao vàng bật lên (180f = 3s) |
 | `memory.riv` | 26701 B | 12 lá úp 4×3: 2 lá ♥ lật lên trùng nhau → sao vàng, giữ ngửa; 2 lá ♠ vs ♦ lật lên lệch nhau → úp lại (180f = 3s) |
+| `covay.riv` | 4736 B | 1 góc bàn 6×5: quân đen đặt lần lượt vây quân trắng ở giữa (4 đen xung quanh) → trắng mờ dần (bị ăn) + sao vàng bật lên, 1 quân trắng đứng yên góc dưới (180f = 3s) |
+| `cothu.riv` | 8682 B | Bàn rừng 7×5 + sông ngọc + hang vàng + 2 bẫy X: Chuột đỏ nhảy tới ô Voi → Voi xanh mờ dần (bị ăn) + sao vàng, Hổ vàng nhảy qua sông, Mèo xanh + Chó đỏ đứng yên (180f = 3s) |
+| `ranvathang.riv` | 9940 B | Xúc xắc 4 chấm lắc góc trái + rắn xanh cuộn bên trái; quân cờ nhảy từng ô theo đường chữ L (xuất phát đỏ → đích vàng), leo thang gỗ lên ô đích + sao vàng bật lên (180f = 3s) |
+| `sam.riv` | 23855 B | Sảnh 3♥-4♥-5♥ trượt lên bàn + lật ngửa lần lượt, lá 2♠ (vương miện vàng) bay vào chặn + sao vàng; tay đối thủ 3 lá úp đỏ trên, tay mình 2 lá úp xanh dưới (180f = 3s) |
+| `daochinh.riv` | 8517 B | Lá Công Tước (vương miện vàng) lật lên, lá bluff rung lắc, 3 xu vàng bay vào + sao vàng bật lên; tay đối thủ 2 lá úp đỏ trên (180f = 3s) |
+| `xiecthu.riv` | 13184 B | Sân khấu (rèm đỏ + sàn gỗ): 3 lá lật lên lần lượt, sư tử (bờm vàng) → voi (tai tím + vòi) → khỉ (mặt nâu) bật lên trên từng lá + sao vàng bật lên (180f = 3s) |
+| `cuuho.riv` | 4622 B | Bản đồ xanh 3 thành phố: 1 ô cháy (lửa đỏ-cam-vàng nhấp nháy), xe cứu hộ chạy vào, 3 giọt nước rơi xuống, lửa nhỏ dần + sao vàng bật lên (180f = 3s) |
+| `khaihoang.riv` | 8653 B | Biển xanh + 4 ô lục giác (gỗ/lúa/gạch/quặng) + số chit: xúc xắc 6 chấm lắc, thuyền buồm nhấp nhô, nhà làng bật lên + đường mở ra + tài nguyên bật lên + sao vàng trên ô lúa (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -159,6 +167,40 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 5, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): covay 84, cothu 250, ranvathang 128, sam 1066, daochinh 254,
+  xiecthu 291, cuuho 205, khaihoang 69 (đều trên ngưỡng 50 — Khai Hoang
+  lúc đầu chỉ 47, đã sửa, xem dưới).
+- Trang chủ Playwright: **75/75 checks passed** (36 canvas mount + 36
+  thẻ `.has-riv` + 36 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 36 canvas, 36 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật): mỗi cảnh đọc ra game ngay và lấp đầy header.
+  4 lỗi thật đã tìm + sửa trong đợt verify: (1) Khai Hoang: pixel
+  47 < 50 — chuyển động đầu vòng quá muộn/nhỏ (nhà bật 50–70, xúc
+  xắc lắc ±0.2) — sửa bằng cách dời nhịp sớm (nhà 30–50, đường
+  50–70, tài nguyên 70–90, sao 100–120), xúc xắc lắc ±0.3 + thêm
+  thuyền buồm nhấp nhô liên tục → pixel 47 → 69; (2) Rắn và Thang:
+  thang gỗ bị ô kem che mất (tạo thang SAU ô → ô nằm trên) — sửa
+  bằng cách tạo thang TRƯỚC ô; (3) Sâm Lốc: lá 2♠ hiện lưng xanh
+  (lá đánh ra phải NGỬA nhưng không lật/faceUp) — sửa bằng
+  `faceUp()`; vương miện trên lá 2♠ cũng bị mặt lá che mất (tạo
+  crown SAU lá) — sửa bằng cách tạo crown TRƯỚC lá; (4) Gánh Xiếc
+  Thú: khỉ bật lên ở frame 120, chỉ hiện 1/4 vòng — sửa bằng cách
+  dời nhịp sớm (lật 10/40/70, thú bật 30/60/90, sao 110–130) → khỉ
+  hiện nửa vòng. File .riv cũ 28 file không đổi (md5 khớp sau khi
+  build lại toàn bộ, 2 lần).
+- BÀI HỌC verify (bổ sung): (e) **Scrub xong chụp NGAY, không chờ** —
+  sau `inst.scrub([''], t)` animation vẫn chạy tiếp; chờ 300ms sau
+  scrub tới 2.9s thì vòng quay lại frame ~12 (ảnh "cuối vòng" thực
+  ra là đầu vòng: lá úp, lửa to, chỉ 1 quân). Chụp liền sau lệnh
+  scrub, hoặc scrub tới 2.0s làm mốc cuối vòng.
 
 ## Kiểm chứng (đã làm — batch 4, 2026-11-21)
 
