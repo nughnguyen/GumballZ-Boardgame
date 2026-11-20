@@ -118,7 +118,7 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 7. File **không có animation sẽ không vẽ gì** (runtime chỉ vẽ khi có
    animation đang chạy) — mọi file đều phải có animation `"loop"`.
 
-## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8)
+## Các file hiện có (v5 — khổ rộng 400×200, batch 1 làm lại + batch 2 + batch 3 + batch 4 + batch 5 + batch 6 + batch 7 + batch 8 + batch 9)
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
@@ -182,6 +182,14 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `lay6.riv` | 6481 B | 4 hàng bài: lá thứ 6 trượt vào hàng 3 đã đầy 5 lá, cả hàng bay về phía người chơi + mờ đi, lá mới ở lại đầu hàng (180f = 3s) |
 | `saboteur.riv` | 6749 B | 3 lá đường hầm: lá giữa lật lên nối thông đường, lá kẻ phá hoại (mặt nạ) lật lên + rung lắc, vòng ngắm đỏ chớp (180f = 3s) |
 | `skull.riv` | 6588 B | 3 lá úp: lật lần lượt thành hoa, hoa, sọ; lá sọ rung lắc + vòng ngắm đỏ chớp + sao vàng (180f = 3s) |
+| `hanabi.riv` | 10862 B | 5 lá úp 5 màu (đỏ/xanh/vàng/trắng/tím), lá đỏ giữa lật lên thành pháo hoa đỏ nổ bung (chùm tia + sao vàng) (180f = 3s) |
+| `chan.riv` | 7952 B | 2 lá giống nhau lật lên thành chắn (đôi), vòng vàng ôm cặp chắn; lá thứ ba lật lên thành lá Tây vàng (ù) + sao vàng (180f = 3s) |
+| `totom.riv` | 5873 B | 3 lá tổ tôm lật lần lượt thành phu (thanh đỏ/ngọc/lục), vòng vàng ôm cả 3 lá + sao vàng (180f = 3s) |
+| `carcassonne.riv` | 2745 B | 2 ô đã đặt (thành phố + đường), ô thứ ba trượt vào từ phải; meeple đỏ bật lên trên ô mới + sao vàng (180f = 3s) |
+| `azul.riv` | 4189 B | 5 viên gạch men 5 màu bật lần lượt vào hàng mẫu trên tường; viên thứ 6 bật lên rồi rơi xuống vạch sàn + sao vàng (180f = 3s) |
+| `splendor.riv` | 3058 B | 3 viên đá quý (ruby/sapphire/emerald) trượt vào từ trái; thẻ phát triển lật lên (kim cương đỏ) + sao vàng (180f = 3s) |
+| `conhay.riv` | 6217 B | Bàn cờ nhảy góc 5×5 lỗ: quân đỏ nhảy liên tiếp qua 2 bi xanh, đáp ô cuối rồi ở lại tới 150f (KHÔNG có ăn quân trong Cờ Nhảy — chỉ nhảy qua để di chuyển; nhảy tay, KHÔNG dùng hopFrames) + sao vàng (180f = 3s) |
+| `backgammon.riv` | 10324 B | 2 xúc xắc lắc rồi dừng ở 6 và 3; quân trắng trượt 6 ô dọc hàng dưới, đánh trúng blot đỏ ở ô đích (blot bay lên + mờ) + sao vàng (180f = 3s) |
 | `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
 | `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
 
@@ -191,6 +199,39 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — batch 9, 2026-11-21)
+
+- Nạp TỪNG file một bằng runtime `@rive-app/canvas 2.51.0` qua Playwright
+  (headless shell + server tĩnh cổng 8128): tất cả 8 file mới `loaded: true`,
+  0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau
+  0,8s): hanabi 138, chan 290, totom 293, carcassonne 288, azul 114,
+  splendor 240, conhay 125, backgammon 181 (đều trên ngưỡng 50 — Azul
+  thấp nhất vì chuyển động chính là 5 viên gạch bật lần lượt trên nền
+  lớn; conhay 77 sau khi sửa đĩa nhỏ lại, vẫn trên ngưỡng).
+- Trang chủ Playwright: **139/139 checks passed** (68 canvas mount + 68
+  thẻ `.has-riv` + 68 game vẽ nội dung + pixel đổi theo thời gian +
+  0 lỗi JS) và 390px: 68 canvas, 68 has-riv, không tràn ngang.
+- Ảnh chụp đã xác nhận bằng mắt (cả 8 file ở 400×200 — ảnh cuối vòng
+  bằng `inst.scrub([''], 2.0)` chụp NGAY sau scrub, không chờ — và cả
+  8 thẻ ở cỡ thẻ thật, cộng 1 pha ngẫu nhiên nữa): mỗi cảnh đọc ra game
+  ngay và lấp đầy header. Ảnh thẻ Tổ Tôm bắt đúng pha đầu vòng (3 lá
+  đang úp, đang mờ vào) — không phải lỗi, ảnh cuối vòng cho thấy đủ phu
+  + vòng vàng.
+- 2 lỗi thật đã sửa trong lúc verify: (1) Cờ Nhảy — đĩa `disc()` chuẩn
+  (rộng 32) chồng lên nhau vì các ô kề chéo chỉ cách 28.3 (quân đỏ đáp
+  đè lên bi xanh vừa nhảy qua) — đã vẽ đĩa nhỏ riêng trong scene (ngoài
+  26, trong 18, chấm 7) thì vừa khít, không chồng; (2) Backgammon — sao
+  vàng (316,42) đè lên quân đỏ tĩnh ở (300,50) — đã dời quân đỏ sang
+  (158,50) (mũi 151), sao giờ đứng riêng ở góc bàn.
+- File .riv cũ 60 game không đổi (md5 63/63 khớp sau khi build lại toàn
+  bộ — 63 dòng baseline gồm 3 file ngoài game). LƯU Ý: `domi.riv` build
+  lại ra 8394 B thay vì 8407 B đã commit dù scene trong build.mjs KHÔNG
+  đổi so với HEAD (đã diff kiểm chứng) — generator không hoàn toàn xác
+  định với file này; đã khôi phục `domi.riv` từ git, bản commit 8407 B
+  (đã verify pixel 56 ở batch 8) vẫn là bản chuẩn.
+- Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 8
+  đã xóa) — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 8, 2026-11-21)
 
