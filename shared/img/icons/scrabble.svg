@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect x="4" y="4" width="112" height="112" rx="18" fill="#FFE3A3" stroke="#4A3E5C" stroke-width="3"/>
+  <g stroke="#4A3E5C" stroke-width="2">
+    <rect x="15" y="15" width="30" height="30" fill="#FF8A7A"/>
+    <rect x="45" y="15" width="30" height="30" fill="#FFFDF9"/>
+    <rect x="75" y="15" width="30" height="30" fill="#FF8A7A"/>
+    <rect x="15" y="45" width="30" height="30" fill="#FFFDF9"/>
+    <rect x="45" y="45" width="30" height="30" fill="#FFB9CF"/>
+    <rect x="75" y="45" width="30" height="30" fill="#FFFDF9"/>
+    <rect x="15" y="75" width="30" height="30" fill="#FF8A7A"/>
+    <rect x="45" y="75" width="30" height="30" fill="#FFFDF9"/>
+    <rect x="75" y="75" width="30" height="30" fill="#FF8A7A"/>
+  </g>
+  <g font-family="Nunito, sans-serif" font-weight="800" fill="#4A3E5C" text-anchor="middle">
+    <rect x="18" y="18" width="24" height="24" rx="4" fill="#FFF8EC" stroke="#4A3E5C" stroke-width="2"/>
+    <text x="29" y="36" font-size="16">S</text>
+    <text x="38" y="39" font-size="7">1</text>
+    <rect x="48" y="18" width="24" height="24" rx="4" fill="#FFF8EC" stroke="#4A3E5C" stroke-width="2"/>
+    <text x="59" y="36" font-size="16">C</text>
+    <text x="68" y="39" font-size="7">3</text>
+    <rect x="78" y="18" width="24" height="24" rx="4" fill="#FFF8EC" stroke="#4A3E5C" stroke-width="2"/>
+    <text x="89" y="36" font-size="16">R</text>
+    <text x="98" y="39" font-size="7">1</text>
+    <rect x="48" y="48" width="24" height="24" rx="4" fill="#FFF8EC" stroke="#4A3E5C" stroke-width="2"/>
+    <text x="59" y="66" font-size="16">A</text>
+    <text x="68" y="69" font-size="7">1</text>
+    <rect x="48" y="78" width="24" height="24" rx="4" fill="#FFF8EC" stroke="#4A3E5C" stroke-width="2"/>
+    <text x="59" y="96" font-size="16">B</text>
+    <text x="68" y="99" font-size="7">3</text>
+  </g>
+</svg>

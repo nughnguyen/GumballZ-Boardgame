@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🔤 Scrabble — GumballZ Boardgame</title>
+<meta name="description" content="Scrabble tiếng Việt: bàn 15×15, xếp chữ thành từ, nhân điểm trên ô thưởng, Bingo +50 — chơi online, đấu máy hoặc chuyền tay.">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
+<link rel="stylesheet" href="css/scrabble.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=19">
+<link rel="stylesheet" href="../shared/css/footer.css?v=2">
+<script>window.GAME_META = { game: 'scrabble', name: 'Scrabble', gid: 'scrabble', color: '#e9b949', icon: '🔤' };</script>
+<script src="../shared/ui/footer.js?v=2"></script>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="top-left">
+      <a href="../" class="brand"><span class="brand-mark">🔤</span><span class="brand-name">GumballZ Boardgame</span></a>
+      <span class="game-name">Scrabble</span>
+    </div>
+    <div class="top-btns">
+      <button type="button" id="btn-leave" class="icon-btn" title="Về trang chủ">🏠</button>
+      <button type="button" id="btn-sound" class="icon-btn" title="Âm thanh">🔊</button>
+      <button type="button" id="btn-guide" class="icon-btn" title="Luật chơi">📖</button>
+      <button type="button" id="btn-log" class="icon-btn" title="Nhật ký">📜</button>
+    </div>
+  </header>
+
+  <main class="screen">
+    <!-- ================= MÀN HÌNH CHÍNH ================= -->
+    <section id="screen-home" class="game-home">
+      <div class="home-hero">
+        <div class="game-emoji">🔤</div>
+        <h1>Scrabble</h1>
+        <p class="home-tagline">Xếp chữ thành từ, ăn ô thưởng, gom điểm — từ điển tiếng Việt không dấu, Bingo +50!</p>
+        <div class="home-players">👥 2–4 người · 🎲 15×15 · 🧩 100 chữ · 7 chữ/khay</div>
+      </div>
+      <div class="home-card">
+        <div class="field">
+          <label for="name">Tên hiển thị của bạn</label>
+          <input id="name" class="input" type="text" placeholder="VD: GumballZ" maxlength="16" autocomplete="off">
+        </div>
+        <div class="field">
+          <span class="lbl">Chọn cách chơi</span>
+          <div class="seg" role="group" aria-label="Cách chơi">
+            <button type="button" data-mode="ai-hard" class="on" aria-pressed="true">🧠 Máy Khó</button>
+            <button type="button" data-mode="ai-easy" aria-pressed="false">🤖 Máy Dễ</button>
+            <button type="button" data-mode="pvp" aria-pressed="false">👥 Chuyền tay</button>
+            <button type="button" data-mode="online" aria-pressed="false">🌐 Online</button>
+          </div>
+        </div>
+        <div class="field" id="count-box">
+          <span class="lbl">Số người chơi</span>
+          <div class="seg" id="count-seg" role="group" aria-label="Số người chơi">
+            <button type="button" data-count="2" class="on" aria-pressed="true">2 người</button>
+            <button type="button" data-count="3" aria-pressed="false">3 người</button>
+            <button type="button" data-count="4" aria-pressed="false">4 người</button>
+          </div>
+        </div>
+        <div class="field" id="local-box">
+          <p class="hint">🤖 Đấu máy: bạn + máy (tổng đúng số người đã chọn). 👥 Chuyền tay: mở phòng rồi thêm người cùng máy hoặc máy trong phòng chờ.</p>
+        </div>
+        <div class="field" id="online-box" style="display:none">
+          <div class="row">
+            <button type="button" id="btn-create" class="btn big pri flex1">📨 Tạo phòng mới</button>
+          </div>
+          <div class="row join-row">
+            <input id="join-code" class="input flex1" type="text" inputmode="text" placeholder="Nhập mã phòng (VD: A7K2Q)" maxlength="5" autocomplete="off">
+            <button type="button" id="btn-join" class="btn big">Vào phòng</button>
+          </div>
+          <p class="hint">Phòng online: mời bạn bằng mã 5 ký tự, link hoặc QR. Chủ phòng thêm máy / người cùng máy trong phòng chờ.</p>
+        </div>
+        <button type="button" id="btn-start" class="btn big pri block">🧠 Bắt đầu chơi với máy Khó (2 người)</button>
+        <button type="button" id="btn-guide-home" class="btn big block">📖 Xem luật chơi</button>
+      </div>
+      <div class="home-note">
+        <div>🎯 <b>Mục tiêu:</b> đặt từ để ghi nhiều điểm nhất — ô thưởng ×2/×3 chữ và từ, Bingo (dùng hết 7 chữ) +50.</div>
+        <div>🟡 <b>Nước đầu tiên</b> phải phủ ô trung tâm ★, các từ sau phải nối với chữ đã có trên bàn.</div>
+        <div>🔤 <b>Từ điển:</b> tiếng Việt không dấu (chỉ chữ A–Z, 2–15 chữ) — từ bộ từ của Wordle trong web + từ ngắn thông dụng.</div>
+      </div>
+    </section>
+
+    <!-- ================= PHÒNG CHỜ ================= -->
+    <section id="screen-lobby" class="lobby" hidden>
+      <div class="lobby-card">
+        <h2>🕹️ Phòng chờ Scrabble</h2>
+        <div class="room-code-box" id="code-box">
+          <span class="lbl">Mã phòng</span>
+          <div class="room-code-row">
+            <strong id="room-code" class="room-code">—</strong>
+            <button type="button" id="btn-copy-code" class="btn">📋 Sao chép</button>
+            <button type="button" id="btn-copy" class="btn">🔗 Sao chép link</button>
+          </div>
+          <div class="qr-wrap"><canvas id="qr-code" width="180" height="180" aria-label="Mã QR vào phòng"></canvas></div>
+          <p class="hint">Bạn bè quét QR hoặc nhập mã để vào phòng.</p>
+        </div>
+        <p id="pcount" class="pcount">0/4 người (cần 2–4)</p>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+        <div id="opts" class="opts"></div>
+        <div class="row-btns">
+          <button type="button" id="btn-leave-lobby" class="btn">← Thoát</button>
+          <button type="button" id="btn-start-online" class="btn big pri flex1">🚀 Bắt đầu trận đấu</button>
+        </div>
+        <p id="wait-msg" class="hint" style="display:none"></p>
+      </div>
+    </section>
+
+    <!-- ================= MÀN CHƠI ================= -->
+    <section id="screen-game" hidden>
+      <div id="round" class="round-line">🔤 Scrabble</div>
+      <div id="status" class="status-line"></div>
+      <div class="sc-layout">
+        <div class="sc-board-wrap">
+          <div id="board" class="sc-board" role="grid" aria-label="Bàn Scrabble 15 nhân 15"></div>
+          <div id="stage-info" class="stage-info"></div>
+          <div class="sc-actions">
+            <button type="button" id="btn-confirm-place" class="btn big pri">✅ Đặt từ</button>
+            <button type="button" id="btn-dir" class="btn">↔️ Ngang</button>
+            <button type="button" id="btn-clear-stage" class="btn">↩️ Thu lại</button>
+          </div>
+          <div class="sc-actions">
+            <button type="button" id="btn-exchange" class="btn">🔀 Đổi chữ</button>
+            <button type="button" id="btn-confirm-exchange" class="btn pri" style="display:none">✅ Đổi chữ</button>
+            <button type="button" id="btn-pass" class="btn">⏭️ Bỏ lượt</button>
+          </div>
+        </div>
+        <aside class="sc-side">
+          <div id="players" class="sc-players"></div>
+          <div class="sc-rack-box">
+            <div id="rack-label" class="sc-rack-label"></div>
+            <div id="rack-cover" class="sc-rack-cover" style="display:none">🔒 Khay chữ đang che lại — bấm 👁 Xem khay để xem, đừng cho người khác nhìn thấy!</div>
+            <div id="rack" class="sc-rack" aria-label="Khay chữ của bạn"></div>
+            <button type="button" id="btn-reveal-rack" class="btn" style="display:none">👁 Xem khay của bạn</button>
+          </div>
+          <div id="log" class="sc-log"></div>
+          <div class="sc-actions">
+            <button type="button" id="btn-new" class="btn">🔁 Ván mới</button>
+            <button type="button" id="btn-resign" class="btn danger">🏳️ Xin thua</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card"><div id="modal-box"></div></div>
+  </div>
+  <footer class="gmf"></footer>
+</div>
+<script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>

@@ -1170,5 +1170,9 @@ export const TUT = {
  "blokus": {
   "name": "Blokus",
   "steps": []
+ },
+ "scrabble": {
+  "name": "🔤 Scrabble — GumballZ Boardgame",
+  "steps": []
  }
 };

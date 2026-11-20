@@ -1,0 +1,77 @@
+/* 🔤 Scrabble – bàn 15×15 + khay 7 chữ, bấm chữ rồi bấm ô để đặt tạm.
+   Ghế, nhật ký, nút bấm theo hệ pastel chung của web (kem/vàng/bơ). */
+.sc-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 14px; max-width: 1080px; margin: 0 auto; padding: 10px 12px 90px; box-sizing: border-box; align-items: start; }
+@media (max-width: 860px) { .sc-layout { grid-template-columns: 1fr; } }
+.sc-board-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; }
+/* bàn: lưới 15×15, co theo màn hình — 390px vẫn vừa, không tràn ngang */
+.sc-board {
+  display: grid; grid-template-columns: repeat(15, 1fr); gap: 2px;
+  width: 100%; max-width: 560px;
+  background: #ffe3a3; border: 3px solid #2a2340; border-radius: 16px;
+  box-shadow: 4px 4px 0 rgba(42,35,64,.16); padding: 8px; box-sizing: border-box;
+}
+.sc-cell {
+  aspect-ratio: 1; background: #fffdf5; border-radius: 4px;
+  cursor: pointer; box-sizing: border-box; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0;
+}
+.sc-cell:hover { background: #fff3d6; }
+.sc-cell .prem { font-size: 7px; font-weight: 800; line-height: 1.05; text-align: center; color: #fff; letter-spacing: .2px; pointer-events: none; }
+@media (min-width: 560px) { .sc-cell .prem { font-size: 8px; } }
+.sc-cell.p-tw { background: #e05d5d; }
+.sc-cell.p-dw { background: #f2a0b5; }
+.sc-cell.p-tl { background: #5b8def; }
+.sc-cell.p-dl { background: #9cc4f5; }
+.sc-cell.p-dw .prem, .sc-cell.p-dl .prem { color: #2a2340; }
+.sc-cell.staged-cell { background: #fff3d6; outline: 2px dashed #e8a100; outline-offset: -2px; }
+/* ô chữ (trên bàn và trên khay) */
+.sc-tile {
+  position: absolute; inset: 1px; background: #fdf3d0; border: 1.5px solid #2a2340; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #2a2340; font-size: 15px; line-height: 1;
+  box-shadow: 1px 1px 0 rgba(42,35,64,.25);
+}
+@media (max-width: 480px) { .sc-tile { font-size: 12px; } }
+.sc-tile i { position: absolute; right: 1px; bottom: 0; font-style: normal; font-size: 7px; font-weight: 700; color: #7a6a45; }
+.sc-tile.blank { background: #ffe9a8; color: #8a6d00; }
+.sc-tile.staged { background: #ffe9a8; outline: 2px solid #e8a100; outline-offset: -1px; }
+/* dòng hướng dẫn lượt */
+.stage-info { min-height: 40px; text-align: center; font-size: 14px; line-height: 1.5; max-width: 560px; }
+.stage-info .need { color: #b3232a; font-weight: 600; }
+.sc-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.sc-actions .btn.on { background: #ffd273; }
+/* cột bên: người chơi + khay + nhật ký */
+.sc-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sc-players { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.sc-player { display: flex; gap: 10px; align-items: center; background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 14px; padding: 8px 12px; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.sc-player.turn { outline: 3px solid #ffd273; outline-offset: 1px; }
+.sc-player.me { background: #fff6d8; }
+.sc-player .sc-dot { width: 12px; height: 12px; border-radius: 50%; background: #f2b705; border: 2px solid #2a2340; flex: none; }
+.sc-player .sc-pinfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sc-player .sc-pinfo b { font-size: 15px; }
+.sc-player .sc-ptotal { font-size: 13px; color: #6b6480; }
+.sc-rack-box { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 14px; padding: 10px 12px; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.sc-rack-label { font-size: 13px; color: #6b6480; margin-bottom: 8px; line-height: 1.45; }
+.sc-rack-cover { background: #f3ead3; border: 2px dashed #b9a06a; border-radius: 10px; padding: 14px 10px; text-align: center; font-size: 14px; line-height: 1.5; }
+.sc-rack { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.sc-rack-tile {
+  width: 40px; height: 40px; position: relative; flex: none;
+  background: #fdf3d0; border: 2px solid #2a2340; border-radius: 8px;
+  font-weight: 800; font-size: 19px; color: #2a2340; cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(42,35,64,.25); padding: 0;
+}
+.sc-rack-tile i { position: absolute; right: 3px; bottom: 1px; font-style: normal; font-size: 9px; font-weight: 700; color: #7a6a45; }
+.sc-rack-tile:hover { background: #fff6d8; transform: translateY(-2px); }
+.sc-rack-tile.sel { background: #ffd273; outline: 3px solid #e8a100; outline-offset: 1px; transform: translateY(-3px); }
+.sc-rack-tile.ex-sel { background: #abe0c6; outline: 3px solid #2e8b57; outline-offset: 1px; }
+.sc-rack-tile.used { opacity: .35; cursor: default; transform: none; }
+.sc-rack-tile:disabled { cursor: default; }
+#btn-reveal-rack { margin-top: 8px; width: 100%; }
+.sc-log { background: #fffdf5; border: 2.5px solid #2a2340; border-radius: 14px; padding: 8px 12px; max-height: 180px; overflow-y: auto; font-size: 13px; line-height: 1.6; box-shadow: 2px 2px 0 rgba(42,35,64,.14); }
+.sc-log .warn { color: #b3232a; }
+.sc-log .good { color: #2e8b57; font-weight: 600; }
+@media (max-width: 480px) {
+  .sc-rack-tile { width: 36px; height: 36px; font-size: 17px; }
+  .sc-cell .prem { font-size: 6px; }
+}
