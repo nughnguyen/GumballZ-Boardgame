@@ -1089,7 +1089,7 @@ const SP = {
       const sum = ((v.final || {}).summary || {})[me] || {};
       if (!w) return out;
       if (v.solo) out.push('gh-solo-win');
-      if (v.solo && v.size === 5 && (sum.timeMs || 0) > 0 && sum.timeMs < 60000) out.push('gh-fast5');
+      if (v.solo && v.size === 5 && (sum.timeMs || 0) < 60000) out.push('gh-fast5');
       if (v.solo && (sum.peeks || 0) === 0) out.push('gh-nopeek');
       if (v.race) out.push('gh-race-win');
       return out; } },
