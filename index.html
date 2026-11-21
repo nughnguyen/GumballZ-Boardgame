@@ -569,7 +569,7 @@
 function fitTitles(){document.querySelectorAll('#games-grid .tile .info h2').forEach(h=>{h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);while(h.scrollWidth>h.clientWidth&&f>22){f-=1;h.style.fontSize=f+'px'}})}
 addEventListener('load',fitTitles);addEventListener('resize',()=>{clearTimeout(fitTitles.t);fitTitles.t=setTimeout(fitTitles,120)});document.fonts&&document.fonts.ready.then(fitTitles);
 </script>
-<script type="module" src="shared/ui/feedback.js?v=35"></script>
+<script type="module" src="shared/ui/feedback.js?v=36"></script>
 <script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=3').then(m => m.mountWorldChat());</script>
 <script type="module">
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };

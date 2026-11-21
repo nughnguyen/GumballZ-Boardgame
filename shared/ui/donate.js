@@ -18,44 +18,56 @@ function css() {
   const s = document.createElement('style'); s.textContent = `
 .dn-ov{position:fixed;inset:0;z-index:10050;background:#241a38aa;display:grid;place-items:center;padding:12px;animation:dnIn .18s ease-out}
 @keyframes dnIn{from{opacity:0}}
-.dn{width:min(460px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:#FFF8EE;color:#241A38;border:2px solid #241A38;border-radius:24px;box-shadow:6px 6px 0 #241A38;font:700 14.5px/1.45 Nunito,"Be Vietnam Pro",system-ui,sans-serif;overscroll-behavior:contain}
-.dn-hd{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:16px 18px 12px;background:#FACD33;color:#241A38;border-bottom:2px solid #241A38;border-radius:22px 22px 0 0}
-.dn-hd b{flex:1;font:400 21px/1.1 "Baloo 2",Nunito,sans-serif}
-.dn-x{width:40px;height:40px;border:2px solid #241A38;border-radius:50%;background:#fff;color:#241A38;font:800 18px Nunito,sans-serif;cursor:pointer}
-.dn-bd{padding:14px 18px 18px;display:grid;gap:12px}
+.dn{width:min(480px,100%);max-height:90dvh;overflow:auto;background:#FFF8EE;color:#241A38;border:2px solid #241A38;border-radius:24px;box-shadow:6px 6px 0 #241A38;font:700 14.5px/1.45 Nunito,"Be Vietnam Pro",system-ui,sans-serif;overscroll-behavior:contain;scrollbar-width:none}
+.dn::-webkit-scrollbar{display:none}
+.dn-hd{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:14px 16px 12px;background:linear-gradient(135deg,#FACD33,#FFE9A8);color:#241A38;border-bottom:2px solid #241A38;border-radius:22px 22px 0 0}
+.dn-hd b{flex:1;font:400 23px/1.1 "Baloo 2",Nunito,sans-serif}
+.dn-x{width:40px;height:40px;border:2px solid #241A38;border-radius:50%;background:#fff;color:#241A38;font:800 18px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 #241A38;transition:transform .1s}
+.dn-x:hover{background:#FF5A60;color:#fff}
+.dn-x:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #241A38}
+.dn-bd{padding:12px 16px 16px;display:grid;gap:10px;scrollbar-width:none}
+.dn-bd::-webkit-scrollbar{display:none}
 .dn-p{margin:0;color:#5b5170}
-.dn-fund{background:#fff;border:2px solid #241A38;border-radius:16px;padding:10px 12px;box-shadow:3px 3px 0 #241A38}
+.dn-fund{background:#fff;border:2px solid #241A38;border-radius:16px;padding:9px 12px;box-shadow:3px 3px 0 #241A38}
 .dn-fund .t{display:flex;justify-content:space-between;gap:8px;font-size:13.5px}.dn-fund .t b{font:400 15px "Baloo 2",Nunito,sans-serif}
 .dn-bar{height:12px;border-radius:99px;background:#f3e7da;overflow:hidden;margin-top:6px;border:1.5px solid #241A38}.dn-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2EC5B6,#FACD33,#FF5A60);min-width:6px;transition:width .5s}
 .dn-amt{display:flex;gap:6px}
-.dn-amt button{flex:1 1 0;min-width:0;padding:0 4px;min-height:44px;border:2px solid #241A38;border-radius:14px;background:#fff;color:#241A38;font:800 14.5px Nunito,sans-serif;cursor:pointer}
+.dn-amt button{flex:1 1 0;min-width:0;padding:0 4px;min-height:46px;border:2px solid #241A38;border-radius:14px;background:#fff;color:#241A38;font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 #241A38;transition:transform .1s}
+.dn-amt button:hover{transform:translateY(-1px)}
+.dn-amt button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #241A38}
 .dn-own{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #241A38;border-radius:14px;padding:4px 12px}.dn-own input{flex:1;min-width:0;border:0;outline:0;background:none;font:800 18px Nunito,sans-serif;color:#241A38;padding:8px 0}.dn-own span{font:800 16px Nunito,sans-serif;color:#8a7f96}.dn-own small{display:block;font-size:12px;color:#8a7f96;margin-top:-4px}
+.dn-own:focus-within{border-color:#FF5A60;box-shadow:2px 2px 0 #241A38}
 .dn-amt button.on{border-color:#241A38;background:#FACD33;box-shadow:2px 2px 0 #241A38}
-.dn-qr{display:grid;place-items:center;background:#fff;border:2px solid #241A38;border-radius:18px;padding:10px;box-shadow:3px 3px 0 #241A38}
-.dn-qr img{width:min(240px,70vw);aspect-ratio:1;object-fit:contain;display:block}
+.dn-amt button.on::after{content:" ✓"}
+.dn-qr{display:grid;place-items:center;gap:6px;background:#fff;border:2px solid #241A38;border-radius:18px;padding:12px;box-shadow:4px 4px 0 #241A38}
+.dn-qr-cap{font:400 15px "Baloo 2",Nunito,sans-serif;color:#241A38}
+.dn-qr img{width:min(200px,62vw);aspect-ratio:1;object-fit:contain;display:block}
 .dn-row{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #241A38;border-radius:14px;padding:8px 10px;min-width:0}
 .dn-row span{flex:1;min-width:0}.dn-row small{display:block;color:#8a7f96;font-size:12px}.dn-row code{font:800 15px ui-monospace,Menlo,monospace;word-break:break-all}
-.dn-row button{flex:none;min-height:36px;padding:0 12px;border:2px solid #241A38;border-radius:99px;background:#241A38;color:#fff;font:800 13px Nunito,sans-serif;cursor:pointer}
+.dn-row button{flex:none;min-height:44px;padding:0 14px;border:2px solid #241A38;border-radius:99px;background:#241A38;color:#fff;font:800 13px Nunito,sans-serif;cursor:pointer;transition:transform .1s}
+.dn-row button:hover{transform:translateY(-1px)}
 .dn-chk{display:flex;align-items:center;gap:8px;cursor:pointer}.dn-chk input{width:20px;height:20px;accent-color:#FF5A60}
 .dn-note{font-size:13px;color:#5b5170;background:#fff4d6;border:2px solid #241A38;border-radius:12px;padding:8px 10px}
 .dn-note button{border:0;background:none;color:#e0432f;font:800 13px Nunito,sans-serif;text-decoration:underline;cursor:pointer;padding:0}
 .dn-done{display:grid;place-items:center;gap:4px;text-align:center;padding:26px 8px;min-height:220px}.dn-done .big{font-size:58px;line-height:1;animation:dnPop .5s cubic-bezier(.3,1.6,.5,1)}.dn-done b{font:400 24px 'Baloo 2',Nunito,sans-serif;color:#14743a}.dn-done span{color:#5b5170}
 @keyframes dnPop{from{transform:scale(.3)}}
 .dn-ok{text-align:center;background:#e9fbef;color:#14743a;border:2px solid #241A38;border-radius:14px;padding:10px;font:800 15px Nunito,sans-serif}
-.dn-wall h4{margin:2px 0 6px;font:400 16px "Baloo 2",Nunito,sans-serif}
+.dn-wall h4{margin:0 0 6px;font:400 17px "Baloo 2",Nunito,sans-serif;border-left:4px solid #FF5A60;padding-left:8px}
 .dn-wall div{display:flex;flex-wrap:wrap;gap:6px}.dn-wall span{background:#fff;border:2px solid #241A38;border-radius:99px;padding:3px 10px;font-size:13px}
 .dn-tiers{background:#fff;border:2px solid #241A38;border-radius:16px;padding:10px 12px;box-shadow:3px 3px 0 #241A38}
-.dn-tiers h4,.dn-msgs h4,.dn-say h4{margin:0 0 6px;font:400 16px "Baloo 2",Nunito,sans-serif}
+.dn-tiers h4,.dn-msgs h4,.dn-say h4{margin:0 0 6px;font:400 17px "Baloo 2",Nunito,sans-serif;border-left:4px solid #FACD33;padding-left:8px}
+.dn-tiers h4{border-left-color:#FACD33}.dn-say h4{border-left-color:#2EC5B6}.dn-msgs h4{border-left-color:#B9A6FF}
 .dn-tl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .dn-tl div{display:grid;justify-items:center;gap:1px;text-align:center;padding:6px 2px;border-radius:12px;background:#faf3ea;font-size:11px;line-height:1.25;color:#8a7f96}
 .dn-tl div i{font-style:normal;font-size:22px;filter:grayscale(1);opacity:.55}.dn-tl div b{font:800 11.5px Nunito,sans-serif;color:#5b5170}
 .dn-tl div.got{background:#e6f9f5;color:#0a6b5e}.dn-tl div.got i{filter:none;opacity:1}.dn-tl div.got b{color:#0a6b5e}
 .dn-tl div.now{box-shadow:inset 0 0 0 2px #FF5A60}
 .dn-next{margin:8px 0 0;font-size:13px;color:#5b5170}
-.dn-say textarea{width:100%;box-sizing:border-box;min-height:64px;resize:vertical;border:2px solid #241A38;border-radius:14px;padding:8px 10px;font:700 14.5px/1.4 Nunito,sans-serif;color:#241A38;background:#fff}
+.dn-say textarea{width:100%;box-sizing:border-box;min-height:56px;resize:vertical;border:2px solid #241A38;border-radius:14px;padding:8px 10px;font:700 14.5px/1.4 Nunito,sans-serif;color:#241A38;background:#fff}
 .dn-say textarea:focus{outline:2px solid #FF5A60;outline-offset:0;border-color:#FF5A60}
 .dn-say .r{display:flex;align-items:center;gap:8px;margin-top:6px}.dn-say .r small{flex:1;color:#8a7f96;font-size:12px}
-.dn-say button{min-height:40px;padding:0 16px;border:2px solid #241A38;border-radius:99px;background:#241A38;color:#fff;font:800 14px Nunito,sans-serif;cursor:pointer}
+.dn-say button{min-height:44px;padding:0 16px;border:2px solid #241A38;border-radius:99px;background:#241A38;color:#fff;font:800 14px Nunito,sans-serif;cursor:pointer;transition:transform .1s}
+.dn-say button:hover{transform:translateY(-1px)}
 .dn-msgs ul{margin:0;padding:0;display:grid;gap:8px;list-style:none}
 .dn-msgs li{background:#fff;border:2px solid #241A38;border-radius:14px;padding:8px 10px;font-size:13.5px}
 .dn-msgs li .w{display:flex;gap:6px;align-items:baseline}.dn-msgs li .w b{font:800 13.5px Nunito,sans-serif}.dn-msgs li .w small{margin-left:auto;color:#a39aae;font-size:11.5px}
@@ -67,7 +79,16 @@ function css() {
 .dn-claim label{display:block;font-size:13px;color:#8a7f96;margin:8px 0 2px}
 .dn-claim input,.dn-claim textarea{width:100%;box-sizing:border-box;border:2px solid #241A38;border-radius:12px;padding:8px 10px;font:700 14.5px/1.4 Nunito,sans-serif;color:#241A38;background:#fff}
 .dn-claim textarea{min-height:56px;resize:vertical}
-.dn-claim button{margin-top:8px;min-height:42px;padding:0 18px;border:2px solid #241A38;border-radius:99px;background:#FACD33;color:#241A38;font:800 14px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 #241A38}
+.dn-claim button{margin-top:8px;min-height:44px;padding:0 18px;border:2px solid #241A38;border-radius:99px;background:#FACD33;color:#241A38;font:800 14px Nunito,sans-serif;cursor:pointer;box-shadow:2px 2px 0 #241A38}
+@media (max-width:480px){
+.dn-ov{padding:8px}
+.dn{border-radius:20px;max-height:92dvh}
+.dn-hd{padding:12px 14px 10px}.dn-hd b{font-size:20px}
+.dn-bd{padding:10px 12px 14px;gap:9px}
+.dn-qr img{width:min(190px,70vw)}
+.dn-amt button{min-height:46px;font-size:14px}
+.dn-tl div i{font-size:19px}
+}
 @media (prefers-reduced-motion:reduce){.dn-ov{animation:none}.dn-bar i{transition:none}}`;
   document.head.append(s);
 }
@@ -110,7 +131,7 @@ export async function openDonate() {
     ${I.auto === false ? '<div class="dn-note">⚠️ Lượt xác nhận tự động tháng này đã hết – chuyển khoản xong nhớ gửi yêu cầu duyệt tay ở cuối hộp (chủ web duyệt là có huy hiệu ngay).</div>' : ''}
     <div class="dn-amt">${AMOUNTS.map(a => `<button type="button" data-amt="${a}" class="${a === amt ? 'on' : ''}">${a / 1000}k</button>`).join('')}<button type="button" data-amt="own" class="${amt === 0 ? 'on' : ''}" aria-label="Tự nhập số tiền">Khác</button></div>
     <div data-ownbox><label class="dn-own"><input type="text" inputmode="numeric" autocomplete="off" placeholder="Nhập số tiền, vd 30.000" aria-label="Số tiền muốn ủng hộ (đồng)" data-own><span>đ</span></label><small style="display:block;color:#8a7f96;font-size:12px;margin:4px 2px 0">Tối thiểu 1.000đ – mã QR tự đổi theo số bạn nhập.</small></div>
-    <div class="dn-qr"><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}" onerror="this.onerror=null;this.src='${ROOT}shared/img/donate-qr.png?v=3'"></div>
+    <div class="dn-qr"><span class="dn-qr-cap">📷 Quét mã để chuyển khoản</span><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}" onerror="this.onerror=null;this.src='${ROOT}shared/img/donate-qr.png?v=3'"></div>
     <div class="dn-row"><span><small>Nội dung chuyển khoản (giữ nguyên)</small><code data-code>${esc(code())}</code></span><button type="button" data-cp="code">Chép</button></div>
     ${u ? `<label class="dn-chk"><input type="checkbox" data-show ${show ? 'checked' : ''}> Hiện tên <b>${esc(u.name)}</b> trên Tường cảm ơn</label>
     <div class="dn-note">Quét mã bằng app ngân hàng / MoMo / ZaloPay. Chuyển xong vài giây là hộp này báo đã nhận và tài khoản có huy hiệu <b>💎 Nhà Tài Trợ</b> – cứ để hộp mở nha.</div>`
