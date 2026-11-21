@@ -1,7 +1,7 @@
-// 🎖️ Huy hiệu huân chương 7 bậc (patch -142, thay pill -95): Chủ sảnh / Quản sảnh / Hỗ trợ / Nhà Tài Trợ / VIP / DEV / Người mới.
+// 🎖️ Huy hiệu huân chương 7 bậc (patch -142, thay pill -95; patch -145: chỉ hiện huy chương, không chữ): Chủ sảnh / Quản sảnh / Hỗ trợ / Nhà Tài Trợ / VIP / DEV / Người mới.
 // Medal theo bản phát thảo "Huy hiệu Huyền Thoại" của user — mỗi bậc 1 hình dáng riêng, nền tối có cực quang.
-// CSS ở shared/css/badges.css?v=5 (nạp 1 lần bằng ensureBadgesCSS, kiểu skeleton.js).
-// import { ensureBadgesCSS, tierBadges, medalHTML, attachBadgeTilt } from '…/shared/ui/badges.js?v=5'
+// CSS ở shared/css/badges.css?v=6 (nạp 1 lần bằng ensureBadgesCSS, kiểu skeleton.js).
+// import { ensureBadgesCSS, tierBadges, medalHTML, attachBadgeTilt } from '…/shared/ui/badges.js?v=6'
 // tierBadges(u, size): u là {owner, role, supporter, vip, dev, xp, lv} (từ pub()/adminFind/friendsList/leaderboard)
 //   hoặc {v, sp} (tin chat Sảnh: v 2=chủ sảnh, 3=Quản sảnh, 4=Mod sảnh, 1=đã đăng nhập; sp 1=nhà tài trợ).
 //   size: 'xs' (20px, inline – mặc định) | 'mini' (40px – Hồ sơ/modal thành viên).
@@ -13,7 +13,7 @@
 // uid6(id) (patch -108): id tài khoản HIỂN THỊ dạng 6 chữ số theo thứ tự tạo acc (acc đầu tiên = 000001,
 // quá 6 số giữ nguyên, không cắt); id NỘI BỘ (số nguyên trong DB/API/token/data-uid) KHÔNG đổi – chỉ đổi lúc hiển thị.
 export const uid6 = id => { const s = String(id ?? ''); return s ? s.padStart(6, '0') : ''; };
-const BDG_CSS = new URL('../css/badges.css?v=5', import.meta.url).href;
+const BDG_CSS = new URL('../css/badges.css?v=6', import.meta.url).href;
 export function ensureBadgesCSS() {
   /* patch -141: Rive đã gỡ khỏi huy hiệu (user quyết 23:30) — KHÔNG gọi ensureBadgeRive() nữa.
      Huy hiệu giờ chỉ còn animation CSS (badges.css). Xem ensureBadgeRive() bên dưới. */
@@ -185,7 +185,7 @@ const MEDAL_ICONS = {
   code: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6 3 12l5 6M16 6l5 6-5 6M13.5 4l-3 16"/></svg>',
 };
 /* clip: hình dáng · ring: vòng cực quang (conic) · core: nền tối · ic: màu icon · g: màu phát sáng
-   label: chữ trên chip (solid, đọc rõ 2 theme) · cls: class .bdg-* · orb/rays/pt/ping: lớp hiệu ứng */
+   label: tên bậc (KHÔNG render — chỉ hiện huy chương, patch -145; giữ để tra cứu/wiki, title dùng `title`) · cls: class .bdg-* · orb/rays/pt/ping: lớp hiệu ứng */
 export const MEDALS = {
   owner: { cls: 'bdg-own', label: 'CHỦ SẢNH', title: 'Người làm ra GumballZ Boardgame', clip: STAR12, ring: '#fff2b0,#ffb700,#8a4b00,#ffe27a,#fff2b0,#ffb700,#8a4b00,#ffe27a,#fff2b0', core: 'radial-gradient(circle at 50% 30%,#4f3207,#140a01 78%)', ic: '#ffd35a', g: 'rgba(255,196,60,.85)', icon: 'crown', orb: 1, pt: 16, rays: 1 },
   adm: { cls: 'bdg-adm', label: 'QUẢN SẢNH', title: 'Quản lý Sảnh GumballZ', clip: HEX, ring: '#ff5c9a,#8a5cff,#27d3ff,#8a5cff,#ff5c9a', core: 'radial-gradient(circle at 50% 30%,#40197f,#100628 78%)', ic: '#ffd1f0', g: 'rgba(190,100,255,.85)', icon: 'wrench', orb: 1, pt: 0, rays: 1 },
@@ -203,7 +203,7 @@ export function medalHTML(tier, size = 'xs') {
   const sz = size === 'mini' ? 'mini' : 'xs';
   let pts = '';
   for (let n = 0; n < (t.pt || 0); n++) pts += `<i class="pt" style="--x:${(15 + Math.random() * 70).toFixed(1)};--d:${(2 + Math.random() * 2).toFixed(2)}s;--l:${(Math.random() * 3).toFixed(2)}s;--dx:${((Math.random() - .5) * .4).toFixed(2)}em"></i>`;
-  return `<span class="bdg ${t.cls} sz-${sz}" title="${t.title}"><span class="m t-${tier} ${sz}" style="--clip:${t.clip};--ring:${t.ring};--core:${t.core};--ic:${t.ic};--g:${t.g};${t.is ? '--is:' + t.is : ''}" aria-hidden="true">${t.rays ? '<i class="rays"></i>' : ''}<i class="halo"></i>${t.ping ? '<i class="ping"></i><i class="ping"></i>' : ''}<div class="shape"><div class="spin"></div></div><div class="core">${MEDAL_ICONS[t.icon]}${t.caret ? '<i class="caret"></i>' : ''}</div>${t.orb ? '<i class="orb"></i>' : ''}${pts}</span><span class="t">${t.label}</span></span>`;
+  return `<span class="bdg ${t.cls} sz-${sz}" title="${t.title}"><span class="m t-${tier} ${sz}" style="--clip:${t.clip};--ring:${t.ring};--core:${t.core};--ic:${t.ic};--g:${t.g};${t.is ? '--is:' + t.is : ''}" aria-hidden="true">${t.rays ? '<i class="rays"></i>' : ''}<i class="halo"></i>${t.ping ? '<i class="ping"></i><i class="ping"></i>' : ''}<div class="shape"><div class="spin"></div></div><div class="core">${MEDAL_ICONS[t.icon]}${t.caret ? '<i class="caret"></i>' : ''}</div>${t.orb ? '<i class="orb"></i>' : ''}${pts}</span></span>`; /* 🏅 chỉ hiện huy chương, KHÔNG chữ (patch -145, user 00:26: "chỉ hiện cái huy chương thôi khỏi chữ cũng được") — tên bậc vẫn ở title (rê chuột hiện) + trường label bên dưới để tra cứu/wiki */
 }
 export function tierBadges(u = {}, size = 'xs') {
   u = u || {};

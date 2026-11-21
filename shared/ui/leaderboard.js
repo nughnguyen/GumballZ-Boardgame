@@ -59,7 +59,7 @@ const CSS = `
 
 function injectCss() {
   ensureSkCSS();
-  import('./badges.js?v=5').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 7 bậc (patch -142) */
+  import('./badges.js?v=6').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 7 bậc (patch -142) */
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);

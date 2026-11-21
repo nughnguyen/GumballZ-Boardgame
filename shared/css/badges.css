@@ -49,10 +49,8 @@
 @keyframes bdg-devblink{0%,49%{opacity:1}50%,100%{opacity:0}}
 @keyframes bdg-devtype{0%,100%{transform:translateY(0)}25%{transform:translateY(-.02em)}50%{transform:translateY(.01em) rotate(-3deg)}75%{transform:translateY(-.01em)}}
 
-/* ===== wrapper medal + nhãn: chip tối + chữ solid (đọc rõ cả 2 theme) ===== */
-.bdg{position:relative;display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:nowrap}
-.bdg .t{font:800 11px/1.5 Nunito,sans-serif;letter-spacing:.14em;color:var(--lc,#fff);background:rgba(26,16,48,.93);border:1px solid rgba(255,255,255,.22);padding:2px 8px;border-radius:999px;white-space:nowrap}
-.bdg.sz-mini .t{font-size:12.5px;padding:3px 10px}
+/* ===== wrapper medal (chỉ huy chương, không chữ — patch -145) ===== */
+.bdg{position:relative;display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap}
 .bdg-own{--lc:#FFD35A}
 .bdg-adm{--lc:#E9B6FF}
 .bdg-staff{--lc:#7DFFCF}
