@@ -2,12 +2,13 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=57'
-import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=91';
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=58'
+import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=91';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js?v=2';
+import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress } from '../js/avatar-rewards.js?v=2';
+import { medalHTML, attachBadgeTilt } from './badges.js?v=5'; /* 🎖️ huân chương 7 bậc (patch -142) */
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
@@ -75,12 +76,15 @@ export function avatarHTML(size = 40, a = avatar()) {
   const faCls = fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : fa ? ` fr-${fa}` : '';
   return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
 }
-/* 🎖️ huy hiệu 4 bậc (patch -95) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
-export const ownerBadge = on => on ? '<span class="bdg bdg-own" title="Người làm ra GumballZ Boardgame"><i>👑</i><span class="t">CHỦ SẢNH</span><b aria-hidden="true">✦</b></span>' : '';
+/* 🎖️ huy hiệu huân chương 7 bậc (patch -142) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
+export const ownerBadge = (on, size = 'xs') => on ? medalHTML('owner', size) : '';
 export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ sảnh: lấp lánh */
-export const adminBadge = on => on ? '<span class="bdg bdg-adm" title="Quản lý Sảnh GumballZ"><i>🛠️</i><span class="t">QUẢN SẢNH</span></span>' : ''; /* 🛠️ Quản sảnh = role 2, không phải chủ sảnh */
-export const modBadge = on => on ? '<span class="bdg bdg-mod" title="Mod – giữ trật tự Sảnh"><i>🛡️</i><span class="t">MOD SẢNH</span></span>' : ''; /* 🛡️ Mod = role 1 */
-export const supporterBadge = on => on ? '<span class="bdg bdg-sup" title="Nhà Tài Trợ của GumballZ"><i>💎</i><span class="t">NHÀ TÀI TRỢ</span><b aria-hidden="true">✦</b></span>' : '';
+export const adminBadge = (on, size = 'xs') => on ? medalHTML('adm', size) : ''; /* 🛠️ Quản sảnh = role 2, không phải chủ sảnh */
+export const modBadge = (on, size = 'xs') => on ? medalHTML('staff', size) : ''; /* 🛡️ Hỗ trợ = role 1 (nhãn đổi từ "MOD SẢNH" theo bản phát thảo -142) */
+export const supporterBadge = (on, size = 'xs') => on ? medalHTML('sup', size) : '';
+export const vipBadge = (on, size = 'xs') => on ? medalHTML('vip', size) : ''; /* 💠 VIP: cờ máy chủ do Quản trị cấp (patch -142) */
+export const devBadge = (on, size = 'xs') => on ? medalHTML('dev', size) : ''; /* 💻 DEV: cờ máy chủ do Quản trị cấp (patch -142) */
+export const newbieBadge = (on, size = 'xs') => on ? medalHTML('newbie', size) : ''; /* 🌱 Người mới: tự động khi cấp 1 (patch -142) */
 /* màu tên đã mở (thuộc tính style) */
 export const nameStyle = n => nameCss(n);
 /* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
@@ -89,7 +93,7 @@ export const nameClass = n => nameAnim(n) ? ' nc-anim' : '';
 export const bannerHTML = b => { const css = bannerCss(b); return css ? `<div class="pf-banner${bannerAnim(b) ? ' bn-anim' : ''}" style="background:${css}"></div>` : ''; };
 /* CSS diện mạo ở shared/css/avatar.css (nạp bằng <link>), gồm cả pill danh hiệu (.pf-tt/.pf-tts) */
 export function profileCss() {
-  import('./badges.js?v=4').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
+  import('./badges.js?v=5').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
   try { l.href = new URL('../css/avatar.css?v=7', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=7'; }
@@ -145,7 +149,7 @@ function picker(a, st, tab, name, sub = 'pre') {
   else if (tab === 'name') body = `<div class="lk-grid">${NAME_COLORS.map(x => { const shopLk = x.shop && !owns(widOf('color', x.id)), chestLk = x.chest && !owns(widOf('color', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('color', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-n="${x.id}"`} aria-pressed="${(a.n || '') === x.id}"><span class="lk-nm${x.anim ? ' nc-anim' : ''}" style="${x.css || ''}">${esc(name)}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
   else if (tab === 'banner') body = `<div class="lk-grid">${BANNERS.map(x => { const shopLk = x.shop && !owns(widOf('banner', x.id)), chestLk = x.chest && !owns(widOf('banner', x.id)), lk = shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : ''; return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-b="${x.id}"`} aria-pressed="${(a.b || '') === x.id}"><span class="lk-bn${x.anim ? ' bn-anim' : ''}" style="background:${x.css || 'transparent'}"></span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
   else if (tab === 'fx') { const cur = ls.get('gumballz-winfx') || 'giay'; body = `<p class="pf-note" style="margin:0 0 8px;text-align:left">Hiện trên màn hình của bạn mỗi khi thắng ván. Chạm để chọn và xem thử.</p><div class="lk-grid">${WIN_FX.map(x => { const lk = x.lock && !isOpen(x.lock, st); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lockDesc(x.lock))}"` : `data-fx="${x.id}"`} aria-pressed="${cur === x.id}"><span style="font-size:28px;line-height:1">${x.icon}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lockDesc(x.lock))}</small>` : ''}</button>`; }).join('')}</div>`; }
-  const hint = tab === 'frame' || tab === 'name' || tab === 'banner' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung, màu tên và banner mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng. Món có ✨ là hạng động kiểu Nitro, chỉ mở ra từ rương với tỉ lệ cực hiếm.</p>' : '';
+  const hint = tab === 'frame' || tab === 'name' || tab === 'banner' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung, màu tên và banner mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Vật phẩm VIP (Khung Ngôi Sao, Màu Hoàng Gia…) chỉ mở bằng chuỗi ngày đứng top BXH — xem tiến độ ở mục 👑 Vật phẩm VIP trong Hồ sơ. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng. Món có ✨ là hạng động kiểu Nitro, chỉ mở ra từ rương với tỉ lệ cực hiếm.</p>' : '';
   return `<div class="lk-tabs" role="tablist">${TABS.map(([id, t]) => `<button type="button" role="tab" data-tab="${id}" aria-pressed="${tab === id || (id === 'ch' && tab === 'emoji')}">${t}</button>`).join('')}</div>${body}${hint}`;
 }
 
@@ -277,14 +281,29 @@ export function openProfile() {
     const achN = Object.keys(s.ach || {}).length, pct = lv.to ? Math.round((lv.xp - lv.from) / (lv.to - lv.from) * 100) : 100;
     const games = recentGames(srvT ? srvT.g : s.g); /* 🕒 3 game mới chơi nhất (patch -100) — trước đây xếp theo số ván chơi nhiều nhất */
     const st = { ...statOf(s, srv || {}), admin: flags.owner /* khoá 'admin' = đồ riêng chủ sảnh */ };
-    const ust = statsFromTotals(t, { created: (srv && srv.created) || 0, rank: (srv && srv.rank) || 0, admin: flags.owner }); /* khoá og/top10 dùng ngày lập tài khoản + hạng BXH thật */
+    /* 🏆 tiến độ vật phẩm VIP (patch -143): P.vipTop theo hồ sơ máy chủ về (loadServer lưu toàn bộ P ở lần đồng bộ), hạng từ srv.rank */
+    const vnToday = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10); /* ngày VN 'YYYY-MM-DD' */
+    const vipTop = loadServer()?.vipTop || null;
+    const vipRows = vipProgress(vipTop, (srv && srv.rank) || 0, vnToday());
+    const ust = statsFromTotals(t, { created: (srv && srv.created) || 0, rank: (srv && srv.rank) || 0, admin: flags.owner, vip: vipTop }); /* khoá og/top10 dùng ngày lập tài khoản + hạng BXH thật; khoá vip1..vip5 dùng chuỗi P.vipTop */
+    /* 🎉 toast 1 lần khi vừa mở khoá món VIP mới (so với danh sách đã thấy trên máy này) */
+    try {
+      const got = Array.isArray(vipTop && vipTop.got) ? vipTop.got : [];
+      const seen = JSON.parse(ls.get('gumballz-vip-seen') || '[]');
+      const fresh = got.filter(id => !seen.includes(id));
+      if (fresh.length) {
+        ls.set('gumballz-vip-seen', JSON.stringify([...new Set([...seen, ...fresh])]));
+        const names = fresh.map(id => (VIP_TIERS.find(x => x.id === id) || {}).name || id).join(', ');
+        import('./dialog.js?v=10').then(m => m.toast('🎉 Mở khoá vật phẩm VIP: ' + names + ' — vào tab Khung/Màu tên để mặc thử!', 4200)).catch(() => {});
+      }
+    } catch (e) {}
     const tts = titlesOf(st), look = { ...a, ...(cleanLook({ ...a, ch: a.ch }, st, undefined, loadWallet().own) || {}) }, cur = pickTitle(tts, ls.get('gumballz-title')), locked = ALL_TITLES.filter(x => !tts.some(y => y.id === x.id) && !(x.id.startsWith('top') && !hasAcc));
     curSt = ust;
     const keepY = ov.querySelector('.pf-box') ? ov.querySelector('.pf-box').scrollTop : 0; /* vẽ lại (chọn danh hiệu, đổi hình…) không nhảy về đầu, không chạy lại hiệu ứng mở – trước đây trông như chớp */
     if (ov.querySelector('.pf-box')) ov.classList.add('pf-shown');
     ov.innerHTML = `<div class="pf-box" role="dialog" aria-modal="true" aria-label="Hồ sơ của bạn"><button class="pf-x" aria-label="Đóng">✕</button>
       ${bannerHTML(look.b)}
-      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter ? `<div>${ownerBadge(flags.owner)}${!flags.owner && flags.role === 2 ? adminBadge(true) : ''}${!flags.owner && flags.role === 1 ? modBadge(true) : ''}${supporterBadge(flags.supporter)}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
+      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter || flags.vip || flags.dev || (lv.lv === 1 && !flags.owner && flags.role === 0) ? `<div class="bdg-row">${ownerBadge(flags.owner, 'mini')}${!flags.owner && flags.role === 2 ? adminBadge(true, 'mini') : ''}${!flags.owner && flags.role === 1 ? modBadge(true, 'mini') : ''}${supporterBadge(flags.supporter, 'mini')}${vipBadge(flags.vip, 'mini')}${devBadge(flags.dev, 'mini')}${newbieBadge(lv.lv === 1 && !flags.owner && flags.role === 0, 'mini')}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
       <div class="pf-acts"><button type="button" class="pf-act-y" data-a="pick">Đổi tên và avatar</button><button type="button" class="pf-act-w" data-a="shop">Đến cửa hàng</button></div>
       ${picking ? picker(a, ust, tab, name, sub) : ''}
       <div class="pf-lv"><b>${lv.to ? `${lv.xp - lv.from} / ${lv.to - lv.from} điểm tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
@@ -292,6 +311,13 @@ export function openProfile() {
       <div class="pf-nums"><div><b>${nt.p}</b><small>Trận đã chơi</small></div><div><b>${nt.w}</b><small>Trận thắng</small></div><div><b>${fmt(w.xu)}</b><small>Xu hiện có</small></div></div>
       <p class="pf-note" style="margin:6px 0 0;text-align:left">${srvT ? `✅ Số máy chủ đã công nhận${verT ? ` (trong đó ${verT.p} ván đã xác minh)` : ''} · trên máy này: ${t.p} ván, ${t.w} thắng.` : 'Số trên máy này – đăng nhập để đồng bộ lên máy chủ.'}</p>
       <button type="button" data-a="rank" style="width:100%;border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:4px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;color:var(--on-accent);background:var(--y1);cursor:pointer;box-shadow:var(--sh-sm)">🏆 Xem Bảng xếp hạng toàn server ▶</button>
+      <h3>👑 Vật phẩm VIP <small>mở bằng top BXH</small></h3>
+      <p class="pf-note" style="margin:6px 0 8px;text-align:left">${hasAcc ? `Hạng hiện tại: ${(srv && srv.rank) ? '#' + srv.rank : 'chưa có — chơi 1 ván để lên BXH'}. Giữ hạng top liên tục mỗi ngày để mở khoá — rớt khỏi top hoặc bỏ 1 ngày không đồng bộ là chuỗi về 0. Đồng bộ chạy tự động mỗi khi mở web / chơi xong 1 ván.` : 'Đăng nhập để mở khoá vật phẩm VIP theo top BXH — càng giữ top lâu, món càng hiếm.'}</p>
+      <div>${vipRows.map(r => {
+        const pct = Math.min(100, Math.round(r.streak / r.days * 100));
+        const status = r.got ? '✅ Đã nhận — vào tab Khung/Màu tên để mặc thử' : r.streak >= r.days ? '✅ Đủ điều kiện — nhận sau lần đồng bộ tới' : `Chuỗi ${r.streak}/${r.days} ngày · còn ${r.left} ngày nữa${r.todayCounts ? ' · đang trong top hôm nay, đồng bộ để +1 ngày' : ''}${!r.inTop && (srv && srv.rank) ? ` · hạng hiện tại #${srv.rank} (cần Top ${r.top})` : ''}`;
+        return `<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;margin-bottom:8px;border:2px solid ${r.got ? '#e0a612' : 'var(--ink)'};border-radius:14px;background:var(--card);box-shadow:var(--sh-sm)"><span style="font-size:26px;line-height:1">${r.icon}</span><div style="flex:1;min-width:0"><b>${esc(r.name)}</b> <small>Top ${r.top} liên tục ${r.days} ngày</small><div class="pf-bar"><i style="width:${r.got ? 100 : pct}%"></i></div><small>${esc(status)}</small></div></div>`;
+      }).join('')}</div>
       <h3>🎖️ Danh hiệu <small>${tts.length} đã đạt</small></h3>
       <div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}</div>
       ${locked.length ? `<details style="margin:8px 0 0"><summary style="cursor:pointer;font-weight:800;color:var(--muted);padding:4px 0">🔒 ${locked.length} danh hiệu chưa đạt — chạm để xem</summary><div class="pf-tts" style="margin-top:6px">${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div></details>` : ''}
@@ -305,13 +331,14 @@ export function openProfile() {
       <p class="pf-note">Mỗi ván +10 điểm, thắng +20 điểm nữa. ${hasAcc ? 'Hồ sơ đã gắn với tài khoản – đăng nhập ở máy khác là thấy lại.' : 'Hồ sơ lưu trên máy này – đổi máy hoặc xoá dữ liệu trình duyệt là mất. Đăng nhập để giữ lại nha.'}</p></div>`;
     if (keepY) ov.querySelector('.pf-box').scrollTop = keepY;
     bindInfo(); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
+    attachBadgeTilt(ov.querySelector('.bdg-row')); /* 🎖️ nghiêng 3D + vệt sáng theo con trỏ ở khu vực huy hiệu (patch -142) */
   };
   ov.addEventListener('click', e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.a === 'pick') { picking = !picking; return draw(); }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
-    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=37').then(m => m.openLeaderboard('all')); return; }
+    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=38').then(m => m.openLeaderboard('all')); return; }
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
     if (b.dataset.shopgo) { close(); location.href = shopURL(); return; } /* khung/màu tên bán bằng xu: sang Cửa hàng mua */
     if (b.dataset.lock) { import('./dialog.js?v=10').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }

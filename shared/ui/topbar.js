@@ -86,7 +86,7 @@
   import('./theme.js?v=1').catch(function () {});
   import('./account.js?v=53').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
-  import('./profile.js?v=57').then(function (m) {
+  import('./profile.js?v=58').then(function (m) {
     m.profileCss();
     var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
     var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
@@ -105,7 +105,7 @@
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=48').then(function (m) { m.openSettings(); }).catch(function () {}); };
   // xếp hạng / Trang chủ: nối cho cả nút trên nav (có sẵn lúc parse) lẫn nút
   // ở tab dưới (chèn sau DOMContentLoaded — xem wireTabbar trong addTab).
-  function openRank() { import('./leaderboard.js?v=37').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
+  function openRank() { import('./leaderboard.js?v=38').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
   function goHomeTop() { scrollTo({ top: 0, behavior: 'smooth' }); }
   function wireRankBtn(b) { b.onclick = openRank; }
   function wireHomeBtn(b) { b.onclick = goHomeTop; }
@@ -114,7 +114,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=57').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=58').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;

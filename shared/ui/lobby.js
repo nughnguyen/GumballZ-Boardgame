@@ -7,7 +7,7 @@ import { openLogin } from './account.js?v=53';
 import { promptBox, chooseBox } from './dialog.js?v=10';
 import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js?v=2'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=5'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {
@@ -191,7 +191,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=37').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=38').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
     if (!roomsReady) return; /* chưa có danh sách phòng từ máy chủ: giữ skeleton */

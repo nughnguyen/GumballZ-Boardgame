@@ -4,7 +4,8 @@ import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
 import { statOf, titlesOf, pickTitle, levelOf, gameXp } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
 import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
-import { isKnownPart, FRAMES, NAME_COLORS, BANNERS } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS; 🎁 khung/màu/banner để cấp tay (patch -127) */
+import { isKnownPart, FRAMES, NAME_COLORS, BANNERS, VIP_WIDS } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS; 🎁 khung/màu/banner để cấp tay (patch -127) */
+import { checkVip } from './vip-unlocks.js'; /* 🏆 chuỗi top BXH mở món VIP (patch -143) */
 
 const te = new TextEncoder();
 const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -178,6 +179,8 @@ export class Users extends DurableObject {
     try { this.sql.exec('ALTER TABLE users ADD COLUMN admin INTEGER DEFAULT 0'); } catch (e) {} // cột quản trị (bản 11/2026)
     try { this.sql.exec('ALTER TABLE users ADD COLUMN role INTEGER DEFAULT 0'); } catch (e) {} // 🎭 phân quyền (patch -93): 0 người chơi, 1 Mod, 2 Quản trị; admin = 1 tương đương role ≥ 1 (giữ song song để tương thích)
     try { this.sql.exec('ALTER TABLE users ADD COLUMN supporter INTEGER DEFAULT 0'); } catch (e) {} // 💎 người ủng hộ đặc biệt (patch -95): 0/1, độc lập với role – chỉ Quản trị cấp tay (vd. sau khi ủng hộ qua VietQR)
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN vip INTEGER DEFAULT 0'); } catch (e) {} // 💠 VIP (patch -142): 0/1, độc lập với role – chỉ Quản trị cấp tay, như supporter
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN dev INTEGER DEFAULT 0'); } catch (e) {} // 💻 DEV (patch -142): 0/1, độc lập với role – chỉ Quản trị cấp tay; mặc định 0 cho mọi người kể cả chủ web
     try { this.sql.exec('ALTER TABLE users ADD COLUMN supamt INTEGER DEFAULT 0'); } catch (e) {} // ☕ tổng tiền đã ủng hộ (patch -102): cộng dồn qua SePay/duyệt tay; supporter = 1 khi supamt ≥ 1 (bậc 1 = bất kỳ số tiền nào)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actorId INTEGER, actorName TEXT, action TEXT, targetId INTEGER, targetName TEXT, detail TEXT)`); // 📜 nhật ký quản trị (patch -93)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)`); // 👑 chủ web hiện tại (patch -94): k='owner', v=id tài khoản chủ web
@@ -191,7 +194,7 @@ export class Users extends DurableObject {
     if (u.role != null && u.role !== '') return Math.max(0, Math.min(2, +u.role || 0));
     return u.admin ? 2 : 0;
   }
-  pub(u) { return u && { id: u.id, username: u.username || null, name: u.name, google: !!u.google, banned: !!u.banned, admin: this.roleOf(u) >= 1, role: this.roleOf(u), owner: this.isOwnerId(u.id) ? 1 : 0, supporter: u.supporter ? 1 : 0 }; } // 👑 owner: 1 khi là chủ web hiện tại (patch -94) · 💎 supporter: 1 khi là người ủng hộ đặc biệt (patch -95)
+  pub(u) { return u && { id: u.id, username: u.username || null, name: u.name, google: !!u.google, banned: !!u.banned, admin: this.roleOf(u) >= 1, role: this.roleOf(u), owner: this.isOwnerId(u.id) ? 1 : 0, supporter: u.supporter ? 1 : 0, vip: u.vip ? 1 : 0, dev: u.dev ? 1 : 0 }; } // 👑 owner: 1 khi là chủ web hiện tại (patch -94) · 💎 supporter: 1 khi là người ủng hộ đặc biệt (patch -95) · 💠 vip / 💻 dev: cờ huy hiệu do Quản trị cấp (patch -142)
   one(q, ...a) { const r = this.sql.exec(q, ...a).toArray(); return r[0] || null; }
   async addSup(uid, amt) { /* ☕ cộng tiền ủng hộ vào tài khoản (patch -102): SePay/duyệt tay gọi; amt âm = trừ (khi xoá khoản nhầm) */
     const u = this.one('SELECT id, name, supamt FROM users WHERE id = ? AND banned = 0', +uid); if (!u) return null;
@@ -309,6 +312,7 @@ export class Users extends DurableObject {
       changed = true;
     }
     if (mergeGranted(P)) changed = true; /* 🎁 vật phẩm cấp tay (patch -127): gộp P.granted vào ví để user nhận được sau khi đồng bộ */
+    { const ranks = await this.ranks(); const v = checkVip(P, ranks.get(me.id) || 0); if (v.changed) changed = true; } /* 🏆 chuỗi top BXH mở món VIP (patch -143): ranks() cache 30s nên không tốn thêm lần quét BXH */
     /* 🧸 Nhân vật: giữ đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên).
        Bản mới hơn thì thắng; cùng thời gian thì bản đủ (có nhân vật) thắng bản thiếu — để tài khoản cũ
        từng mất nhân vật tự lành khi máy chính đồng bộ lại. Bản thiếu {e:'ch'} không có nhân vật thì
@@ -396,6 +400,7 @@ export class Users extends DurableObject {
     const base = P.wal && typeof P.wal === 'object' ? P.wal : { xu: 0, inv: {}, own: [], eq: {}, dbl: 0, chest: 0, at: 0 };
     P.wal = { ...base, xu: Math.min(10000000, num(base.xu) + next.xu), at: Math.max(Date.now(), num(base.at, 4e12) + 1) };
     mergeGranted(P); /* 🎁 vật phẩm cấp tay (patch -127): gộp P.granted vào ví điểm danh để user nhận món luôn */
+    checkVip(P, (await this.ranks()).get(me.id) || 0); /* 🏆 chuỗi top BXH mở món VIP (patch -143) */
     this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(P), me.id);
     return { ok: true, day: next.day, streak: next.streak, total: P.dl.total, xu: next.xu, wal: P.wal };
   }
@@ -492,12 +497,12 @@ export class Users extends DurableObject {
   async adminFind(q, opt = {}) {
     const fold = x => String(x == null ? '' : x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
     if (!this.admIdx || Date.now() - this.admIdx.at > 20e3 || opt.fresh) {
-      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, role, supporter, prof, mute FROM users').toArray(), list = [];
+      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, role, supporter, vip, dev, prof, mute FROM users').toArray(), list = [];
       for (const r of rows) {
         let P = null; try { P = JSON.parse(r.prof || 'null'); } catch (e) {}
         const st = statOf(P), lv = levelOf(st.p, st.w, st.xp); let last = 0; if (P && P.g) for (const v of Object.values(P.g)) last = Math.max(last, +(v && v.last) || 0);
         let mu = { c: 0, v: 0 }; try { const m = JSON.parse(r.mute || 'null'); if (m && typeof m === 'object') { mu.c = +m.c || 0; mu.v = +m.v || 0; } } catch (e) {}
-        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: (r.role != null ? +r.role : (r.admin ? 2 : 0)) >= 1, role: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), supporter: !!r.supporter, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
+        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: (r.role != null ? +r.role : (r.admin ? 2 : 0)) >= 1, role: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), supporter: !!r.supporter, vip: !!r.vip, dev: !!r.dev, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
           av: P && P.av && typeof P.av.e === 'string' ? String(P.av.e).slice(0, 8) : '', _u: fold(r.username), _n: fold(r.name) });
       }
       this.admIdx = { at: Date.now(), list };
@@ -530,6 +535,10 @@ export class Users extends DurableObject {
     if ('password' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới đặt lại mật khẩu' };
     if ('supporter' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi danh hiệu Ủng hộ' }; // 💎 danh hiệu Ủng hộ đặc biệt (patch -95): chỉ role 2
     if ('supporter' in patch && patch.supporter && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💎 không cấp danh hiệu cho tài khoản bị khoá (thu hồi thì vẫn được)
+    if ('vip' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi huy hiệu VIP' }; // 💠 huy hiệu VIP (patch -142): chỉ role 2
+    if ('vip' in patch && patch.vip && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💠 không cấp VIP cho tài khoản bị khoá (thu hồi thì vẫn được)
+    if ('dev' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi huy hiệu DEV' }; // 💻 huy hiệu DEV (patch -142): chỉ role 2
+    if ('dev' in patch && patch.dev && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💻 không cấp DEV cho tài khoản bị khoá (thu hồi thì vẫn được)
     // 🎁 cấp vật phẩm thủ công (patch -127): chỉ Quản trị (role 2); không cấp cho tài khoản bị khoá; tự cấp cho mình thì được (ghi rõ trong audit); kiểm tra wid + trùng trước khi sửa gì
     let grantWid = null, grantName = null, grantP = null;
     if ('grant' in patch) {
@@ -538,6 +547,7 @@ export class Users extends DurableObject {
       grantWid = typeof patch.grant === 'string' ? patch.grant.trim() : '';
       if (!GRANT_ITEMS.has(grantWid)) return { ok: false, msg: 'Không có vật phẩm này' };
       if (GRANT_OWNER_ONLY.has(grantWid)) return { ok: false, msg: 'Không cấp được món riêng của Chủ web' };
+      if (VIP_WIDS.has(grantWid)) return { ok: false, msg: 'Món VIP chỉ mở bằng thành tích BXH, không cấp tay được' }; /* 🏆 món VIP (patch -143): chỉ mở bằng chuỗi top, cấp tay sẽ phá thang độ khó — rào ở server, dropdown chỉ là lớp ngoài */
       grantP = null; try { grantP = JSON.parse(target.prof || 'null'); } catch (e) {}
       grantP = grantP && typeof grantP === 'object' ? grantP : {};
       const g0 = Array.isArray(grantP.granted) ? grantP.granted : [];
@@ -563,6 +573,8 @@ export class Users extends DurableObject {
     if ('banned' in patch) { this.sql.exec('UPDATE users SET banned = ? WHERE id = ?', patch.banned ? 1 : 0, uid); if (patch.banned) this.sql.exec('DELETE FROM sessions WHERE uid = ?', uid); }
     if (patch.password) { const salt = rand(16); this.sql.exec('UPDATE users SET pw = ?, salt = ? WHERE id = ? AND username IS NOT NULL', await hashPw(String(patch.password), salt), salt, uid); }
     if ('supporter' in patch) { this.sql.exec('UPDATE users SET supporter = ? WHERE id = ?', patch.supporter ? 1 : 0, uid); if (this.lbCache) this.lbCache.clear(); } // 💎 cấp/thu hồi danh hiệu Ủng hộ (patch -95) – xoá bảng xếp hạng đã nhớ để huy hiệu đổi ngay
+    if ('vip' in patch) { this.sql.exec('UPDATE users SET vip = ? WHERE id = ?', patch.vip ? 1 : 0, uid); if (this.lbCache) this.lbCache.clear(); } // 💠 cấp/thu hồi huy hiệu VIP (patch -142)
+    if ('dev' in patch) { this.sql.exec('UPDATE users SET dev = ? WHERE id = ?', patch.dev ? 1 : 0, uid); if (this.lbCache) this.lbCache.clear(); } // 💻 cấp/thu hồi huy hiệu DEV (patch -142)
     if (grantWid) { // 🎁 lưu món cấp vào P.granted (chỉ thêm không bớt); mergeGranted() gộp vào ví ở lần đồng bộ sau (patch -127)
       const granted = Array.isArray(grantP.granted) ? grantP.granted.filter(x => typeof x === 'string') : [];
       if (!granted.includes(grantWid)) granted.push(grantWid);
@@ -586,6 +598,8 @@ export class Users extends DurableObject {
     if ('banned' in patch) await this.auditLog(actor, patch.banned ? 'ban-account' : 'unban-account', uid, tName, patch.banned ? 'khoá tài khoản' : 'mở khoá tài khoản');
     if (patch.password) await this.auditLog(actor, 'reset-password', uid, tName, 'đặt lại mật khẩu');
     if ('supporter' in patch) await this.auditLog(actor, 'supporter', uid, tName, patch.supporter ? 'cấp danh hiệu Ủng hộ đặc biệt' : 'thu hồi danh hiệu Ủng hộ đặc biệt');
+    if ('vip' in patch) await this.auditLog(actor, 'vip', uid, tName, patch.vip ? 'cấp huy hiệu VIP' : 'thu hồi huy hiệu VIP');
+    if ('dev' in patch) await this.auditLog(actor, 'dev', uid, tName, patch.dev ? 'cấp huy hiệu DEV' : 'thu hồi huy hiệu DEV');
     if ('mute' in patch && patch.mute && typeof patch.mute === 'object') {
       const h = +patch.mute.c || 0;
       await this.auditLog(actor, h ? 'mute' : 'unmute', uid, tName, h ? `cấm chat ${h} giờ` : 'gỡ cấm chat');
@@ -637,7 +651,7 @@ export class Users extends DurableObject {
     const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Đăng nhập để dùng bạn bè' };
     const id = me.id;
     const acc = this.sql.exec(
-      `SELECT u.id, u.name, u.username, u.role, u.admin, u.supporter, f.ts FROM friends f JOIN users u ON u.id = (CASE WHEN f.a = ? THEN f.b ELSE f.a END) WHERE (f.a = ? OR f.b = ?) AND f.status = 'acc' AND u.banned = 0`,
+      `SELECT u.id, u.name, u.username, u.role, u.admin, u.supporter, u.vip, u.dev, f.ts FROM friends f JOIN users u ON u.id = (CASE WHEN f.a = ? THEN f.b ELSE f.a END) WHERE (f.a = ? OR f.b = ?) AND f.status = 'acc' AND u.banned = 0`,
       id, id, id
     ).toArray();
     let totalUnread = 0;
@@ -646,7 +660,7 @@ export class Users extends DurableObject {
       totalUnread += unread;
       const last = this.one('SELECT msg, ts, fromId FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) ORDER BY id DESC LIMIT 1', u.id, id, id, u.id);
       const rl = u.role != null ? Math.max(0, Math.min(2, +u.role || 0)) : (u.admin ? 2 : 0);
-      return { id: u.id, name: u.name, username: u.username || null, unread, last: last ? { msg: last.msg, ts: last.ts, mine: last.fromId === id } : null, since: u.ts, role: rl, owner: this.isOwnerId(u.id) ? 1 : 0, supporter: u.supporter ? 1 : 0 }; // 🎖️ huy hiệu bạn bè (patch -95)
+      return { id: u.id, name: u.name, username: u.username || null, unread, last: last ? { msg: last.msg, ts: last.ts, mine: last.fromId === id } : null, since: u.ts, role: rl, owner: this.isOwnerId(u.id) ? 1 : 0, supporter: u.supporter ? 1 : 0, vip: u.vip ? 1 : 0, dev: u.dev ? 1 : 0 }; // 🎖️ huy hiệu bạn bè (patch -95; VIP/DEV thêm ở -142)
     });
     /* 👑 cuộc trò chuyện có chủ web mà chưa kết bạn: vẫn hiện trong danh sách để đọc / trả lời */
     const frIds = new Set(friends.map(f => f.id)), ownerMe = this.isOwnerId(id), oid = this.ownerId(), ownerOn = this.isOwnerId(oid);
@@ -656,7 +670,7 @@ export class Users extends DurableObject {
         : (this.one('SELECT id FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) LIMIT 1', id, oid, oid, id) ? [oid] : []);
       for (const o of rows) {
         if (frIds.has(o) || o === id) continue;
-        const u = this.one('SELECT id, name, username, role, admin, supporter, banned FROM users WHERE id = ?', o); if (!u || u.banned) continue;
+        const u = this.one('SELECT id, name, username, role, admin, supporter, vip, dev, banned FROM users WHERE id = ?', o); if (!u || u.banned) continue;
         const unread = this.one('SELECT COUNT(*) AS n FROM dms WHERE fromId = ? AND toId = ? AND seen = 0', u.id, id).n; totalUnread += unread;
         const last = this.one('SELECT msg, ts, fromId FROM dms WHERE (fromId = ? AND toId = ?) OR (fromId = ? AND toId = ?) ORDER BY id DESC LIMIT 1', u.id, id, id, u.id);
         const rl = u.role != null ? Math.max(0, Math.min(2, +u.role || 0)) : (u.admin ? 2 : 0);
@@ -793,7 +807,7 @@ export class Users extends DurableObject {
     const meUser = token ? await this.whoami(token) : null;
     const ck = game + '|' + by, hit = this.lbCache && this.lbCache.get(ck); /* giữ 30 giây: khỏi quét + đọc JSON cả bảng users ở mỗi lượt xem */
     if (hit && Date.now() - hit.at < 30e3) return { ok: true, game, by, total: hit.entries.length, list: hit.entries.slice(0, 50), me: meUser ? (hit.entries.find(e => e.id === meUser.id) || null) : null };
-    const rows = this.sql.exec('SELECT id, username, name, prof, created, admin, role, supporter FROM users WHERE banned = 0 AND prof IS NOT NULL').toArray();
+    const rows = this.sql.exec('SELECT id, username, name, prof, created, admin, role, supporter, vip, dev FROM users WHERE banned = 0 AND prof IS NOT NULL').toArray();
     const ranks = game === 'all' && by === 'xp' ? null : await this.ranks(); /* thứ hạng chung (để tính danh hiệu Top 1/3/10) */
     const entries = [];
     for (const r of rows) {
@@ -814,7 +828,7 @@ export class Users extends DurableObject {
       const rate = p > 0 ? Math.round((w / p) * 100) : 0;
       const av = cleanAvatar(pf.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) để bảng xếp hạng hiện đúng nhân vật */
       const safeName = clean(String(r.name || 'Người chơi')).text || 'Người chơi';
-      entries.push({ id: r.id, username: r.username || null, name: safeName, p, w, xp, lv, best, rate, av, _pf: pf, _c: r.created, _a: r.admin ? 1 : 0, _r: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), _s: r.supporter ? 1 : 0 });
+      entries.push({ id: r.id, username: r.username || null, name: safeName, p, w, xp, lv, best, rate, av, _pf: pf, _c: r.created, _a: r.admin ? 1 : 0, _r: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), _s: r.supporter ? 1 : 0, _v: r.vip ? 1 : 0, _d: r.dev ? 1 : 0 });
     }
     entries.sort((a, b) => {
       if (by === 'streak') return b.best - a.best || b.w - a.w || b.xp - a.xp;
@@ -823,7 +837,7 @@ export class Users extends DurableObject {
     });
     entries.forEach((e, i) => { e.rank = i + 1; });
     if (!ranks) { this.rankMap = new Map(entries.map(e => [e.id, e.rank])); this.rankAt = Date.now(); this.rankTotal = entries.length; }
-    for (const e of entries) { const t = pickTitle(titlesOf(statOf(e._pf, { created: e._c, rank: (ranks || this.rankMap).get(e.id) || 0 })), e._pf.title); e.title = t ? { id: t.id, icon: t.icon, name: t.name } : null; if (e._a && e.id === this.ownerId()) e.owner = true; else if (e._r === 2) e.admin = true; else if (e._r === 1) e.mod = true; if (e._s) e.supporter = true; delete e._a; delete e._r; delete e._s; delete e._pf; delete e._c; }
+    for (const e of entries) { const t = pickTitle(titlesOf(statOf(e._pf, { created: e._c, rank: (ranks || this.rankMap).get(e.id) || 0 })), e._pf.title); e.title = t ? { id: t.id, icon: t.icon, name: t.name } : null; if (e._a && e.id === this.ownerId()) e.owner = true; else if (e._r === 2) e.admin = true; else if (e._r === 1) e.mod = true; if (e._s) e.supporter = true; if (e._v) e.vip = true; if (e._d) e.dev = true; delete e._a; delete e._r; delete e._s; delete e._v; delete e._d; delete e._pf; delete e._c; }
     if (!this.lbCache) this.lbCache = new Map(); if (this.lbCache.size > 80) this.lbCache.clear(); this.lbCache.set(ck, { at: Date.now(), entries });
     const me = meUser ? (entries.find(e => e.id === meUser.id) || null) : null;
     return { ok: true, game, by, total: entries.length, list: entries.slice(0, 50), me };
@@ -855,7 +869,7 @@ export class Users extends DurableObject {
   // KHÔNG có email, mật khẩu hay thứ gì riêng tư. Tài khoản bị khoá thì coi như không có.
   async publicProfile(key) {
     const k = String(key == null ? '' : key).trim().toLowerCase().slice(0, 24);
-    const u = /^\d+$/.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter FROM users WHERE id = ?', +k) : USER.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter FROM users WHERE username = ?', k) : null;
+    const u = /^\d+$/.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter, vip, dev FROM users WHERE id = ?', +k) : USER.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter, vip, dev FROM users WHERE username = ?', k) : null;
     if (!u || u.banned) return { ok: false, msg: 'Không tìm thấy thành viên này' };
     let P = null; try { P = JSON.parse(u.prof || 'null'); } catch (e) {}
     P = P && typeof P === 'object' ? P : {};
@@ -867,7 +881,7 @@ export class Users extends DurableObject {
     const _own = !!u.admin && u.id === this.ownerId();
     return { ok: true, user: { id: u.id, username: u.username || null, name: clean(String(u.name || 'Người chơi')).text || 'Người chơi', created: u.created, av,
       lv: lv.lv, lvName: lv.name, xp: lv.xp, p: st.p, w: st.w, rate: st.p ? Math.round(st.w / st.p * 100) : 0, best: st.best, days: st.days, kinds: st.kinds, rank, total: this.rankTotal || 0,
-      ...(_own ? { owner: true } : _r === 2 ? { admin: true } : _r === 1 ? { mod: true } : {}), ...(u.supporter ? { supporter: true } : {}),
+      ...(_own ? { owner: true } : _r === 2 ? { admin: true } : _r === 1 ? { mod: true } : {}), ...(u.supporter ? { supporter: true } : {}), ...(u.vip ? { vip: true } : {}), ...(u.dev ? { dev: true } : {}),
       games, ach: [...new Set([...Object.keys(P.ach && typeof P.ach === 'object' ? P.ach : {}), ...Object.keys(P.v && P.v.ach && typeof P.v.ach === 'object' ? P.v.ach : {})])].filter(x => /^[a-z0-9_-]{1,30}$/i.test(x)).slice(0, 120), titles, title: t } }; /* thành tích hiện = mốc cũ + máy chủ tự xét */
   }
 }

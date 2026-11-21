@@ -10,6 +10,41 @@ import { cleanChar, OPTIONS } from './avatar-opts.js';
           days: số ngày khác nhau đã chơi, night: 1 nếu từng chơi xong ván lúc nửa đêm,
           rank: hạng trên bảng xếp hạng (0 = chưa biết), created: thời điểm tạo tài khoản (ms, 0 = chưa biết),
           admin: true nếu là tài khoản quản trị } */
+/* ---------- vật phẩm VIP: mở bằng chuỗi ngày đứng top BXH (patch -143) ----------
+   Thang 5 bậc, độ khó tăng dần ở CẢ 2 chiều (bậc sau đòi hạng cao hơn VÀ giữ lâu hơn bậc trước —
+   user chọn thang này 2026-11-22 00:17, thay thang zic-zac cũ):
+   vip1 Top 10 · 7 ngày, vip2 Top 5 · 10 ngày, vip3 Top 3 · 14 ngày, vip4 Top 2 · 21 ngày, vip5 Top 1 · 30 ngày.
+   "Liên tục" = mỗi ngày đều nằm trong top đó, tính theo lần đồng bộ (xem server/src/vip-unlocks.js):
+   ngày nào không đồng bộ thì không đếm được → chuỗi về 0. Món VIP chỉ mở bằng thang này,
+   KHÔNG cấp tay được (máy chủ chặn ở nhánh grant). id món chỉ dùng chữ thường (không số) để
+   khớp regex ví `^(frame|color|back|banner):[a-z]{2,14}$` ở server/src/users.js. */
+export const VIP_TIERS = [
+  { id: 'vip1', top: 10, days: 7, kind: 'frame', item: 'vipsao', name: 'Khung Ngôi Sao', icon: '⭐' },
+  { id: 'vip2', top: 5, days: 10, kind: 'color', item: 'viphoang', name: 'Màu Hoàng Gia', icon: '💜' },
+  { id: 'vip3', top: 3, days: 14, kind: 'frame', item: 'vipvuong', name: 'Khung Vương Giả', icon: '👑' },
+  { id: 'vip4', top: 2, days: 21, kind: 'color', item: 'vipquang', name: 'Màu Cực Quang', icon: '🌌' },
+  { id: 'vip5', top: 1, days: 30, kind: 'frame', item: 'viphuyen', name: 'Khung Huyền Thoại', icon: '🏆' },
+];
+export const VIP_WID = t => (t.kind === 'frame' ? 'frame:' : 'color:') + t.item;
+export const VIP_WIDS = new Set(VIP_TIERS.map(VIP_WID));
+/* P.vipTop (máy chủ lưu trong hồ sơ): { s: { vip1: { n, last }, ... }, got: ['vip1', ...] } — n = số ngày
+   liên tục đã đếm, last = ngày VN cuối cùng đã đếm ('YYYY-MM-DD'), got = bậc đã nhận món. */
+export const vipStreakOf = (vip, id) => { const s = vip && vip.s && vip.s[id]; return s && typeof s === 'object' ? Math.max(0, Math.floor(+s.n || 0)) : 0; };
+export const vipGot = (vip, id) => !!(vip && Array.isArray(vip.got) && vip.got.includes(id));
+/* tiến độ từng bậc cho Hồ sơ: { id, top, days, name, wid, icon, streak, left, got, inTop, todayCounts }
+   left = còn bao nhiêu ngày nữa (đã tính cả hôm nay nếu hôm nay đang trong top mà chưa đồng bộ);
+   todayCounts = hôm nay mà đồng bộ thì chuỗi +1. today = ngày VN 'YYYY-MM-DD' ('' = không biết hôm nay). */
+export function vipProgress(vip, rank, today = '') {
+  const r = Math.max(0, Math.floor(+rank || 0));
+  const t = typeof today === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(today) ? today : '';
+  return VIP_TIERS.map(x => {
+    const streak = vipStreakOf(vip, x.id), got = vipGot(vip, x.id);
+    const inTop = r >= 1 && r <= x.top;
+    const last = vip && vip.s && vip.s[x.id] && typeof vip.s[x.id].last === 'string' ? vip.s[x.id].last : '';
+    const todayCounts = !got && inTop && !!t && last !== t;
+    return { ...x, wid: VIP_WID(x), streak, left: got ? 0 : Math.max(0, x.days - streak - (todayCounts ? 1 : 0)), got, inTop, todayCounts };
+  });
+}
 export const UNLOCK = {
   p10: { desc: 'Chơi 10 ván', ok: s => s.p >= 10 }, p50: { desc: 'Chơi 50 ván', ok: s => s.p >= 50 }, p200: { desc: 'Chơi 200 ván', ok: s => s.p >= 200 },
   w10: { desc: 'Thắng 10 ván', ok: s => s.w >= 10 }, w50: { desc: 'Thắng 50 ván', ok: s => s.w >= 50 }, w200: { desc: 'Thắng 200 ván', ok: s => s.w >= 200 },
@@ -18,6 +53,13 @@ export const UNLOCK = {
   d7: { desc: 'Chơi vào 7 ngày khác nhau', ok: s => s.days >= 7 }, d30: { desc: 'Chơi vào 30 ngày khác nhau', ok: s => s.days >= 30 },
   night: { desc: 'Chơi xong một ván lúc nửa đêm', ok: s => !!s.night },
   top10: { desc: 'Lọt top 10 bảng xếp hạng (cần đăng nhập)', ok: s => s.rank >= 1 && s.rank <= 10 },
+  /* 🏆 vật phẩm VIP (patch -143): mở bằng chuỗi ngày đứng top BXH — máy chủ là chuẩn (P.vipTop),
+     st.vip lấy từ hồ sơ máy chủ qua extra.vip (xem statsFromTotals); không có dữ liệu vip thì chưa mở. */
+  vip1: { desc: 'Top 10 liên tục 7 ngày', ok: s => vipStreakOf(s.vip, 'vip1') >= 7 },
+  vip2: { desc: 'Top 5 liên tục 10 ngày', ok: s => vipStreakOf(s.vip, 'vip2') >= 10 },
+  vip3: { desc: 'Top 3 liên tục 14 ngày', ok: s => vipStreakOf(s.vip, 'vip3') >= 14 },
+  vip4: { desc: 'Top 2 liên tục 21 ngày', ok: s => vipStreakOf(s.vip, 'vip4') >= 21 },
+  vip5: { desc: 'Top 1 liên tục 30 ngày', ok: s => vipStreakOf(s.vip, 'vip5') >= 30 },
   og: { desc: 'Lập tài khoản trong năm 2026', ok: s => s.created > 0 && s.created < Date.UTC(2027, 0, 1) },
   admin: { desc: 'Chỉ dành cho chủ sảnh', ok: s => !!s.admin }, /* đồ hầu gái / Giáng sinh riêng chỉ tài khoản chủ web dùng */
 };
@@ -39,6 +81,7 @@ export function statsFromTotals(t = {}, extra = {}) {
     p: +t.p || 0, w: +t.w || 0, best: +t.best || 0, kinds: +t.kinds || 0,
     days: +t.days || 0, night: !!t.night, rank: +extra.rank || 0,
     created: +extra.created || 0, admin: !!extra.admin,
+    vip: extra.vip && typeof extra.vip === 'object' ? extra.vip : null, /* 🏆 tiến độ VIP (P.vipTop) để xét khoá vip1..vip5 */
   };
 }
 export function statsFromLoad(s = {}, extra = {}) {
@@ -51,7 +94,7 @@ export function statsFromLoad(s = {}, extra = {}) {
 }
 /* cờ admin/chủ sảnh/nhà tài trợ của tài khoản đang đăng nhập trên máy này (đọc 'gumballz-auth', giống profile.js cũ) */
 export function readAuthFlags() {
-  try { const u = JSON.parse(localStorage.getItem('gumballz-auth') || 'null'); const me = u && u.user; return { admin: !!(me && me.admin), owner: isOwner(me), supporter: !!(me && me.supporter), role: me ? (me.role != null ? +me.role : (me.admin ? 2 : 0)) : 0, id: me ? +me.id || 0 : 0, created: (me && +me.created) || 0 }; } catch (e) { return { admin: false, owner: false, supporter: false, role: 0, id: 0, created: 0 }; }
+  try { const u = JSON.parse(localStorage.getItem('gumballz-auth') || 'null'); const me = u && u.user; return { admin: !!(me && me.admin), owner: isOwner(me), supporter: !!(me && me.supporter), vip: !!(me && me.vip), dev: !!(me && me.dev), role: me ? (me.role != null ? +me.role : (me.admin ? 2 : 0)) : 0, id: me ? +me.id || 0 : 0, created: (me && +me.created) || 0 }; } catch (e) { return { admin: false, owner: false, supporter: false, vip: false, dev: false, role: 0, id: 0, created: 0 }; }
 }
 
 /* khung avatar – vòng màu vẽ ở FRAME_RING (kích thước tổng vẫn = size, xem shared/css/avatar.css) */
@@ -92,6 +135,11 @@ export const FRAMES = [
   { id: 'vuongmien', name: 'Khung Vương Miện', chest: true, anim: 'spin' },
   { id: 'longphung', name: 'Khung Rồng Bay Phụng Múa', chest: true, anim: 'orbit' },
   { id: 'vuatrichoi', name: 'Khung Vua Trò Chơi', chest: true, anim: 'spin' },
+  /* 🏆 thêm 2026-11-22 (patch -143): khung VIP — chỉ mở bằng chuỗi ngày đứng top BXH (lock vip1/vip3/vip5),
+     KHÔNG bán bằng xu, KHÔNG mở ra từ rương, KHÔNG cấp tay được (máy chủ chặn ở nhánh grant). */
+  { id: 'vipsao', name: 'Khung Ngôi Sao', lock: 'vip1' },
+  { id: 'vipvuong', name: 'Khung Vương Giả', lock: 'vip3' },
+  { id: 'viphuyen', name: 'Khung Huyền Thoại', lock: 'vip5', anim: 'spin' },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -105,6 +153,10 @@ export const FRAME_RING = {
   cauvongxoay: 'conic-gradient(#ff4d6a,#ffb23d,#ffe066,#2fc76f,#3d8bff,#8a5cff,#ff4d6a)', luachay: 'conic-gradient(#ff3d3d,#ff9a1f,#ffd23d,#ff6a1f,#ff3d3d)', vangxoay: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)',
   /* ✨ -123: vàng kim + đỏ hoàng gia (vương miện), đỏ + vàng + teal (rồng/phụng), vàng + đỏ hoàng gia (vua trò chơi) */
   vuongmien: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#d4202f,#ffd84a,#fff2b3)', longphung: 'conic-gradient(#ff3d3d,#ffb23d,#ffd84a,#2ec5b6,#ff5fa2,#ff3d3d)', vuatrichoi: 'conic-gradient(#ffd84a,#d4202f,#b8780a,#ff9a3d,#ffd84a,#d4202f,#ffd84a)',
+  /* 🏆 -143: vàng sao (ngôi sao top 10), tím + vàng hoàng gia (vương giả top 10 · 14 ngày), đa sắc huyền thoại (top 1 · 30 ngày) */
+  vipsao: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 70% 65%,#fff 0 1.2px,transparent 1.8px),conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)',
+  vipvuong: 'conic-gradient(#b06bff,#ffd84a,#6a35e0,#e0a612,#b06bff,#ffd84a,#6a35e0)',
+  viphuyen: 'conic-gradient(#ffd84a,#ff3d5a,#b06bff,#3d8bff,#2ec5b6,#ffd84a,#fff2b3,#ffd84a)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [
@@ -139,6 +191,10 @@ export const NAME_COLORS = [
   { id: 'cauvongchay', name: 'Cầu Vồng Chạy', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#d4202f,#d97706,#16834a,#1f5fd6,#7c3aed,#d4202f);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
   { id: 'vanglaplanh', name: 'Vàng Lấp Lánh', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#b8780a,#ffd84a,#fff2b3,#e0a612,#b8780a);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
   { id: 'timxanhchay', name: 'Tím Xanh Chạy', chest: true, anim: 1, css: 'background:linear-gradient(90deg,#6a35e0,#3d8bff,#2ec5b6,#b06bff,#6a35e0);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
+  /* 🏆 thêm 2026-11-22 (patch -143): màu tên VIP — chỉ mở bằng chuỗi ngày đứng top BXH (lock vip2/vip4),
+     KHÔNG bán bằng xu, KHÔNG mở ra từ rương, KHÔNG cấp tay được (máy chủ chặn ở nhánh grant). */
+  { id: 'viphoang', name: 'Màu Hoàng Gia', lock: 'vip2', css: 'background:linear-gradient(90deg,#6a35e0,#b06bff,#ffd84a);-webkit-background-clip:text;background-clip:text;color:transparent' },
+  { id: 'vipquang', name: 'Màu Cực Quang', lock: 'vip4', anim: 1, css: 'background:linear-gradient(90deg,#2ec5b6,#3d8bff,#b06bff,#ff5fa2,#2ec5b6);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
 ];
 
 /* 🎏 banner hồ sơ kiểu Nitro: dải màu trên đầu hộp Hồ sơ (trường b trong nhân vật).

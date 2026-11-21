@@ -1,41 +1,67 @@
-/* 🎖️ Huy hiệu + danh hiệu 4 bậc (patch -95): Chủ web / Quản trị / Mod / Ủng hộ đặc biệt.
-   Dùng chung cho mọi nơi hiện huy hiệu: chat Sảnh + chat thế giới + chat phòng, bảng xếp hạng,
-   hộp Hồ sơ, danh sách bạn bè, trang Quản trị. Class: .bdg + .bdg-own/.bdg-adm/.bdg-mod/.bdg-sup.
-   Mỗi pill = icon + nhãn (CHỦ SẢNH / QUẢN SẢNH / MOD SẢNH / NHÀ TÀI TRỢ). Thuần CSS keyframes, không vòng lặp JS.
-   Tôn trọng prefers-reduced-motion: tắt hết hiệu ứng khi người dùng bật giảm chuyển động.
-   HTML pill do shared/ui/badges.js (tierBadges) sinh – đừng tự viết lại markup ở từng nơi. */
-.bdg{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:999px;font:800 11px/1.7 Nunito,sans-serif;letter-spacing:.3px;white-space:nowrap;vertical-align:middle}
-.bdg i{font-style:normal;display:inline-block}
-.bdg b{position:absolute;right:3px;top:-1px;font-size:9px;pointer-events:none}
-.bdg .t{white-space:nowrap}
-/* 👑 Chủ sảnh: vàng kim lấp lánh trên nền mực + vàng đậm, vương miện lắc, tia sáng quét, sao nhấp nháy, viền phát sáng */
-.bdg-own{background:linear-gradient(135deg,#241A38,#B8860B 45%,#FACD33);color:#FFE9A8;box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 14px -3px #ff9a3dcc;text-shadow:0 1px 0 #00000066;animation:bdg-glow-gold 2.6s ease-in-out infinite}
-.bdg-own i{transform-origin:50% 90%;animation:bdg-bounce 2.8s ease-in-out infinite}
-.bdg-own .t{background:linear-gradient(90deg,#FFE9A8,#fff2b3,#ff9a3d,#FFE9A8);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bdg-shimmer 3s linear infinite}
-.bdg-own b{color:#fff6c2;animation:bdg-twinkle 1.9s ease-in-out infinite}
-.bdg-own::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 3s ease-in-out infinite}
-/* 🛠️ Quản sảnh: đỏ → lavender, phát sáng nhẹ nhàng */
-.bdg-adm{background:linear-gradient(135deg,#FF5A60,#B9A6FF);color:#fff;box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #B9A6FFcc;text-shadow:0 1px 0 #00000033;animation:bdg-glow-violet 2.2s ease-in-out infinite}
-.bdg-adm i{animation:bdg-bounce 3.2s ease-in-out infinite}
-/* 🛡️ Mod sảnh: xanh ngọc → teal đậm, tia sáng quét nhẹ */
-.bdg-mod{background:linear-gradient(135deg,#2EC5B6,#0E7C72);color:#fff;box-shadow:inset 0 0 0 1.5px #bfefff,0 2px 10px -3px #2ec5b6cc;text-shadow:0 1px 0 #00000033}
-.bdg-mod::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 4s ease-in-out infinite}
-/* 💎 Nhà Tài Trợ: đỏ → vàng → vàng nhạt, sao nhấp nháy */
-.bdg-sup{background:linear-gradient(135deg,#FF5A60,#FACD33 55%,#FFE9A8);color:var(--on-accent);box-shadow:inset 0 0 0 1px #FF5A60,0 2px 8px -3px #ff9a3d88}
-.bdg-sup i{animation:bdg-twinkle 2.4s ease-in-out infinite}
-.bdg-sup b{color:#ff9a3d;animation:bdg-twinkle 2.7s ease-in-out infinite}
-.bdg-sup::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 3.6s ease-in-out infinite}
-@keyframes bdg-bounce{0%,60%,100%{transform:rotate(0) translateY(0)}70%{transform:rotate(-12deg) translateY(-2px)}82%{transform:rotate(9deg) translateY(-1px)}92%{transform:rotate(0) translateY(0)}}
-@keyframes bdg-sweep{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
-@keyframes bdg-twinkle{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
-@keyframes bdg-shimmer{to{background-position:200% 0}}
-@keyframes bdg-glow-gold{0%,100%{box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 14px -3px #ff9a3dcc}50%{box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 20px -1px #ff9a3dee}}
-@keyframes bdg-glow-violet{0%,100%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #B9A6FFcc}50%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 16px -1px #B9A6FFee}}
-/* 🎬 Huy hiệu Rive (patch -109): canvas hiệu ứng đè lên pill, chữ + icon HTML ở trên
-   (canvas absolute nên icon/nhãn/sao cần position + z-index để không bị canvas che);
-   pill đã mount Rive thì tắt vệt quét ::after của CSS (Rive vẽ vệt của riêng nó). */
-.bdg-riv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.bdg i,.bdg .t{position:relative;z-index:1}
-.bdg b{z-index:1}
-.bdg.has-riv::after{display:none}
-@media (prefers-reduced-motion:reduce){.bdg,.bdg i,.bdg b,.bdg .t,.bdg::after{animation:none}.bdg::after{display:none}.bdg-riv{display:none}}
+/* 🎖️ Huy hiệu huân chương 7 bậc (patch -142): thay pill bo tròn (-95) bằng medal theo bản phát thảo
+   "Huy hiệu Huyền Thoại" của user (~/workspace/user/files/Huy_hi_u_Huy_n_Tho_i.html).
+   Mỗi bậc 1 hình dáng riêng, nền tối có cực quang trôi — dùng được cả theme sáng lẫn tối vì medal
+   tự mang nền tối của nó. Mọi kích thước tính bằng em: .m mặc định 64px, .m.mini 40px (danh sách
+   thành viên / Hồ sơ), .m.xs 20px (inline: chat, BXH, bạn bè, Quản trị).
+   Nhãn tên bậc KHÔNG dùng chữ gradient (mờ trên nền sáng) mà là chip tối + chữ solid màu sáng
+   (đọc rõ cả 2 theme). HTML medal do shared/ui/badges.js (medalHTML/tierBadges) sinh – đừng tự
+   viết lại markup ở từng nơi. Thuần CSS keyframes, không vòng lặp JS, không Rive (đã gỡ ở -141).
+   Tôn trọng prefers-reduced-motion: tắt hết hiệu ứng khi người dùng bật giảm chuyển động. */
+
+/* ===== khung medal ===== */
+.m{--s:64px;font-size:var(--s);position:relative;width:1em;height:1em;flex:none;--is:.44em}
+.m>*{position:absolute}
+.m.mini{--s:40px}
+.m.xs{--s:20px}
+.m.mini .rays,.m.mini .pt,.m.mini .ping,.m.mini .halo{display:none}
+.m.xs .rays,.m.xs .pt,.m.xs .ping,.m.xs .halo,.m.xs .orb{display:none}
+.rays{inset:-.4em;border-radius:50%;background:repeating-conic-gradient(var(--g) 0 4deg,transparent 4deg 15deg);-webkit-mask:radial-gradient(circle,#000 22%,transparent 66%);mask:radial-gradient(circle,#000 22%,transparent 66%);animation:bdg-spin 26s linear infinite;opacity:.5}
+.halo{inset:-.12em;border-radius:50%;background:radial-gradient(circle,var(--g),transparent 66%);filter:blur(.07em);animation:bdg-breathe 3s ease-in-out infinite}
+.shape{inset:.03em;clip-path:var(--clip);overflow:hidden}
+.spin{position:absolute;inset:-60%;background:conic-gradient(var(--ring));animation:bdg-spin 3.5s linear infinite}
+.core{inset:.09em;clip-path:var(--clip);background:var(--core);overflow:hidden;display:grid;place-items:center}
+.core::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.4) 50%,transparent 60%);transform:translateX(-110%);animation:bdg-glint 3.6s ease-in-out infinite;z-index:2}
+.core::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.22),transparent 55%)}
+.core svg{width:var(--is);height:var(--is);fill:var(--ic);filter:drop-shadow(0 0 .05em var(--g));animation:bdg-float 3s ease-in-out infinite;position:relative;z-index:1}
+.orb{inset:-.08em;animation:bdg-spin 7s linear infinite}
+.orb::before,.orb::after{content:"";position:absolute;width:.055em;height:.055em;margin-left:-.027em;left:50%;top:0;border-radius:50%;background:#fff;box-shadow:0 0 .08em .02em var(--g)}
+.orb::after{top:auto;bottom:0;opacity:.65}
+.ping{inset:0;border-radius:50%;border:.02em solid var(--g);opacity:0;animation:bdg-ping 2.6s ease-out infinite}
+.ping+.ping{animation-delay:1.3s}
+.pt{bottom:18%;left:calc(var(--x)*1%);width:.028em;height:.028em;border-radius:50%;background:#fff;box-shadow:0 0 .05em .01em var(--g);opacity:0;animation:bdg-rise var(--d) ease-out var(--l) infinite}
+/* 💻 DEV: con trỏ nhấp nháy sau icon code */
+.core .caret{position:absolute;right:16%;top:30%;width:.045em;height:.36em;background:var(--ic);border-radius:.02em;z-index:2;animation:bdg-devblink 1.1s steps(2,start) infinite}
+.t-dev .core svg{fill:none;stroke:var(--ic);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:bdg-devtype 2.4s ease-in-out infinite}
+.t-sponsor .core svg{animation:bdg-coin 2.6s ease-in-out infinite}
+.t-mod .core svg{animation:bdg-wrench 3s ease-in-out infinite;transform-origin:50% 90%}
+.t-newbie .core svg{animation:bdg-sway 2.6s ease-in-out infinite;transform-origin:50% 90%}
+.t-vip .core svg{animation:bdg-gem 2s ease-in-out infinite}
+@keyframes bdg-spin{to{transform:rotate(360deg)}}
+@keyframes bdg-breathe{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.8;transform:scale(1.08)}}
+@keyframes bdg-glint{0%,45%{transform:translateX(-110%)}100%{transform:translateX(110%)}}
+@keyframes bdg-float{0%,100%{transform:translateY(.012em) rotate(-4deg)}50%{transform:translateY(-.03em) rotate(4deg)}}
+@keyframes bdg-ping{0%{opacity:.8;transform:scale(.85)}100%{opacity:0;transform:scale(1.55)}}
+@keyframes bdg-rise{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-.75em) scale(.2)}}
+@keyframes bdg-coin{0%,100%{transform:rotateY(0)}50%{transform:rotateY(360deg)}}
+@keyframes bdg-wrench{0%,55%,100%{transform:rotate(0)}65%{transform:rotate(-30deg)}78%{transform:rotate(20deg)}90%{transform:rotate(-6deg)}}
+@keyframes bdg-sway{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+@keyframes bdg-gem{0%,100%{transform:scale(1)}50%{transform:scale(1.2) rotate(10deg)}}
+@keyframes bdg-devblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes bdg-devtype{0%,100%{transform:translateY(0)}25%{transform:translateY(-.02em)}50%{transform:translateY(.01em) rotate(-3deg)}75%{transform:translateY(-.01em)}}
+
+/* ===== wrapper medal + nhãn: chip tối + chữ solid (đọc rõ cả 2 theme) ===== */
+.bdg{position:relative;display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:nowrap}
+.bdg .t{font:800 11px/1.5 Nunito,sans-serif;letter-spacing:.14em;color:var(--lc,#fff);background:rgba(26,16,48,.93);border:1px solid rgba(255,255,255,.22);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.bdg.sz-mini .t{font-size:12.5px;padding:3px 10px}
+.bdg-own{--lc:#FFD35A}
+.bdg-adm{--lc:#E9B6FF}
+.bdg-staff{--lc:#7DFFCF}
+.bdg-sup{--lc:#FFD45C}
+.bdg-vip{--lc:#9BE8FF}
+.bdg-dev{--lc:#7DFFEF}
+.bdg-new{--lc:#C8FF9A}
+
+/* ===== nghiêng 3D + vệt sáng theo con trỏ (chỉ gắn ở khu vực huy hiệu Hồ sơ / modal thành viên) ===== */
+.bdg-tilt{--mx:50%;--my:0%;position:relative;transition:transform .2s ease-out;transform-style:preserve-3d}
+.bdg-tilt::before{content:"";position:absolute;inset:-6px;border-radius:14px;background:radial-gradient(180px circle at var(--mx) var(--my),rgba(255,255,255,.14),transparent 65%);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.m *,.m,.bdg-tilt{animation:none!important;transition:none!important;transform:none!important}.bdg-tilt::before{display:none}}
