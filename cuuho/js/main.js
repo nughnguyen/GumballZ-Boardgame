@@ -5,7 +5,7 @@ import * as E from './engine.js?v=3';
 import { CITIES, ROUTES } from '../../xuyenviet/js/map.js?v=4';
 import { LAND, LBL, MAP_W, MAP_H } from '../../xuyenviet/js/geo.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast } from '../../shared/ui/dialog.js?v=8';
+import { toast } from '../../shared/ui/dialog.js?v=9';
 
 const NET = makeNet(DEF);
 const { COLORS, HAZ, HAZ_ICON, CITY_COLOR, CITY_IDS, ROLE_NAME, ROLE_ICON, ROLE_COLOR, ROLE_DO, EVENT_NAME, EVENT_ICON, EVENT_DO } = E;

@@ -162,9 +162,9 @@ function worldInviteBtn() {
       b.dataset.busy = '';
       if (r && r.ok) {
         try { localStorage.setItem('gumballz-invite-' + h.game + '-' + c, String(Date.now())); } catch (e) {}
-        import('./dialog.js?v=8').then(m => m.toast('Đã mời lên kênh thế giới 📣')).catch(() => {});
+        import('./dialog.js?v=9').then(m => m.toast('Đã mời lên kênh thế giới 📣')).catch(() => {});
       } else {
-        import('./dialog.js?v=8').then(m => m.toast((r && r.msg) || 'Không mời được, thử lại sau nha.')).catch(() => {});
+        import('./dialog.js?v=9').then(m => m.toast((r && r.msg) || 'Không mời được, thử lại sau nha.')).catch(() => {});
         b.disabled = false; b.textContent = '📣 Mời lên kênh thế giới';
       }
     };

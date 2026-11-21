@@ -9,7 +9,7 @@ import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
+import { toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=9';
 
 const NET = makeNet({
   game: 'ailatrieuphu', min: 1, max: 2, maxSeats: 2, allowLocal: true,

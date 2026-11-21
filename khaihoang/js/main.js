@@ -5,7 +5,7 @@ import * as E from './engine.js?v=4';
 import { HEXES, VERTS, EDGES, PIP, S } from './map.js?v=2';
 import { botAction } from './bot.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast } from '../../shared/ui/dialog.js?v=8';
+import { toast } from '../../shared/ui/dialog.js?v=9';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
 const NET = makeNet(DEF);

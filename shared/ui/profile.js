@@ -158,7 +158,7 @@ export function showReward(list) {
     <div class="lk-rwb">${a.ch ? '<button type="button" class="go">Mặc thử</button>' : ''}<button type="button" class="x">Để sau</button></div></div>`;
   document.body.append(d); const bye = () => { d.classList.add('out'); setTimeout(() => d.remove(), 260); }, t = setTimeout(bye, 12000);
   d.querySelector('.x').onclick = () => { clearTimeout(t); bye(); };
-  const go = d.querySelector('.go'); if (go) go.onclick = () => { clearTimeout(t); setAv({ ...a.ch, [r.k]: r.v, e: 'ch' }); bye(); import('./dialog.js?v=8').then(m => m.toast('✨ Đã mặc ' + nm, 2200)).catch(() => {}); };
+  const go = d.querySelector('.go'); if (go) go.onclick = () => { clearTimeout(t); setAv({ ...a.ch, [r.k]: r.v, e: 'ch' }); bye(); import('./dialog.js?v=9').then(m => m.toast('✨ Đã mặc ' + nm, 2200)).catch(() => {}); };
 }
 
 /* 🧸 Tạo nhân vật lúc mới tạo tài khoản: chọn giới tính + màu nhân vật (màu da, màu chủ đạo).
@@ -196,10 +196,10 @@ export function openCharSetup() {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.sex) { sex = b.dataset.sex; if (!picked) { base = PRESETS.find(p => p.name === SETUP_BASE[sex]) || PRESETS[0]; skin = base.skin; color = base.color; } return draw(); }
     if (b.dataset.pre != null) { base = PRESETS[+b.dataset.pre]; skin = base.skin; color = base.color; picked = true; return draw(); }
-    if (b.dataset.prelock) { import('./dialog.js?v=8').then(m => m.toast('🔒 Mẫu này có linh kiện cấp ' + b.dataset.prelock + ' mới mở — chơi thêm để mở khoá', 2800)).catch(() => {}); return; }
+    if (b.dataset.prelock) { import('./dialog.js?v=9').then(m => m.toast('🔒 Mẫu này có linh kiện cấp ' + b.dataset.prelock + ' mới mở — chơi thêm để mở khoá', 2800)).catch(() => {}); return; }
     if (b.dataset.skin) { skin = b.dataset.skin; return draw(); }
     if (b.dataset.color) { color = b.dataset.color; return draw(); }
-    if (b.dataset.a === 'save') { setAv({ ...pickChar(base), skin, color, sex, e: 'ch' }); close(); import('./dialog.js?v=8').then(m => m.toast('Đã lưu nhân vật ✨', 2200)).catch(() => {}); return; }
+    if (b.dataset.a === 'save') { setAv({ ...pickChar(base), skin, color, sex, e: 'ch' }); close(); import('./dialog.js?v=9').then(m => m.toast('Đã lưu nhân vật ✨', 2200)).catch(() => {}); return; }
     if (b.dataset.a === 'skip') return close();
   });
   addEventListener('keydown', key, true);
@@ -314,7 +314,7 @@ export function openProfile() {
     if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=35').then(m => m.openLeaderboard('all')); return; }
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
     if (b.dataset.shopgo) { close(); location.href = shopURL(); return; } /* khung/màu tên bán bằng xu: sang Cửa hàng mua */
-    if (b.dataset.lock) { import('./dialog.js?v=8').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }
+    if (b.dataset.lock) { import('./dialog.js?v=9').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }
     if (b.dataset.tab) { tab = b.dataset.tab; return draw(); }
     if (b.dataset.sub) { sub = b.dataset.sub; return draw(); }
     if (b.dataset.a === 'rnd') { const ok = PRESETS.filter(p => charOpen(p, curSt)); const r = { ...ok[Math.floor(Math.random() * ok.length)] }; for (const k of CH_KEYS) { const list = OPTIONS[k].filter(o => !charLock(k, Array.isArray(o) ? o[0] : o)); if (Math.random() < .35) { const o = list[Math.floor(Math.random() * list.length)]; r[k] = Array.isArray(o) ? o[0] : o; } } setAv({ ...cleanChar(r), e: 'ch' }); return draw(); }

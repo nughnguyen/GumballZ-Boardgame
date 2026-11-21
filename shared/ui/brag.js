@@ -1,12 +1,14 @@
-// 📸 "Khoe kết quả": thắng ván / có thành tích mới thì hiện nút nhỏ, bấm vào là tạo một tấm ảnh đẹp (kèm link web) để gửi Zalo, Facebook…
-// Tự nạp từ stats.js khi có sự kiện 'gumballz-stats'. Cũng gọi tay được: brag({ game, title, sub, lines }) – vd. Cờ thế hôm nay.
+// 🎉 Sau ván thắng / có thành tích mới thì hiện pill thông báo (nút "Khoe" đã bỏ ở patch -128).
+// Tạo ảnh khoe vẫn dùng được qua brag({ game, title, sub, lines }) – vd. Cờ thế hôm nay gọi tay.
+// Tự nạp từ stats.js khi có sự kiện 'gumballz-stats'.
 import { load, totals, level, GAME_NAMES } from './stats.js?v=91';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } } };
 const EMOJI = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍' };
 const BG = ['#ff7a8a,#ffb23d', '#7b61ff,#3d8bff', '#2fc76f,#8fe3a8', '#ff9a3d,#ffd166', '#ff5fa2,#b06bff', '#3dc7d6,#3d8bff'];
-const CSS = `.bg-pill{position:fixed;left:50%;bottom:max(84px,calc(env(safe-area-inset-bottom) + 78px));white-space:nowrap;transform:translateX(-50%);z-index:94;display:flex;align-items:center;gap:6px;padding:5px 5px 5px 16px;border-radius:999px;background:#4A3E5C;color:#fff;font:800 14.5px Nunito,system-ui,sans-serif;box-shadow:0 14px 30px -10px #000a;animation:bgUp .35s cubic-bezier(.2,.9,.3,1.2)}
-.bg-pill button{border:0;border-radius:999px;min-height:38px;cursor:pointer;font:800 14.5px "Baloo 2",Nunito,sans-serif}
-.bg-pill .go{padding:0 14px;color:#fff;background:linear-gradient(120deg,#ff4d6a,#ff7a45 55%,#ffb23d)}.bg-pill .x{width:34px;background:#ffffff22;color:#fff}
+const CSS = `.bg-pill{position:fixed;left:50%;bottom:max(84px,calc(env(safe-area-inset-bottom) + 78px));white-space:nowrap;transform:translateX(-50%);z-index:94;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border:2px solid #241A38;border-radius:14px;background:#FFFDF9;color:#241A38;font:800 14.5px Nunito,system-ui,sans-serif;box-shadow:4px 4px 0 #241A38;animation:bgUp .35s cubic-bezier(.2,.9,.3,1.2)}
+.bg-pill button{border:2px solid #241A38;border-radius:10px;min-height:34px;cursor:pointer;font:800 14.5px "Baloo 2",Nunito,sans-serif}
+.bg-pill .x{width:34px;background:#FACD33;color:#241A38}
+.bg-pill.out{opacity:0;transform:translate(-50%,8px);transition:opacity .2s ease,transform .2s ease}
 @keyframes bgUp{from{opacity:0;transform:translate(-50%,16px)}}
 .bg-back{position:fixed;inset:0;z-index:97;background:#4A3E5Ccc;display:flex;align-items:center;justify-content:center;padding:12px}
 .bg-box{width:min(420px,100%);max-height:100%;overflow:auto;background:#fff7ef;border-radius:24px;padding:12px;display:flex;flex-direction:column;gap:10px;color:#4A3E5C;font-family:Nunito,system-ui,sans-serif}
@@ -14,7 +16,7 @@ const CSS = `.bg-pill{position:fixed;left:50%;bottom:max(84px,calc(env(safe-area
 .bg-box p{margin:0;text-align:center;font-weight:700;font-size:13.5px;color:#7b7391}
 .bg-row{display:flex;gap:8px;flex-wrap:wrap}.bg-row button,.bg-row a{flex:1;min-height:46px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 15px "Baloo 2",Nunito,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;padding:0 12px}
 .bg-row .pri{border:0;color:#fff;background:linear-gradient(120deg,#ff4d6a,#ff7a45 55%,#ffb23d)}
-@media (prefers-reduced-motion:reduce){.bg-pill{animation:none}}`;
+@media (prefers-reduced-motion:reduce){.bg-pill{animation:none}.bg-pill.out{transition:none}}`;
 let cssOn = false; const css = () => { if (cssOn) return; cssOn = true; const s = document.createElement('style'); s.textContent = CSS; document.head.append(s); };
 
 // ---------- vẽ ảnh 1080×1350 ----------
@@ -79,15 +81,15 @@ export async function brag(info) {
   };
 }
 
-// ---------- nút nổi sau ván thắng ----------
+// ---------- pill thông báo sau ván thắng (không còn nút Khoe — patch -128) ----------
 let pillT = 0;
 export function offer(info, ms = 14000) {
   css(); document.querySelector('.bg-pill')?.remove(); clearTimeout(pillT);
   const p = document.createElement('div'); p.className = 'bg-pill'; p.setAttribute('role', 'status');
-  p.innerHTML = `<span>${info.pill || '🎉 Ván đẹp đó!'}</span><button class="go" type="button">📸 Khoe</button><button class="x" type="button" aria-label="Đóng">✕</button>`;
-  p.querySelector('.go').onclick = () => { p.remove(); brag(info); };
-  p.querySelector('.x').onclick = () => p.remove();
-  document.body.append(p); pillT = setTimeout(() => p.remove(), ms);
+  p.innerHTML = `<span>${info.pill || '🎉 Ván đẹp đó!'}</span><button class="x" type="button" aria-label="Đóng">✕</button>`;
+  const dismiss = () => { clearTimeout(pillT); p.classList.add('out'); setTimeout(() => p.remove(), 220); };
+  p.querySelector('.x').onclick = dismiss;
+  document.body.append(p); pillT = setTimeout(dismiss, ms);
 }
 addEventListener('gumballz-stats', e => {
   const d = e.detail || {}; if (!d.game || navigator.webdriver) return;
@@ -96,5 +98,5 @@ addEventListener('gumballz-stats', e => {
   const lines = [`Đã thắng ${g.w} / ${g.p} ván ${name}`]; if (s.streak > 1) lines.push(`🔥 Chuỗi thắng ${s.streak} ván liền`);
   fresh.slice(0, 2).forEach(a => lines.push(`${a.icon} Thành tích mới: ${a.name}`));
   const info = { game: d.game, title: d.won === true ? `Mình vừa thắng ván ${name}!` : `Thành tích mới ở ${name}!`, sub: d.won === true ? '🏆 Chiến thắng' : '', lines, pill: d.won === true ? '🏆 Thắng rồi!' : `${fresh[0].icon} Thành tích mới!` };
-  setTimeout(() => offer(info), 2400); /* nút nằm cao hơn dải thông báo thành tích nên hiện cùng lúc được */
+  setTimeout(() => offer(info), 2400); /* pill nằm cao hơn dải thông báo thành tích nên hiện cùng lúc được */
 });

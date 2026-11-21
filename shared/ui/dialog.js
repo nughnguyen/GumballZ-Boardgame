@@ -18,9 +18,11 @@ const CSS = `.dg-ov{position:fixed;inset:0;z-index:10050;background:rgba(74,62,9
 .dg-b.ok{border:0;color:#4A3E5C;background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 8px 18px -8px rgba(255,185,138,.8)}
 .dg-b.danger{border:0;color:#fff;background:linear-gradient(90deg,#e0384a,#c0263b);box-shadow:0 8px 18px -8px #c0263bcc}
 .dg-b.ghost{border-color:transparent;background:#f3e9dc}
-.dg-toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10060;background:#4A3E5C;color:#fff;padding:11px 20px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 10px 28px #0005;max-width:90vw;text-align:center;animation:dg-p .25s cubic-bezier(.2,1.2,.4,1)}
-@keyframes dg-f{from{opacity:0}}@keyframes dg-p{from{opacity:0;transform:translateY(10px) scale(.96)}}
-@media (prefers-reduced-motion:reduce){.dg-ov,.dg-box,.dg-toast{animation:none}}`;
+.dg-toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10060;background:#FFFDF9;color:#241A38;padding:11px 18px;border:2px solid #241A38;border-radius:14px;font:800 15px Nunito,sans-serif;box-shadow:4px 4px 0 #241A38;max-width:90vw;text-align:center;animation:dg-t .25s cubic-bezier(.2,1.2,.4,1)}
+.dg-toast::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:#FACD33;border:2px solid #241A38;margin-right:8px;vertical-align:middle}
+.dg-toast.out{opacity:0;transform:translate(-50%,6px);transition:opacity .2s ease,transform .2s ease}
+@keyframes dg-f{from{opacity:0}}@keyframes dg-p{from{opacity:0;transform:translateY(10px) scale(.96)}}@keyframes dg-t{from{opacity:0;transform:translate(-50%,10px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){.dg-ov,.dg-box,.dg-toast{animation:none}.dg-toast.out{transition:none}}`;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function css() { if (document.getElementById('dg-css')) return; const s = document.createElement('style'); s.id = 'dg-css'; s.textContent = CSS; document.head.append(s); }
 
@@ -74,4 +76,4 @@ export function chooseBox(title, choices, { text = '', cancel = 'Thôi' } = {}) 
     d.box.querySelectorAll('.dg-b').forEach(b => b.onclick = () => d.done(b.dataset.id || null));
   });
 }
-export function toast(text, ms = 2600) { css(); document.querySelector('.dg-toast')?.remove(); const t = document.createElement('div'); t.className = 'dg-toast'; t.setAttribute('role', 'status'); t.textContent = text; document.body.append(t); setTimeout(() => t.remove(), ms); }
+export function toast(text, ms = 2600) { css(); document.querySelector('.dg-toast')?.remove(); const t = document.createElement('div'); t.className = 'dg-toast'; t.setAttribute('role', 'status'); t.textContent = text; document.body.append(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 220); }, ms); }

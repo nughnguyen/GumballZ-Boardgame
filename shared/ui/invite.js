@@ -1,6 +1,6 @@
 // 📨 Hộp "Mời bạn": mời bạn bè trong web lên đầu, rồi link + mã QR. Dùng chung cho mọi game (homebtn.js tự gắn nút cạnh mã phòng).
 // QR vẽ bằng thư viện qrcode-generator (MIT, Kazuhiko Arase) – shared/vendor/qrcode.js
-import { toast } from './dialog.js?v=8';
+import { toast } from './dialog.js?v=9';
 const CSS = `.iv-ov{position:fixed;inset:0;z-index:10040;background:rgba(74,62,92,.7);display:grid;place-items:center;padding:16px;backdrop-filter:blur(3px);animation:iv-f .16s ease-out}
 .iv-box{width:min(380px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border-radius:26px;padding:22px 20px 18px;box-shadow:0 24px 70px #0008;font:600 15px/1.45 Nunito,system-ui,sans-serif;text-align:center;position:relative;animation:iv-p .24s cubic-bezier(.2,1.2,.4,1)}
 .iv-box h2{margin:0 30px 2px;font:400 22px/1.2 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.iv-box p{margin:0;color:#8B7E9E}

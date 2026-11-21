@@ -12,7 +12,7 @@ import { opsBytes, simplifyOps } from './ops.js?v=5';
 import * as fx from './fx.js?v=10';
 import { guideHTML } from './guide.js?v=12';
 
-import { confirmBox } from '../../shared/ui/dialog.js?v=8';
+import { confirmBox } from '../../shared/ui/dialog.js?v=9';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];

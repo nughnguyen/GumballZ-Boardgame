@@ -1,7 +1,7 @@
 // 👤 Tài khoản GumballZ (tuỳ chọn): nút đăng nhập + hộp đăng nhập / tạo tài khoản / Google.
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
 import { auth } from '../net/api.js?v=29';
-import { promptBox, formBox } from './dialog.js?v=8';
+import { promptBox, formBox } from './dialog.js?v=9';
 import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=55';
 
 const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */

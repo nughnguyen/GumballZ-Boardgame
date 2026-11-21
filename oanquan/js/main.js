@@ -12,7 +12,7 @@ import { GUIDE_HTML } from './guide.js?v=3';
 import { loadSprites } from './sprites.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { record, recordEvent } from '../../shared/ui/stats.js?v=91';
-import { toast } from '../../shared/ui/dialog.js?v=8';
+import { toast } from '../../shared/ui/dialog.js?v=9';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 

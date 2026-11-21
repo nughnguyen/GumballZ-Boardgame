@@ -6,7 +6,7 @@
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../net/joinlink.js?v=7';
 import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứng (gumballz-vol-*) */
 import { netStatus } from './status.js';
-import { confirmBox } from './dialog.js?v=8';
+import { confirmBox } from './dialog.js?v=9';
 import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */
 import { paintTitles, ensureTitleCSS } from './titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import './antidebug.js?v=1'; /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */

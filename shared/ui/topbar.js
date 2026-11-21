@@ -134,7 +134,7 @@
      Nút mở modal (Xếp hạng, Hồ sơ, Ủng hộ, Cài đặt) không rời trang nên không bị chặn. */
   var leaveMod = null, leaveConfirm = null;
   window.__gumballzTopbar = { inMatch: function () { return leaveMod ? leaveMod.inMatch(document) : false; } }; /* hook cho test */
-  Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=8')]).then(function (ms) {
+  Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=9')]).then(function (ms) {
     leaveMod = ms[0]; leaveConfirm = ms[1].confirmBox;
     window.__gumballzTopbar.leaveMatch = function () { return leaveMod.leaveMatch(document); };
   }).catch(function () {});

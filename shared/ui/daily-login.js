@@ -145,7 +145,7 @@ function openModal() {
   mountLoginRiv();
 }
 function closeModal() { if (ov) ov.style.display = 'none'; try { if (loginAnim) loginAnim.pause(); } catch (e) {} }
-async function toast(msg) { try { const d = await import('./dialog.js?v=8'); d.toast(msg); } catch (e) {} }
+async function toast(msg) { try { const d = await import('./dialog.js?v=9'); d.toast(msg); } catch (e) {} }
 /* nhận local (khách, hoặc máy chủ cũ chưa hỗ trợ): cộng xu + ghi chuỗi vào localStorage */
 async function claimLocal() {
   const r = readLocal(), nx = nextOf(r), today = dayVN();

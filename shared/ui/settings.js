@@ -1,6 +1,6 @@
 // ⚙️ Cài đặt chung GumballZ (lưu trên máy này): tên mặc định, âm thanh, phòng công khai, số online, dữ liệu.
 import { auth } from '../net/api.js?v=29';
-import { confirmBox } from './dialog.js?v=8';
+import { confirmBox } from './dialog.js?v=9';
 import { volumeRowsHTML, bindVolumeRows } from '../audio/volume.js?v=1';
 const ROOT = new URL('../../', import.meta.url).href;
 const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'solitaire', 'cotuong', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino'];

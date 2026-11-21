@@ -8,7 +8,7 @@ import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
+import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=9';
 import { recordEvent } from '../../shared/ui/stats.js?v=91';
 
 const NET = makeNet({

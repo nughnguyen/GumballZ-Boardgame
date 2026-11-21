@@ -147,7 +147,7 @@ export class RoomHost {
       /* nhắc chủ phòng (game còn chạy trên máy chủ phòng: Xì dách, Poker, Cờ tướng…): để tab ở nền ≥ 8 giây khi có người trong phòng thì cả bàn bị đứng (số đo 📶 Lag 18/11/2026) */
       try { const others = [...this.conns].some(c => c.open && c._chatName);
         if (document.hidden) this._hidAt = others ? Date.now() : 0;
-        else if (this._hidAt && Date.now() - this._hidAt > 8000 && others && Date.now() - (this._nagAt || 0) > 600000) { this._nagAt = Date.now(); import('../ui/dialog.js?v=8').then(d => d.toast('👋 Bạn đang là chủ phòng – lúc nãy tab bị ẩn nên cả bàn phải chờ. Để trang này mở khi đang chơi nha!', 6000)).catch(() => {}); }
+        else if (this._hidAt && Date.now() - this._hidAt > 8000 && others && Date.now() - (this._nagAt || 0) > 600000) { this._nagAt = Date.now(); import('../ui/dialog.js?v=9').then(d => d.toast('👋 Bạn đang là chủ phòng – lúc nãy tab bị ẩn nên cả bàn phải chờ. Để trang này mở khi đang chơi nha!', 6000)).catch(() => {}); }
         if (!document.hidden) this._hidAt = 0; } catch (e) {}
       for (const c of this.conns) if (c.open && c._chatName) try { c.send({ t: '__away', on: !!document.hidden }); } catch (e) {} }; /* báo cho cả phòng khi chủ phòng để tab game ở nền */
     try { document.addEventListener('visibilitychange', this._vis); } catch (e) {}

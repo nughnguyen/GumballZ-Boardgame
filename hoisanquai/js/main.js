@@ -4,7 +4,7 @@ import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
 import { CLS, CLS_KEYS, HEROES, LEADERS, ITEMS, MAGIC, MODS, MONSTERS, ALL, BEAST, EFF, PEN, typeName, descOf } from './cards.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast } from '../../shared/ui/dialog.js?v=8';
+import { toast } from '../../shared/ui/dialog.js?v=9';
 
 const NET = makeNet(DEF);
 let sound = ls.get('hsq-sound') !== '0', ac = null, look = null, endShown = null, lastTO = 0, lastPend = '', tick = 0;

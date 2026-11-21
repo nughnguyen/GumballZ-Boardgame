@@ -5,7 +5,7 @@ import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/p
 import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js';
 import { totals } from '../../shared/ui/stats.js?v=91'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
-import { toast } from '../../shared/ui/dialog.js?v=8';
+import { toast } from '../../shared/ui/dialog.js?v=9';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

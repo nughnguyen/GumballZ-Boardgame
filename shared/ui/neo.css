@@ -137,7 +137,7 @@ body .dg-b{background:var(--card);color:var(--neo-ink);border:3px solid var(--ne
 body .dg-b.ok{background:var(--neo-y1);color:var(--neo-ink)}
 body .dg-b.danger{background:var(--neo-pink);color:var(--neo-ink)}
 body .dg-b.ghost{background:var(--neo-mauve);color:var(--neo-ink)}
-body .dg-toast{background:var(--neo-ink);color:var(--neo-y2);border:2px solid var(--neo-y2)}
+body .dg-toast{background:var(--card);color:var(--neo-ink);border:2px solid var(--neo-ink);border-radius:14px;box-shadow:var(--neo-sh)}
 body .fb-box{background:var(--card);border:3px solid var(--neo-ink);border-radius:20px;box-shadow:var(--sh)}
 body .fb-box select,body .fb-box textarea,body .fb-box input{border:2.5px solid var(--neo-ink);border-radius:var(--neo-r-sm)}
 body .fb-chips button{border:3px solid var(--neo-ink);border-radius:var(--neo-r-sm)}

@@ -15,7 +15,7 @@ import { BOT_NAMES, PALETTE, BRUSH_SIZES } from './words.js?v=1';
 import { Sfx } from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, cleanName, avatar } from '../../shared/ui/gamekit.js?v=14';
-import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
+import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=9';
 
 const NET = makeNet({
   game: 'vetruyentin', min: 1, max: 8, maxSeats: 8, allowLocal: true,

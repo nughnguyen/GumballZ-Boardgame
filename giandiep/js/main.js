@@ -4,7 +4,7 @@ import { botAction, GENERIC_DESC } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast as tip, confirmBox, promptBox } from '../../shared/ui/dialog.js?v=8';
+import { toast as tip, confirmBox, promptBox } from '../../shared/ui/dialog.js?v=9';
 
 let sound = ls.get('giandiep-sound') !== '0';
 
