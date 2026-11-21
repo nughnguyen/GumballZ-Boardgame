@@ -165,11 +165,7 @@
     } else moveNav(active, false);
   }
   if (links) {
-    links.addEventListener('mouseover', function (e) {
-      var t = e.target.closest ? e.target.closest('a,button') : null;
-      if (t && links.contains(t)) moveNav(t, true);
-    });
-    links.addEventListener('mouseleave', function () { var a = activeNavEl(); if (a) moveNav(a, true); });
+    /* patch -106: vạch đỏ CHỈ chạy khi bấm hoặc dùng bàn phím (focus) — di chuột qua tab không nhấn thì vạch đứng yên ở tab đang mở, không trượt theo rồi trượt về */
     links.addEventListener('focusin', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;
       if (t && links.contains(t)) moveNav(t, true);
