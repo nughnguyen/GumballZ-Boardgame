@@ -10,10 +10,10 @@
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=29';
 import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=89';
-import { snapshot, adoptServer } from './wallet.js?v=4'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
+import { snapshot, adoptServer, resetWallet } from './wallet.js?v=5'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
 import { readParts, writeParts } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
-const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar', LOGIN = 'gumballz-login';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };
 const num = v => Math.max(0, Math.floor(+v || 0));
@@ -34,6 +34,11 @@ async function runSync(u, tok) {
     let m = meta(); const s = load();
     const other = m && m.uid !== u.id; /* máy này từng đồng bộ cho tài khoản khác: không cộng số của người đó vào tài khoản này */
     if (other) m = { uid: u.id, base: null, replace: true };
+    if (other) { /* đổi acc: dữ liệu local của acc cũ (ví/danh hiệu/linh kiện) không được rò sang acc mới — reset về trắng TRƯỚC khi dựng body (ví blank at = 0 máy chủ sẽ từ chối, giữ ví acc mới; lần kéo về này nhận đúng đồ acc mới) */
+      try { resetWallet(); } catch (e) {}
+      try { ls.del('gumballz-title'); ls.del('gumballz-title-t'); } catch (e) {}
+      try { writeParts([]); } catch (e) {}
+    }
     /* META thời chống gian lận chỉ có {uid, at}, không có base: lần đầu sau bản nới lỏng thì lấy mốc máy chủ làm nền
        (replace) thay vì gửi lại toàn bộ số local — số đó đã nằm trong "mốc cũ" của máy chủ, gửi lại là cộng trùng */
     else if (m && m.base == null && !m.replace) m = { uid: u.id, base: null, replace: true };
@@ -85,7 +90,7 @@ export function autoSync() {
   const dirty = !m || m.uid !== u.id || m.pend || Object.keys(s.g).some(g => num(s.g[g].p) !== num(((m.base || {})[g] || {}).p));
   if (dirty || Date.now() - (m.at || 0) > 600e3) syncSoon(1200);
 }
-auth.onChange(user => { if (user) syncSoon(500); });
+auth.onChange(user => { if (user) syncSoon(500); /* đăng nhập/đổi acc: lần syncNow này sẽ reset dữ liệu acc cũ trước khi gửi (nhánh other trong runSync), rồi kéo dữ liệu acc mới về */ else { try { resetWallet(); } catch (e) {} } /* đăng xuất: ví local về trắng để không hiện tiền acc cũ cho khách; syncNow không chạy khi chưa đăng nhập nên không đẩy gì lên máy chủ */ });
 addEventListener('gumballz-stats', () => syncSoon(3000));
 addEventListener('gumballz-wallet', () => syncSoon(1500)); /* 💰 ví đổi (thắng/thua/mua đồ/mở rương/điểm danh) → đẩy lên máy chủ ngay, thay vì đợi lần sync stats sau (tới 10 phút) — đóng cửa sổ "tiêu hết xu → xóa dữ liệu trước khi sync → lấy lại số dư cũ". An toàn vòng lặp: adoptServer chỉ phát event khi nó NHẬN ví mới hơn; lần sync sau thấy at bằng nhau thì không nhận nữa, không phát event. */
 addEventListener('gumballz-avatar', e => { if (!e.detail || !e.detail.fromSync) syncSoon(2500); });

@@ -2,7 +2,7 @@
 // Mỗi net.js bọc handlers: this.h = watch(GAME, handlers, () => this.id) → tự đếm ván đã chơi / thắng khi ván kết thúc.
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
 import { questWin } from '../js/daily.js?v=3'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
-import { earnGame } from './wallet.js?v=4'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
+import { earnGame } from './wallet.js?v=5'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
 import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
 import { gameXp } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 const KEY = 'gumballz-stats';
@@ -1401,7 +1401,7 @@ export function watch(game, handlers, getId) {
 }
 // ☁️ có đăng nhập thì nạp phần đồng bộ hồ sơ theo tài khoản (khách không nạp gì thêm)
 const hasAuth = () => { try { return !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) { return false; } };
-let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=48').catch(() => { syncOn = false; }); };
+let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=49').catch(() => { syncOn = false; }); };
 try { startSync(); addEventListener('gumballz-auth', startSync); } catch (e) {}
 // 📸 nút "Khoe kết quả" sau ván thắng (shared/ui/brag.js)
 try { if (typeof document !== 'undefined') import('./brag.js?v=35').catch(() => {}); } catch (e) {}

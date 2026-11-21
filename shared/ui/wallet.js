@@ -25,6 +25,8 @@ export function loadWallet() {
   return w;
 }
 export function saveWallet(w) { w.at = Date.now(); ls.set(KEY, JSON.stringify(w)); emit(); return w; }
+/* reset ví về trắng khi đổi/đăng xuất tài khoản: ghi TRỰC TIẾP (at = 0), KHÔNG qua saveWallet — saveWallet đóng dấu Date.now() sẽ làm ví trắng trông mới hơn ví thật trên máy chủ rồi đè mất */
+export function resetWallet() { const w = blank(); ls.set(KEY, JSON.stringify(w)); emit(); return w; }
 export const balance = () => loadWallet().xu;
 export const fmt = n => num(n).toLocaleString('vi-VN');
 /* cộng xu sau 1 ván (stats.js record() gọi): thắng +10 (có Nhân đôi xu thì +20, trừ 1 lượt), hoà/thua +2 */
