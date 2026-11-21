@@ -1,6 +1,7 @@
 // Giao diện Tam Quốc Sát + nối với lớp mạng (host-authoritative). Mọi hình vẽ tự làm bằng CSS/SVG/emoji.
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { CARD_INFO, GENERALS, SKILLS, KINGDOMS, ROLES, SUIT_SYMBOL, SUIT_NAME, cardLabel, cardName, rankLabel, rolesFor, infoOf } from './cards.js?v=11';
 import { JUDGE_TEXT } from './engine.js?v=15';
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, MAX, MIN, TQ_PHRASES, TRAIN_OPTS } from './net.js?v=66';
@@ -142,6 +143,7 @@ function renderLobby() {
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = n >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#btn-start').disabled = n < MIN || n > MAX;
   $('#wait-msg').textContent = isHost ? (n < MIN ? 'Thêm bot hoặc mời bạn bè (2–8 người).' : `Sẵn sàng! ${n} người – bấm Bắt đầu.`) : (n ? 'Đang chờ chủ phòng bắt đầu…' : 'Đang kết nối…');
+  paintTitles($('#plist'), lobby); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 
 // ======================= STATE =======================

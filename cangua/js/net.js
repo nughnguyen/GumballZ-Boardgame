@@ -3,7 +3,7 @@
 import { createGame, applyAction, viewFor, actorOf, P } from './engine.js?v=3';
 import { botAction } from './bot.js?v=4';
 import { S } from './fx.js?v=8';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=53';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
 import { watch } from '../../shared/ui/stats.js?v=89';

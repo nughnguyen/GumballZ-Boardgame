@@ -1,6 +1,7 @@
 // Lõi chủ phòng Scribble it! – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê… được truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván thay cho máy chủ phòng.
 import { createGame, applyAction, viewFor, tick, addDraw, addPlayer, setOnline, bookItems, shiftTime, cleanOpts, maxPlayers, MAX_CROWD, MAX_NORMAL, checkTease } from './engine.js?v=13';
+import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 // Engine chưa có dropPlayer: bản tương đương, chỉ dùng hình dạng state
 // công khai (players/order/turn/guessed/gains/chat/mid) – gỡ khỏi hàng vẽ + bảng điểm, hoặc đánh dấu vắng lâu.
 function dropPlayer(s, pid, now = Date.now()) {
@@ -31,7 +32,7 @@ export function makeHost(env) {
 class Host {
   constructor(name, handlers, restore = null, offline = false) {
     this.h = watch(GAME, handlers, () => 'host'); this.isHost = true; this.offline = !!(offline || (restore && restore.offline));
-    this.players = [{ id: 'host', name, token: token(), conn: null, connected: !remote }];
+    this.players = [{ id: 'host', title: titleById(myTitleId()), name, token: token(), conn: null, connected: !remote }];
     this.opts = cfgOpts(); this.usedWords = (restore && restore.usedWords) || null; this.state = null; this.conns = new Map(); this.lastGuess = {}; this.lim = hostLimiter();
     if (restore) {
       this.players = restore.players.map(p => ({ ...p, conn: null, connected: !remote && p.id === 'host' }));
@@ -84,7 +85,7 @@ class Host {
       let p = this.players.find(x => x.token === msg.token && x.id !== 'host');
       const s = this.state;
       if (!p && this.banned && this.banned.has(msg.token)) { conn.send({ t: 'error', msg: 'Chủ phòng đã mời bạn ra khỏi phòng này.' }); return; }
-      if (p) { if (p.conn && p.conn !== conn) try { p.conn.close(); } catch (e) {} p.conn = conn; p.connected = true; p.name = String(msg.name || p.name).slice(0, 16); }
+      if (p) { if (p.conn && p.conn !== conn) try { p.conn.close(); } catch (e) {} p.conn = conn; p.connected = true; p.name = String(msg.name || p.name).slice(0, 16); p.title = titleById(msg.title); }
       else {
         if (s && s.mode === 'gartic' && s.phase !== 'end') { conn.send({ t: 'error', msg: 'Ván Tam sao thất bản đang chạy – đợi ván sau nhé!' }); return; }
         const mx = maxPlayers(this.opts);
@@ -93,7 +94,7 @@ class Host {
           if (off) this.drop(off, false);
         }
         if (this.players.length >= mx) { conn.send({ t: 'error', msg: `Phòng đã đủ ${mx} người${mx < MAX_CROWD ? ' (chủ phòng chọn Tam sao thất bản › Đông vui để chơi tới 30 người)' : ''}.` }); return; }
-        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), token: msg.token, conn, connected: true };
+        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), token: msg.token, conn, connected: true, title: titleById(msg.title) };
         this.players.push(p);
       }
       this.conns.set(conn, p); p.lastKey = null;
@@ -114,6 +115,7 @@ class Host {
     else if (msg.t === 'react') this.react(p.id, msg.e);
     else if (msg.t === 'tease') this.tease(p.id, msg.text);
     else if (msg.t === 'ping') this.send(p, { t: 'pong' });
+    else if (msg.t === 'title') { p.title = titleById(msg.title); this.pushLobby(); } /* 🎖️ đổi danh hiệu giữa phòng (P2P) */
   }
   onLeave(conn) {
     const p = this.conns.get(conn); if (!p) return;
@@ -125,7 +127,7 @@ class Host {
     else setOnline(this.state, p.id, false);
     this.pushLobby(); this.broadcast();
   }
-  lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, connected: p.connected })), opts: this.opts }; }
+  lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, connected: p.connected, title: p.title || null })), opts: this.opts }; }
   pushLobby() {
     const info = this.lobbyInfo();
     this.h.onLobby(clone(info), this.code, !!this.state); this.saveSnap();

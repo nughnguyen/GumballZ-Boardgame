@@ -1,5 +1,6 @@
 // Cờ cá ngựa 3D – giao diện: trang chủ, sảnh, ván chơi 3D, hoạt ảnh sự kiện, nút đổ giữ-để-đổ.
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, CANGUA_PHRASES } from './net.js?v=60';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import { COLOR_NAMES, GATE, HOME0, exitOk } from './engine.js?v=4';
@@ -136,6 +137,7 @@ function renderLobby() {
     `<button class="${lobby.opts[key] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(key, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${typeof hint === 'function' ? hint(lobby.opts) || '' : hint}</small>` : ''}</div>`).join('');
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 $('#btn-addbot').onclick = () => { fx.sfx.click(); net && net.addBot(); };
 $('#btn-start').onclick = () => { /* dựng bàn 3D khá nặng: đổi nút sang "đang dọn bàn" và cho màn hình vẽ lại trước, rồi mới bắt đầu – bấm thấy phản hồi ngay */
@@ -382,6 +384,7 @@ function renderPlayers() {
       <div class="hs">${st.map(t => `<i class="${['', 't', 'h'][t]}"></i>`).join('')}</div>
       <div class="sum">🏠${cnt[0]} 🐎${cnt[1]} 🏁${cnt[2]}</div>${badge ? `<span class="badge">${badge}</span>` : ''}</div>`;
   }).join('');
+  paintTitles(el, (lobby && lobby.players) || []); /* 🎖️ danh hiệu trong ván, tra từ roster phòng chờ (patch -97) */
 }
 function renderLog() { if (logOpen) $('#log-list').innerHTML = shown.log.slice().reverse().map(l => `<li>${esc(l)}</li>`).join(''); }
 $('#btn-log').onclick = () => { logOpen = !logOpen; $('#log').classList.toggle('open', logOpen); if (shown) renderLog(); };

@@ -1,7 +1,7 @@
 // Lớp mạng Tiến Lên: chủ phòng giữ state, người vào chỉ gửi action. Kết nối dùng chung shared/net/room.js
 import { createGame, applyAction, viewFor, current, VE_HEO, DEFAULT_OPTS, BETS, TURN_TIMES, START_CHIPS } from './engine.js?v=5';
 import { botAction, LEVELS } from './bot.js?v=7';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=53';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=7';
 import { watch } from '../../shared/ui/stats.js?v=89';

@@ -1,6 +1,7 @@
 // Cờ Tỷ Phú Sài Gòn – giao diện: trang chủ, tạo nhân vật, sảnh, ván chơi 3D, hoạt ảnh sự kiện.
 import { hintsAllowed, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, cleanAvatar, TYPHU_PHRASES } from './net.js?v=113';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import {
@@ -242,6 +243,7 @@ function renderLobby() {
   $('#btn-addbot').style.display = $('#btn-addlocal').style.display = isHost ? '' : 'none';
   $('#btn-addbot').disabled = $('#btn-addlocal').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 $('#btn-addbot').onclick = () => { fx.sfx.click(); net && net.addBot(); };
 $('#btn-addlocal').onclick = () => {
@@ -574,6 +576,7 @@ function renderPlayers() {
     return `<div class="pc ${p.id === cur(v).id && v.phase === 'playing' ? 'turn' : ''} ${p.out ? 'out' : ''}" data-id="${esc(p.id)}" style="--pc:${p.color}" ${fnAttr('panel', () => openPlayer(p.id))}>
       <img src="${pic(p.avatar, 72)}" alt=""><div class="tx"><div class="nm">${p.team != null ? TEAM_ICON[p.team] + ' ' : ''}${esc(p.name.replace(' 🤖', ''))}</div><div class="cs">${p.out ? 'Phá sản' : money(p.cash)}</div><div class="wo">💎 ${money(v.worth[p.id] || 0)} · 🏠 ${tilesOf(v, p.id).length}</div></div>${st ? `<span class="st">${st}</span>` : ''}</div>`;
   }).join('');
+  paintTitles(el, (lobby && lobby.players) || []); /* 🎖️ danh hiệu trong ván, tra từ roster phòng chờ (patch -97) */
 }
 function renderLog() { if (logOpen) $('#log-list').innerHTML = shown.log.slice().reverse().map(l => `<li>${esc(l)}</li>`).join(''); }
 $('#btn-log').onclick = () => { logOpen = !logOpen; $('#log').classList.toggle('open', logOpen); if (shown) renderLog(); };

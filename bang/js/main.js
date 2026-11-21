@@ -1,6 +1,7 @@
 // Giao diện + nối với lớp mạng
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { CARD_INFO, CHARACTERS, ROLES, SUIT_SYMBOL, rankLabel, cardLabel, suitify } from './cards.js';
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, BANG_PHRASES } from './net.js?v=68';
 import { createReactions } from '../../shared/ui/react.js?v=6';
@@ -228,6 +229,7 @@ function renderLobby(code) {
   });
   if (isHost) { $('#btn-start').disabled = lobby.length < 4 || lobby.length > 7; $('#btn-add-bot').disabled = lobby.length >= 7; $('#lobby-msg').textContent = `${lobby.length}/7 người. ${lobby.length < 4 ? 'Cần thêm ' + (4 - lobby.length) + ' người hoặc bot.' : 'Sẵn sàng!'}`; }
   else if (!view) $('#lobby-msg').textContent = 'Đang chờ chủ phòng bắt đầu…';
+  paintTitles($('#lobby-players'), lobby); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 
 // ---------- Gửi action ----------

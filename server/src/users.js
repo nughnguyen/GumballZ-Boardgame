@@ -762,6 +762,27 @@ export class Users extends DurableObject {
     const me = meUser ? (entries.find(e => e.id === meUser.id) || null) : null;
     return { ok: true, game, by, total: entries.length, list: entries.slice(0, 50), me };
   }
+  /* 🎖️ danh hiệu trưng ra trong phòng (patch -97): tính y hệt leaderboard/publicProfile — P.title chỉ hiện
+     khi vẫn còn đạt (pickTitle), tài khoản bị khoá / không đăng nhập thì không có danh hiệu. */
+  async titleOf(token) {
+    const u = await this.whoami(token); if (!u || u.banned) return null;
+    const row = this.one('SELECT prof, created FROM users WHERE id = ?', u.id); if (!row) return null;
+    let P = null; try { P = JSON.parse(row.prof || 'null'); } catch (e) {}
+    P = P && typeof P === 'object' ? P : {};
+    const ranks = await this.ranks(), rank = ranks.get(u.id) || 0;
+    const t = pickTitle(titlesOf(statOf(P, { created: row.created, rank })), P.title);
+    return t ? { id: t.id, icon: t.icon, name: t.name } : null;
+  }
+  /* 🎖️ kiểm id danh hiệu khách tự khai (đổi giữa ván/phòng): chỉ trả về khi id đó nằm trong danh sách đã đạt */
+  async verifyTitle(token, id) {
+    const u = await this.whoami(token); if (!u || u.banned) return null;
+    const row = this.one('SELECT prof, created FROM users WHERE id = ?', u.id); if (!row) return null;
+    let P = null; try { P = JSON.parse(row.prof || 'null'); } catch (e) {}
+    P = P && typeof P === 'object' ? P : {};
+    const ranks = await this.ranks(), rank = ranks.get(u.id) || 0;
+    const t = titlesOf(statOf(P, { created: row.created, rank })).find(x => x.id === String(id || ''));
+    return t ? { id: t.id, icon: t.icon, name: t.name } : null;
+  }
   /* thứ hạng chung theo điểm (id → hạng), làm mới cùng nhịp 30 giây với bảng xếp hạng */
   async ranks() { if (!this.rankMap || Date.now() - (this.rankAt || 0) > 30e3) await this.leaderboard({ game: 'all', by: 'xp' }); return this.rankMap || new Map(); }
   // 👤 Hồ sơ công khai của một thành viên (ai cũng xem được): chỉ gồm tên hiện, tên đăng nhập, hình đại diện, số liệu chơi, thành tích, danh hiệu.

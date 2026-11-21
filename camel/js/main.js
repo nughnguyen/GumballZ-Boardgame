@@ -1,6 +1,7 @@
 // Đua Lạc Đà 3D – giao diện: trang chủ, sảnh, ván chơi (3D + bảng HUD 2D), hoạt ảnh sự kiện.
 import { hintsAllowed, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, CAMEL_PHRASES, setSpeedFn } from './net.js?v=56';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import { CAMEL, RACERS, TRACK, LEG_ROLLS, OVERALL_PAY, legalTiles, ranking } from './engine.js?v=1';
@@ -124,6 +125,7 @@ function renderLobby() {
     `<div class="opt"><b>🪙 Tiền</b><small>Mỗi người 3 xu ảo. Vé chặng 5/3/2/2 · cược chung cuộc 8/5/3/2/1 · sai −1. Chơi vui bằng xu ảo, không cá cược tiền thật.</small></div>`;
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 $('#btn-addbot').onclick = () => { fx.sfx.click(); net && net.addBot(); };
 $('#btn-start').onclick = () => { /* dựng bàn 3D khá nặng: đổi nút sang "đang dọn bàn" và cho màn hình vẽ lại trước, rồi mới bắt đầu – bấm thấy phản hồi ngay */
@@ -337,6 +339,7 @@ function renderPlayers(prev) {
       <div class="nm">${isMine(p.id) ? '👤 ' : ''}${esc(nm(v, p.id))}${badge ? ' ' + badge : ''}</div>
       <div class="tk"><span class="coin ${ch}">🪙${p.coins}</span>${p.legTix.map(t => `<b class="${t.camel}" style="${cc(t.camel)}">${t.value}</b>`).join('')}${tile ? `<span class="tl">${tile.side > 0 ? '🌴' : '🌫️'}${tile.pos}</span>` : ''}${nb ? `<span class="bets">🂠${nb}</span>` : ''}</div></div>`;
   }).join('');
+  paintTitles(el, (lobby && lobby.players) || []); /* 🎖️ danh hiệu trong ván, tra từ roster phòng chờ (patch -97) */
 }
 function renderRank(board) {
   const v = shown; if (!v) return; const r = ranking(board || v.board);

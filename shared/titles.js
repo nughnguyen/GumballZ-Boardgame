@@ -61,5 +61,17 @@ export function titlesOf(st) {
 }
 /* danh hiệu đang trưng: cái người chơi tự chọn (nếu vẫn còn đạt), không thì cái oách nhất */
 export function pickTitle(list, chosen) { return (chosen && list.find(t => t.id === chosen)) || list[0] || null; }
+/* tra 1 id danh hiệu → { id, icon, name } (kèm game nếu là danh hiệu theo game), id lạ → null.
+   Dùng ở mọi nơi nhận id từ người khác (tin join, roster, chat): chỉ tin id có trong bảng này,
+   icon/tên LUÔN lấy từ đây, không tin text người khác gửi (chống fake danh hiệu). */
+export function titleById(id) {
+  if (typeof id !== 'string' || !id || id.length > 24) return null;
+  for (const t of GEN) { if (t.id === id && t.id !== '@games') return { id: t.id, icon: t.icon, name: t.name, desc: t.desc }; }
+  if (id.startsWith('g-')) { const t = GAME_TITLES[id.slice(2)]; if (t) return { id, icon: t[0], name: t[1], game: id.slice(2) }; }
+  return null;
+}
+/* id danh hiệu mình đang trưng (đọc từ máy này; sync.js đã kéo P.title từ máy chủ về đây khi đồng bộ).
+   Chỉ chạy trên trình duyệt – ngoài trình duyệt (máy chủ) trả '' để khỏi chạm localStorage. */
+export const myTitleId = () => { try { const t = localStorage.getItem('gumballz-title'); return typeof t === 'string' ? t : ''; } catch (e) { return ''; } };
 /* toàn bộ danh hiệu có thể đạt (để hiện danh sách "chưa đạt") – không kể danh hiệu theo game */
 export const ALL_TITLES = GEN.filter(t => t.id !== '@games').map(t => ({ id: t.id, icon: t.icon, name: t.name, desc: t.desc }));

@@ -1,11 +1,11 @@
 // ♟️ Cờ vua – giao diện. Luật ở engine.js, máy tính ở ai.js (+ worker.js cho gợi ý / thanh đánh giá), phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=50';
+import { makeNet } from '../../shared/net/simplenet.js?v=51';
 import * as E from './engine.js?v=1';
 import { botAction, botWants, think, mateIn, MATE } from './ai.js?v=1';
 import { PUZZLES } from './puzzles.js?v=2';
 import { POOLS, LEVELS, puzzleFor, indexOf as levelIndexOf, nextPuzzle, byId as levelById } from './levels.js?v=1';
 import { DAILY, START as D_START } from './daily.js?v=1';
-import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
+import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
 import { promptBox } from '../../shared/ui/dialog.js?v=6';
 
 const NET = makeNet({

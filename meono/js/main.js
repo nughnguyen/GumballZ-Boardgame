@@ -2,6 +2,7 @@ import { flipRender } from '../../shared/lib/gsap/flip.js?v=1';
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, setSpeedFn, MEO_PHRASES } from './net.js?v=66';
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
 import { CARD, CATS, NAMEABLE, classify, needsTarget, cardName, deckPlan, isCat, awards } from './engine.js?v=14';
@@ -145,6 +146,7 @@ function renderLobby() {
   $('#deck-info').innerHTML = `🃏 ${n} người${o.chaos ? ' · <b>🌀 Hỗn loạn</b>' : ''}: bộ ${total} lá, <b>${plan.bomb} Mèo Nổ</b>, ${plan.defuse} Gỡ Bom, ${plan.attack} Đổ Vỏ, ${plan.nope} HUỶ KÈO!. Mỗi người 1 Gỡ Bom + 7 lá.`;
   $('#btn-start').style.display = isHost ? '' : 'none';
   $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 $('#btn-addbot').onclick = () => net && net.addBot();
 $('#btn-start').onclick = () => { fx.actx(); net && net.start(); };

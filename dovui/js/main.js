@@ -1,8 +1,8 @@
 // 🧠 Đố Vui Siêu Tốc – giao diện. Luật ở engine.js, câu hỏi ở questions.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=50';
+import { makeNet } from '../../shared/net/simplenet.js?v=51';
 import { DEF } from './def.js?v=4';
 import * as E from './engine.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);

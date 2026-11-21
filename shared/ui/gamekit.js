@@ -8,7 +8,8 @@ import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứ
 import { netStatus } from './status.js';
 import { confirmBox } from './dialog.js?v=8';
 import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */
-ensureSkCSS();
+import { paintTitles, ensureTitleCSS } from './titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+ensureSkCSS(); ensureTitleCSS();
 export const $ = s => document.querySelector(s);
 export const $$ = s => [...document.querySelectorAll(s)];
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -31,15 +32,22 @@ export function gameKit({ game, net: N, onLobby, onState, offline }) {
   ui.controls = id => !!ui.net && (ui.isHost ? ui.net.controls(id) : id === ui.myId);
   const myName = () => { const n = $('#name').value.trim() || 'Bạn'; ls.set('gumballz-name', n); return n; };
   $('#name').value = ls.get('gumballz-name') || '';
+  /* 🎖️ danh hiệu cạnh tên (patch -97): danh sách lấy từ lobby (phòng chờ) hoặc ghế ngồi của host (chơi đơn) */
+  const titleOf = pid => { const ps = (ui.lobby && ui.lobby.players) || (ui.net && ui.net.raw && ui.net.raw.players) || []; const p = ps.find(x => x && x.id === pid); return (p && p.title) || null; };
+  const paintLobbyTitles = info => {
+    paintTitles($('#plist'), (info && info.players) || []);
+    if (ui.view && Array.isArray(ui.view.players)) paintTitles($('#players'), ui.view.players.map(p => ({ id: p.id, title: titleOf(p.id) })));
+  };
+  const paintGameTitles = v => { if (v && Array.isArray(v.players)) paintTitles($('#players'), v.players.map(p => ({ id: p.id, title: titleOf(p.id) }))); };
 
   const handlers = {
-    onLobby(info, code, started) { if (ui.gone) return; /* tin tới trễ sau khi đã rời phòng */ if (!ui.net) { queueMicrotask(() => ui.net && handlers.onLobby(info, code, started)); return; } /* Host báo phòng ngay trong lúc khởi tạo, trước khi ui.net được gán */ ui.lobby = info; ui.code = code; $('#room-code').textContent = code; if (!started) { ui.view = null; if (!$('#screen-lobby').classList.contains('active')) ui.show('screen-lobby'); } onLobby && onLobby(info, ui, started); },
+    onLobby(info, code, started) { if (ui.gone) return; /* tin tới trễ sau khi đã rời phòng */ if (!ui.net) { queueMicrotask(() => ui.net && handlers.onLobby(info, code, started)); return; } /* Host báo phòng ngay trong lúc khởi tạo, trước khi ui.net được gán */ ui.lobby = info; ui.code = code; $('#room-code').textContent = code; if (!started) { ui.view = null; if (!$('#screen-lobby').classList.contains('active')) ui.show('screen-lobby'); } onLobby && onLobby(info, ui, started); paintLobbyTitles(info); },
     onState(v) {
       if (ui.gone) return;
       if (!ui.net) { queueMicrotask(() => ui.net && handlers.onState(v)); return; }
       if (!v) { ui.view = null; ui.closeModal(); ui.show('screen-lobby'); onLobby && ui.lobby && onLobby(ui.lobby, ui, false); onState && onState(null, null, ui); return; }
       const prev = ui.view; ui.view = v; if (!$('#screen-game').classList.contains('active')) ui.show('screen-game');
-      onState && onState(v, prev, ui);
+      onState && onState(v, prev, ui); paintGameTitles(v);
     },
     onError(m) { ui.toast(m); }, onJoined(id) { ui.myId = id; }, onDisconnect() {}, onKicked() { ui.leave(); },
     onNet(t, k, retry) { netStatus(t, k, retry); },

@@ -5,7 +5,7 @@ import { GAME_NAMES } from './stats.js?v=89';
 import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, ownName } from './profile.js?v=51';
 import { openLogin } from './account.js?v=50';
 import { syncNow } from './sync.js?v=48';
-import { ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
+import { ALL_TITLES, GAME_WINS } from '../titles.js?v=5';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
 import { ensureSkCSS, skRanks, skPodium } from './skeleton.js?v=1'; /* 💀 skeleton loading: bục top 3 + hàng xếp hạng tới khi máy chủ trả dữ liệu */
 const titleHow = t => { if (!t) return ''; if (t.id && String(t.id).startsWith('g-')) { const g = String(t.id).slice(2); return `Thắng ${GAME_WINS} ván ${GAME_NAMES[g] || g}`; } const f = ALL_TITLES.find(x => x.id === t.id); return f ? f.desc : (t.desc || ''); };

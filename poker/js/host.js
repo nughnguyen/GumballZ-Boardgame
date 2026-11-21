@@ -1,5 +1,6 @@
 // Lõi chủ phòng poker – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, nextHand, seatPlayers, DEFAULT_OPTS, OPT_CHOICES, MAX_PLAYERS } from './engine.js?v=2';
+import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=1';
 export const NS = 'gumballz-poker', PREFIX = 'gumballz-poker-', GAME = 'poker', SNAP = 'gumballz-hostsnap-' + GAME;
 // Câu chọc kiểu Poker (≤ 24 ký tự)
@@ -16,7 +17,7 @@ export function makeHost(env) {
 class Host {
   constructor(name, handlers, offline = false, restore = null) {
     this.h = watch(GAME, handlers, () => 'host'); this.offline = offline;
-    this.players = [{ id: 'host', name, isBot: false, token: token(), conn: null, connected: !remote }];
+    this.players = [{ id: 'host', title: titleById(myTitleId()), name, isBot: false, token: token(), conn: null, connected: !remote }];
     this.state = null; this.conns = new Map(); this.timers = {}; this.clock = null; this.graceUntil = 0;
     this.hs = Math.random().toString(36).slice(2, 8);
     { const { modeBlindUp, ...o } = CFG; this.opts = o; }
@@ -46,16 +47,17 @@ class Host {
     if (!msg) return;
     if (msg.t === 'join') {
       let p = this.players.find(x => x.token === msg.token && !x.isBot && x.id !== 'host');
-      if (p) { if (p.conn && p.conn !== conn) try { p.conn.close(); } catch (e) {} p.conn = conn; p.connected = true; p.name = String(msg.name || p.name).slice(0, 16); }
+      if (p) { if (p.conn && p.conn !== conn) try { p.conn.close(); } catch (e) {} p.conn = conn; p.connected = true; p.name = String(msg.name || p.name).slice(0, 16); p.title = titleById(msg.title); }
       else {
         if (this.players.length >= MAX + 8) { conn.send({ t: 'error', msg: 'Bàn đã đầy.' }); return; } /* cho phép thêm tối đa 8 người xem */
-        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true };
+        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true, title: titleById(msg.title) };
         this.players.push(p);
       }
       this.conns.set(conn, p);
       conn.send({ t: 'welcome', id: p.id, code: this.code });
       this.pushLobby();
       if (this.state) { this.schedule(); this.broadcast(); }
+    } else if (msg.t === 'title') { const p = this.conns.get(conn); if (p && p.conn === conn) { p.title = titleById(msg.title); this.pushLobby(); } /* 🎖️ đổi danh hiệu giữa phòng (P2P): chỉ nhận id có trong bảng */
     } else if (msg.t === 'action') {
       const p = this.conns.get(conn); if (p && p.conn === conn) this.inGame(p.id) && this.act(p.id, msg.a);
     } else if (msg.t === 'react') {
@@ -74,7 +76,7 @@ class Host {
     this.pushLobby(); if (this.state) { this.schedule(); this.broadcast(); }
   }
   inGame(id) { const s = this.state; return !s || !s.players || s.players.some(q => q.id === id); } // vào giữa ván: chỉ xem, ván sau mới chơi
-  lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: p.isBot, connected: p.connected })), opts: this.opts }; }
+  lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: p.isBot, connected: p.connected, title: p.title || null })), opts: this.opts }; }
   pushLobby() {
     const info = this.lobbyInfo();
     this.h.onLobby(info, this.code, !!this.state); this.saveSnap();

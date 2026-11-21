@@ -1,5 +1,6 @@
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, BC_PHRASES, setSpeedFn } from './net.js?v=54';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 
@@ -142,6 +143,7 @@ function renderLobby() {
   $$('#opts [data-k]').forEach(b => b.onclick = () => { const k = b.dataset.k; const v = OPT_CHOICES[k].find(x => String(x) === b.dataset.v); net && net.setOpt(k, v); });
   $('#btn-start').style.display = isHost ? '' : 'none';
   $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 $('#btn-addbot').onclick = () => net && net.addBot();
 $('#btn-fill').onclick = () => net && net.fillBots && net.fillBots();

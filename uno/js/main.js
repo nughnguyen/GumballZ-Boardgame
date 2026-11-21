@@ -1,6 +1,7 @@
 import { flipRender } from '../../shared/lib/gsap/flip.js?v=1';
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, UNO_PHRASES } from './net.js?v=81';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=5';
 
@@ -127,6 +128,7 @@ function renderLobby() {
   renderMatchOpt();
   $('#btn-start').style.display = isHost ? '' : 'none';
   $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 // tuỳ chọn "Tính điểm tới 500": chơi nhiều ván, người về nhất cộng điểm bài còn lại của người khác
 function renderMatchOpt() {

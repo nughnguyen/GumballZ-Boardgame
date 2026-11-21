@@ -1,6 +1,7 @@
 // Lõi chủ phòng Tam Quốc Sát – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, tốc độ hoạt ảnh… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
 import { createGame, applyAction, viewFor, top, getPlayer, NULL_TIME } from './engine.js?v=14';
+import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=13';
 import { coachHint } from './coach.js?v=13';
 export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30; // giây: hết giờ thì máy tự đánh thay (chống treo máy)
@@ -28,7 +29,7 @@ export function makeHost(env) {
 class Host {
   constructor(name, handlers, offline = false, restore = null) {
     this.h = watch(GAME, handlers, () => 'host'); this.offline = offline;
-    this.players = [{ id: 'host', name, isBot: false, token: token(), conn: null, connected: !remote }];
+    this.players = [{ id: 'host', title: titleById(myTitleId()), name, isBot: false, token: token(), conn: null, connected: !remote }];
     this.opts = { exp: CFG.exp, expGen: CFG.expGen, training: CFG.training };
     this.hintCache = {}; this.lim = hostLimiter(); this.botReactAt = 0;
     this.state = null; this.conns = new Map(); this.botTimer = null; this.dlTimer = null; this.deadline = null;
@@ -60,15 +61,17 @@ class Host {
       if (p) {
         if (p.conn && p.conn !== conn) try { p.conn.close(); } catch (e) {}
         p.conn = conn; p.connected = true; p.name = String(msg.name || p.name).slice(0, 16);
+        p.title = titleById(msg.title);
         if (typeof msg.hints === 'boolean') p.hints = msg.hints;
       } else {
         if (this.players.length >= MAX + 8) { conn.send({ t: 'error', msg: 'Phòng đã đầy.' }); return; } /* cho phép tối đa 8 người xem */
-        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true, hints: !!msg.hints };
+        p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true, hints: !!msg.hints, title: titleById(msg.title) };
         this.players.push(p);
       }
       this.conns.set(conn, p);
       conn.send({ t: 'welcome', id: p.id, code: this.code });
       this.pushLobby(); this.broadcast(); this.scheduleBots();
+    } else if (msg.t === 'title') { const p = this.conns.get(conn); if (p && p.conn === conn) { p.title = titleById(msg.title); this.pushLobby(); } /* 🎖️ đổi danh hiệu giữa phòng (P2P): chỉ nhận id có trong bảng */
     } else if (msg.t === 'action') {
       const p = this.conns.get(conn); if (p) this.inGame(p.id) && this.act(p.id, msg.a);
     } else if (msg.t === 'react') {
@@ -86,7 +89,7 @@ class Host {
     this.pushLobby(); this.scheduleBots(); if (this.state) this.broadcast();
   }
   inGame(id) { const s = this.state; return !s || !s.players || s.players.some(q => q.id === id); } // vào giữa ván: chỉ xem, ván sau mới chơi
-  lobbyInfo() { return this.players.map(p => ({ id: p.id, name: p.name, isBot: p.isBot, connected: p.connected, afk: (p.afk || 0) >= 2 })); }
+  lobbyInfo() { return this.players.map(p => ({ id: p.id, name: p.name, isBot: p.isBot, connected: p.connected, afk: (p.afk || 0) >= 2, title: p.title || null })); }
   pushLobby() {
     const info = this.lobbyInfo();
     this.h.onLobby(info, this.code, !!this.state, this.opts); this.saveSnap();

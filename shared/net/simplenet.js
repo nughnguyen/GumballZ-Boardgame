@@ -9,11 +9,12 @@
 //     botNames: [...], allowLocal: true,                      // allowLocal: cho thêm "người chơi cùng máy" (chuyền tay)
 //   });
 // Người chơi cùng máy (local) và bot do máy chủ phòng điều khiển: hành động của họ gửi qua net.actAs(id, a).
-import { RoomHost, RoomClient, token, session } from './room.js?v=53';
+import { RoomHost, RoomClient, token, session } from './room.js?v=54';
 import { specBanner } from '../ui/spectate.js?v=8';
 import { watch } from '../ui/stats.js?v=89';
 export { session };
 import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=1';
+import { titleById, myTitleId } from '../titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */
 const HB_MS = 2500, STALL_MS = 8000, AWAY_MS = 8000;
 
 export function makeNet(cfg) {
@@ -26,7 +27,7 @@ export function makeNet(cfg) {
   class Host {
     constructor(name, handlers, offline = false, restore = null) {
       this.h = watch(GAME, handlers, () => 'host'); this.offline = offline;
-      this.players = [{ id: 'host', name, isBot: false, token: token(), conn: null, connected: true, data: playerData(null, name) }];
+      this.players = [{ id: 'host', name, isBot: false, token: token(), conn: null, connected: true, title: titleById(myTitleId()), data: playerData(null, name) }];
       this.state = null; this.conns = new Map(); this.timers = {}; this.opts = { ...(cfg.defaults || {}) };
       this.hs = Math.random().toString(36).slice(2, 8);
       if (restore) {
@@ -47,15 +48,16 @@ export function makeNet(cfg) {
       if (!msg) return;
       if (msg.t === 'join') {
         let p = this.players.find(x => x.token === msg.token && !x.isBot && !x.local && x.id !== 'host');
-        if (p) { const old = p.conn; p.conn = conn; p.connected = true; if (old && old !== conn) try { old.close(); } catch (e) {} } /* gán kết nối mới TRƯỚC khi đóng cái cũ, kẻo onLeave tưởng người này đã rời */
+        if (p) { const old = p.conn; p.conn = conn; p.connected = true; p.title = titleById(msg.title); if (old && old !== conn) try { old.close(); } catch (e) {} } /* gán kết nối mới TRƯỚC khi đóng cái cũ, kẻo onLeave tưởng người này đã rời */
         else {
           if (this.players.length >= (cfg.maxSeats || MAX + 6)) { conn.send({ t: 'error', msg: 'Phòng đã đầy.' }); return; } // quá số người chơi thì thành người xem
-          p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true, data: playerData(msg.data, msg.name, false, true) };
+          p = { id: 'p' + Math.random().toString(36).slice(2, 8), name: String(msg.name || 'Khách').slice(0, 16), isBot: false, token: msg.token, conn, connected: true, title: titleById(msg.title), data: playerData(msg.data, msg.name, false, true) };
           this.players.push(p);
         }
         this.conns.set(conn, p); conn.send({ t: 'welcome', id: p.id, code: this.code });
         this.pushLobby(); if (this.state) { this.schedule(); this.broadcast(); }
-      } else if (msg.t === 'action') { const p = this.conns.get(conn); if (p && p.conn === conn && this.inGame(p.id)) this.act(p.id, msg.a); }
+      } else if (msg.t === 'title') { const p = this.conns.get(conn); if (p && p.conn === conn) { p.title = titleById(msg.title); this.pushLobby(); } } /* 🎖️ đổi danh hiệu giữa phòng: chỉ nhận id có trong bảng */
+      else if (msg.t === 'action') { const p = this.conns.get(conn); if (p && p.conn === conn && this.inGame(p.id)) this.act(p.id, msg.a); }
       else if (msg.t === 'sync') { const p = this.conns.get(conn); if (!p || p.conn !== conn) return; if (this.state) this.sendState(p); else conn.send({ t: 'lobby', info: this.lobbyInfo(), code: this.code, started: false }); }
     }
     onLeave(conn) {
@@ -66,7 +68,7 @@ export function makeNet(cfg) {
       this.pushLobby(); if (this.state) { this.schedule(); this.broadcast(); }
     }
     inGame(id) { const s = this.state; return !s || !s.players || s.players.some(q => q.id === id); } // vào giữa ván: chỉ xem
-    lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, connected: p.connected, level: p.level })), opts: this.opts, min: MIN, max: MAX }; }
+    lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, connected: p.connected, level: p.level, title: p.title || null })), opts: this.opts, min: MIN, max: MAX }; }
     pushLobby() { const info = this.lobbyInfo(); this.h.onLobby(info, this.code, !!this.state); this.saveSnap(); for (const p of this.players) if (p.conn) try { p.conn.send({ t: 'lobby', info, code: this.code, started: !!this.state }); } catch (e) {} }
     setOpt(k, v) { if (this.state || (cfg.optOk && !cfg.optOk(k, v, this.opts))) return; this.opts = { ...this.opts, [k]: v }; this.pushLobby(); }
     usedNames() { return this.players.map(p => p.name.replace(' 🤖', '').trim().toLowerCase()); }

@@ -138,7 +138,7 @@ export function makeSimpleHost(cfg, env) {
       this.pushLobby(); if (this.state) { this.schedule(); this.broadcast(); }
     }
     inGame(id) { const s = this.state; return !s || !s.players || s.players.some(q => q.id === id); } // vào giữa ván: chỉ xem
-    lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, connected: p.connected, level: p.level })), opts: this.opts, min: MIN, max: MAX }; }
+    lobbyInfo() { return { players: this.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, connected: p.connected, level: p.level, title: p.title || null })), opts: this.opts, min: MIN, max: MAX }; }
     pushLobby() { const info = this.lobbyInfo(); this.h.onLobby(info, this.code, !!this.state); this.saveSnap(); for (const p of this.players) if (p.conn) try { p.conn.send({ t: 'lobby', info, code: this.code, started: !!this.state }); } catch (e) {} }
     setOpt(k, v) { if (this.state || (cfg.optOk && !cfg.optOk(k, v, this.opts))) return; this.opts = { ...this.opts, [k]: v }; this.pushLobby(); }
     usedNames() { return this.players.map(p => p.name.replace(' 🤖', '').trim().toLowerCase()); }
@@ -425,7 +425,7 @@ export class SrvRoom {
       if (!c.own) this.onConn(c);
     }
     if (d.t === 'join' && !c.own && (this.banned.has(String(d.token || '').slice(0, 48)) || (c.ipk && this.banned.has('ip:' + c.ipk)))) { c.open = false; this.conns.delete(a.id); try { ws.send(JSON.stringify({ t: '__kicked' })); ws.close(4003, 'kicked'); } catch (e) {} return; }
-    if (d.t === 'join') { c.tok = String(d.token || '').slice(0, 48); c.t0 = Date.now(); this.remember(ws, a, { join: d, t0: c.t0 }); c.name = String(d.name || 'Khách').slice(0, 20); c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.idCheck(c, d.ip); this.resolveRole(c); if (this.chatLog.length) c.send({ t: '__chat', hist: this.chatLog }); }
+    if (d.t === 'join') { c.tok = String(d.token || '').slice(0, 48); c.atok = String(d.atok || '').slice(0, 48); /* atok = token đăng nhập (tra danh hiệu + vai trò); tok = mã máy (vào lại ghế, cấm) */ c.t0 = Date.now(); this.remember(ws, a, { join: d, t0: c.t0 }); c.name = String(d.name || 'Khách').slice(0, 20); c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.idCheck(c, d.ip); this.resolveRole(c); this.resolveTitle(c); if (this.chatLog.length) c.send({ t: '__chat', hist: this.chatLog }); }
     if (d.t.startsWith('__')) { /* tin tầng phòng: máy chủ tự xử lý, không đưa xuống lõi game */
       if (d.t === '__ping') c.send({ t: '__pong', n: d.n, away: false });
       else if (d.t === '__chat') this.chat(c, d.text);
@@ -435,8 +435,10 @@ export class SrvRoom {
       else if (d.t === '__local' && c.own) this.goLocal(c);
       else if (d.t === '__unlocal' && c.own) this.unLocal(c, d.snap, !!d.keep);
       else if (d.t === '__id') { c.uid = Number(d.uid) || 0; c.uname = String(d.uname || '').slice(0, 20); this.vipCheck(c, d.vp); this.idCheck(c, d.ip); this.pushPeers(); }
+      else if (d.t === '__title') this.resolveTitleClaim(c, d.title); /* 🎖️ đổi danh hiệu giữa ván/phòng (phòng srv) */
       return;
     }
+    if (d.t === 'title') { this.resolveTitleClaim(c, d.title); return; } /* 🎖️ tin 'title' thường: chặn trước khi xuống lõi game — phòng srv chỉ tin danh hiệu đã kiểm, không tin id khách tự khai */
     if (d.t === 'join' && !c.own && this.localMode && this.owner) this.owner.send({ t: 'guest', name: c.name }); /* chủ phòng đang chơi với máy trên máy mình: báo có người vào */
     if (!c.own) { c.emit('data', d); return; }
     // ---- người tạo phòng: ngồi ghế 'host' của lõi game ----
@@ -480,7 +482,7 @@ export class SrvRoom {
     for (const ws of this.room.ctx.getWebSockets()) {
       let a; try { a = ws.deserializeAttachment(); } catch (e) {} if (!a || a.role !== 'c' || !a.join || this.conns.has(a.id) || ws.readyState !== 1) continue;
       const c = new Conn(a.id, ws); c.own = !!a.own; c.ipk = a.ipk || ''; c.onPid = () => this.pushPeers(); c.seats = () => this.openSeats(); c.quiet = true; this.conns.set(a.id, c);
-      const j = a.join; c.name = String(j.name || 'Khách').slice(0, 20); c.uid = Number(j.uid) || 0; c.uname = String(j.uname || '').slice(0, 20); c.tok = String(j.token || '').slice(0, 48); c.t0 = a.t0 || Date.now(); this.vipCheck(c, j.vp); this.idCheck(c, j.ip); this.resolveRole(c);
+      const j = a.join; c.name = String(j.name || 'Khách').slice(0, 20); c.uid = Number(j.uid) || 0; c.uname = String(j.uname || '').slice(0, 20); c.tok = String(j.token || '').slice(0, 48); c.atok = String(j.atok || '').slice(0, 48); c.t0 = a.t0 || Date.now(); this.vipCheck(c, j.vp); this.idCheck(c, j.ip); this.resolveRole(c); this.resolveTitle(c);
       if (c.own) { const h = this.host, hp = h.players.find(p => p.id === 'host'); this.owner = c; this.ownerGone = 0; if (hp) { hp.connected = true; } if (h.ownerOn) h.ownerOn(true, j.name, j.avatar); }
       else { this.onConn(c); c.emit('data', j); }
       c.quiet = false; n++;
@@ -501,7 +503,7 @@ export class SrvRoom {
     const target = h.players.find(p => p.id === targetId); if (!target) return;
     if (target.conn && target.conn !== c) { try { target.conn.close(); } catch (e) {} }
     const nm = String(spec.name || c.name || 'Khách').replace(' 🤖', '').trim().slice(0, 16) || 'Khách';
-    Object.assign(target, { isBot: false, conn: c, connected: true, name: nm, bc: Math.max(target.bc || 0, spec.bc || 0) }); if (spec.token) target.token = spec.token;
+    Object.assign(target, { isBot: false, conn: c, connected: true, name: nm, title: spec.title || null, bc: Math.max(target.bc || 0, spec.bc || 0) }); if (spec.token) target.token = spec.token;
     const sp = h.state.players.find(q => q.id === targetId); if (sp) { sp.name = nm; if ('isBot' in sp) sp.isBot = false; }
     h.players = h.players.filter(p => p !== spec);
     if (Array.isArray(h.state.log)) { h.state.log.push(`🪑 ${nm} đã ngồi vào bàn.`); if (h.state.log.length > 200) h.state.log.shift(); if ('logN' in h.state) h.state.logN = (h.state.logN || 0) + 1; }
@@ -618,10 +620,30 @@ export class SrvRoom {
   }
   /* 🎖️ huy hiệu chat phòng (patch -95): lấy role + supporter từ token lúc vào phòng (1 lần duy nhất, không gọi mỗi tin) */
   resolveRole(c) {
-    if (!c.tok) { c.role = 0; c.sp = 0; return; }
-    this.room.env.USERS.get(this.room.env.USERS.idFromName('main')).whoami(c.tok).then(u => {
+    if (!c.atok) { c.role = 0; c.sp = 0; return; }
+    this.room.env.USERS.get(this.room.env.USERS.idFromName('main')).whoami(c.atok).then(u => {
       c.role = u ? (u.role != null ? +u.role : (u.admin ? 2 : 0)) : 0; c.sp = u && u.supporter ? 1 : 0;
     }, () => { c.role = 0; c.sp = 0; });
+  }
+  /* 🎖️ danh hiệu trưng ra (patch -97): lấy P.title đã kiểm lúc vào phòng (ghế chủ phòng cũng tính, qua c.own) */
+  resolveTitle(c) {
+    if (!c.atok) { c.title = null; return; }
+    this.room.env.USERS.get(this.room.env.USERS.idFromName('main')).titleOf(c.atok).then(t => this.setSeatTitle(c, t), () => {});
+  }
+  /* 🎖️ đổi danh hiệu giữa ván/phòng: chỉ nhận id nằm trong danh sách đã đạt của chính tài khoản đó */
+  resolveTitleClaim(c, id) {
+    if (!c.atok) return;
+    this.room.env.USERS.get(this.room.env.USERS.idFromName('main')).verifyTitle(c.atok, id).then(t => this.setSeatTitle(c, t), () => {});
+  }
+  /* gán danh hiệu vào ghế của người đó trong lõi game rồi báo lại phòng chờ (đổi rồi thì thôi, khỏi spam) */
+  setSeatTitle(c, t) {
+    const h = this.host; if (!h || !Array.isArray(h.players)) return;
+    const p = h.players.find(q => q.conn === c) || h.players.find(q => c.pid && q.id === c.pid) || (c.own ? h.players.find(q => q.id === 'host') : null);
+    if (!p) return;
+    t = t || null; c.title = t;
+    if ((p.title && p.title.id) === (t && t.id)) return;
+    p.title = t;
+    try { h.pushLobby(); } catch (e) {}
   }
   /* danh sách người trong phòng (để bấm tên kết bạn / nhắn riêng) */
   pushPeers() {
@@ -640,7 +662,7 @@ export class SrvRoom {
     if (c.mod && c.mod.mc > now) return c.send({ t: '__chat', id: 'mute.' + now, from: 'GumballZ', sys: 1, text: `🔇 Bạn đang bị tạm cấm chat đến ${new Date(c.mod.mc).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}` });
     text = String(text == null ? '' : text).replace(/\s+/g, ' ').trim().slice(0, 140); if (!text) return;
     try { text = clean(text).text; } catch (e) {}
-    const m = { t: '__chat', id: ++this.chatN, from: c.name, host: !!c.own, uid: c.uid || 0, uname: c.uname || '', rl: c.role || 0, sp: c.sp ? 1 : 0, text, ...(c.vip ? { vip: true } : {}) };
+    const m = { t: '__chat', id: ++this.chatN, from: c.name, host: !!c.own, uid: c.uid || 0, uname: c.uname || '', rl: c.role || 0, sp: c.sp ? 1 : 0, ti: c.title || null, text, ...(c.vip ? { vip: true } : {}) };
     this.chatLog.push(m); if (this.chatLog.length > 40) this.chatLog.shift();
     for (const x of this.conns.values()) if (x.open && x.name) x.send(m);
   }

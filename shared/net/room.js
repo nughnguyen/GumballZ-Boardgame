@@ -10,6 +10,7 @@ import { FbHost, fbConnect, fbEnabled } from './fbrelay.js';
 import { CfHost, cfConnect, cfEnabled, cfClaim } from './cfrelay.js?v=16';
 import { announceRoom, auth, myLevel, API } from './api.js?v=29';
 import { unthrottleTimers } from './bgtimers.js?v=1'; /* ⏱️ hẹn giờ qua Web Worker để chủ phòng chuyển tab không làm bàn giật */
+import { titleById, myTitleId } from '../titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ gửi id, icon/tên tra từ bảng */
 /* 👑 vé chủ web (server/src/vip.js): vipCached/vipPass do shared/net/api.js cung cấp (worker client thêm, key 'gumballz-vp').
    🪪 vé tài khoản: idCached/idPass – gửi kèm khi vào phòng để máy chủ áp lệnh cấm / danh sách chặn.
    Nạp động + dự phòng rỗng để room.js vẫn chạy được nếu api.js chưa có các hàm đó. */
@@ -24,7 +25,7 @@ const NO_CHAT = ['masoi', 'scribble', 'giandiep'];
 const gameOf = ns => String(ns || '').replace(/^gumballz-/, '');
 const chatOn = ns => !NO_CHAT.includes(gameOf(ns));
 const chatText = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, 140);
-function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=39').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
+function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=40').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
 const chatBuf = []; /* tin gần đây – để hộp chat nạp xong muộn vẫn có đủ */
 function chatEmit(m) { if (m.reset) chatBuf.length = 0; else { chatBuf.push(m); if (chatBuf.length > 40) chatBuf.shift(); } try { dispatchEvent(new CustomEvent('gumballz-chat', { detail: m })); } catch (e) {} }
 
@@ -132,6 +133,9 @@ export class RoomHost {
     this.banned = new Set(); /* token người bị chủ phòng mời ra – không cho vào lại phòng này */
     friendsUi();
     this._offAuth = auth.onChange(() => { if (!this.dead) this.pushPeers(); });
+    /* 🎖️ đổi danh hiệu trong Hồ sơ giữa phòng: ghế chủ phòng cập nhật theo, báo lại cả phòng (không polling) */
+    this._onTitle = () => { if (this.dead || !this.host || !Array.isArray(this.host.players)) return; const hp = this.host.players.find(p => p.id === 'host'); if (!hp) return; const t = titleById(myTitleId()); if ((hp.title && hp.title.id) === (t && t.id)) return; hp.title = t; try { this.host.pushLobby(); } catch (e) {} };
+    try { addEventListener('gumballz-title', this._onTitle); } catch (e) {}
     this.open();
     this.stopKeep = keepAlive(() => this.peer);
     // phòng công khai (hiện ở Sảnh chung) – bật bằng nút "🌐 Công khai" (shared/ui/homebtn.js)
@@ -234,8 +238,9 @@ export class RoomHost {
         c._uid = Number(m.uid) || 0;
         c._uname = String(m.uname || '').slice(0, 20);
         c._token = String(m.token || '').slice(0, 48);
-        if (m.token) { /* 🎖️ huy hiệu chat phòng (patch -95): kiểm tra token người vào 1 lần để biết role + supporter (lỗi mạng thì thôi, không hiện huy hiệu) */
-          fetch(API() + '/auth/me', { headers: { Authorization: 'Bearer ' + String(m.token) } }).then(r => r.json()).then(d => { if (d && d.ok && d.user) { c._role = d.user.role != null ? +d.user.role : (d.user.admin ? 2 : 0); c._sp = d.user.supporter ? 1 : 0; } }).catch(() => {});
+        const atok = m.atok || m.token; /* 🎖️ huy hiệu chat phòng (patch -95): kiểm tra token ĐĂNG NHẬP người vào 1 lần để biết role + supporter (lỗi mạng thì thôi, không hiện huy hiệu). m.token là mã máy (vào lại ghế), không phải token đăng nhập nên whoami luôn null. */
+        if (atok) {
+          fetch(API() + '/auth/me', { headers: { Authorization: 'Bearer ' + String(atok) } }).then(r => r.json()).then(d => { if (d && d.ok && d.user) { c._role = d.user.role != null ? +d.user.role : (d.user.admin ? 2 : 0); c._sp = d.user.supporter ? 1 : 0; } }).catch(() => {});
         }
         if (first && this.chatLog.length) setTimeout(() => { try { if (c.open) c.send({ t: '__chat', hist: this.chatLog }); } catch (e) {} }, 600);
         this.pushPeers();
@@ -253,7 +258,7 @@ export class RoomHost {
     if (this.chatClean) try { text = this.chatClean(text).text; } catch (e) {}
     if (c) { if (!c._chatName) return; const now = Date.now(); if (now - (c._chatAt || 0) < 700) return; c._chatAt = now; } /* chưa vào phòng thì không được nói; chống spam */
     const u = !c ? auth.user() : null;
-    const m = { t: '__chat', id: ++this.chatN, from: c ? c._chatName : (localStorage.getItem('gumballz-name') || 'Chủ phòng'), host: !c, uid: c ? (c._uid || 0) : (u ? u.id : 0), uname: c ? (c._uname || '') : (u ? u.username : ''), rl: c ? (c._role || 0) : (u ? (u.role != null ? +u.role : (u.admin ? 2 : 0)) : 0), sp: c ? (c._sp ? 1 : 0) : (u && u.supporter ? 1 : 0), text }; /* 🎖️ huy hiệu chat phòng (patch -95): role + supporter của người gửi (chủ phòng đọc từ tài khoản mình, người khác do chủ phòng kiểm token lúc vào) */
+    const m = { t: '__chat', id: ++this.chatN, from: c ? c._chatName : (localStorage.getItem('gumballz-name') || 'Chủ phòng'), host: !c, uid: c ? (c._uid || 0) : (u ? u.id : 0), uname: c ? (c._uname || '') : (u ? u.username : ''), rl: c ? (c._role || 0) : (u ? (u.role != null ? +u.role : (u.admin ? 2 : 0)) : 0), sp: c ? (c._sp ? 1 : 0) : (u && u.supporter ? 1 : 0), ti: c ? (((this.host && this.host.players.find(p => p.conn === c)) || {}).title || null) : titleById(myTitleId()), text }; /* 🎖️ huy hiệu chat phòng (patch -95): role + supporter của người gửi (chủ phòng đọc từ tài khoản mình, người khác do chủ phòng kiểm token lúc vào) · 🎖️ danh hiệu (patch -97): của người gửi lấy từ ghế trong phòng, của mình đọc lúc gửi */
     this.chatLog.push(m); if (this.chatLog.length > 40) this.chatLog.shift();
     for (const x of this.conns) if (x.open && x._chatName) try { x.send(m); } catch (e) {}
     chatEmit(m);
@@ -397,7 +402,7 @@ export class RoomHost {
     if (this.pub) { this.pub = false; clearInterval(this.pubT); this.announce(false); }
     try { document.removeEventListener('visibilitychange', this._vis); } catch (e) {}
     try { removeEventListener('pagehide', this._unload); if (window.__gumballzHost === this) window.__gumballzHost = null; } catch (e) {}
-    try { this._offAuth && this._offAuth(); } catch (e) {} peersEmit([]);
+    try { this._offAuth && this._offAuth(); } catch (e) {} try { removeEventListener('gumballz-title', this._onTitle); } catch (e) {} peersEmit([]);
     this.dead = true; clearInterval(this.hb); this.stopKeep && this.stopKeep(); this.relay && this.relay.destroy(); this.fb && this.fb.destroy(); this.cf && this.cf.destroy(); try { this.peer && this.peer.destroy(); } catch (e) {}
   }
 }
@@ -428,6 +433,9 @@ export class RoomClient {
     try { window.__gumballzOpenSeats = []; window.__gumballzSit = null; } catch (e) {}
     friendsUi();
     this._offAuth = auth.onChange(u => { if (!this.dead && this.id) { this.send({ t: '__id', uid: u ? u.id : 0, uname: u ? u.username : '', vp: vipCached(), ip: idCached() }); if (u) idPass().then(p => { if (p && !this.dead && this.id) this.send({ t: '__id', uid: u.id, uname: u.username || '', vp: vipCached(), ip: p }); }); } });
+    /* 🎖️ đổi danh hiệu trong Hồ sơ giữa phòng/ván: báo lại cho chủ phòng / máy chủ giữ ván (cả 2 đường, bên nào không cần thì bỏ) */
+    this._onTitle = () => { if (this.dead || !this.id) return; const t = myTitleId(); this.send({ t: 'title', title: t }); this.send({ t: '__title', title: t }); };
+    try { addEventListener('gumballz-title', this._onTitle); } catch (e) {}
     this.modes = opts.cfExtra ? ['cf'] /* phòng máy chủ giữ ván: chỉ đi đường Cloudflare */ : /[?&]relay=1/.test(location.search) ? ['mqtt'] : /[?&]p2p=1/.test(location.search) ? ['p2p'] : [...(cfEnabled() ? ['cf'] : []), ...(fbEnabled() ? ['fb'] : []), 'p2p', 'mqtt'];
     this.mi = 0;
     if (this.modes.includes('p2p')) this.initPeer();
@@ -541,7 +549,7 @@ export class RoomClient {
     this.conn = conn;
     clearTimeout(this.joinTimer);
     this.joinTimer = setTimeout(() => { if (!this.id && conn === this.conn) { if (mode === 'cf') this._hostGone = !!conn.wasOpen; /* nối được máy chủ mà chủ phòng không đáp */ this.next(); } }, mode === 'p2p' ? 7000 : mode === 'cf' ? 8000 : 12000);
-    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(), ip = idCached(); conn.send({ t: 'join', token: token(), uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...(ip ? { ip } : {}), ...this.o.joinMsg() }); if (u) Promise.all([u.admin && u.owner ? vipPass() : vp, idPass()]).then(([p, q]) => { if ((p !== vp || q !== ip) && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p || '', ip: q || '' }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js · 🪪 vé tài khoản */
+    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(), ip = idCached(); conn.send({ t: 'join', token: token(), atok: auth.token() || '', uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...(ip ? { ip } : {}), ...this.o.joinMsg(), title: myTitleId() }); /* 🎖️ token máy (vào lại ghế cũ) khác với atok = token đăng nhập (máy chủ tra danh hiệu + vai trò) — trước đây chỉ gửi token máy nên whoami luôn null, danh hiệu + huy hiệu phòng srv/P2P không hiện */ if (u) Promise.all([u.admin && u.owner ? vipPass() : vp, idPass()]).then(([p, q]) => { if ((p !== vp || q !== ip) && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p || '', ip: q || '' }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js · 🪪 vé tài khoản */
     conn.on('data', msg => {
       if (conn !== this.conn || !msg) return;
       this.lastSeen = Date.now();
@@ -628,7 +636,7 @@ export class RoomClient {
   send(msg) { if (this.conn && this.conn.open) this.conn.send(msg); }
   destroy() {
     this.dead = true; clearInterval(this.wd); clearInterval(this.pingT); clearTimeout(this.pingT0); try { removeEventListener('gumballz-net', this._pongL); } catch (e) {} netEmit({ reset: true }); clearTimeout(this.joinTimer); clearTimeout(this._retryT); this.stopKeep && this.stopKeep();
-    try { this._offAuth && this._offAuth(); } catch (e) {} peersEmit([]);
+    try { this._offAuth && this._offAuth(); } catch (e) {} try { removeEventListener('gumballz-title', this._onTitle); } catch (e) {} peersEmit([]);
     try { window.__gumballzOpenSeats = []; window.__gumballzSit = null; dispatchEvent(new CustomEvent('gumballz-seats')); } catch (e) {}
     try { this.conn && this.conn.close(); } catch (e) {} try { this.peer && this.peer.destroy(); } catch (e) {}
   }

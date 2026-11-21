@@ -1,5 +1,6 @@
 import { Host, Client, RemoteHost, srvMode, MAX, maxPlayers, loadSnapshot, session, PHRASES, SOLO_DEFAULT } from './net.js?v=63';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
+import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
 import { Board, buildToolbar, opsToCanvas, W, H } from './draw.js?v=5';
@@ -189,6 +190,7 @@ function renderLobby() {
   $('#btn-start').textContent = online < need ? '▶ Bắt đầu (cần ≥ 2 người)' : `▶ Bắt đầu ${o.mode === 'gartic' ? GMODES[o.gmode].icon + ' ' + GMODES[o.gmode].name : MODE_INFO[o.mode][0].slice(2)}`;
   $('#btn-start').classList.toggle('dim', online < need || online > mx);
   $('#wait-msg').style.display = isHost ? 'none' : '';
+  paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 function renderSettings() {
   const o = lobby.opts, box = $('#settings');
