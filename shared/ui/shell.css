@@ -1,6 +1,6 @@
 /* 🧩 Khung chung GumballZ – nạp ở MỌI trang (trang chủ, trang phụ, từng game):
    chuyển trang mượt, nút "GumballZ" về trang chủ, hiệu ứng nhấn nút. */
-@import url("neo.css?v=17"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
+@import url("neo.css?v=18"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
 @view-transition{navigation:auto}
 ::view-transition-old(root){animation:.16s ease-in both gumballz-vt-out}
 ::view-transition-new(root){animation:.26s cubic-bezier(.2,.9,.3,1) both gumballz-vt-in}

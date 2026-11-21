@@ -14,7 +14,7 @@
   if (parts.length && parts[parts.length - 1].indexOf('.') !== -1) parts.pop(); // bỏ tên file nếu có
   var depth = parts.length;
   var P = depth === 0 ? './' : '../'.repeat(depth);
-  var page = parts[0] === 'sanh' ? 'sanh' : parts[0] === 'shop' ? 'shop' : 'home';
+  var page = parts[0] === 'sanh' ? 'sanh' : parts[0] === 'shop' ? 'shop' : (parts.length === 0 ? 'home' : 'game'); /* patch -112: trang game (vd. /typhu/) là 'game', không phải 'home' — trước đây nhầm thành home nên href './'/'sanh/' trỏ sai */
   var isHome = page === 'home';
 
   var MARK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="mark" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="16" fill="#FACD33" stroke="#241A38" stroke-width="3"/><circle cx="32" cy="35" r="16" fill="#FF5A60" stroke="#241A38" stroke-width="3"/><path d="M22 24 Q25 21 29 20.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="25.5" cy="31" r="2.6" fill="#241A38"/><circle cx="38.5" cy="31" r="2.6" fill="#241A38"/><path d="M25 38 Q32 44.5 39 38" fill="none" stroke="#241A38" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q18 12 25 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="48" cy="15" r="4.5" fill="#B9A6FF" stroke="#241A38" stroke-width="2.5"/><circle cx="49" cy="49" r="3.5" fill="#2EC5B6" stroke="#241A38" stroke-width="2.5"/></svg>';
@@ -26,7 +26,7 @@
   var shopHref = isHome ? 'shop/' : P + 'shop/';
 
   var header =
-    '<header class="nav" id="nav"><div class="nav-in">' +
+    '<header class="nav' + (page === 'game' ? ' game' : '') + '" id="nav"><div class="nav-in">' + /* patch -112: class "game" để CSS xếp lại topbar trên trang game (cao ~72px, không ô tìm kiếm, menu giữa hơi lệch trái) */
     '<a class="brand" href="' + homeHref + '" aria-label="GumballZ Boardgame – trang chủ">' + MARK + '<span class="wm">GumballZ<small>Boardgame</small></span></a>' +
     '<form class="nav-search" id="nav-search" role="search"><input id="gq-top" type="search" placeholder="🔎 Tìm game…" aria-label="Tìm game theo tên" autocomplete="off"></form>' +
     '<nav class="links" aria-label="Điều hướng">' +
@@ -68,7 +68,7 @@
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */
-  import('./account.js?v=51').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
+  import('./account.js?v=52').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
   import('./profile.js?v=54').then(function (m) {
     m.profileCss();
@@ -119,9 +119,39 @@
     if (f) f.addEventListener('submit', function (e) {
       e.preventDefault();
       var q = (document.getElementById('gq-top').value || '').trim();
-      location.href = P + (q ? '?q=' + encodeURIComponent(q) : '');
+      var dest = P + (q ? '?q=' + encodeURIComponent(q) : '');
+      /* patch -112: tìm kiếm cũng là rời trang — đang trong ván thì hỏi trước */
+      if (leaveMod && leaveConfirm && leaveMod.inMatch(document)) {
+        leaveMod.askLeave(document, dest, 'Trang chủ', { confirmBox: leaveConfirm, navigate: function (u) { location.href = u; } });
+        return;
+      }
+      location.href = dest;
     });
   }
+
+  /* ---------- patch -112: topbar luôn hiện cả ở trang game + chặn thoát nhầm giữa ván ----------
+     Link điều hướng trong topbar/tabbar (Trang chủ, Sảnh chung, Cửa hàng, pill xu): đang trong
+     ván thì hỏi xác nhận rồi mới rời đúng thủ tục của game; không trong ván thì chuyển thẳng.
+     Nút mở modal (Xếp hạng, Hồ sơ, Ủng hộ, Cài đặt) không rời trang nên không bị chặn. */
+  var leaveMod = null, leaveConfirm = null;
+  window.__gumballzTopbar = { inMatch: function () { return leaveMod ? leaveMod.inMatch(document) : false; } }; /* hook cho test */
+  Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=8')]).then(function (ms) {
+    leaveMod = ms[0]; leaveConfirm = ms[1].confirmBox;
+    window.__gumballzTopbar.leaveMatch = function () { return leaveMod.leaveMatch(document); };
+  }).catch(function () {});
+  /* capture: chạy trước mọi listener khác (moveNav/moveTab/page-trans) — preventDefault +
+     stopPropagation nên vạch chỉ báo không chạy theo và trang không chuyển khi chưa xác nhận */
+  document.addEventListener('click', function (e) {
+    if (!leaveMod || !leaveConfirm) return; /* module chưa nạp xong: chuyển thẳng như cũ */
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a || !a.closest('#nav, .tabbar')) return;
+    var href = a.getAttribute('href');
+    if (!href || href.charAt(0) === '#') return;
+    if (!leaveMod.inMatch(document)) return; /* không trong ván: chuyển thẳng, không hỏi */
+    e.preventDefault();
+    e.stopPropagation();
+    leaveMod.askLeave(document, href, leaveMod.labelFor(a), { confirmBox: leaveConfirm, navigate: function (u) { location.href = u; } });
+  }, true);
 
   /* ---------- thanh chỉ báo đỏ trượt (nav desktop + tab dưới mobile) ---------- */
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

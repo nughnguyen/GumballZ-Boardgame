@@ -1,7 +1,7 @@
 // 🤝 Bạn bè & Nhắn tin 1-1 + Mời vào bàn (cần đăng nhập tài khoản GumballZ).
 import { auth, friends } from '../net/api.js?v=29';
 const amOwner = () => { const u = auth.user(); return !!(u && u.admin && u.owner); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) – patch -94: dùng cờ owner của máy chủ, không ghi cứng id 1 */
-import { openLogin } from './account.js?v=51';
+import { openLogin } from './account.js?v=52';
 import { confirmBox } from './dialog.js?v=6';
 import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=3'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 

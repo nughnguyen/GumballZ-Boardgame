@@ -27,6 +27,12 @@ header.nav .links a.active,header.nav .links a[aria-current="page"],header.nav .
 /* thanh chỉ báo đỏ trượt dưới mục nav đang chọn (thay gạch chân tĩnh cũ):
    JS (topbar.js) đặt width + translateX theo đúng mục; trượt 280ms ease. */
 .nav-ind{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--p1);border-radius:3px;transition:transform .28s ease,width .28s ease;pointer-events:none}
+/* patch -112: topbar trên TRANG GAME theo bố cục user gửi (web "Meme Me") — chỉ sắp xếp, màu vẫn của web mình:
+   cao ~72px, không ô tìm kiếm, menu chính giữa hơi lệch trái (vì khối tài khoản phải rộng hơn logo trái),
+   phải: nút tròn cài đặt + pill vàng (2 cái này topbar đã có sẵn đúng dạng). Trang chính giữ nguyên. */
+header.nav.game .nav-in{padding-top:14px;padding-bottom:14px}
+header.nav.game .nav-search{display:none}
+header.nav.game .links{justify-content:center}
 .acct{position:static;margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
 .setbtn{width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:var(--sh-sm);transition:transform .3s}
 .setbtn:hover{transform:rotate(45deg)}
@@ -49,11 +55,14 @@ header.nav .links a.active,header.nav .links a[aria-current="page"],header.nav .
   /* chừa chỗ cho tab dưới cố định (trang chủ trước đây có rule này trong home.css) */
   main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   main.shop-wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  /* patch -112: trang game không có <main> nên chừa chỗ cho tab dưới bằng padding của body (chỉ trang có màn hình game) */
+  body:has(.screen){padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 }
 @media (max-width:480px){
   .wm{font-size:20px}
   .brand .mark{width:38px;height:38px}
   .nav-in{gap:8px;padding:6px 8px}
+  header.nav.game .nav-in{padding:6px 8px} /* patch -112: mobile giữ topbar gọn như cũ, không cao 72px như desktop */
   .nav-search{flex:1 1 0;min-width:0}
   .nav-search input{font-size:13.5px;padding:0 12px}
   .setbtn{width:36px;height:36px;font-size:17px}

@@ -22,18 +22,18 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="48x48"><link rel="icon" href="/shared/img/brand/icon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="/shared/img/brand/icon-192.png" type="image/png" sizes="192x192"><link rel="icon" href="./favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="./shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="./manifest.webmanifest?v=7"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/css/home.css?v=15">
+<link rel="stylesheet" href="shared/css/home.css?v=16">
 <link rel="stylesheet" href="shared/css/skeleton.css?v=1">
 <link rel="stylesheet" href="./shared/ui/shell.css?v=20">
 <link rel="stylesheet" href="shared/css/daily.css?v=3">
 <link rel="stylesheet" href="./shared/css/footer.css?v=7">
-<link rel="stylesheet" href="shared/css/topbar.css?v=3">
+<link rel="stylesheet" href="shared/css/topbar.css?v=4">
 <link rel="stylesheet" href="shared/css/page-trans.css?v=1">
 </head>
 <body>
 <i class="blob b1"></i><i class="blob b2"></i><i class="blob b3"></i><i class="blob b4"></i>
 <div id="topbar"></div>
-<script src="shared/ui/topbar.js?v=5"></script>
+<script src="shared/ui/topbar.js?v=6"></script>
 <main>
 <style id="lgcss">
 .lgcard{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 14px;border:2px solid #241A38;border-radius:16px;background:#FFFDF9;box-shadow:4px 4px 0 #241A38}
@@ -582,7 +582,7 @@ import { mountDaily } from './shared/js/daily.js?v=3'; mountDaily(document.getEl
 // 🔑 thẻ mời đăng nhập (khách quay lại): bấm → hộp đăng nhập; đăng nhập xong / Để sau → ẩn
 { const c = document.getElementById('lgcard');
   if (c && !c.hidden) {
-    document.getElementById('lg-go').onclick = () => import('./shared/ui/account.js?v=51').then(m => m.openLogin());
+    document.getElementById('lg-go').onclick = () => import('./shared/ui/account.js?v=52').then(m => m.openLogin());
     document.getElementById('lg-no').onclick = () => { c.hidden = true; try { localStorage.setItem('gumballz-lgcard', String(Date.now())); } catch (e) {} };
     addEventListener('gumballz-auth', () => { try { if (JSON.parse(localStorage.getItem('gumballz-auth') || 'null')) c.hidden = true; } catch (e) {} });
   } }
