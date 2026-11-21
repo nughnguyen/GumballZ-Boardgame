@@ -280,11 +280,11 @@ function planFx(v, prev) {
     setTimeout(() => { pendingWrecks.delete(ls.ship); if (cur) render(cur, cur); }, 950);
   }
   if (isNewShot && (ls.res === 'radar-hit' || ls.res === 'radar-miss')) {
-    /* radar: các ô có thuyền chỉ sáng lên SAU khi quét xong (~900ms) */
+    /* radar: các ô có thuyền chỉ sáng lên SAU khi quét xong (~2000ms = 1 vòng quét) */
     const sc = v.you.scans[v.you.scans.length - 1];
     if (sc && sc.shipCells) {
       sc.shipCells.forEach(n => pendingReveal.add(n));
-      setTimeout(() => { sc.shipCells.forEach(n => pendingReveal.delete(n)); if (cur) render(cur, cur); }, 900);
+      setTimeout(() => { sc.shipCells.forEach(n => pendingReveal.delete(n)); if (cur) render(cur, cur); }, 2000);
     }
   }
   const ln = v.lastNuke, pln = prev.lastNuke;
@@ -335,8 +335,9 @@ function nukeBombFx(grid, cell) {
     beep('nuke');
   }, 680);
 }
-/* vòng quét radar trên vùng 3×3 quanh ô tâm */
-function radarFx(grid, centerCell) {
+/* đĩa radar quét kiểu Uiverse giant-lion-34 trên vùng 3×3 quanh ô tâm:
+   vệt quạt xanh xoay 1 vòng/2s rồi biến mất, đúng lúc các ô lộ sáng lên */
+function radarSweepFx(grid, centerCell) {
   if (!grid) return;
   const g = grid.querySelector('.ship-grid');
   if (!g) return;
@@ -347,7 +348,7 @@ function radarFx(grid, centerCell) {
   layer.className = 'fx-layer';
   layer.innerHTML = `<div class="radar-sweep" style="grid-column:${c0 + 1} / span ${c1 - c0 + 1};grid-row:${r0 + 1} / span ${r1 - r0 + 1}"><div class="radar-ring"></div></div>`;
   g.append(layer);
-  setTimeout(() => layer.remove(), 1000);
+  setTimeout(() => layer.remove(), 2000);
 }
 /* vụ nổ LỚN khi chìm tàu: từng ô của tàu nổ lệch nhau + rung mạnh */
 function sinkFx(boards, grid, v) {
@@ -426,7 +427,7 @@ function render(v, prev) {
       const grid = mine ? wraps[1] : wraps[0];
       const cellEl = grid && grid.querySelector(`[data-cell="${v.lastShot.cell}"]`);
       if (v.lastShot.res === 'nuke') { nukeBombFx(grid, v.lastShot.cell); /* bom rơi, 9 ô nổ lần lượt do planFx */ }
-      else if (v.lastShot.res === 'radar-hit' || v.lastShot.res === 'radar-miss') { radarFx(grid, v.lastShot.cell); beep('radar'); }
+      else if (v.lastShot.res === 'radar-hit' || v.lastShot.res === 'radar-miss') { radarSweepFx(grid, v.lastShot.cell); beep('radar'); }
       else if (v.lastShot.res === 'void') { if (cellEl) cellEl.classList.add('boom'); beep('trap'); }
       else if (v.lastShot.res === 'sink') { sinkFx(boards, grid, v); beep('sink'); }
       else if (v.lastShot.res === 'hit') {

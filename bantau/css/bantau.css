@@ -113,11 +113,17 @@
 /* quả bom rơi từ trên trời xuống ô mục tiêu */
 .nuke-bomb { position: fixed; z-index: 9998; font-size: 46px; line-height: 1; pointer-events: none; transform: translate(-50%, -50%); animation: bt-bombfall .65s cubic-bezier(.55, 0, 1, 1) forwards; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .35)); }
 @keyframes bt-bombfall { 0% { transform: translate(-50%, -50%) translateY(-160px) rotate(-18deg); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(-50%, -50%) translateY(0) rotate(8deg); opacity: 1; } }
-/* vòng quét radar trên vùng 3×3: quét xoay + vòng lan ra, rồi các ô có thuyền sáng lên */
-.radar-sweep { position: relative; border-radius: 50%; background: conic-gradient(from 0deg, rgba(123, 92, 255, .55), rgba(123, 92, 255, .08) 90deg, transparent 120deg); animation: bt-radarspin .9s linear; border: 2px solid rgba(123, 92, 255, .7); box-shadow: 0 0 0 2px rgba(123, 92, 255, .25), inset 0 0 18px rgba(123, 92, 255, .35); }
+/* vòng quét radar trên vùng 3×3 kiểu Uiverse giant-lion-34: đĩa tròn, vòng xanh lá #00ff66,
+   vệt quạt conic xoay 1 vòng/2s + vòng nét đứt xoay chậm; nền trong mờ để thấy lưới bên dưới */
+.radar-sweep { position: relative; border-radius: 50%; background: rgba(10, 30, 18, .28); border: 2px solid rgba(0, 255, 102, .85); box-shadow: inset 0 0 20px 2px rgba(0, 0, 0, .35), 0 0 14px rgba(0, 255, 102, .35); overflow: hidden; }
+/* vệt sáng xanh hình quạt (conic) xoay 1 vòng/2s — như span::after của mẫu */
+.radar-sweep::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(255, 255, 255, .25); background: conic-gradient(from 0deg, transparent, rgba(0, 255, 102, .35), transparent 40%); animation: bt-radarspin 2s linear; }
+/* vòng nét đứt xoay chậm 1 vòng/3s — như span::before của mẫu */
+.radar-sweep::before { content: ""; position: absolute; inset: 12%; border-radius: 50%; border: 2px dashed rgba(255, 255, 255, .35); animation: bt-radarspin 3s linear; }
+/* vòng giữa viền xanh lá — như span của mẫu (đứng yên, không xoay) */
+.radar-ring { position: absolute; inset: 28%; border-radius: 50%; background: rgba(23, 23, 23, .35); border: 3px solid #00ff66; box-shadow: 0 0 20px rgba(0, 255, 102, .45), inset 0 0 10px rgba(0, 0, 0, .5); }
 @keyframes bt-radarspin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.radar-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid #7b5cff; animation: bt-radarring .9s ease-out forwards; }
-@keyframes bt-radarring { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .radar-sweep::before, .radar-sweep::after { animation: none; } }
 /* ô radar đã lộ là có thuyền: sáng hồng, nhấp nháy nhẹ tới khi bị bắn */
 .cell.radar-reveal { background: linear-gradient(145deg, #ffd0e8, #fec5e6); box-shadow: inset 0 0 0 2px #c0263b; animation: bt-radarpulse 1.1s ease-in-out infinite; }
 @keyframes bt-radarpulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25); } }
