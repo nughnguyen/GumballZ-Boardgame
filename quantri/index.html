@@ -51,6 +51,7 @@ import { mountAccount, openLogin } from '../shared/ui/account.js?v=53';
 import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=10';
 import { ensureBadgesCSS, tierBadges, uid6 } from '../shared/ui/badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sách vật phẩm để cấp tay (patch -127) */
+import { FRAMES, NAME_COLORS } from '../shared/js/avatar-rewards.js?v=2'; /* 🎁 món thành tích để cấp tay (patch -131) */
 import '../shared/net/presence.js?v=26';
 import '../shared/ui/theme.js?v=1'; /* patch -130: chế độ tối (áp theme + meta theme-color + theo hệ thống) */
 mountAccount(document.getElementById('acct'));
@@ -60,7 +61,9 @@ const dt = t => new Date(t).toLocaleString('vi-VN'), T = { bug: '🐞 Lỗi', id
 const AU = { 'claim-admin': '🛡️ Kích hoạt quản trị', role: '🎭 Đổi quyền', 'transfer-owner': '👑 Nhượng quyền chủ sảnh', supporter: '💎 Nhà Tài Trợ', 'grant-item': '🎁 Cấp vật phẩm', donate: '☕ Duyệt ủng hộ', 'ban-account': '⛔ Khoá tài khoản', 'unban-account': '✅ Mở khoá tài khoản', 'reset-password': '🔑 Đặt lại mật khẩu', mute: '🔇 Cấm chat', unmute: '🔊 Gỡ cấm chat', ban: '⛔ Cấm chat', unban: '✅ Gỡ cấm chat', hide: '🙈 Ẩn tin', dismiss: '🗑️ Bỏ qua báo cáo' };
 /* 🎁 Cấp vật phẩm thủ công (patch -127): danh sách món nhóm theo loại, gồm cả món chỉ mở rương (cấp tay được cấp cả món hiếm) */
 const GRANT_GROUPS = [['frame', 'frames', '🖼️ Khung avatar'], ['color', 'colors', '🎨 Màu tên'], ['banner', 'banners', '🎏 Banner hồ sơ'], ['back', 'backs', '🃏 Lưng bài']];
-const grantOpts = GRANT_GROUPS.map(([kind, key, label]) => `<optgroup label="${label}">` + (COSMETICS[key] || []).filter(x => x && x.id).map(x => `<option value="${widOf(kind, x.id)}">${esc(x.name)}${x.chest ? ' · chỉ mở rương' : ''}${x.rare ? ' · hiếm' : ''}</option>`).join('') + '</optgroup>').join('');
+/* 🎁 món thành tích (patch -131): khung/màu tên mở bằng thành tích — máy chủ đã nhận (GRANT_ITEMS), trừ 2 món Chủ web (lock 'admin') */
+const grantAchOpts = [['frame', FRAMES, '🖼️ Khung thành tích'], ['color', NAME_COLORS, '🎨 Màu tên thành tích']].map(([kind, list, label]) => `<optgroup label="${label}">` + list.filter(x => x && x.id && x.lock && x.lock !== 'admin').map(x => `<option value="${widOf(kind, x.id)}">${esc(x.name)} · thành tích</option>`).join('') + '</optgroup>').join('');
+const grantOpts = GRANT_GROUPS.map(([kind, key, label]) => `<optgroup label="${label}">` + (COSMETICS[key] || []).filter(x => x && x.id).map(x => `<option value="${widOf(kind, x.id)}">${esc(x.name)}${x.chest ? ' · chỉ mở rương' : ''}${x.rare ? ' · hiếm' : ''}</option>`).join('') + '</optgroup>').join('') + grantAchOpts;
 let tab = 'rp';
 async function api(body) {
   try { const r = await fetch(API() + '/admin/list', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + auth.token() }, body: JSON.stringify(body || {}) }); return await r.json(); }

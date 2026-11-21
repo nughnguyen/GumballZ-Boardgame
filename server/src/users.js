@@ -54,7 +54,7 @@ export function walletAccepts(storedAt, incomingAt) {
 /* 🎁 Cấp vật phẩm thủ công (patch -127, chỉ Quản trị role 2 qua /admin/list):
    - Danh sách wid hợp lệ: khung/màu tên/banner lấy từ avatar-rewards.js (cùng nguồn với shop/rương),
      4 lưng bài ghi tay ở đây vì lưng bài chỉ có trong COSMETICS.backs của wallet.js — mà server KHÔNG
-     import được wallet.js (nó import avatar-rewards.js?v=1, wrangler không resolve được) — thêm lưng bài
+     import được wallet.js (nó import avatar-rewards.js?v=2, wrangler không resolve được) — thêm lưng bài
      mới thì thêm id vào cả 2 chỗ (GRANT_BACKS này + COSMETICS.backs trong wallet.js).
    - Món được cấp lưu vào P.granted (danh sách riêng, chỉ thêm không bớt — giống cách gộp linh kiện
      P.parts): KHÔNG sửa thẳng P.wal.own, vì ví client đồng bộ sau (at mới hơn) sẽ ghi đè cả P.wal
@@ -66,6 +66,9 @@ for (const c of NAME_COLORS) if (c && c.id) GRANT_ITEMS.set('color:' + c.id, c.n
 for (const b of BANNERS) if (b && b.id) GRANT_ITEMS.set('banner:' + b.id, b.name || b.id);
 const GRANT_BACKS = { hongphan: 'Lưng bài Hồng Phấn', lucdam: 'Lưng bài Lục Đậm', timbiec: 'Lưng bài Tím Biếc', vangchanh: 'Lưng bài Vàng Chanh' };
 for (const [id, name] of Object.entries(GRANT_BACKS)) GRANT_ITEMS.set('back:' + id, name);
+const GRANT_OWNER_ONLY = new Set(); // 🎁 món riêng Chủ web (lock 'admin') không cấp tay được (patch -131) — rào ở server, dropdown chỉ là lớp ngoài
+for (const f of FRAMES) if (f && f.id && f.lock === 'admin') GRANT_OWNER_ONLY.add('frame:' + f.id);
+for (const c of NAME_COLORS) if (c && c.id && c.lock === 'admin') GRANT_OWNER_ONLY.add('color:' + c.id);
 export function mergeGranted(P) { // gộp P.granted vào P.wal.own; trả true nếu đã thêm món mới (cần lưu prof)
   if (!P || !Array.isArray(P.granted) || !P.granted.length) return false;
   if (!P.wal || typeof P.wal !== 'object') return false; // chưa có ví trên máy chủ: giữ trong P.granted, đợi ví đầu tiên lên rồi gộp
@@ -534,6 +537,7 @@ export class Users extends DurableObject {
       if (target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' };
       grantWid = typeof patch.grant === 'string' ? patch.grant.trim() : '';
       if (!GRANT_ITEMS.has(grantWid)) return { ok: false, msg: 'Không có vật phẩm này' };
+      if (GRANT_OWNER_ONLY.has(grantWid)) return { ok: false, msg: 'Không cấp được món riêng của Chủ web' };
       grantP = null; try { grantP = JSON.parse(target.prof || 'null'); } catch (e) {}
       grantP = grantP && typeof grantP === 'object' ? grantP : {};
       const g0 = Array.isArray(grantP.granted) ? grantP.granted : [];

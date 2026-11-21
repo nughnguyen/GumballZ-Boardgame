@@ -242,11 +242,12 @@ export function trackProgress(st) {
   return { xp, opened, total: TRACK.length, next: items.find(x => !x.open) || null, items };
 }
 
-/* ---------- lọc "diện mạo" theo những gì đã mở khoá (máy chủ gọi trước khi trả cho người khác) ---------- */
-export function cleanLook(av, st, parts) {
+/* ---------- lọc "diện mạo" theo những gì đã mở khoá (Hồ sơ gọi trước khi vẽ; máy chủ không gọi) ---------- */
+export function cleanLook(av, st, parts, ownWids) {
   if (!av || typeof av !== 'object') return null;
   const fr = FRAMES.find(x => x.id === av.f && x.id), nc = NAME_COLORS.find(x => x.id === av.n && x.id), bn = BANNERS.find(x => x.id === av.b && x.id);
-  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && isOpen(fr.lock, st) ? fr.id : '', n: nc && isOpen(nc.lock, st) ? nc.id : '', b: bn ? bn.id : '' };
+  const own = Array.isArray(ownWids) ? ownWids : []; /* 🎁 món được cấp tay (patch -131): giữ dù chưa đủ thành tích — file này server cũng import nên chỉ nhận qua tham số, không đọc localStorage */
+  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && (isOpen(fr.lock, st) || own.includes('frame:' + fr.id)) ? fr.id : '', n: nc && (isOpen(nc.lock, st) || own.includes('color:' + nc.id)) ? nc.id : '', b: bn ? bn.id : '' };
   if (av.ch && typeof av.ch === 'object') { const ch = cleanChar(av.ch), base = cleanChar({}); const set = parts || readParts(); for (const k of Object.keys(ch)) { const l = charLock(k, ch[k]); if (l && !isOpen(l, st) && !set.includes(partId(k, ch[k]))) ch[k] = k === 'hat' || k === 'acc' || k === 'horns' ? 'none' : base[k]; } out.ch = ch; }
   return out;
 }

@@ -3,7 +3,7 @@
 //   import('…/shared/ui/member.js?v=5').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
-import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=56';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=57';
 import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
@@ -72,7 +72,7 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=56').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=57').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=53').then(m => m.openLogin()); }
     else if (a === 'dm') { close(); import('./friends.js?v=37').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
