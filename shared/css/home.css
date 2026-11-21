@@ -71,11 +71,28 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .psel{display:flex;align-items:center;gap:8px;font:800 13.5px Nunito,sans-serif;color:var(--muted);margin-left:auto}
 .psel select{appearance:none;font:800 14px Nunito,sans-serif;color:var(--ink);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid var(--ink);border-radius:12px;padding:9px 36px 9px 16px;min-height:44px;cursor:pointer;box-shadow:var(--sh-sm)}
 
-/* ===== kệ theo nhóm – tiêu đề nhóm ẩn đi, các kệ đọc như một lưới phẳng (lọc vẫn chạy qua JS cũ) ===== */
+/* ===== kệ theo nhóm – mỗi mục một khay riêng: divider tiêu đề + pattern nền riêng (patch -119) ===== */
 .shelves{display:block}
-.shelf{margin:0 0 22px}
+.shelf{margin:0 0 22px;padding:16px;border:2px solid var(--ink);border-radius:24px;box-shadow:var(--sh);background-color:var(--card)}
 .shelf.off{display:none}
-.shelf-h{display:none}
+/* divider: tiêu đề mục full-width, tên loại to đậm + số game + phụ đề + nút "Xem tất cả →" */
+.shelf-h{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:0 0 14px;padding:10px 16px;border:2px solid var(--ink);border-radius:14px;box-shadow:var(--sh-sm)}
+.shelf-h h3{margin:0;flex:1;min-width:0;font:400 24px/1.15 var(--font-display);color:var(--ink)}
+.shelf-h h3 span{white-space:nowrap}
+.shelf-h h3 small{font:700 14px/1.4 Nunito,sans-serif;color:var(--muted);margin-left:8px}
+.shelf-h h3 small b{color:var(--ink)}
+.shelf-all{flex:none;font:400 14px var(--font-display);color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;min-height:40px;cursor:pointer;box-shadow:var(--sh-sm);transition:transform .12s}
+.shelf-all:hover{transform:translate(-1px,-1px);background:var(--y2)}
+/* pattern nền riêng từng mục (mờ để ô game vẫn đọc được), nằm trong khay */
+#shelf-board{background-color:#F2ECFD;background-image:repeating-conic-gradient(rgba(36,26,56,.07) 0% 25%,transparent 0% 50%);background-size:28px 28px}
+#shelf-card{background-color:#FDECEC;background-image:radial-gradient(circle,rgba(36,26,56,.12) 1.6px,transparent 1.7px);background-size:22px 22px}
+#shelf-party{background-color:#FFF7DA;background-image:repeating-linear-gradient(45deg,rgba(255,90,96,.09) 0 10px,transparent 10px 20px)}
+#shelf-other{background-color:#E4F7F3;background-image:linear-gradient(rgba(46,197,182,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(46,197,182,.14) 1px,transparent 1px);background-size:26px 26px}
+/* màu divider theo mục */
+#shelf-board .shelf-h{background:#E2D5FF}
+#shelf-card .shelf-h{background:#FFD3D5}
+#shelf-party .shelf-h{background:var(--y2)}
+#shelf-other .shelf-h{background:#BDEBE4}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 .empty-filter{display:none;text-align:center;color:var(--muted);grid-column:1/-1}
 
@@ -221,6 +238,12 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
   .psel{font-size:0}
   .psel select{font-size:13.5px}
   .hot-card{flex:0 0 100%}
+  /* kệ theo nhóm trên mobile: khay + divider gọn lại, phụ đề xuống dòng riêng */
+  .shelf{padding:12px;border-radius:20px;margin-bottom:18px}
+  .shelf-h{padding:8px 12px;margin-bottom:10px}
+  .shelf-h h3{font-size:19px}
+  .shelf-h h3 small{display:block;margin:2px 0 0;font-size:12.5px}
+  .shelf-all{padding:6px 12px;font-size:13px;min-height:36px}
 }
 @media (pointer:coarse){
   .livetag{backdrop-filter:none;background:#0f2a1ce6}
