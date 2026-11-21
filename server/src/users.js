@@ -789,16 +789,19 @@ export class Users extends DurableObject {
   // KHÔNG có email, mật khẩu hay thứ gì riêng tư. Tài khoản bị khoá thì coi như không có.
   async publicProfile(key) {
     const k = String(key == null ? '' : key).trim().toLowerCase().slice(0, 24);
-    const u = /^\d+$/.test(k) ? this.one('SELECT id, username, name, prof, created, banned FROM users WHERE id = ?', +k) : USER.test(k) ? this.one('SELECT id, username, name, prof, created, banned FROM users WHERE username = ?', k) : null;
+    const u = /^\d+$/.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter FROM users WHERE id = ?', +k) : USER.test(k) ? this.one('SELECT id, username, name, prof, created, banned, admin, role, supporter FROM users WHERE username = ?', k) : null;
     if (!u || u.banned) return { ok: false, msg: 'Không tìm thấy thành viên này' };
     let P = null; try { P = JSON.parse(u.prof || 'null'); } catch (e) {}
     P = P && typeof P === 'object' ? P : {};
     const ranks = await this.ranks(), rank = ranks.get(u.id) || 0, st = statOf(P, { created: u.created, rank }), lv = levelOf(st.p, st.w, st.xp), titles = titlesOf(st), t = pickTitle(titles, P.title);
     const games = Object.keys(st.plays).sort((a, b) => st.plays[b] - st.plays[a]).slice(0, 8).map(g => ({ g, p: st.plays[g], w: st.wins[g] || 0 }));
     const av = cleanAvatar(P.av); /* 🧸 nhân vật đầy đủ (chibi 3D / emoji) */
-    /* không trả cờ quản trị: ai là quản trị viên không phải thứ cần cho cả làng biết (đỡ bị dò mật khẩu) */
+    /* 🎖️ huy hiệu (patch -98): trả cùng 4 cờ như bảng xếp hạng (owner/admin/mod/supporter) — huy hiệu đã công khai ở chat + bảng xếp hạng + bạn bè nên hồ sơ công khai không rò thêm gì; vẫn không trả email/mật khẩu hay thứ gì riêng tư. Tài khoản bị khoá đã bị chặn ở trên. */
+    const _r = u.role != null ? Math.max(0, Math.min(2, +u.role || 0)) : (u.admin ? 2 : 0);
+    const _own = !!u.admin && u.id === this.ownerId();
     return { ok: true, user: { id: u.id, username: u.username || null, name: clean(String(u.name || 'Người chơi')).text || 'Người chơi', created: u.created, av,
       lv: lv.lv, lvName: lv.name, xp: lv.xp, p: st.p, w: st.w, rate: st.p ? Math.round(st.w / st.p * 100) : 0, best: st.best, days: st.days, kinds: st.kinds, rank, total: this.rankTotal || 0,
+      ...(_own ? { owner: true } : _r === 2 ? { admin: true } : _r === 1 ? { mod: true } : {}), ...(u.supporter ? { supporter: true } : {}),
       games, ach: [...new Set([...Object.keys(P.ach && typeof P.ach === 'object' ? P.ach : {}), ...Object.keys(P.v && P.v.ach && typeof P.v.ach === 'object' ? P.v.ach : {})])].filter(x => /^[a-z0-9_-]{1,30}$/i.test(x)).slice(0, 120), titles, title: t } }; /* thành tích hiện = mốc cũ + máy chủ tự xét */
   }
 }
