@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/ui/shell.css?v=23">
 <link rel="stylesheet" href="../shared/css/quantri.css?v=1">
+<link rel="stylesheet" href="../shared/css/badges.css?v=4"><!-- patch -139: nạp CSS huy hiệu trực tiếp (không qua ensureBadgesCSS) để trang Quản trị không mount Rive badge — xem ghi chú ở dưới -->
 </head>
 <body>
 <div class="qd">
@@ -38,13 +39,25 @@
 import { auth, API } from '../shared/net/api.js?v=29';
 import { mountAccount, openLogin } from '../shared/ui/account.js?v=53';
 import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=10';
-import { ensureBadgesCSS, tierBadges, uid6 } from '../shared/ui/badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
+import { tierBadges, uid6 } from '../shared/ui/badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) — patch -139: KHÔNG import/call ensureBadgesCSS nữa (xem dưới) */
 import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sách vật phẩm để cấp tay (patch -127) */
 import { FRAMES, NAME_COLORS } from '../shared/js/avatar-rewards.js?v=2'; /* 🎁 món thành tích để cấp tay (patch -131) */
 import '../shared/net/presence.js?v=26';
 import '../shared/ui/theme.js?v=1'; /* patch -130: chế độ tối (áp theme + meta theme-color + theo hệ thống) */
 mountAccount(document.getElementById('acct'));
-ensureBadgesCSS();
+/* patch -139: KHÔNG gọi ensureBadgesCSS() trên trang Quản trị nữa. Lý do: ensureBadgesCSS() khởi động
+   ensureBadgeRive() — 1 MutationObserver toàn trang; mỗi lần vào mục Tài khoản, bảng render ra 3 pill .bdg
+   (CHỦ SẢNH / QUẢN SẢNH / NHÀ TÀI TRỢ) thì observer kích hoạt và nạp lười cả runtime Rive (shared/js/rive/rive.js
+   ~694KB + rive.wasm ~2,3MB, trong runtime có đường biên dịch wasm đồng bộ WebAssembly.Module) + 3 file .riv rồi
+   mount 3 instance Rive — việc nặng này xảy ra NGAY SAU khi bảng đã render xong (đúng như ảnh chụp: bảng đủ 4 user
+   rồi Chrome mới hiện hộp thoại "Trang không phản hồi"), và lặp lại mỗi lần vào lại mục Tài khoản (mỗi lần render
+   là pill mới → mount mới). Trên máy yếu, main-thread bị chặn đủ lâu để Chrome báo trang treo. Các nghi vấn khác
+   đã loại trừ: dropdown cấp là const build 1 lần ở cấp module (~66 option/select, render nhanh); gate() chạy 3×
+   chỉ lúc tải trang, không chạy khi chuyển tab; stats()/usage() không được gọi khi chuyển tab; không có vòng lặp
+   render (observer đã có guard hasBadgeCanvas/isConnected); không có polling dày (usage 60s, presence ping 30s);
+   fetch users/audit đều async. Sửa: badges.css đã nạp trực tiếp bằng <link> ở <head> nên pill vẫn hiện đủ chữ +
+   icon + màu + animation CSS (ánh quét ::after, shimmer, glow — xem shared/css/badges.css); chỉ mất lớp canvas
+   Rive vẽ thêm tia lấp lánh/hào quang. Các trang khác (trang chủ, Sảnh, Hồ sơ, BXH...) vẫn giữ huy hiệu Rive. */
 const $ = s => document.querySelector(s), esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dt = t => new Date(t).toLocaleString('vi-VN'), T = { bug: '🐞 Lỗi', idea: '💡 Góp ý', other: '💬 Khác' };
 const AU = { 'claim-admin': '🛡️ Kích hoạt quản trị', role: '🎭 Đổi quyền', 'transfer-owner': '👑 Nhượng quyền chủ sảnh', supporter: '💎 Nhà Tài Trợ', 'grant-item': '🎁 Cấp vật phẩm', donate: '☕ Duyệt ủng hộ', 'ban-account': '⛔ Khoá tài khoản', 'unban-account': '✅ Mở khoá tài khoản', 'reset-password': '🔑 Đặt lại mật khẩu', mute: '🔇 Cấm chat', unmute: '🔊 Gỡ cấm chat', ban: '⛔ Cấm chat', unban: '✅ Gỡ cấm chat', hide: '🙈 Ẩn tin', dismiss: '🗑️ Bỏ qua báo cáo' };
