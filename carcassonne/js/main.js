@@ -7,8 +7,8 @@ import { createGame, applyAction, viewFor, actors, canPlaceAt, legalPlacementsFo
 import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
-import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet({

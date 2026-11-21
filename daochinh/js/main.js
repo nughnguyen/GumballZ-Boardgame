@@ -1,8 +1,8 @@
 // 👑 Đảo Chính – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 
 const NET = makeNet(DEF);
 const { ROLES, ROLE_NAME, ACTS } = E, LV = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' };

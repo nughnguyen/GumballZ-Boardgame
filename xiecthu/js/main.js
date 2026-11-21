@@ -1,8 +1,8 @@
 // 🎪 Gánh Xiếc Thú – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { toast, confirmBox } from '../../shared/ui/dialog.js?v=8';
 
 const NET = makeNet(DEF);

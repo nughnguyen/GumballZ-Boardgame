@@ -9,7 +9,7 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=29';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=90';
+import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=91';
 import { snapshot, adoptServer, resetWallet } from './wallet.js?v=6'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
 import { readParts, writeParts } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */

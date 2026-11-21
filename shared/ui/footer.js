@@ -91,6 +91,7 @@
   // nên giờ cũng dùng chung data-foot-rank — sửa luôn link chết đó.
   // import() động phân giải theo URL của chính file này (shared/ui/footer.js)
   // nên './leaderboard.js' đã đúng ở mọi độ sâu — không cộng tiền tố P.
+  import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — trang hướng dẫn chỉ nạp footer.js */
   document.addEventListener('click', function (e) {
     var r = e.target && e.target.closest ? e.target.closest('.gmf [data-foot-rank]') : null;
     if (!r) return;

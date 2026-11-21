@@ -6,10 +6,10 @@ import { createGame, applyAction, viewFor, actors, idx } from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=90';
+import { recordEvent } from '../../shared/ui/stats.js?v=91';
 
 const CELL = 34; /* px 1 ô ở zoom 1× (kể cả ô nhãn trục) */
 const SIZE = 30;

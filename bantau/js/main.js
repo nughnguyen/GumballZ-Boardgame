@@ -2,10 +2,10 @@
 import { SHIPS, SHIP_BY_ID, ITEMS, COINS_START, coordName, area3x3, placeOk, shipCells, randomFleet, createGame, applyAction, actors, viewFor } from './engine.js?v=10';
 import { botAction } from './bot.js?v=10';
 import { GUIDE_HTML } from './guide.js?v=10';
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=90';
+import { recordEvent } from '../../shared/ui/stats.js?v=91';
 import { stock, useItem } from '../../shared/ui/wallet.js?v=6'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
 
 let sound = ls.get('bantau-sound') !== '0';

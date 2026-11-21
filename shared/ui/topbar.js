@@ -67,6 +67,7 @@
 
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
+  import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */
   import('./account.js?v=51').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
   import('./profile.js?v=54').then(function (m) {

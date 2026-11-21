@@ -153,7 +153,7 @@ export function mountAccount(el) {
   const syncBdg = () => { const d = el.querySelector('.ac-btn .ac-bdg'); if (d) d.textContent = frCount ? (frCount > 9 ? '9+' : frCount) : ''; };
   addEventListener('gumballz-friends', e => { frCount = (e.detail && e.detail.count) || 0; syncBdg(); });
   profileCss(); draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
-  import('./stats.js?v=90').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
+  import('./stats.js?v=91').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
   addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
   import('./friends.js?v=35').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});

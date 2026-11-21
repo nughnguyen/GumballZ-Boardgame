@@ -1,10 +1,10 @@
 // 🃏 Sâm lốc – giao diện. Luật ở engine.js, bot ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
 import { flipRender } from '../../shared/lib/gsap/flip.js?v=1';
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { cardHTML } from '../../shared/ui/deck/deck.js?v=5';
 
 const NET = makeNet(DEF);

@@ -4,7 +4,7 @@
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
 import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=54';
-import { ACHS, GAME_NAMES } from './stats.js?v=90';
+import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) — hồ sơ công khai (patch -98) */

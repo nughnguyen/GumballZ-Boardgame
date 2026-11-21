@@ -1,7 +1,7 @@
 // 🎪 Lô tô hội chợ – giao diện. Luật ở engine.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import * as E from './engine.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 
 const NET = makeNet({
   srv: true, /* phòng online do máy chủ giữ ván (server/src/srvhost.js) */

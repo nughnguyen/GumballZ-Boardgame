@@ -7,7 +7,7 @@ import { OPTIONS, PRESETS } from '../../shared/js/avatar3d.js';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=90';
+import { watch } from '../../shared/ui/stats.js?v=91';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 const NS = 'gumballz-typhu', PREFIX = 'gumballz-typhu-', GAME = 'typhu', SNAP = 'gumballz-hostsnap-' + GAME;

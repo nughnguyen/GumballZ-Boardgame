@@ -1,10 +1,10 @@
 // 🏝️ Đảo Khai Hoang – giao diện. Luật ở engine.js, hình học bàn ở map.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=4';
 import { HEXES, VERTS, EDGES, PIP, S } from './map.js?v=2';
 import { botAction } from './bot.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 

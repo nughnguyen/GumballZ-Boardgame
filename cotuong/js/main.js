@@ -1,12 +1,12 @@
 // ♟️ Cờ tướng – giao diện. Luật ở engine.js, bot ở bot.js, mạng ở shared/net/simplenet.js, khung màn hình ở shared/ui/gamekit.js
-import { makeNet } from '../../shared/net/simplenet.js?v=51';
+import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import * as E from './engine.js?v=1';
 import { botAction, botWants } from './bot.js?v=1';
 import { masterMove, masterReady, masterOff } from './master.js?v=1';
 import { PUZZLES } from './puzzles.js?v=1';
 import { POOLS, LEVELS, puzzleFor, indexOf as levelIndexOf, nextPuzzle, byId as levelById } from './levels.js?v=1';
 import { today, state as dailyState, markSolved, puzzleOf, pastDays, markPast } from './today.js?v=2';
-import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=13';
+import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 
