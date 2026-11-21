@@ -22,7 +22,7 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="48x48"><link rel="icon" href="/shared/img/brand/icon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="/shared/img/brand/icon-192.png" type="image/png" sizes="192x192"><link rel="icon" href="./favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="./shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="./manifest.webmanifest?v=7"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared/css/home.css?v=12">
+<link rel="stylesheet" href="shared/css/home.css?v=13">
 <link rel="stylesheet" href="shared/css/skeleton.css?v=1">
 <link rel="stylesheet" href="./shared/ui/shell.css?v=20">
 <link rel="stylesheet" href="shared/css/daily.css?v=2">
@@ -64,18 +64,19 @@
     <p class="code-msg" id="code-msg" role="alert"></p>
     <p class="online" id="online" style="visibility:hidden">&nbsp;</p>
   </section>
-  <section class="spot" id="spotlight" aria-label="Game nổi bật">
-    <a class="spot-card" id="spot-card" href="typhu/">
-      <span class="spot-art typhu" id="spot-art"></span>
-      <span class="spot-tx">
-        <span class="spot-flag" id="spot-flag">Nổi bật hôm nay</span>
-        <b id="spot-name">Cờ Tỷ Phú (Monopoly) Sài Gòn 3D</b>
-        <span id="spot-desc">Bàn cờ 3D 40 ô đường Sài Gòn: mua đất, xây nhà lên Landmark, đấu giá, giao dịch, chơi 2–8 người hoặc theo đội 2 người 🏙️</span>
-        <span class="spot-cta">Chơi ngay ▶</span>
+  <section class="puzzle" id="puzzle" aria-label="Giải thế cờ">
+    <div class="puzzle-card">
+      <span class="puzzle-flag">🧩 Giải thế cờ</span>
+      <b>Mỗi ngày một bài mới</b>
+      <span class="puzzle-desc">Chiếu bí trong số nước cho trước — giải xong tính chuỗi ngày 🔥</span>
+      <span class="puzzle-btns">
+        <a class="puzzle-btn" href="cotuong/">📅 Cờ thế hôm nay</a>
+        <a class="puzzle-btn" href="covua/">🗓️ Giải đố hôm nay</a>
       </span>
-    </a>
+    </div>
   </section>
 </div>
+  <section class="hot" id="hot"><h2>🔥 Đang hot</h2><div class="hot-carousel"><button type="button" class="hot-nav prev" id="hot-prev" aria-label="Xem game hot trước đó">‹</button><div class="hot-row" id="hot-row"><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div></div><button type="button" class="hot-nav next" id="hot-next" aria-label="Xem game hot tiếp theo">›</button></div></section>
   <section class="rooms-sec" id="rooms" aria-label="Phòng đang mở">
     <div class="rooms-top"><h2>Phòng đang mở<small id="rooms-n"></small></h2><a class="rooms-all" href="sanh/">Sảnh chung →</a></div>
     <div class="rooms-list" id="rooms-list"><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div><div class="sk-room" aria-hidden="true"><i class="sk sk-circle" style="width:40px;height:40px"></i><span class="sk-lines"><i class="sk sk-line" style="width:72%;height:12px"></i><i class="sk sk-line" style="width:48%;height:12px"></i></span><i class="sk sk-pill" style="width:64px;height:30px"></i></div></div>
@@ -572,7 +573,6 @@
   <p class="empty-filter" id="empty-filter">Chưa có game nào hợp với lựa chọn này – thử đổi bộ lọc nha.</p>
   <section class="daily-hot">
     <div class="daily" id="daily" hidden></div>
-    <section class="hot" id="hot"><h2>🔥 Đang hot</h2><div class="hot-carousel"><button type="button" class="hot-nav prev" id="hot-prev" aria-label="Xem game hot trước đó">‹</button><div class="hot-row" id="hot-row"><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div><div class="hot-card" aria-hidden="true"><i class="sk sk-block" style="width:34px;height:20px"></i><i class="sk sk-block" style="width:104px;height:104px;border-radius:14px;align-self:center"></i><span class="sk-lines"><i class="sk sk-line" style="width:82%;height:12px"></i><i class="sk sk-line" style="width:58%;height:12px"></i></span><i class="sk sk-pill" style="width:100%;height:34px;margin-top:auto"></i></div></div><button type="button" class="hot-nav next" id="hot-next" aria-label="Xem game hot tiếp theo">›</button></div></section>
   </section>
 <footer class="gmf"></footer>
 <script src="./shared/ui/footer.js?v=18"></script>
@@ -623,25 +623,8 @@ tiles.forEach(tile => {
 });
 // nhãn "đang chơi" trên từng ô
 tiles.forEach(t => { const l = document.createElement('span'); l.className = 'livetag'; t.prepend(l); });
-// ⭐ Thẻ nổi bật lớn (spotlight): ván đang chơi dở > game đông người nhất > game của hôm nay
+// 🔥 Game hot mặc định khi chưa có số người chơi trực tiếp (hotFallback dùng)
 const FEATURED = ['bang', 'uno', 'meono', 'masoi', 'typhu', 'tamquoc', 'tienlen'];
-let heroG = null;
-function hero(g, label) {
-  if (heroG === g + label) return; heroG = g + label;
-  const t = tiles.find(t => t.dataset.game === g); if (!t) return;
-  const card = $('#spot-card'); if (!card) return;
-  card.href = t.getAttribute('href');
-  $('#spot-flag').textContent = label;
-  $('#spot-name').textContent = t.querySelector('h2').textContent;
-  $('#spot-desc').textContent = t.querySelector('.info p').textContent;
-  const art = $('#spot-art'); art.className = 'spot-art ' + g;
-  art.style.background = 'repeating-conic-gradient(#2EC5B6 0% 25%, #FACD33 0% 50%) 0 0 / 56px 56px';
-  art.innerHTML = '';
-  card.setAttribute('aria-label', `Chơi ngay: ${t.querySelector('h2').textContent}`);
-  window.fitTitles && fitTitles();
-}
-const today = FEATURED[Math.floor(Date.now() / 864e5) % FEATURED.length];
-hero(resumeGame || today, resumeGame ? '▶ Chơi tiếp nè' : 'Nổi bật hôm nay');
 // 🏷️ Nhãn HOT trên ô game đang đông nhất (theo số người chơi thật)
 function hotBadges(top) { tiles.forEach(t => { const on = top.includes(t.dataset.game); let b = t.querySelector('.badge.hot'); if (on && !b && !t.querySelector('.badge.new')) { b = document.createElement('span'); b.className = 'badge hot'; b.textContent = '🔥 HOT'; t.append(b); } else if (!on && b) b.remove(); }); }
 // 🚪 Phòng đang mở + ô nhập mã phòng ngay trang chủ (khỏi phải vào Sảnh hay chọn game trước)
@@ -678,7 +661,7 @@ function hotCard(g, i, sub) {
   const t = tiles.find(t => t.dataset.game === g); if (!t) return '';
   const ic = t.querySelector('.art img');
   const src = ic ? ic.getAttribute('src') : `shared/img/icons/${g}.svg`;
-  return `<a class="hot-card" href="${t.getAttribute('href')}" draggable="false"><i class="hot-num">${String(i + 1).padStart(2, '0')}</i><span class="hot-art"><img src="${src}" alt="" draggable="false"></span><span class="hot-tx"><b>${t.querySelector('h2').textContent}</b><small>${sub}</small></span><span class="hot-play"><span class="hot-play-top">Chơi ▶</span></span></a>`;
+  return `<a class="hot-card" data-game="${g}" href="${t.getAttribute('href')}" draggable="false"><i class="hot-num">${String(i + 1).padStart(2, '0')}</i><span class="hot-art"><img src="${src}" alt="" draggable="false"></span><span class="hot-tx"><b>${t.querySelector('h2').textContent}</b><small>${sub}</small></span><span class="hot-play"><span class="hot-play-top">Chơi ▶</span></span></a>`;
 }
 const hotRow = $('#hot-row');
 function hotNav() {
@@ -734,7 +717,6 @@ function live(lv) {
     hotFilled = true;
     hotNav();
     hotAutoStart();
-    if (!resumeGame) hero(top[0][0], '🔥 Đang hot nhất');
   } else if (!top.length && !hide && !hotFilled) hotFallback();
 }
 addEventListener('gumballz-live', e => live(e.detail)); if (window.__gumballzLive) live(window.__gumballzLive);
@@ -765,7 +747,8 @@ const shelfEls = {};
     shelfEls[c] = sec; grid.appendChild(sec);
     sec.querySelector('.shelf-row').append(...tiles.filter(t => t.dataset.cat === c));
   }
-  if (soon) shelfEls.party.querySelector('.shelf-row').append(soon); }
+  if (soon) shelfEls.other.querySelector('.shelf-row').append(soon); // "Sắp có thêm" ở cuối mục game: cuối kệ cuối cùng (Kiểu khác), không phải cuối kệ Tụ tập
+}
 const fold = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim(); /* tìm không cần dấu: "co" khớp "Cờ" */
 function applyFilter() {
   if (!RANGES[pf]) pf = 'all'; if (!['all', 'party', 'board', 'card', 'other'].includes(cat)) cat = 'all';
@@ -775,7 +758,7 @@ function applyFilter() {
   for (const [c] of CATS) { const n = tiles.filter(t => t.dataset.cat === c && !t.classList.contains('off')).length; const sh = shelfEls[c]; sh.classList.toggle('off', (cat !== 'all' && cat !== c) || !n); sh.querySelector('.shelf-h b').textContent = n; }
   $$('.filter button').forEach(x => x.setAttribute('aria-pressed', x.dataset.c === cat));
   $('#pf').value = pf; $('#empty-filter').style.display = shown ? 'none' : 'block';
-  const soon = document.querySelector('.tile.soon'); if (soon) soon.style.display = (cat === 'all' || cat === 'party') && pf === 'all' && !q ? '' : 'none';
+  const soon = document.querySelector('.tile.soon'); if (soon) soon.style.display = cat === 'all' && pf === 'all' && !q ? '' : 'none';
   ls.set('gumballz-hub-filter', pf); ls.set('gumballz-hub-cat', cat);
 }
 $$('.filter button').forEach(x => x.onclick = () => { cat = x.dataset.c; applyFilter(); });
@@ -788,7 +771,7 @@ applyFilter();
 if (_q) document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
 </script>
 <script src="shared/js/rive/rive.js?v=1"></script>
-<script type="module" src="shared/js/rive-tiles.js?v=12"></script>
+<script type="module" src="shared/js/rive-tiles.js?v=13"></script>
 <script type="module" async src="./shared/ui/feel.js?v=54"></script>
 <script>/* số game ở trang chủ tự đếm từ danh sách ô game (không hard-code) */try{var b=document.getElementById("nGames"),k=new Set([].map.call(document.querySelectorAll("[data-game]"),function(t){return t.dataset.game}));if(b&&k.size)b.textContent=k.size}catch(e){}</script>
 <script src="shared/ui/page-trans.js?v=1"></script>

@@ -1,4 +1,5 @@
-// Build 92 file .riv — KHỔ RỘNG v5 (2026-11-21) + batch 2/3/4/5/6/7/8/9/10/11/12.
+// Build 92 file .riv — KHỔ RỘNG v5 (2026-11-21) + batch 2/3/4/5/6/7/8/9/10/11/12
+// + typhu/cangua làm lại FULL BÀN (2026-11-21).
 // QUY TẮC THIẾT KẾ (anh Hưng đặt 2026-11-21 ~01:47): MỖI FILE .riv CHỈ LẤY
 // PHẦN CHƠI THẬT của game đó — một lát cắt nhỏ cho người xem biết lúc chơi
 // game như thế nào. KHÔNG làm "cảnh mini" trang trí.
@@ -338,36 +339,76 @@ function makeCamel(riv, root, o) {
   return { all, legs: { FL: legFL, FR: legFR, BL: legBL, BR: legBR } };
 }
 
-// ---- 1. typhu RỘNG: NHÂN VẬT nhảy từng ô quanh 1 GÓC bàn (240f = 4s).
-// Góc bàn kéo dài full chiều rộng: hàng ngang 9 ô + cột dọc 3 ô, ô xuất
-// phát đỏ, ô góc vàng, 2 nhà nhỏ trên 2 ô; nhân vật (mũ đỏ + đầu kem +
-// thân ngọc) nhảy hết 12 ô rồi mờ dần về ô đầu, lặp lại. ----
+// ---- 1. typhu FULL BÀN: NHÂN VẬT nhảy từng ô quanh TOÀN BỘ vòng 40 ô (480f = 8s).
+// Bàn thật trong typhu/tiles.json: 40 ô (11×11, góc = Bắt đầu/Vào tù/Bãi đậu/
+// Vào tù), đi ngược chiều kim đồng hồ từ ô Bắt đầu (góc dưới-phải). Ô thành
+// phố có vạch màu nhóm thật (nâu/trời/hồng/cam/đỏ/vàng/lục/xanh đậm); ô đặc
+// biệt: Khí vận (tím), Cơ hội (cam), Thuế (cát), Ga (xanh), Điện/Nước
+// (ngọc), Vào tù (vạch), Bãi đậu (vàng), Vào tù (đỏ). Giữa bàn: xúc xắc
+// lắc + 2 xu + 1 nhà + sao vàng nhấp. Nhân vật nhảy hết 40 ô rồi mờ về ô đầu.
 {
   const { riv, ab, root } = newFile('typhu');
-  const stops = [[20, 140], [54, 140], [88, 140], [122, 140], [156, 140], [190, 140], [224, 140], [258, 140], [292, 140], [292, 106], [292, 72], [292, 38]];
+  const OX = 122.5, OY = 25, C = 155 / 11; // bàn vuông 155×155 (đủ chỗ cho nhân vật nhảy trên hàng trên mà không chạm mép)
+  const cellC = (col, row) => [OX + (col + 0.5) * C, OY + (row + 0.5) * C];
+  const stops = [];
+  for (let j = 0; j < 10; j++) stops.push(cellC(10 - j, 10)); // hàng dưới: Bắt đầu -> trái
+  for (let j = 0; j < 10; j++) stops.push(cellC(0, 9 - j));   // cột trái: dưới -> trên
+  for (let j = 0; j < 10; j++) stops.push(cellC(1 + j, 0));   // hàng trên: trái -> phải
+  for (let j = 0; j < 10; j++) stops.push(cellC(10, 1 + j));  // cột phải: trên -> dưới
+  const TYPES = ['start', 'city', 'chest', 'city', 'tax', 'station', 'city', 'chance', 'city', 'city', 'jail', 'city', 'utility', 'city', 'city', 'station', 'city', 'chest', 'city', 'city', 'parking', 'city', 'chance', 'city', 'city', 'station', 'city', 'city', 'utility', 'city', 'gotojail', 'city', 'city', 'chest', 'city', 'station', 'chance', 'city', 'tax', 'city'];
+  const GROUPC = { brown: hex('#9b6a3c'), sky: hex('#5cc8f5'), pink: hex('#e8579a'), orange: hex('#ff9a2e'), red: hex('#e53935'), yellow: hex('#f5c518'), green: hex('#1fa463'), navy: hex('#2f4fc9') };
+  const GROUP = { 1: 'brown', 3: 'brown', 6: 'sky', 8: 'sky', 9: 'sky', 11: 'pink', 13: 'pink', 14: 'pink', 16: 'orange', 18: 'orange', 19: 'orange', 21: 'red', 23: 'red', 24: 'red', 26: 'yellow', 27: 'yellow', 29: 'yellow', 31: 'green', 32: 'green', 34: 'green', 37: 'navy', 39: 'navy' };
   const [cx0, cy0] = stops[0];
   // Nhân vật (vẽ trước = trên cùng): mũ, đầu, thân.
-  const cap = poly(riv, root, { name: 'Cap', cx: cx0, cy: cy0 - 32, points: [[cx0, cy0 - 36], [cx0 - 7, cy0 - 29], [cx0 + 7, cy0 - 29]], color: RED, stroke: INK, strokeW: 1 });
-  const head = ell(riv, root, { name: 'Head', x: cx0, y: cy0 - 24, w: 15, color: CREAM, stroke: INK, strokeW: 2 });
-  const body = rect(riv, root, { name: 'Body', x: cx0, y: cy0 - 9, w: 18, h: 18, r: 7, color: TEAL, stroke: INK, strokeW: 2 });
-  const shadow = ell(riv, root, { name: 'Shadow', x: cx0, y: cy0 + 8, w: 24, h: 7, color: SHADOW });
-  // 2 nhà nhỏ ở mép trái 2 ô (nhân vật đứng giữa ô nên không che hết).
-  const h1Roof = poly(riv, root, { name: 'H1Roof', cx: 76, cy: 130, points: [[76, 126], [68, 134], [84, 134]], color: RED });
-  const h1 = rect(riv, root, { name: 'H1', x: 76, y: 138, w: 14, h: 9, color: TEAL, stroke: INK, strokeW: 2 });
-  const h2Roof = poly(riv, root, { name: 'H2Roof', cx: 178, cy: 130, points: [[178, 126], [170, 134], [186, 134]], color: TEAL });
-  const h2 = rect(riv, root, { name: 'H2', x: 178, y: 138, w: 14, h: 9, color: YELLOW, stroke: INK, strokeW: 2 });
-  // 12 ô (34px): xuất phát đỏ, góc vàng, còn lại kem; vạch màu trên 2 ô có nhà.
-  const strip1 = rect(riv, root, { name: 'Strip1', x: 88, y: 130, w: 34, h: 7, color: TEAL });
-  const strip2 = rect(riv, root, { name: 'Strip2', x: 190, y: 130, w: 34, h: 7, color: RED });
-  const tileColors = [RED, CREAM, CREAM, CREAM, CREAM, CREAM, CREAM, CREAM, YELLOW, CREAM, CREAM, CREAM];
+  const cap = poly(riv, root, { name: 'Cap', cx: cx0, cy: cy0 - 23, points: [[cx0, cy0 - 26], [cx0 - 6, cy0 - 20], [cx0 + 6, cy0 - 20]], color: RED, stroke: INK, strokeW: 1 });
+  const head = ell(riv, root, { name: 'Head', x: cx0, y: cy0 - 17, w: 12, color: CREAM, stroke: INK, strokeW: 2 });
+  const body = rect(riv, root, { name: 'Body', x: cx0, y: cy0 - 6, w: 15, h: 15, r: 5, color: TEAL, stroke: INK, strokeW: 2 });
+  const shadow = ell(riv, root, { name: 'Shadow', x: cx0, y: cy0 + 8, w: 20, h: 6, color: SHADOW });
+  // Giữa bàn: xúc xắc lắc + 2 xu + 1 nhà + sao vàng nhấp.
+  // (chấm xúc xắc add TRƯỚC ô vuông — thêm trước = vẽ trên, ô add sau sẽ che mất chấm.)
+  const dicePips = [[-7, -7], [7, -7], [0, 0], [-7, 7], [7, 7]].map(([dx, dy], i) =>
+    ell(riv, root, { name: 'DP' + i, x: 182 + dx, y: 90 + dy, w: 4, color: INK }));
+  const diceSq = rect(riv, root, { name: 'Dice', x: 182, y: 90, w: 26, h: 26, r: 5, color: WHITE, stroke: INK, strokeW: 2 });
+  const coinA = coin(riv, root, 224, 86, 7);
+  const coinB = coin(riv, root, 232, 95, 7);
+  const hsRoof = poly(riv, root, { name: 'HsRoof', cx: 222, cy: 122, points: [[222, 116], [212, 126], [232, 126]], color: RED });
+  const hs = rect(riv, root, { name: 'Hs', x: 222, y: 131, w: 14, h: 10, color: TEAL, stroke: INK, strokeW: 2 });
+  const star = poly(riv, root, { name: 'Star', cx: 172, cy: 128, points: starPoints(172, 128, 8), color: GOLD, stroke: COIN_D, strokeW: 1 });
+  // Vạch màu nhóm trên ô thành phố (mép trong của ô, hướng vào giữa bàn).
+  const stripOf = (i, cx, cy) => {
+    if (i < 10) return { x: cx, y: cy - C / 2 + 2, w: C - 2, h: 4 };
+    if (i < 20) return { x: cx + C / 2 - 2, y: cy, w: 4, h: C - 2 };
+    if (i < 30) return { x: cx, y: cy + C / 2 - 2, w: C - 2, h: 4 };
+    return { x: cx - C / 2 + 2, y: cy, w: 4, h: C - 2 };
+  };
+  const strips = stops.map(([x, y], i) => {
+    if (TYPES[i] !== 'city') return null;
+    const s = stripOf(i, x, y);
+    return rect(riv, root, { name: 'Strip' + i, x: s.x, y: s.y, w: s.w, h: s.h, color: GROUPC[GROUP[i]] });
+  }).filter(Boolean);
+  // Chi tiết ô đặc biệt (vẽ trước ô = trên cùng): sao/vạch/dấu.
+  const decos = [];
+  stops.forEach(([x, y], i) => {
+    const t = TYPES[i];
+    if (t === 'start') decos.push(poly(riv, root, { name: 'DStart', cx: x, cy: y, points: starPoints(x, y, 5), color: GOLD }));
+    else if (t === 'jail') { for (const dx of [-4, 0, 4]) decos.push(rect(riv, root, { name: 'DJail' + dx, x: x + dx, y, w: 2, h: C - 4, color: INK })); }
+    else if (t === 'parking') decos.push(poly(riv, root, { name: 'DPark', cx: x, cy: y, points: starPoints(x, y, 4), color: GOLD }));
+    else if (t === 'gotojail') decos.push(ell(riv, root, { name: 'DGo', x, y, w: 7, color: CREAM }));
+    else if (t === 'chest') decos.push(poly(riv, root, { name: 'DChest' + i, cx: x, cy: y, points: [[x, y - 4], [x + 3, y], [x, y + 4], [x - 3, y]], color: WHITE }));
+    else if (t === 'chance') decos.push(poly(riv, root, { name: 'DChance' + i, cx: x, cy: y, points: [[x, y - 4], [x + 3, y], [x, y + 4], [x - 3, y]], color: INK }));
+    else if (t === 'tax') decos.push(ell(riv, root, { name: 'DTax' + i, x, y, w: 5, color: GOLD }));
+    else if (t === 'station') decos.push(rect(riv, root, { name: 'DSt' + i, x, y, w: 6, h: 6, color: WHITE }));
+    else if (t === 'utility') decos.push(ell(riv, root, { name: 'DUt' + i, x, y, w: 6, color: WHITE }));
+  });
+  // 40 ô: màu nền theo loại.
+  const baseOf = t => (t === 'start' || t === 'gotojail') ? RED : t === 'parking' ? YELLOW : t === 'chest' ? LAVENDER : t === 'chance' ? hex('#ff9a2e') : t === 'tax' ? SAND : t === 'station' ? BLUE : t === 'utility' ? TEAL : CREAM;
   const tiles = stops.map(([x, y], i) =>
-    rect(riv, root, { name: 'Tile' + i, x, y, w: 34, h: 34, color: tileColors[i], stroke: INK, strokeW: 2 }));
-  // Đế bàn cát dưới đường ô (vẽ sau ô = ở dưới).
-  const plateB = rect(riv, root, { name: 'PlateB', x: 156, y: 140, w: 310, h: 44, r: 8, color: SAND });
-  const plateR = rect(riv, root, { name: 'PlateR', x: 292, y: 72, w: 44, h: 124, r: 8, color: SAND });
+    rect(riv, root, { name: 'Tile' + i, x, y, w: C, h: C, color: baseOf(TYPES[i]), stroke: INK, strokeW: 1 }));
+  // Đế bàn cát (vẽ sau ô = ở dưới) + nền kem full-bleed.
+  const plate = rect(riv, root, { name: 'Plate', x: 200, y: 102.5, w: 155, h: 155, r: 8, color: SAND });
   bg(riv, root, CREAM);
-  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 240, fps: 60, loop: 'loop' });
-  const hop = hopFrames(stops, 20, 16, 240);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 480, fps: 60, loop: 'loop' });
+  const hop = hopFrames(stops, 12, 14, 480);
   const me = [cap, head, body];
   shift(riv, an, me, hop.dxF, hop.dyF);
   for (const p of me) {
@@ -378,6 +419,12 @@ function makeCamel(riv, root, o) {
   keys(riv, an, shadow.id, Y, hop.shYF);
   keys(riv, an, shadow.id, SX, hop.shSXF);
   keys(riv, an, shadow.id, OPACITY, hop.opF, 'linear');
+  // Xúc xắc lắc nhẹ liên tục; sao vàng nhấp.
+  const wob = sineFrames(rangeFrames(0, 480, 15), 60, 0.12);
+  for (const p of [diceSq, ...dicePips]) keys(riv, an, p.id, ROT, wob);
+  const pulse = sineFrames(rangeFrames(0, 480, 12), 120, 0.25).map(([f, v]) => [f, 1 + v]);
+  keys(riv, an, star.id, SX, pulse);
+  keys(riv, an, star.id, SY, pulse);
   save('typhu', riv);
 }
 
@@ -429,35 +476,77 @@ function makeCamel(riv, root, o) {
   save('cotuong', riv);
 }
 
-// ---- 3. cangua RỘNG: QUÂN NGỰA nhảy từng ô dọc đường cá ngựa (240f = 4s).
-// Đường ô kéo dài full chiều rộng: hàng ngang 10 ô + cột dọc 2 ô; ô xuất
-// phát đỏ, 2 ô an toàn ngọc, ô đích vàng có sao đỏ; quân ngựa (đế + thân
-// + đầu + mõm + tai + bờm + mắt) nhảy tiến từng ô rồi mờ dần về ô đầu. ----
+// ---- 3. cangua FULL BÀN: QUÂN NGỰA nhảy từng ô dọc đường 56 ô (448f = 7,5s).
+// Bàn thật trong cangua/js/scene3d.js: lưới 15×15, đường đua 56 ô
+// (trackCell: SIDE0 14 ô × 4 phía xoay), 4 chuồng 6×6 ở 4 góc, dải về
+// đích 5 ô mỗi phía, trung tâm 4 tam giác màu. Ô an toàn thật (SAFE:
+// 0,7,14,21,28,35,42,49) màu ngọc; ô xuất quân 4 phía màu ghế; cổng
+// dịch chuyển (PORTAL: 3,17,31,45) màu tím. Quân ngựa đỏ (ghế 0) nhảy
+// hết 56 ô rồi mờ về ô đầu; sao vàng đích ở giữa bàn nhấp.
 {
   const { riv, ab, root } = newFile('cangua');
-  const stops = [[20, 140], [54, 140], [88, 140], [122, 140], [156, 140], [190, 140], [224, 140], [258, 140], [292, 140], [326, 140], [326, 106], [326, 72]];
+  const OX = 120, OY = 24, U = 160 / 15; // bàn vuông 160×160
+  const cc = (c, r) => [OX + (c + 0.5) * U, OY + (r + 0.5) * U];
+  const SIDE0 = [[8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 5], [9, 5], [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6], [14, 7]];
+  const rot = ([c, r], k) => { for (let i = 0; i < k; i++) [c, r] = [14 - r, c]; return [c, r]; };
+  const trackCell = i => rot(SIDE0[i % 14], Math.floor(i / 14) % 4);
+  const stepCell = (seat, n) => rot([7, n], seat);
+  const yardC = seat => rot([11.5, 2.5], seat);
+  const slotCell = (seat, h) => rot([10.7 + (h % 2) * 1.5, 1.7 + Math.floor(h / 2) * 1.5], seat);
+  const SEATC = [hex('#e53935'), hex('#1e88e5'), hex('#2fb350'), hex('#f4b400')];
+  const SAFE = new Set([0, 7, 14, 21, 28, 35, 42, 49]);
+  const PORTAL = new Set([3, 17, 31, 45]);
+  const STARTS = { 0: 0, 14: 1, 28: 2, 42: 3 };
+  const stops = [];
+  for (let i = 0; i < 56; i++) stops.push(cc(...trackCell(i)));
   const [cx0, cy0] = stops[0];
-  // Quân ngựa nhìn sang phải (vẽ trước = trên cùng).
-  const eye = ell(riv, root, { name: 'Eye', x: cx0 + 9, y: cy0 - 19, w: 2.5, color: INK });
-  const muzzle = ell(riv, root, { name: 'Muzzle', x: cx0 + 14, y: cy0 - 14, w: 8, h: 6, color: CREAM, stroke: INK, strokeW: 1 });
-  const ear = poly(riv, root, { name: 'Ear', cx: cx0 + 2, cy: cy0 - 26, points: [[cx0 + 2, cy0 - 30], [cx0 - 2, cy0 - 23], [cx0 + 6, cy0 - 23]], color: TEAL, stroke: INK, strokeW: 1 });
-  const head = ell(riv, root, { name: 'Head', x: cx0 + 7, y: cy0 - 17, w: 15, h: 12, color: TEAL, stroke: INK, strokeW: 2 });
-  const mane = poly(riv, root, { name: 'Mane', cx: cx0 - 1, cy: cy0 - 21, points: [[cx0 - 2, cy0 - 26], [cx0 + 3, cy0 - 18], [cx0 - 4, cy0 - 16]], color: INK });
-  const body = rect(riv, root, { name: 'Body', x: cx0, y: cy0 - 4, w: 18, h: 20, r: 6, color: TEAL, stroke: INK, strokeW: 2 });
-  const base = ell(riv, root, { name: 'Base', x: cx0, y: cy0 + 8, w: 28, h: 9, color: TEAL, stroke: INK, strokeW: 2 });
-  const shadow = ell(riv, root, { name: 'Shadow', x: cx0, y: cy0 + 10, w: 26, h: 7, color: SHADOW });
-  // Sao đỏ trên ô đích (326,72).
-  const star = poly(riv, root, { name: 'Star', cx: 326, cy: 72, points: starPoints(326, 72, 9), color: RED });
-  // 12 ô (34px): xuất phát đỏ, an toàn ngọc, đích vàng, còn lại kem.
-  const tileColors = [RED, CREAM, CREAM, TEAL, CREAM, CREAM, TEAL, CREAM, CREAM, CREAM, CREAM, YELLOW];
-  const tiles = stops.map(([x, y], i) =>
-    rect(riv, root, { name: 'Tile' + i, x, y, w: 34, h: 34, color: tileColors[i], stroke: INK, strokeW: 2 }));
-  const plateB = rect(riv, root, { name: 'PlateB', x: 173, y: 140, w: 330, h: 44, r: 8, color: SAND });
-  const plateR = rect(riv, root, { name: 'PlateR', x: 326, y: 89, w: 44, h: 112, r: 8, color: SAND });
-  bg(riv, root, CREAM);
-  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 240, fps: 60, loop: 'loop' });
-  const hop = hopFrames(stops, 20, 16, 240, 10);
-  const horse = [eye, muzzle, ear, head, mane, body, base];
+  // Quân ngựa đỏ nhìn sang phải (vẽ trước = trên cùng).
+  const ear = poly(riv, root, { name: 'Ear', cx: cx0 + 1, cy: cy0 - 20, points: [[cx0 + 1, cy0 - 24], [cx0 - 2, cy0 - 17], [cx0 + 5, cy0 - 17]], color: RED, stroke: INK, strokeW: 1 });
+  const mane = poly(riv, root, { name: 'Mane', cx: cx0 - 1, cy: cy0 - 17, points: [[cx0 - 1, cy0 - 22], [cx0 + 3, cy0 - 13], [cx0 - 4, cy0 - 12]], color: INK });
+  const muzzle = ell(riv, root, { name: 'Muzzle', x: cx0 + 12, y: cy0 - 11, w: 7, h: 5, color: CREAM, stroke: INK, strokeW: 1 });
+  const head = ell(riv, root, { name: 'Head', x: cx0 + 6, y: cy0 - 14, w: 14, h: 11, color: RED, stroke: INK, strokeW: 2 });
+  const body = rect(riv, root, { name: 'Body', x: cx0, y: cy0 - 3, w: 17, h: 18, r: 6, color: RED, stroke: INK, strokeW: 2 });
+  const base = ell(riv, root, { name: 'Base', x: cx0, y: cy0 + 8, w: 26, h: 8, color: RED, stroke: INK, strokeW: 2 });
+  const shadow = ell(riv, root, { name: 'Shadow', x: cx0, y: cy0 + 10, w: 24, h: 6, color: SHADOW });
+  // Sao vàng đích ở giữa bàn (nhấp).
+  const star = poly(riv, root, { name: 'Star', cx: 200, cy: 100, points: starPoints(200, 100, 7), color: GOLD, stroke: COIN_D, strokeW: 1 });
+  // Trung tâm: 4 tam giác màu (đỏ trên, xanh phải, lục dưới, vàng trái).
+  const tris = [
+    { pts: [[200, 100], [216, 84], [184, 84]], color: SEATC[0] },
+    { pts: [[200, 100], [216, 116], [216, 84]], color: SEATC[1] },
+    { pts: [[200, 100], [184, 116], [216, 116]], color: SEATC[2] },
+    { pts: [[200, 100], [184, 84], [184, 116]], color: SEATC[3] },
+  ].map((t, i) => poly(riv, root, { name: 'Tri' + i, cx: 200, cy: 100, points: t.pts, color: t.color }));
+  // Chuồng: 4 ô vuông 6×6 màu ghế + 4 chấm ngựa chờ (chấm add trước = trên).
+  const yards = [];
+  for (let k = 0; k < 4; k++) {
+    const [yc, yr] = yardC(k);
+    for (let h = 0; h < 4; h++) {
+      const [sc, sr] = slotCell(k, h);
+      const [sx, sy] = cc(sc, sr);
+      yards.push(ell(riv, root, { name: 'Slot' + k + h, x: sx, y: sy, w: 8, color: CREAM }));
+    }
+    const [yx, yy] = cc(yc, yr);
+    yards.push(rect(riv, root, { name: 'Yard' + k, x: yx, y: yy, w: 6 * U, h: 6 * U, r: 4, color: SEATC[k], stroke: INK, strokeW: 2 }));
+  }
+  // Dải về đích 5 ô mỗi phía (màu ghế).
+  const homes = [];
+  for (let k = 0; k < 4; k++) for (let n = 1; n <= 5; n++) {
+    const [hc, hr] = stepCell(k, n);
+    const [hx, hy] = cc(hc, hr);
+    homes.push(rect(riv, root, { name: 'Home' + k + n, x: hx, y: hy, w: U * 0.92, h: U * 0.92, color: SEATC[k], stroke: INK, strokeW: 1 }));
+  }
+  // 56 ô đường đua: xuất quân màu ghế, an toàn ngọc, cổng tím, còn lại kem.
+  const tiles = stops.map(([x, y], i) => {
+    const color = STARTS[i] !== undefined ? SEATC[STARTS[i]] : SAFE.has(i) ? TEAL : PORTAL.has(i) ? LAVENDER : CREAM;
+    return rect(riv, root, { name: 'Tile' + i, x, y, w: U * 0.92, h: U * 0.92, color, stroke: INK, strokeW: 1 });
+  });
+  // Đế bàn kem (vẽ sau ô = ở dưới) + nền cát full-bleed.
+  const plate = rect(riv, root, { name: 'Plate', x: 200, y: 104, w: 160, h: 160, r: 8, color: CREAM, stroke: INK, strokeW: 3 });
+  bg(riv, root, SAND);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 448, fps: 60, loop: 'loop' });
+  const hop = hopFrames(stops, 8, 10, 448, 10);
+  const horse = [ear, mane, muzzle, head, body, base];
   shift(riv, an, horse, hop.dxF, hop.dyF);
   for (const p of horse) {
     keys(riv, an, p.id, SY, hop.squashF);
@@ -467,6 +556,10 @@ function makeCamel(riv, root, o) {
   keys(riv, an, shadow.id, Y, hop.shYF);
   keys(riv, an, shadow.id, SX, hop.shSXF);
   keys(riv, an, shadow.id, OPACITY, hop.opF, 'linear');
+  // Sao vàng đích nhấp.
+  const pulse = sineFrames(rangeFrames(0, 448, 12), 120, 0.3).map(([f, v]) => [f, 1 + v]);
+  keys(riv, an, star.id, SX, pulse);
+  keys(riv, an, star.id, SY, pulse);
   save('cangua', riv);
 }
 

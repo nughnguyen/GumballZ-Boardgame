@@ -122,9 +122,9 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 
 | File | Dung lượng | Nội dung (artboard 400×200, Fit.Cover) |
 |---|---|---|
-| `typhu.riv` | 8264 B | Nhân vật (mũ đỏ) nhảy từng ô quanh 1 góc bàn chữ L (9 ô ngang + 3 ô dọc, ô 34px, xuất phát đỏ, góc vàng, 2 nhà nhỏ), nhảy hết vòng rồi mờ về ô đầu (240f = 4s) |
+| `typhu.riv` | 32548 B | FULL BÀN: toàn bộ vòng 40 ô thật (11×11, Bắt đầu/Vào tù/Bãi đậu/Vào tù, vạch màu 8 nhóm thật, ô đặc biệt có dấu), nhân vật nhảy từng ô quanh hết vòng (480f = 8s), giữa bàn xúc xắc lắc + 2 xu + 1 nhà + sao vàng nhấp |
 | `cotuong.riv` | 6097 B | Bàn cờ 9 cột + sông ngọc + 2 cung chéo X, Mã đỏ (vòng trong vàng) nhảy chữ L rồi nhảy về, Tướng đỏ bob nhẹ, Mã + Tướng đen đứng yên (180f = 3s) |
-| `cangua.riv` | 13639 B | Quân ngựa nhảy từng ô dọc đường ô chữ L (10 ô ngang + 2 ô dọc, ô 34px, xuất phát đỏ, 2 ô an toàn ngọc, đích vàng có sao đỏ), nhảy hết vòng rồi mờ về ô đầu (240f = 4s) |
+| `cangua.riv` | 55181 B | FULL BÀN: toàn bộ bàn 15×15 thật (đường đua 56 ô, 4 chuồng 6×6, dải về đích 5 ô mỗi phía, trung tâm 4 tam giác màu; ô an toàn ngọc, cổng tím, ô xuất quân màu ghế), quân ngựa đỏ nhảy từng ô quanh hết đường đua (448f = 7,5s), sao vàng đích giữa bàn nhấp |
 | `camel.riv` | 17516 B | 2 lạc đà (vàng sau, tím trước) xếp 1 hàng trên đường đua dài + cờ caro đích, xen kẽ bước 4 bước, chân sải 1 nhịp mỗi bước, rồi mờ về vạch xuất phát (240f = 4s) |
 | `uno.riv` | 8513 B | 4 lá UNO (đỏ → vàng → ngọc → lá Đen 4 màu) từ tay bay lần lượt lên chồng bài, đáp XÒE QUẠT để cả 4 màu đều thấy; dưới chồng có 2 lá tĩnh (180f = 3s) |
 | `tienlen.riv` | 24255 B | Đôi 8 trượt lên bàn → đôi Q (vương miện) chặt → sảnh 3-4-5-6-7 chặt tiếp; bộ bị chặt trượt xuống + mờ (bài đánh ra là bài NGỬA — lưng tàng hình từ đầu) (180f = 3s) |
@@ -275,6 +275,15 @@ ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
   KHÔNG đổi).
 - Trang verify tạm `rive-verify-wide.html` tạo lại trong đợt này (đợt 11
   đã xóa) — đã xóa khỏi repo sau khi verify xong.
+
+## Kiểm chứng (đã làm — làm lại typhu + cangua FULL BÀN, 2026-11-21)
+
+- Làm lại 2 scene trong shared/rive/src/build.mjs theo yêu cầu mới của anh Hưng ("full bàn luôn"): typhu vẽ TOÀN BỘ vòng 40 ô thật trong typhu/tiles.json (11×11, đi ngược chiều kim đồng hồ từ Bắt đầu góc dưới-phải; vạch màu 8 nhóm thật; ô đặc biệt: Khí vận tím, Cơ hội cam, Thuế cát, Ga xanh, Điện/Nước ngọc, Vào tù vạch, Bãi đậu vàng, Vào tù đỏ) — bàn vuông 155×155 (không 160 để mũ nhân vật trên hàng trên không chạm mép); cangua vẽ TOÀN BỘ bàn 15×15 thật trong cangua/js/scene3d.js (đường đua 56 ô theo trackCell/SIDE0, 4 chuồng 6×6, dải về đích 5 ô mỗi phía, trung tâm 4 tam giác màu; ô an toàn thật SAFE, cổng dịch chuyển PORTAL, ô xuất quân màu ghế) — bàn vuông 160×160. Nhân vật nhảy từng ô quanh hết vòng (typhu 40 ô × 12f = 480f = 8s; cangua 56 ô × 8f = 448f = 7,5s); quân ngựa đỏ (ghế 0) thay ngựa ngọc cũ. Kích thước: typhu 8264 → 32548 B, cangua 13639 → 55181 B (cangua to vì 56 ô × 6 part ngựa × key nhảy dày).
+- Nạp TỪNG file một bằng runtime @rive-app/canvas 2.51.0 qua Playwright (headless shell + server tĩnh cổng 8128): cả 2 file loaded: true, 0 lỗi JS. Pixel đổi theo thời gian (mẫu 5000 điểm, 2 ảnh cách nhau 0,8s, đo 2 lần mỗi file): typhu 68/67 (lần 2 sau sửa: 79/67), cangua 103/91 (lần 2: 92/100) — đều trên ngưỡng 50 (typhu thấp nhất vì nhân vật nhỏ trên bàn lớn, đã đo 2 lần ổn định).
+- Ảnh chụp đã xác nhận bằng mắt (cả 2 file ở 400×200 — ảnh cuối vòng bằng inst.scrub([''], t) chụp NGAY sau scrub, và ảnh giữa vòng): typhu đọc ra bàn Cờ Tỷ Phú ngay (vòng 40 ô đủ màu nhóm + ô đặc biệt, xúc xắc + xu + nhà + sao giữa bàn, nhân vật nhảy trên vòng); cangua đọc ra bàn Cờ Cá Ngựa ngay (4 chuồng màu 4 góc + đường đua chữ thập + 4 tam giác giữa, ngựa đỏ nhảy trên đường). 1 lỗi thật đã sửa trong lúc verify: xúc xắc typhu hiện ô vuông trắng trơn, không thấy chấm — chấm add SAU ô vuông nên bị ô che (thêm sau = vẽ dưới) — sửa bằng cách tạo chấm TRƯỚC ô vuông → xúc xắc hiện đủ 5 chấm. Ảnh cuối vòng typhu lần 2 không thấy nhân vật: ảnh chụp rơi đúng cửa sổ tàng hình 6 frame lúc teleport về ô đầu (471–477f) — không phải lỗi (ảnh giữa vòng + ảnh cuối vòng lần 1 đều thấy nhân vật trên vòng, pixel đổi đo 2 lần đều trên ngưỡng).
+- Trang chủ spot-check: 2 thẻ typhu + cangua mount đủ (canvas + .has-riv + loaded: true), 0 lỗi JS trong 2 lần chạy lại (lần chạy đầu có 1 SyntaxError: Unexpected end of input không lặp lại trong 3 lần chạy sau — file .riv là dữ liệu nhị phân, không gây lỗi cú pháp JS; đây là nhiễu sandbox/server tĩnh, không liên quan file mới).
+- File .riv cũ 95 file không đổi (diff md5 sạch sau khi khôi phục domi.riv — domi.riv lại đổi vô cớ sau build dù scene không đổi, đã khôi phục từ git 2 lần trong đợt này; vetruyentin/nonogram lần này KHÔNG đổi).
+- Trang verify tạm rive-verify-wide.html tạo lại trong đợt này — đã xóa khỏi repo sau khi verify xong.
 
 ## Kiểm chứng (đã làm — batch 11, 2026-11-21)
 

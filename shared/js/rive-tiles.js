@@ -50,7 +50,7 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=2', /* ?v=2: bản khổ rộng v5 thay bản vuông v4 — tránh trình duyệt giữ cache file cũ */
+        src: 'shared/rive/' + g + '.riv?v=3', /* ?v=3: bản full-board typhu/cangua + khổ rộng v5 — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
@@ -61,4 +61,48 @@
     cv._riv = inst;
     if (io) io.observe(cv);
   });
+
+  /* ===== thẻ hot (carousel 🔥 Đang hot): mount .riv của từng game vào .hot-art =====
+     Thẻ hot render sau (live/fallback) và render lại mỗi lần có số liệu mới nên dùng
+     MutationObserver trên #hot-row; mỗi lần render lại thì cleanup instance cũ của
+     chính game đó trước khi mount mới (tránh rò WebGL context).
+     Khung .hot-art tỉ lệ 2:1 đúng artboard 400×200 nên Fit.Cover lấp kín, không viền. */
+  var hotRow = document.querySelector('#hot-row');
+  var hotInst = {}; /* slug -> Rive instance đang gắn */
+  function mountHot(card) {
+    if (!card || !card.dataset || !card.dataset.game) return;
+    var g = card.dataset.game;
+    var art = card.querySelector('.hot-art');
+    if (!art || art.querySelector('canvas.riv-cv')) return;
+    if (hotInst[g]) { try { hotInst[g].cleanup(); } catch (e) {} delete hotInst[g]; }
+    var cv = document.createElement('canvas');
+    cv.className = 'riv-cv';
+    cv.width = 800; cv.height = 400;
+    cv.setAttribute('aria-hidden', 'true');
+    art.appendChild(cv);
+    var inst;
+    try {
+      inst = new window.rive.Rive({
+        src: 'shared/rive/' + g + '.riv?v=3', /* ?v=3: file full-board mới (typhu/cangua) — lúc push, thẻ game cũng dùng ?v=3 để trình duyệt tải file mới */
+        canvas: cv,
+        autoplay: true,
+        fit: fitCover,
+        onLoad: function () { cv._rivLoaded = true; card.classList.add('has-riv'); },
+        onLoadError: function () { try { if (inst) inst.cleanup(); } catch (e) {} cv.remove(); }
+      });
+    } catch (e) { cv.remove(); return; }
+    cv._riv = inst;
+    hotInst[g] = inst;
+    if (io) io.observe(cv);
+  }
+  if (hotRow && 'MutationObserver' in window) {
+    hotRow.querySelectorAll('.hot-card[data-game]').forEach(mountHot);
+    new MutationObserver(function (muts) {
+      muts.forEach(function (mu) {
+        mu.addedNodes.forEach(function (n) {
+          if (n.nodeType === 1 && n.classList && n.classList.contains('hot-card')) mountHot(n);
+        });
+      });
+    }).observe(hotRow, { childList: true });
+  }
 })();
