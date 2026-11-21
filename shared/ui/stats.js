@@ -1,7 +1,7 @@
 // 🏅 Thống kê + thành tích của người chơi (lưu trên máy này – localStorage 'gumballz-stats'; ai đăng nhập thì shared/ui/sync.js đồng bộ thêm lên tài khoản).
 // Mỗi net.js bọc handlers: this.h = watch(GAME, handlers, () => this.id) → tự đếm ván đã chơi / thắng khi ván kết thúc.
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
-import { questWin } from '../js/daily.js?v=1'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
+import { questWin } from '../js/daily.js?v=2'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
 import { earnGame } from './wallet.js?v=3'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
 import { gameXp } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 const KEY = 'gumballz-stats';

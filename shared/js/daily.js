@@ -1,8 +1,11 @@
 // 📅 Thử thách hôm nay (18/11/2026).
-// Mỗi ngày (giờ VN) có 4 việc:
+// Mỗi ngày (giờ VN) có 4 việc TÍNH VÀO BỘ ĐẾM (n/4):
 //   1. Cờ thế Cờ tướng (cotuong/js/today.js – giữ chuỗi ngày 🔥, đã có sẵn trong repo),
 //   2. Giải đố Cờ vua (localStorage 'covua-daily' – do covua/js/main.js ghi khi giải xong),
 //   3. + 4. Thắng N ván ở 2 game chọn theo ngày từ POOL (đánh với máy cũng tính).
+// Ngoài ra có 6 hàng giải thế theo cấp độ (mỗi game Dễ / Trung bình / Khó – bấm là vào thẳng
+// bàn giải qua ?pz=de|tb|kho, mỗi cấp mỗi ngày một bài khác nhau, không trùng cho tới khi hết kho):
+// hàng cấp độ chỉ là lối vào, KHÔNG tính vào bộ đếm (count: false) và không bao giờ tích ✅.
 // Tiến độ thắng ván lưu ở localStorage 'gumballz-quest' = { day: 'YYYY-MM-DD', w: { <game>: số ván đã thắng } }.
 // KHÔNG có thưởng xu / vật phẩm – hoàn thành là xong; chuỗi ngày
 // Cờ thế / Giải đố Cờ vua là phần thưởng hiển thị duy nhất (🔥 n ngày).
@@ -40,13 +43,26 @@ export function questWin(game) {
   try { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('gumballz-quest', { detail: { game, day: d.day, count: d.w[game] } })); } catch (e) {}
   return true;
 }
-/* Danh sách 4 việc hôm nay; cotuongToday = { no, n, day } từ cotuong/js/today.js, ctDone = đã giải cờ thế hôm nay.
-   Mỗi việc: { k, icon, emo, title, sub, href, done }. href tương đối từ thư mục gốc của site. */
+/* Danh sách việc hôm nay; cotuongToday = { no, n, day } từ cotuong/js/today.js, ctDone = đã giải cờ thế hôm nay.
+   Mỗi việc: { k, icon, emo, title, sub, href, done, count? }. href tương đối từ thư mục gốc của site.
+   4 việc gốc (count mặc định) tính vào bộ đếm; 6 hàng cấp độ (count: false) chỉ là lối vào giải thế, không tính. */
 export function quests(cotuongToday, ctDone) {
   const day = dayVN(), d = prog(); let cv = {}; try { cv = JSON.parse(ls.get(COVUA_KEY)) || {}; } catch (e) {}
   const L = [];
-  if (cotuongToday) L.push({ k: 'cotuong', icon: 'cotuong', title: `Cờ thế #${cotuongToday.no}`, sub: `Cờ tướng · chiếu bí trong ${cotuongToday.n} nước`, href: 'cotuong/?daily=1', done: !!ctDone });
-  L.push({ k: 'covua', icon: 'covua', title: 'Giải đố Cờ vua', sub: 'Mỗi ngày một thế cờ mới', href: 'covua/?daily=1', done: cv.last === day });
+  if (cotuongToday) L.push({ k: 'cotuong', icon: 'cotuong', title: `Cờ thế #${cotuongToday.no}`, sub: `Cờ tướng · chiếu bí trong ${cotuongToday.n} nước`, href: 'cotuong/?pz=daily', done: !!ctDone });
+  /* 🧩 cấp độ Cờ thế Cờ tướng: Dễ 1 nước (5 bài) · Trung bình 2 nước (12 bài) · Khó 3+ nước (70 bài) */
+  L.push(
+    { k: 'ct-de', icon: 'cotuong', title: 'Cờ thế · Dễ', sub: 'Cờ tướng · chiếu bí 1 nước', href: 'cotuong/?pz=de', done: false, count: false },
+    { k: 'ct-tb', icon: 'cotuong', title: 'Cờ thế · Trung bình', sub: 'Cờ tướng · chiếu bí 2 nước', href: 'cotuong/?pz=tb', done: false, count: false },
+    { k: 'ct-kho', icon: 'cotuong', title: 'Cờ thế · Khó', sub: 'Cờ tướng · chiếu bí từ 3 nước', href: 'cotuong/?pz=kho', done: false, count: false },
+  );
+  L.push({ k: 'covua', icon: 'covua', title: 'Giải đố Cờ vua', sub: 'Mỗi ngày một thế cờ mới', href: 'covua/?pz=daily', done: cv.last === day });
+  /* 🧩 cấp độ Giải đố Cờ vua: Dễ 1–2 nước (234 bài) · Trung bình 3 nước (172 bài) · Khó 4 nước (114 bài) */
+  L.push(
+    { k: 'cv-de', icon: 'covua', title: 'Giải đố · Dễ', sub: 'Cờ vua · chiếu bí 1–2 nước', href: 'covua/?pz=de', done: false, count: false },
+    { k: 'cv-tb', icon: 'covua', title: 'Giải đố · Trung bình', sub: 'Cờ vua · chiếu bí 3 nước', href: 'covua/?pz=tb', done: false, count: false },
+    { k: 'cv-kho', icon: 'covua', title: 'Giải đố · Khó', sub: 'Cờ vua · chiếu bí 4 nước', href: 'covua/?pz=kho', done: false, count: false },
+  );
   for (const [g, n, name, emo] of picks(day)) { const have = Math.min(n, d.w[g] || 0); L.push({ k: g, icon: emo ? '' : g, emo, title: `Thắng ${n} ván ${name}`, sub: n > 1 ? `${have}/${n} ván · đánh với máy cũng tính` : 'Đánh với máy cũng tính', href: g + '/', done: have >= n }); }
   return L;
 }
@@ -65,9 +81,9 @@ export function ensureDailyCss() {
 export function renderDaily(el, cotuongToday, ctDone, streak = 0) {
   if (!el) return false;
   ensureDailyCss();
-  const L = quests(cotuongToday, ctDone), n = L.filter(q => q.done).length;
-  el.classList.toggle('alldone', n === L.length);
-  el.innerHTML = `<div class="dq-hd"><i>📅</i><b>Thử thách hôm nay</b><small>${n}/${L.length} xong${streak ? ` · 🔥 ${streak} ngày` : ''}</small></div>`
+  const L = quests(cotuongToday, ctDone), counted = L.filter(q => q.count !== false), n = counted.filter(q => q.done).length; /* bộ đếm chỉ tính 4 việc gốc, 6 hàng cấp độ không tính */
+  el.classList.toggle('alldone', n === counted.length);
+  el.innerHTML = `<div class="dq-hd"><i>📅</i><b>Thử thách hôm nay</b><small>${n}/${counted.length} xong${streak ? ` · 🔥 ${streak} ngày` : ''}</small></div>`
     + `<div class="dq-list">` + L.map(q => `<a class="dq${q.done ? ' done' : ''}" href="${esc(q.href)}">${q.icon ? `<img src="shared/img/icons/${esc(q.icon)}.svg" alt="" width="34" height="34" loading="lazy">` : `<span class="dq-emo">${esc(q.emo || '🎲')}</span>`}<span class="dq-t"><b>${esc(q.title)}</b><small>${esc(q.sub)}</small></span><em>${q.done ? '✅' : 'Chơi ▶'}</em></a>`).join('') + `</div>`;
   el.hidden = false;
   return true;
@@ -95,13 +111,13 @@ export async function mountDaily(el) {
 /* ============ HƯỚNG DẪN NỐI DÂY (do điều phối viên làm, KHÔNG tự sửa các file này) ============
    1. index.html (trang chủ) – thay thẻ <a class="daily" id="daily" href="cotuong/?daily=1">…
       (dòng ~353) bằng: <div class="daily" id="daily" hidden><div class="dq-hd">… (xem mẫu ở trên) HOẶC giữ thẻ rỗng <div class="daily" id="daily" hidden></div> rồi gọi mountDaily
-      trong 1 thẻ <script type="module">: import { mountDaily } from './shared/js/daily.js?v=1';
+      trong 1 thẻ <script type="module">: import { mountDaily } from './shared/js/daily.js?v=2';
       mountDaily(document.getElementById('daily'));
       Đồng thời: thêm <link rel="stylesheet" href="shared/css/daily.css?v=1"> vào <head>
       (nếu không muốn dựa vào ensureDailyCss tự chèn), và XÓA đoạn script cũ ở dòng ~592
       import('./cotuong/js/today.js?v=1').then(…) vẽ 1 việc Cờ thế (kẻo vẽ đè), và xóa/bỏ
       CSS .daily cũ ở dòng ~197-199 (đã chuyển sang shared/css/daily.css).
-   2. shared/ui/stats.js – đầu file thêm: import { questWin } from '../js/daily.js?v=1';
+   2. shared/ui/stats.js – đầu file thêm: import { questWin } from '../js/daily.js?v=2';
       trong record(), nhánh if (won === true) { … } (dòng ~136) thêm dòng đầu:
       try { questWin(game); } catch (e) {}  → mọi ván thắng (online / vs máy / chung máy)
       đều được tính vào 2 việc thắng-ván của ngày.

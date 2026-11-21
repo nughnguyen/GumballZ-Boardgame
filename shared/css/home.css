@@ -11,8 +11,8 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 
 /* thanh trên + tab dưới: xem shared/css/topbar.css (component topbar.js) */
 
-/* ===== hero: 2 cột (trái: tiêu đề + vào phòng · phải: giải thế cờ) — gọn để game hot lọt vào tầm nhìn đầu trang ===== */
-.hero{display:grid;grid-template-columns:1fr minmax(0,460px);gap:12px;align-items:stretch;margin:6px 0 12px}
+/* ===== hero: 1 cột (tiêu đề + vào phòng) — gọn để game hot lọt vào tầm nhìn đầu trang; giải thế cờ nằm trong "Thử thách hôm nay" ở cuối trang ===== */
+.hero{display:block;margin:6px 0 12px}
 .playzone{margin:0;background:none;border:0;border-radius:0;box-shadow:none;padding:0;display:flex;flex-direction:column;justify-content:center}
 .hero-kicker{margin:0 0 4px;font:800 13px/1.4 Nunito,sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--p1)}
 .hero-title{margin:0 0 6px;font:800 clamp(30px,3.8vw,46px)/1.05 var(--font-display);color:var(--ink);letter-spacing:.2px}
@@ -40,17 +40,6 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .code-msg{margin:6px 0 0;font:700 13.5px Nunito,sans-serif;color:var(--ink);min-height:0;text-align:center}
 .code-msg:empty{display:none}
 .playzone .online{margin:8px auto 0;text-align:center;width:max-content;max-width:100%}
-
-/* ===== giải thế cờ — thân mực đậm, 2 đố hằng ngày (thay thẻ nổi bật) ===== */
-.puzzle{margin:0}
-.puzzle-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;height:100%;box-sizing:border-box;background:var(--ink);border:2px solid var(--ink);border-radius:24px;box-shadow:var(--sh);padding:20px 22px;color:#FFFDF9}
-.puzzle-flag{font:800 13px Nunito,sans-serif;letter-spacing:2.5px;text-transform:uppercase;color:var(--y1)}
-.puzzle-card b{font:400 clamp(24px,3vw,30px)/1.15 var(--font-display)}
-.puzzle-desc{font:600 15px/1.5 Nunito,sans-serif;color:#DCD5EE}
-.puzzle-btns{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:2px}
-.puzzle-btn{display:block;text-align:center;background:var(--y1);color:var(--ink);font:400 17px/1.2 var(--font-display);border:2px solid var(--ink);border-radius:12px;padding:11px 14px;box-shadow:var(--sh-sm);text-decoration:none;transition:transform .12s}
-.puzzle-btn:nth-child(2){background:var(--p2)}
-.puzzle-btn:hover{transform:translate(-1px,-1px)}
 
 /* ===== phòng đang mở – thẻ trắng, hàng dọc, kẻ đứt giữa các hàng ===== */
 .rooms-sec{margin:0 0 20px;background:var(--card);border:2px solid var(--ink);border-radius:24px;padding:16px 18px;box-shadow:var(--sh)}
@@ -213,7 +202,6 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
   .psel{margin-left:auto}
   .hero{grid-template-columns:1fr;gap:12px;margin:4px 0 12px}
   .play-cards{grid-template-columns:1fr 1fr}
-  .puzzle-card{padding:16px 18px}
   .daily-hot{grid-template-columns:1fr}
   .hot-carousel{margin:10px -16px 0}
   .hot-row{padding:6px 16px 12px}

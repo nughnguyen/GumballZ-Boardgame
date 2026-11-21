@@ -4,6 +4,7 @@ import * as E from './engine.js?v=1';
 import { botAction, botWants } from './bot.js?v=1';
 import { masterMove, masterReady, masterOff } from './master.js?v=1';
 import { PUZZLES } from './puzzles.js?v=1';
+import { POOLS, LEVELS, puzzleFor, indexOf as levelIndexOf, nextPuzzle, byId as levelById } from './levels.js?v=1';
 import { today, state as dailyState, markSolved, puzzleOf, pastDays, markPast } from './today.js?v=2';
 import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
@@ -213,7 +214,7 @@ boardEl.addEventListener('click', e => {
 });
 $('#acts').addEventListener('click', async e => {
   const b = e.target.closest('button[data-a]'), v = ui.view; if (!b || !v) return; const k = b.dataset.a, a = actor(v);
-  if (k === 'again') { const h = ui.net.raw; if (v.puzzle) return v.puzzle.daily ? startDaily() : startPuzzle(PUZZLES.find(p => p.id === v.puzzle.id)); h.restart(); h.setOpt('first', v.players[0].side === 'r' ? 'guest' : 'host'); h.start(); return; }
+  if (k === 'again') { const h = ui.net.raw; if (v.puzzle) return v.puzzle.daily ? startDaily() : v.puzzle.level ? startLevelPuzzle(v.puzzle.level, levelById(v.puzzle.level, v.puzzle.id)) : startPuzzle(PUZZLES.find(p => p.id === v.puzzle.id)); h.restart(); h.setOpt('first', v.players[0].side === 'r' ? 'guest' : 'host'); h.start(); return; }
   if (k === 'lobby') { if (v.puzzle) { ui.leave(); openPuzzles(); } else ui.net.raw.restart(); return; }
   if (!a) return;
   if (k === 'hint') return showHint(v);
@@ -225,11 +226,11 @@ function showEnd(v) {
   const w = v.players.find(p => p.id === v.winner), mine = v.players.filter(p => ui.controls(p.id) && !p.isBot), iWon = w && mine.length === 1 && mine[0].id === w.id, iLost = w && mine.length === 1 && mine[0].id !== w.id;
   let extra = '', nextPz = null;
   let daily = null;
-  if (v.puzzle) { const ok = w && w.id === 'host' && Math.ceil(v.nMoves / 2) <= v.puzzle.n; if (ok && v.puzzle.daily) daily = v.puzzle.daily === today().day ? markSolved(v.puzzle.daily) : markPast(v.puzzle.daily); if (ok && !v.puzzle.daily) { const d = solved(); d[v.puzzle.id] = 1; ls.set('cotuong-pz', JSON.stringify(d)); nextPz = PUZZLES[PUZZLES.findIndex(x => x.id === v.puzzle.id) + 1] || null; } extra = `<p style="text-align:center">${ok && daily ? `🎉 Giải xong Cờ thế hôm nay!<br>🔥 Chuỗi <b>${daily.streak}</b> ngày liên tiếp${daily.best > daily.streak ? ` (kỷ lục ${daily.best})` : ''}` : ok ? `🎉 Giải đúng trong ${Math.ceil(v.nMoves / 2)} nước!` : w && w.id === 'host' ? `Thắng rồi, nhưng đề yêu cầu chiếu bí trong <b>${v.puzzle.n}</b> nước. Thử lại nha!` : 'Chưa đúng – thử lại nha 💪'}</p>`; }
+  if (v.puzzle) { const ok = w && w.id === 'host' && Math.ceil(v.nMoves / 2) <= v.puzzle.n; if (ok && v.puzzle.daily) daily = v.puzzle.daily === today().day ? markSolved(v.puzzle.daily) : markPast(v.puzzle.daily); if (ok && !v.puzzle.daily) { const d = solved(); d[v.puzzle.id] = 1; ls.set('cotuong-pz', JSON.stringify(d)); nextPz = v.puzzle.level ? nextPuzzle(v.puzzle.level, v.puzzle.id, d) : PUZZLES[PUZZLES.findIndex(x => x.id === v.puzzle.id) + 1] || null; } extra = `<p style="text-align:center">${ok && daily ? `🎉 Giải xong Cờ thế hôm nay!<br>🔥 Chuỗi <b>${daily.streak}</b> ngày liên tiếp${daily.best > daily.streak ? ` (kỷ lục ${daily.best})` : ''}` : ok ? `🎉 Giải đúng trong ${Math.ceil(v.nMoves / 2)} nước!` : w && w.id === 'host' ? `Thắng rồi, nhưng đề yêu cầu chiếu bí trong <b>${v.puzzle.n}</b> nước. Thử lại nha!` : 'Chưa đúng – thử lại nha 💪'}</p>`; }
   ui.openModal(`<h2>${!w ? '🤝 Hoà cờ' : iWon ? '🏆 Bạn thắng!' : iLost ? '😵 Bạn thua rồi' : `🏆 ${esc(cleanName(w.name))} thắng`}</h2><p style="text-align:center;color:var(--muted);font-weight:800">${E.RESULT_TEXT[v.result.kind] || ''} · ${Math.ceil(v.nMoves / 2)} nước</p>${extra}<div class="btns">${daily ? '<button class="btn pri" id="m-brag">📸 Khoe</button>' : ''}${nextPz ? '<button class="btn pri" id="m-next">🧩 Bài tiếp theo</button>' : ''}<button class="btn" id="m-close">Xem lại bàn cờ</button></div>`);
   $('#m-close').onclick = ui.closeModal;
   if (daily) $('#m-brag').onclick = () => { ui.closeModal(); /* đóng hộp kết quả để thẻ khoe hiện rõ */ return import('../../shared/ui/brag.js?v=35').then(m => m.brag({ game: 'cotuong', title: `Mình giải xong Cờ thế #${v.puzzle.no}!`, sub: `🔥 Chuỗi ${daily.streak} ngày`, lines: [`Chiếu bí trong ${v.puzzle.n} nước`, 'Mỗi ngày một bài mới – thử sức đi!'] })); };
-  if (nextPz) $('#m-next').onclick = () => { ui.closeModal(); ui.leave(); startPuzzle(nextPz); };
+  if (nextPz) $('#m-next').onclick = () => { ui.closeModal(); ui.leave(); if (v.puzzle.level) startLevelPuzzle(v.puzzle.level, nextPz); else startPuzzle(nextPz); };
 }
 // ---------- biên bản, luật ----------
 $('#btn-moves').onclick = () => { const v = ui.view; if (!v) return; const rows = []; for (let i = 0; i < v.moves.length; i += 2) rows.push(`<i>${i / 2 + 1}.</i><span>${esc(v.moves[i].text)}${v.moves[i].check ? ' +' : ''}</span><span>${v.moves[i + 1] ? esc(v.moves[i + 1].text) + (v.moves[i + 1].check ? ' +' : '') : ''}</span>`); ui.openModal(`<h2>📜 Biên bản</h2>${rows.length ? `<div class="mv-list"><i></i><b style="color:var(--red)">Đỏ</b><b>Đen</b>${rows.join('')}</div>` : '<p style="text-align:center">Chưa có nước nào.</p>'}<div class="btns"><button class="btn" id="m-close">Đóng</button></div>`); $('#m-close').onclick = ui.closeModal; const l = $('.mv-list'); if (l) l.scrollTop = l.scrollHeight; };
@@ -286,9 +287,18 @@ function startPuzzle(pz, more = {}) {
   if (!pz) return; const h = ui.startHost(true, true);
   h.addBot({ level: 'hard' }); h.start({ first: 'host', setup: pz.rows.join('').split('').map(c => c === '.' ? '' : c), puzzle: { id: pz.id, name: pz.name, n: pz.n, ...more } });
 }
+/* 🧩 vào thẳng 1 bài theo cấp độ (mở từ trang chủ ?pz=de|tb|kho): bài của cấp trong ngày, xoay vòng không trùng */
+function startLevelPuzzle(lv, pz) {
+  if (!pz) return;
+  startPuzzle(pz, { level: lv, name: `Cờ thế · ${LEVELS[lv]} #${levelIndexOf(lv, pz.id) + 1}` });
+}
+function startLevel(lv) { startLevelPuzzle(lv, puzzleFor(lv)); }
 $('#btn-puzzle').onclick = openPuzzles;
 $('#btn-daily').onclick = () => startDaily(); if ($('#btn-arch')) $('#btn-arch').onclick = openArchive; drawDaily(); addEventListener('focus', drawDaily);
 if (/[?&]daily=1/.test(location.search)) { history.replaceState(null, '', location.pathname); setTimeout(startDaily, 300); } /* vào từ ô Thử thách hôm nay ở trang chủ */
+{ const pzParam = new URLSearchParams(location.search).get('pz'); /* deep link Giải thế cờ từ trang chủ: ?pz=daily|de|tb|kho — vào thẳng bàn giải */
+  if (pzParam === 'daily') { history.replaceState(null, '', location.pathname); setTimeout(startDaily, 300); }
+  else if (pzParam === 'de' || pzParam === 'tb' || pzParam === 'kho') { history.replaceState(null, '', location.pathname); setTimeout(() => startLevel(pzParam), 300); } }
 
 const ui = gameKit({
   game: 'cotuong', net: NET,
