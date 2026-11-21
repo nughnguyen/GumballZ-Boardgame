@@ -97,7 +97,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .empty-filter{display:none;text-align:center;color:var(--muted);grid-column:1/-1}
 
 /* ===== ô game ===== */
-.tile{position:relative;display:block;border-radius:16px;overflow:hidden;text-decoration:none;color:#fff;min-height:0;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s;isolation:isolate;animation:tin .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.tile{position:relative;display:block;border-radius:16px;overflow:hidden;text-decoration:none;color:#fff;min-height:0;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s;isolation:isolate;animation:tin .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*45ms);background:var(--card)} /* nền thẻ kem: dải dưới nút Chơi (margin 14px) không lộ pattern khay (patch -120) */
 .tile:hover{transform:translate(-2px,-2px);box-shadow:var(--sh)}
 .tile:not(.soon){display:flex;flex-direction:column;justify-content:flex-start;padding-top:104px}
 .tile.off{display:none}
