@@ -44,15 +44,8 @@ import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sác
 import { FRAMES, NAME_COLORS } from '../shared/js/avatar-rewards.js?v=2'; /* 🎁 món thành tích để cấp tay (patch -131) */
 import '../shared/net/presence.js?v=26';
 import '../shared/ui/theme.js?v=1'; /* patch -130: chế độ tối (áp theme + meta theme-color + theo hệ thống) */
-/* patch -140: trang Quản trị KHÔNG mount huy hiệu Rive — đặt cờ TRƯỚC mountAccount() vì mountAccount →
-   profileCss() → ensureBadgesCSS() → ensureBadgeRive() sẽ cài lại MutationObserver toàn trang (lỗ hổng
-   của -139: -139 chỉ gỡ lời gọi trực tiếp trong file này). Observer mà cài rồi thì mở tab Tài khoản là nó
-   nạp runtime Rive (~694KB + wasm ~2,3MB) + mount 3 instance → treo y như trước -139. Cờ này làm
-   ensureBadgeRive() thoát ngay (xem shared/ui/badges.js); các trang khác không đặt cờ nên không ảnh hưởng.
-   Dropdown cấp vật phẩm KHÔNG phải nguyên nhân treo: nó là <select> native, không có handler click/focus/
-   change nào (chỉ nút "🎁 Cấp vật phẩm" mới đọc sel.value); user bấm dropdown đúng lúc runtime Rive đang
-   nạp (do bảng vừa render ra 3 pill .bdg) nên tưởng dropdown gây treo — thực ra main-thread đã bị chặn sẵn. */
-window.__gumballzNoBadgeRive = true;
+/* patch -141: Rive đã gỡ khỏi huy hiệu TOÀN TRANG (user quyết 23:30) nên cờ __gumballzNoBadgeRive
+   của -140 không còn cần nữa — đã xoá. ensureBadgeRive() giờ là no-op (xem shared/ui/badges.js). */
 mountAccount(document.getElementById('acct'));
 /* patch -139: KHÔNG gọi ensureBadgesCSS() trên trang Quản trị nữa. Lý do: ensureBadgesCSS() khởi động
    ensureBadgeRive() — 1 MutationObserver toàn trang; mỗi lần vào mục Tài khoản, bảng render ra 3 pill .bdg
@@ -66,7 +59,9 @@ mountAccount(document.getElementById('acct'));
    render (observer đã có guard hasBadgeCanvas/isConnected); không có polling dày (usage 60s, presence ping 30s);
    fetch users/audit đều async. Sửa: badges.css đã nạp trực tiếp bằng <link> ở <head> nên pill vẫn hiện đủ chữ +
    icon + màu + animation CSS (ánh quét ::after, shimmer, glow — xem shared/css/badges.css); chỉ mất lớp canvas
-   Rive vẽ thêm tia lấp lánh/hào quang. Các trang khác (trang chủ, Sảnh, Hồ sơ, BXH...) vẫn giữ huy hiệu Rive. */
+   Rive vẽ thêm tia lấp lánh/hào quang. (Patch -141 đã gỡ Rive khỏi huy hiệu TOÀN TRANG theo quyết định của
+   user nên câu "các trang khác vẫn giữ huy hiệu Rive" ở bản -139 không còn đúng nữa — giờ mọi trang đều
+   chỉ dùng huy hiệu CSS.) */
 const $ = s => document.querySelector(s), esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dt = t => new Date(t).toLocaleString('vi-VN'), T = { bug: '🐞 Lỗi', idea: '💡 Góp ý', other: '💬 Khác' };
 const AU = { 'claim-admin': '🛡️ Kích hoạt quản trị', role: '🎭 Đổi quyền', 'transfer-owner': '👑 Nhượng quyền chủ sảnh', supporter: '💎 Nhà Tài Trợ', 'grant-item': '🎁 Cấp vật phẩm', donate: '☕ Duyệt ủng hộ', 'ban-account': '⛔ Khoá tài khoản', 'unban-account': '✅ Mở khoá tài khoản', 'reset-password': '🔑 Đặt lại mật khẩu', mute: '🔇 Cấm chat', unmute: '🔊 Gỡ cấm chat', ban: '⛔ Cấm chat', unban: '✅ Gỡ cấm chat', hide: '🙈 Ẩn tin', dismiss: '🗑️ Bỏ qua báo cáo' };

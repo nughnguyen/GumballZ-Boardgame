@@ -9,11 +9,16 @@
 export const uid6 = id => { const s = String(id ?? ''); return s ? s.padStart(6, '0') : ''; };
 const BDG_CSS = new URL('../css/badges.css?v=4', import.meta.url).href;
 export function ensureBadgesCSS() {
-  ensureBadgeRive(); /* 🎬 huy hiệu Rive (patch -109) — mọi nơi hiện huy hiệu đều gọi hàm này */
+  /* patch -141: Rive đã gỡ khỏi huy hiệu (user quyết 23:30) — KHÔNG gọi ensureBadgeRive() nữa.
+     Huy hiệu giờ chỉ còn animation CSS (badges.css). Xem ensureBadgeRive() bên dưới. */
   if (document.getElementById('bdg-css')) return;
   const l = document.createElement('link'); l.id = 'bdg-css'; l.rel = 'stylesheet'; l.href = BDG_CSS;
   document.head.append(l);
 }
+
+/* patch -141: toàn bộ phần Rive bên dưới ĐÃ NGỪNG DÙNG (user quyết gỡ Rive khỏi huy hiệu 23:30).
+   ensureBadgeRive() giờ là no-op nên không hàm nào trong phần này được gọi nữa; giữ lại code để
+   tham khảo/phục hồi nếu sau này cần, file .riv vẫn nằm trong repo. */
 
 // 🎬 Huy hiệu Rive (patch -109): lớp hiệu ứng Rive đè lên pill CSS — chữ tên bậc +
 // icon emoji GIỮ LÀ HTML (sắc nét, đổi được), .riv chỉ vẽ vệt sáng/tia lấp lánh/
@@ -148,33 +153,14 @@ function cleanupBadgePills(root) {
     if (cv && cv._riv) { try { cv._riv.cleanup(); } catch (e) {} }
   }
 }
-let badgeRiveStarted = false;
 export function ensureBadgeRive() {
-  /* patch -140: trang Quản trị KHÔNG mount huy hiệu Rive — cờ window.__gumballzNoBadgeRive do
-     quantri/index.html đặt trước khi gọi mountAccount(). Lý do: -139 chỉ gỡ lời gọi ensureBadgesCSS
-     trực tiếp trong quantri/index.html, nhưng mountAccount() → profileCss() → ensureBadgesCSS() vẫn cài
-     lại MutationObserver này (lỗ hổng của -139). Observer cài rồi thì mở tab Tài khoản là nó nạp runtime
-     Rive + mount 3 instance → treo y như trước -139 (đúng lúc user bấm dropdown cấp vật phẩm thì runtime
-     đang nạp nên tưởng dropdown gây treo — thực ra dropdown không có handler nào, xem quantri/index.html).
-     Các trang khác không đặt cờ nên không ảnh hưởng. */
-  if (typeof window !== 'undefined' && window.__gumballzNoBadgeRive) return;
-  if (badgeRiveStarted) return;
-  badgeRiveStarted = true;
-  if (!shouldMountBadgeRive()) return; /* giảm chuyển động / không có DOM: giữ pill CSS */
-  if (typeof MutationObserver === 'undefined') return;
-  if (!document.body) { /* module nạp trước khi có body: đợi parse xong rồi thử lại */
-    badgeRiveStarted = false;
-    document.addEventListener('DOMContentLoaded', () => ensureBadgeRive(), { once: true });
-    return;
-  }
-  queueBadgePills(document.body);
-  const mo = new MutationObserver(muts => {
-    for (const mu of muts) {
-      mu.addedNodes.forEach(n => queueBadgePills(n));
-      mu.removedNodes.forEach(n => cleanupBadgePills(n));
-    }
-  });
-  mo.observe(document.body, { childList: true, subtree: true });
+  /* patch -141: Rive đã gỡ khỏi huy hiệu (user quyết 23:30) — hàm này giờ là no-op, giữ lại để các
+     nơi import không vỡ. Trước đây nó cài MutationObserver toàn trang + nạp runtime Rive (~694KB +
+     wasm ~2,3MB) mỗi khi pill .bdg xuất hiện → treo trang ở MỌI nơi hiện huy hiệu, không chỉ Quản trị
+     (xem -139/-140). Huy hiệu giờ chỉ còn animation CSS (badges.css: shimmer/sweep/bounce/glow/
+     twinkle — chính là thứ user vẫn thấy). Các hàm Rive bên dưới (loadBadgeRive, mountBadgeRive...)
+     không còn được gọi nữa, giữ lại để tham khảo; file .riv vẫn nằm trong repo. */
+  return;
 }
 export function tierBadges(u = {}) {
   const own = !!(u.owner || u.v === 2);
