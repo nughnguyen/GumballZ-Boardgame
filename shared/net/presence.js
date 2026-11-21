@@ -1,6 +1,6 @@
 // 🟢 Đếm người đang mở GumballZ: mỗi trang giữ 1 WebSocket nhẹ tới máy chủ (ping/pong tự trả lời, không tốn).
 // Nghe số: addEventListener('gumballz-online', e => e.detail) · số gần nhất: window.__gumballzOnline
-import { WS, API } from './api.js?v=28';
+import { WS, API } from './api.js?v=29';
 let ws = null, wait = 2000, ka = null, started = false;
 function connect() {
   try { ws = new WebSocket(WS() + '/presence'); } catch (e) { setTimeout(connect, wait); return; }

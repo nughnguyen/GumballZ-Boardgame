@@ -2,7 +2,7 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=49'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=50'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=89';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=4'; /* 💰 Ví xu */
@@ -74,10 +74,12 @@ export function avatarHTML(size = 40, a = avatar()) {
   const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy */
   return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
 }
-/* huy hiệu chủ web – chỉ khi là tài khoản chủ web (id 1, xem shared/js/avatar-rewards.js isOwner) */
-export const ownerBadge = on => on ? '<span class="pf-own" title="Người làm ra GumballZ Boardgame"><i>👑</i>Chủ web<b aria-hidden="true">✦</b></span>' : '';
+/* 🎖️ huy hiệu 4 bậc (patch -95) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
+export const ownerBadge = on => on ? '<span class="bdg bdg-own" title="Người làm ra GumballZ Boardgame"><i>👑</i><span class="t">CHỦ WEB</span><b aria-hidden="true">✦</b></span>' : '';
 export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ web: lấp lánh */
-export const modBadge = on => on ? '<span class="pf-mod" title="Quản trị viên – giữ trật tự cho GumballZ Boardgame">🛡️ Mod</span>' : ''; /* 🛡️ Mod = quản trị viên không phải chủ web */
+export const adminBadge = on => on ? '<span class="bdg bdg-adm" title="Quản trị viên GumballZ"><i>🛠️</i><span class="t">QUẢN TRỊ</span></span>' : ''; /* 🛠️ Quản trị = role 2, không phải chủ web */
+export const modBadge = on => on ? '<span class="bdg bdg-mod" title="Quản lý – giữ trật tự cho GumballZ Boardgame"><i>🛡️</i><span class="t">MOD</span></span>' : ''; /* 🛡️ Mod = role 1 */
+export const supporterBadge = on => on ? '<span class="bdg bdg-sup" title="Người ủng hộ đặc biệt của GumballZ"><i>💎</i><span class="t">ỦNG HỘ</span><b aria-hidden="true">✦</b></span>' : '';
 /* màu tên đã mở (thuộc tính style) */
 export const nameStyle = n => nameCss(n);
 /* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
@@ -86,9 +88,10 @@ export const nameClass = n => nameAnim(n) ? ' nc-anim' : '';
 export const bannerHTML = b => { const css = bannerCss(b); return css ? `<div class="pf-banner${bannerAnim(b) ? ' bn-anim' : ''}" style="background:${css}"></div>` : ''; };
 /* CSS diện mạo ở shared/css/avatar.css (nạp bằng <link>), gồm cả pill danh hiệu (.pf-tt/.pf-tts) */
 export function profileCss() {
+  import('./badges.js?v=1').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=2', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=2'; }
+  try { l.href = new URL('../css/avatar.css?v=3', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=3'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -276,7 +279,7 @@ export function openProfile() {
     if (ov.querySelector('.pf-box')) ov.classList.add('pf-shown');
     ov.innerHTML = `<div class="pf-box" role="dialog" aria-modal="true" aria-label="Hồ sơ của bạn"><button class="pf-x" aria-label="Đóng">✕</button>
       ${bannerHTML(look.b)}
-      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || (flags.admin && !flags.owner) ? `<div>${ownerBadge(flags.owner)}${modBadge(flags.admin && !flags.owner)}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
+      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter ? `<div>${ownerBadge(flags.owner)}${!flags.owner && flags.role === 2 ? adminBadge(true) : ''}${!flags.owner && flags.role === 1 ? modBadge(true) : ''}${supporterBadge(flags.supporter)}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
       <div class="pf-acts"><button type="button" class="pf-act-y" data-a="pick">Đổi tên và avatar</button><button type="button" class="pf-act-w" data-a="shop">Đến cửa hàng</button></div>
       ${picking ? picker(a, ust, tab, name, sub) : ''}
       <div class="pf-lv"><b>${lv.to ? `${lv.xp - lv.from} / ${lv.to - lv.from} điểm tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
@@ -304,7 +307,7 @@ export function openProfile() {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.a === 'pick') { picking = !picking; return draw(); }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
-    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=34').then(m => m.openLeaderboard('all')); return; }
+    if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=35').then(m => m.openLeaderboard('all')); return; }
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
     if (b.dataset.shopgo) { close(); location.href = shopURL(); return; } /* khung/màu tên bán bằng xu: sang Cửa hàng mua */
     if (b.dataset.lock) { import('./dialog.js?v=8').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }
@@ -324,6 +327,6 @@ export function openProfile() {
   /* có tài khoản: hỏi máy chủ thứ hạng + ngày lập tài khoản để tính đủ danh hiệu (GET /profile/<id> trả rank + created) */
   try {
     const u = JSON.parse(ls.get('gumballz-auth') || 'null'); const id = u && u.user && u.user.id;
-    if (id) import('../net/api.js?v=28').then(m => m.memberProfile(id).then(r => { if (r && r.ok && r.user && ov.isConnected) { srv = { rank: r.user.rank, created: r.user.created }; draw(); } }).catch(() => {})).catch(() => {});
+    if (id) import('../net/api.js?v=29').then(m => m.memberProfile(id).then(r => { if (r && r.ok && r.user && ov.isConnected) { srv = { rank: r.user.rank, created: r.user.created }; draw(); } }).catch(() => {})).catch(() => {});
   } catch (e) {}
 }

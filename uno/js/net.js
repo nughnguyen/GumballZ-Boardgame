@@ -2,7 +2,7 @@
 import { MODES, MATCH_TARGETS } from './engine.js?v=27';
 import { makeHost, NS, PREFIX, GAME, SNAP, MAX, PULL_CD, TURN_TIME, OWE_TIME, UNO_PHRASES } from './host.js?v=3';
 import { S } from './ufx.js?v=25';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=52';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=53';
 import { RemoteBase } from '../../shared/net/remotehost.js?v=1';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';

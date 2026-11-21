@@ -2,7 +2,8 @@
 // shared/net/room.js tự nạp file này khi có phòng online và đưa vào `api`:
 //   { game, host, send(text), history(), alive() }  – tin mới tới qua sự kiện window 'gumballz-chat' ({id, from, text, host, old} hoặc {reset:true}).
 // Giao diện: một "tai" 💬 dính mép trái màn hình (kéo lên xuống được), bấm mở hộp chat; có tin mới khi đang đóng thì hiện chấm đỏ + bong bóng xem nhanh.
-import { auth } from '../net/api.js?v=28';
+import { auth } from '../net/api.js?v=29';
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
 const blockedIds = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const CSS = `
@@ -67,7 +68,7 @@ function dock() {
   }, 1500);
 }
 function build() {
-  dock();
+  dock(); ensureBadgesCSS(); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
   const tab = document.createElement('button'); tab.className = 'brc-tab'; tab.type = 'button'; tab.setAttribute('aria-label', 'Chat trong phòng'); tab.innerHTML = '💬<b></b>';
   const peek = document.createElement('div'); peek.className = 'brc-peek'; peek.hidden = true;
@@ -95,11 +96,13 @@ function build() {
     const el = document.createElement('div'); el.className = 'brc-m' + (mine ? ' me' : '') + (vip && !mine ? ' vip' : '');
     if (!mine) {
       const s = document.createElement('small');
-      const nm = document.createElement('span'); nm.textContent = vip ? '👑 Chủ web · ' + m.from : (m.host ? '👑 ' : '') + m.from; s.appendChild(nm);
+      const nm = document.createElement('span'); nm.textContent = m.from; s.appendChild(nm); /* tên người gửi – không gắn 👑 ở đây: huy hiệu Chủ web chỉ hiện khi máy chủ phòng kiểm vé (m.vip), chủ phòng không tự gắn */
+      const pills = tierBadges({ owner: !!m.vip, role: m.rl != null ? +m.rl : 0, supporter: !!m.sp }); /* 🎖️ huy hiệu 4 bậc (patch -95): owner chỉ từ m.vip đã kiểm, role/supporter do chủ phòng tra lúc vào */
+      if (pills) { const p = document.createElement('span'); p.innerHTML = ' ' + pills; s.appendChild(p); }
       const meU = auth.user();
       if (m.uid && (!meU || +m.uid !== meU.id)) {
         const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'brc-add'; ab.textContent = '＋ Kết bạn';
-        ab.onclick = () => import('./friends.js?v=34').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
+        ab.onclick = () => import('./friends.js?v=35').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
         s.appendChild(ab);
       }
       el.appendChild(s);

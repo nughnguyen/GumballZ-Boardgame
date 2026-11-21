@@ -1,8 +1,9 @@
 // 🤝 Bạn bè & Nhắn tin 1-1 + Mời vào bàn (cần đăng nhập tài khoản GumballZ).
-import { auth, friends } from '../net/api.js?v=28';
-const amOwner = () => { const u = auth.user(); return !!(u && u.admin && +u.id === 1); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) */
+import { auth, friends } from '../net/api.js?v=29';
+const amOwner = () => { const u = auth.user(); return !!(u && u.admin && u.owner); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) – patch -94: dùng cờ owner của máy chủ, không ghi cứng id 1 */
 import { openLogin } from './account.js?v=50';
 import { confirmBox } from './dialog.js?v=6';
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
 
 const ROOT = new URL('../../', import.meta.url).href;
 const GAMES = {
@@ -92,6 +93,7 @@ const CSS = `.bf-ub{flex:none;border:0;border-radius:999px;background:#ffe9d6;co
 .bf-embed[data-chat="1"] .bf-bk{display:inline-block}`;
 
 function css() {
+  ensureBadgesCSS(); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('bf-css')) return;
   const s = document.createElement('style'); s.id = 'bf-css'; s.textContent = CSS; document.head.append(s);
 }
@@ -381,7 +383,8 @@ function createFriendsPanel(root, initialUid = null) {
       html += data.friends.map(f => {
         const prev = f.last ? (INV_RE.test(f.last.msg) ? '🎲 Lời mời vào bàn' : f.last.msg) : (f.username ? '@' + f.username : '#' + f.id);
         INV_RE.lastIndex = 0;
-        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}${f.owner ? ' <small style="color:#b8860b">👑 Chủ web</small>' : f.dm ? ' <small style="color:#8a7f96">· chưa kết bạn</small>' : ''}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
+        const bdgs = tierBadges(f);
+        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}${bdgs ? ' ' + bdgs : f.dm ? ' <small style="color:#8a7f96">· chưa kết bạn</small>' : ''}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
       }).join('');
     } else {
       html += '<div class="bf-empty" style="padding:14px 8px">Chưa có bạn bè nào.<br>Nhập <b>@tênđăngnhập</b> hoặc <b>#ID</b> ở trên, hoặc bấm <b>＋ Kết bạn</b> ngay trong chat phòng!</div>';

@@ -589,7 +589,7 @@ import { mountDaily } from './shared/js/daily.js?v=3'; mountDaily(document.getEl
 // ô game ra khỏi màn hình thì dừng hoạt ảnh (cuộn nhẹ hơn, đỡ tốn pin)
 if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('asleep', !e.isIntersecting)), { rootMargin: '120px' }); $$('.tile').forEach(t => io.observe(t)); }
 // thanh trên đổ bóng khi cuộn
-$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=59').then(m => m.openMatchmaking()));
+$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=60').then(m => m.openMatchmaking()));
 // ▶ Vào lại ván: game nào còn phiên dở (gumballz-session-<game>, xem shared/net/room.js) thì hiện nút
 const FRESH = 3 * 3600e3; let resumeGame = null;
 tiles.forEach(tile => {
@@ -615,7 +615,7 @@ const FEATURED = ['bang', 'uno', 'meono', 'masoi', 'typhu', 'tamquoc', 'tienlen'
 // 🏷️ Nhãn HOT trên ô game đang đông nhất (theo số người chơi thật)
 function hotBadges(top) { tiles.forEach(t => { const on = top.includes(t.dataset.game); let b = t.querySelector('.badge.hot'); if (on && !b && !t.querySelector('.badge.new')) { b = document.createElement('span'); b.className = 'badge hot'; b.textContent = '🔥 HOT'; t.append(b); } else if (!on && b) b.remove(); }); }
 // 🚪 Phòng đang mở + ô nhập mã phòng ngay trang chủ (khỏi phải vào Sảnh hay chọn game trước)
-import('./shared/net/api.js?v=28').then(({ API }) => {
+import('./shared/net/api.js?v=29').then(({ API }) => {
   const LVN = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ'];
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const tileOf = g => tiles.find(t => t.dataset.game === g);
@@ -627,7 +627,7 @@ import('./shared/net/api.js?v=28').then(({ API }) => {
     $('#rooms-list').innerHTML = list.slice(0, 8).map(r => { const t = tileOf(r.game); return `<a class="room-card" href="${r.game}/?room=${r.code}"><img src="shared/img/icons/${r.game}.svg" alt="" onerror="this.remove()"><span><b>${esc(t.querySelector('h2').textContent)}</b><small>Mã ${r.code} · ${r.n} người trong phòng</small></span><em>Vào</em></a>`; }).join('');
     const em = $('#rooms-empty'); em.hidden = !!list.length && list.length <= 8;
     em.innerHTML = list.length > 8 ? `<a href="sanh/">Xem cả ${list.length} phòng ở Sảnh chung ▶</a>` : 'Chưa có phòng công khai nào đang mở 🥲 Bấm <a href="#" data-mm>⚡ Tìm trận nhanh</a> hoặc chọn game rồi tạo phòng nha.';
-    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=59').then(m => m.openMatchmaking()); };
+    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=60').then(m => m.openMatchmaking()); };
   }
   loadRooms(); setInterval(loadRooms, 30000); document.addEventListener('visibilitychange', loadRooms);
   const inp = $('#code-in'), msg = $('#code-msg'), btn = $('#codebox button');

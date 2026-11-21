@@ -4,7 +4,7 @@ import { DEF } from './def.js?v=16';
 import * as E from './engine.js?v=16';
 import { botAction } from './bot.js?v=16';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
-import { API } from '../../shared/net/api.js?v=28';
+import { API } from '../../shared/net/api.js?v=29';
 import { humanToken } from '../../shared/ui/turnstile.js?v=1';
 /* 🗳️ Từ vừa được cả bàn bỏ phiếu nhận: báo lên máy chủ để vào kho từ chờ duyệt (POST /noitu/voted kèm mã Turnstile) */
 let votedKey = '';

@@ -1,8 +1,8 @@
 // 🏆 Bảng xếp hạng toàn server GumballZ: lọc theo Tất cả game hoặc từng game, xếp theo Điểm XP / Ván thắng / Chuỗi thắng.
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
-import { auth, leaderboard } from '../net/api.js?v=28';
+import { auth, leaderboard } from '../net/api.js?v=29';
 import { GAME_NAMES } from './stats.js?v=89';
-import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, modBadge, ownName } from './profile.js?v=49';
+import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, ownName } from './profile.js?v=50';
 import { openLogin } from './account.js?v=50';
 import { syncNow } from './sync.js?v=47';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
@@ -59,6 +59,7 @@ const CSS = `
 
 function injectCss() {
   ensureSkCSS();
+  import('./badges.js?v=1').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);
@@ -144,7 +145,7 @@ export function openLeaderboard(initialGame = 'all') {
           <span class="rk-no">#${r.rank}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${modBadge(r.mod)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#B9A6FF;color:#241A38">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#B9A6FF;color:#241A38">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-sub">${subVal}</div>
           </div>
           <div class="rk-val"><b>${mainVal}</b><small>${by === 'xp' ? `🔥 chuỗi ${r.best}` : `⭐ ${r.xp} XP`}</small></div>

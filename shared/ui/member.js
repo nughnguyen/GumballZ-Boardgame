@@ -2,8 +2,8 @@
 // Mở từ thẻ người chơi (bấm tên/avatar trong phòng), bảng xếp hạng, hộp bạn bè, trang quản trị:
 //   import('…/shared/ui/member.js?v=2').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
-import { auth, friends, API } from '../net/api.js?v=28';
-import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=49';
+import { auth, friends, API } from '../net/api.js?v=29';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=50';
 import { ACHS, GAME_NAMES } from './stats.js?v=89';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
@@ -71,12 +71,12 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=49').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=50').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=50').then(m => m.openLogin()); }
-    else if (a === 'dm') { close(); import('./friends.js?v=34').then(m => m.openFriends(U.id)); }
+    else if (a === 'dm') { close(); import('./friends.js?v=35').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
-      try { const m = await import('./friends.js?v=34'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
+      try { const m = await import('./friends.js?v=35'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
       busy = false; await loadRel(); if (ov.isConnected && rel == null) draw();
     }
   });

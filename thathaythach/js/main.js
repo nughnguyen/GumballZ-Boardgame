@@ -2,7 +2,7 @@
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import * as E from './engine.js?v=4';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
-import { API } from '../../shared/net/api.js?v=28';
+import { API } from '../../shared/net/api.js?v=29';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
 
 

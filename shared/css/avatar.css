@@ -1,23 +1,12 @@
-/* 🎨 CSS diện mạo: avatar chibi 3D trong vòng tròn (.pf-fr/.pf-cb), khung, màu tên, huy hiệu Chủ web,
+/* 🎨 CSS diện mạo: avatar chibi 3D trong vòng tròn (.pf-fr/.pf-cb), khung, màu tên, vòng khung 'owner',
    hộp Hồ sơ + bảng đổi đồ (tab nhân vật / lộ trình thưởng / khung / màu tên / hiệu ứng thắng).
+   Huy hiệu 4 bậc (Chủ web / Quản trị / Mod / Ủng hộ) ở shared/css/badges.css (patch -95), không ở đây.
    CSS tách từ inline trong shared/ui/profile.js (17–18/11/2026).
    Dùng: profileCss() trong shared/ui/profile.js (khi nối dây) chỉ cần nạp file này thay cho CSS inline cũ,
    hoặc <link rel="stylesheet" href="shared/css/avatar.css">. Khung vuông cũ đã bỏ: nhân vật nằm gọn
    trong vòng tròn (.pf-fr .pf-cb { overflow:hidden; border-radius:50% }) – anh chê khung vuông 18/11/2026. */
 .pf-av{display:inline-grid;place-items:center;border-radius:50%;flex:none;line-height:1;box-shadow:inset 0 -3px 0 #0000001a,0 4px 10px -6px #241A3888;user-select:none}
-.pf-sup{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:4px;padding:1px 10px 1px 7px;border-radius:999px;background:linear-gradient(135deg,#ffe3f0,#ffc2dc 55%,#ffd6ea);color:#b3165c;font:800 12px/1.6 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #ff8fbf,0 2px 8px -3px #ff5fa288;white-space:nowrap;vertical-align:middle;margin-left:4px}
-.pf-sup i{font-style:normal;display:inline-block;animation:pf-sup-b 2.4s ease-in-out infinite}
-.pf-sup::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:pf-sup-s 3.6s ease-in-out infinite}
-@keyframes pf-sup-b{0%,70%,100%{transform:scale(1)}80%{transform:scale(1.22)}90%{transform:scale(.95)}}
-@keyframes pf-sup-s{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
-@media (prefers-reduced-motion:reduce){.pf-sup i,.pf-sup::after{animation:none}.pf-sup::after{display:none}}
-.pf-own{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:4px;padding:1px 12px 1px 7px;border-radius:999px;background:linear-gradient(135deg,#3a1030,#7a1630 45%,#241A38);color:#ffd84a;font:900 12.5px/1.6 Nunito,sans-serif;letter-spacing:.2px;box-shadow:inset 0 0 0 1.5px #ffcf3d,0 0 0 1px #b8780a,0 3px 14px -3px #ff7a45cc;white-space:nowrap;vertical-align:middle;text-shadow:0 1px 0 #00000066}
-.pf-own i{font-style:normal;display:inline-block;transform-origin:50% 90%;animation:pf-own-c 2.8s ease-in-out infinite}
-.pf-own b{position:absolute;right:3px;top:-1px;font-size:9px;color:#fff6c2;animation:pf-own-t 1.9s ease-in-out infinite}
-.pf-own::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-120%);animation:pf-sup-s 3s ease-in-out infinite}
-@keyframes pf-own-c{0%,60%,100%{transform:rotate(0) translateY(0)}70%{transform:rotate(-12deg) translateY(-2px)}82%{transform:rotate(9deg) translateY(-1px)}92%{transform:rotate(0) translateY(0)}}
 @keyframes pf-own-t{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
-.pf-mod{display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:999px;background:linear-gradient(135deg,#e3f4ff,#9fd4ff);color:#0b4a7a;font:800 12px/1.6 Nunito,sans-serif;box-shadow:0 0 0 1.5px #6fb9ef inset;white-space:nowrap;vertical-align:middle}
 .pf-ownnm{position:relative;display:inline-block;margin:0 .55em 0 .35em}
 .pf-ownnm::before,.pf-ownnm::after{content:"✦";position:absolute;color:#ffb23d;-webkit-text-fill-color:#ffb23d;font-size:.6em;line-height:1;pointer-events:none;animation:pf-own-t 2.2s ease-in-out infinite}
 .pf-ownnm::before{left:-.55em;top:-.25em}.pf-ownnm::after{right:-.6em;bottom:.05em;color:#ff4d6a;-webkit-text-fill-color:#ff4d6a;animation-delay:-1.1s}
@@ -25,7 +14,7 @@
 .pf-fr.own::before{content:"";position:absolute;inset:-3px;border-radius:50%;z-index:-1;background:conic-gradient(#ff3d5a,#ffd84a,#ff7a45,#fff2b3,#ff3d5a);filter:blur(5px);opacity:.85;animation:pf-own-r 4s linear infinite}
 .pf-fr.own::after{content:"✦";position:absolute;right:-2px;top:-3px;font-size:max(9px,22%);color:#ffd84a;text-shadow:0 0 4px #ff7a45;animation:pf-own-t 1.7s ease-in-out infinite}
 @keyframes pf-own-r{to{transform:rotate(1turn)}}
-@media (prefers-reduced-motion:reduce){.pf-own i,.pf-own b,.pf-own::after,.pf-ownnm::before,.pf-ownnm::after,.pf-fr.own::before,.pf-fr.own::after{animation:none}.pf-own::after{display:none}}
+@media (prefers-reduced-motion:reduce){.pf-ownnm::before,.pf-ownnm::after,.pf-fr.own::before,.pf-fr.own::after{animation:none}}
 /* pill danh hiệu (.pf-tt): danh hiệu đang trưng cạnh tên + danh sách chọn trong Hồ sơ */
 .pf-tt{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;background:#FFE9A8;color:#241A38;font:800 12.5px/1.5 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}
 .pf-tt.lv{background:#efe6da;color:#5a4e70;box-shadow:none}

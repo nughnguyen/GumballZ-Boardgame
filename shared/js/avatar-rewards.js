@@ -21,9 +21,9 @@ export const UNLOCK = {
   og: { desc: 'Lập tài khoản trong năm 2026', ok: s => s.created > 0 && s.created < Date.UTC(2027, 0, 1) },
   admin: { desc: 'Chỉ dành cho chủ web', ok: s => !!s.admin }, /* đồ hầu gái / Giáng sinh riêng chỉ tài khoản chủ web dùng */
 };
-/* 👑 chủ web = đúng tài khoản của Nguyễn (id 1). Quản trị viên khác vẫn có quyền quản trị nhưng KHÔNG mang huy hiệu Chủ web */
-export const OWNER_ID = 1;
-export const isOwner = u => !!(u && u.admin && +u.id === OWNER_ID);
+/* 👑 chủ web = tài khoản đang giữ quyền chủ web (máy chủ báo cờ owner trong pub(), patch -94 – không ghi cứng id nữa). Quản trị viên khác vẫn có quyền quản trị nhưng KHÔNG mang huy hiệu Chủ web */
+export const OWNER_ID = 1; /* mặc định/fallback: tài khoản đầu tiên */
+export const isOwner = u => !!(u && u.admin && u.owner);
 export const isOpen = (lock, st) => { if (!lock || (st && st.admin)) return true; /* chủ web mở hết */ const u = UNLOCK[lock]; try { return !!(u && st && u.ok(st)); } catch (e) { return false; } };
 export const lockDesc = lock => (UNLOCK[lock] || {}).desc || 'Chơi thêm';
 
@@ -49,9 +49,9 @@ export function statsFromLoad(s = {}, extra = {}) {
     { created: s.first || 0, ...extra },
   );
 }
-/* cờ admin/chủ web của tài khoản đang đăng nhập trên máy này (đọc 'gumballz-auth', giống profile.js cũ) */
+/* cờ admin/chủ web/ủng hộ của tài khoản đang đăng nhập trên máy này (đọc 'gumballz-auth', giống profile.js cũ) */
 export function readAuthFlags() {
-  try { const u = JSON.parse(localStorage.getItem('gumballz-auth') || 'null'); const me = u && u.user; return { admin: !!(me && me.admin), owner: isOwner(me), id: me ? +me.id || 0 : 0, created: (me && +me.created) || 0 }; } catch (e) { return { admin: false, owner: false, id: 0, created: 0 }; }
+  try { const u = JSON.parse(localStorage.getItem('gumballz-auth') || 'null'); const me = u && u.user; return { admin: !!(me && me.admin), owner: isOwner(me), supporter: !!(me && me.supporter), role: me ? (me.role != null ? +me.role : (me.admin ? 2 : 0)) : 0, id: me ? +me.id || 0 : 0, created: (me && +me.created) || 0 }; } catch (e) { return { admin: false, owner: false, supporter: false, role: 0, id: 0, created: 0 }; }
 }
 
 /* khung avatar – vòng màu vẽ ở FRAME_RING (kích thước tổng vẫn = size, xem shared/css/avatar.css) */

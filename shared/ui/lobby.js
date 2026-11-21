@@ -1,12 +1,13 @@
 // 🌐 Sảnh chung: phòng công khai + chat (lọc chửi thề ở máy chủ) + báo cáo.
 // mountLobby(el, { game }) – game = null: sảnh tổng (mọi game, kênh chat "Chung" + kênh game đang lọc)
 // openLobby(game) – mở dạng hộp nổi (dùng trong trang game)
-import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=28';
+import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=29';
 export const LV_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ']; /* trùng LEVELS trong stats.js */
 import { openLogin } from './account.js?v=50';
 import { promptBox, chooseBox } from './dialog.js?v=8';
 import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {
@@ -57,16 +58,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-b{background:#f6efe6;border-radius:4px 14px 14px 14px;padding:6px 10px;max-width:calc(100% - 70px);word-wrap:break-word;overflow-wrap:anywhere}
 .lb-m.me{flex-direction:row-reverse}.lb-m.me .lb-b{background:#ffe9d6;border-radius:14px 4px 14px 14px}
 .lb-n{font-weight:800;font-size:13px}.lb-n .v{color:#2f9e5b}.lb-n time{font-weight:600;color:var(--mut);font-size:11.5px;margin-left:6px}
-.lb-modb{display:inline-block;padding:0 7px;border-radius:999px;background:linear-gradient(135deg,#dff3ff,#9fd4ff);color:#0b4a7a;font-size:11px;font-weight:800}
-.lb-ownb{position:relative;overflow:hidden;display:inline-block;padding:0 8px 0 6px;border-radius:999px;background:linear-gradient(135deg,#3a1030,#7a1630 45%,#241A38);color:#ffd84a;font-size:11px;font-weight:900;box-shadow:inset 0 0 0 1.5px #ffcf3d,0 2px 10px -3px #ff7a45cc}
-.lb-ownb i{font-style:normal;display:inline-block;animation:lb-oc 2.8s ease-in-out infinite}
-.lb-ownb::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-120%);animation:lb-os 3s ease-in-out infinite}
-.lb-own{position:relative}
-.lb-own::after{content:"✦";position:absolute;right:-.7em;top:-.35em;font-size:.7em;color:#ffb23d;-webkit-text-fill-color:#ffb23d;animation:lb-ot 2s ease-in-out infinite}
-@keyframes lb-oc{0%,60%,100%{transform:none}70%{transform:rotate(-12deg) translateY(-2px)}82%{transform:rotate(9deg)}}
-@keyframes lb-os{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
-@keyframes lb-ot{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
-@media (prefers-reduced-motion:reduce){.lb-ownb i,.lb-ownb::after,.lb-own::after{animation:none}.lb-ownb::after{display:none}}
+/* 🎖️ huy hiệu chat ở shared/css/badges.css (.bdg) – nạp bằng ensureBadgesCSS() khi mở Sảnh */
 /* ✨ đồ Nitro trong chat (2026-11-21): khung avatar quanh chữ cái, tên gradient chạy, tin nhắn phát sáng */
 .lb-avfr{display:inline-grid;place-items:center;border-radius:50%;padding:2px;flex:none;position:relative}
 .lb-avfr.fr-anim{background:none}
@@ -118,7 +110,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-mod .lb{flex:1;min-height:0}.lb-mod .lb-col{min-height:0}
 /* Scribble có sẵn lớp .lb (bảng điểm) của riêng nó → gỡ khung/độ rộng lạ khỏi sảnh */
 .lb[data-tab]{width:auto;max-width:none;background:none;border:0;border-radius:0;padding:0;margin:0}`;
-function css() { ensureSkCSS(); if (document.getElementById('lb-css')) return; const s = document.createElement('style'); s.id = 'lb-css'; s.textContent = CSS; document.head.append(s); }
+function css() { ensureSkCSS(); ensureBadgesCSS(); if (document.getElementById('lb-css')) return; const s = document.createElement('style'); s.id = 'lb-css'; s.textContent = CSS; document.head.append(s); }
 const COLORS = ['#ff4d5e', '#ff9a3d', '#2fc76f', '#3d8bff', '#7b61ff', '#20b2aa', '#e05297', '#c58a1a'];
 const colorOf = s => COLORS[[...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORS.length];
 
@@ -199,7 +191,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=34').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=35').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
     if (!roomsReady) return; /* chưa có danh sách phòng từ máy chủ: giữ skeleton */
@@ -213,7 +205,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   const mountFriends = () => {
     if (friendsPanel || friendsLoading) return;
     friendsLoading = true;
-    import('./friends.js?v=34').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
+    import('./friends.js?v=35').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
   };
   const drawGroups = () => { el.querySelectorAll('.lb-groups button').forEach(b => b.setAttribute('aria-pressed', b.dataset.grp === grp)); };
   const drawGameChips = () => { const gc = $('.lb-gc'); gc.hidden = grp !== 'game'; if (grp !== 'game') return; gc.innerHTML = Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button type="button" data-g="${k}" aria-pressed="${k === selGame}">${e} ${n}</button>`).join(''); };
@@ -229,7 +221,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   $('.lb-groups').onclick = e => { const b = e.target.closest('button'); if (!b) return; setGrp(b.dataset.grp); };
   $('.lb-gc').onclick = e => { const b = e.target.closest('button'); if (!b) return; selGame = b.dataset.g; ch = selGame; drawChatArea(); join(); };
   const blk = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
-  const msgHTML = m => { if (m.who && m.who.startsWith('u:') && blk().includes(+m.who.slice(2))) return ''; /* 🚫 người mình đã chặn */ const mine = !!me && m.who === me.who; const av = m.av && typeof m.av === 'object' ? m.av : {}; const fa = frameAnim(av.f), ring = av.f && FRAME_RING[av.f]; const hot = nameAnim(av.n) || fa; /* ✨ đồ động kiểu Nitro: tên gradient chạy / khung xoay-phát sáng → tin nhắn phát sáng */ const body = m.kind === 'invite' ? `<a class="lb-inv" href="${ROOT}${esc(m.game || '')}/?room=${esc(m.code || '')}"><span class="e">${esc((GAME_INFO[m.game] || ['🎲'])[0])}</span><span class="t"><b>${esc((GAME_INFO[m.game] || ['', m.game])[1] || m.game)} · phòng của ${esc(m.name)}</b><small>Mã phòng ${esc(m.code)} · đang chờ người chơi</small></span><span class="go">▶ Vào phòng</span></a>` : esc(m.text); const avEl = ring ? `<span class="lb-avfr${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span></span>` : `<span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span>`; return `<div class="lb-m${mine ? ' me' : ''}${hot ? ' lb-m-hot' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}">${avEl}<div class="lb-b"><div class="lb-n"><span class="${nameAnim(av.n) ? 'nc-anim' : ''}${m.v === 2 ? ' lb-own' : ''}" style="${nameCss(av.n)}">${esc(m.name)}</span>${m.v === 2 ? ' <span class="lb-ownb"><i>👑</i> Chủ web</span>' : m.v === 3 ? ' <span class="lb-modb">🛡️ Mod</span>' : m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : ''}<time>${hhmm(m.ts)}</time></div>${body}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
+  const msgHTML = m => { if (m.who && m.who.startsWith('u:') && blk().includes(+m.who.slice(2))) return ''; /* 🚫 người mình đã chặn */ const mine = !!me && m.who === me.who; const av = m.av && typeof m.av === 'object' ? m.av : {}; const fa = frameAnim(av.f), ring = av.f && FRAME_RING[av.f]; const hot = nameAnim(av.n) || fa; /* ✨ đồ động kiểu Nitro: tên gradient chạy / khung xoay-phát sáng → tin nhắn phát sáng */ const body = m.kind === 'invite' ? `<a class="lb-inv" href="${ROOT}${esc(m.game || '')}/?room=${esc(m.code || '')}"><span class="e">${esc((GAME_INFO[m.game] || ['🎲'])[0])}</span><span class="t"><b>${esc((GAME_INFO[m.game] || ['', m.game])[1] || m.game)} · phòng của ${esc(m.name)}</b><small>Mã phòng ${esc(m.code)} · đang chờ người chơi</small></span><span class="go">▶ Vào phòng</span></a>` : esc(m.text); const avEl = ring ? `<span class="lb-avfr${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}"><span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span></span>` : `<span class="lb-av" style="background:${colorOf(m.name)}" title="${mine ? '' : 'Bấm để kết bạn / nhắn tin'}">${esc([...m.name][0] || '?').toUpperCase()}</span>`; const bdgs = tierBadges(m); return `<div class="lb-m${mine ? ' me' : ''}${hot ? ' lb-m-hot' : ''}" data-id="${m.id}" data-who="${esc(m.who || '')}" data-name="${esc(m.name || '')}">${avEl}<div class="lb-b"><div class="lb-n"><span class="${nameAnim(av.n) ? 'nc-anim' : ''}" style="${nameCss(av.n)}">${esc(m.name)}</span>${bdgs ? ' ' + bdgs : (m.v ? ' <span class="v" title="Đã đăng nhập">✓</span>' : '')}<time>${hhmm(m.ts)}</time></div>${body}</div>${mine ? '' : (me && me.admin ? '<button class="lb-rp lb-adm" title="Quản trị: ẩn tin / cấm chat" aria-label="Quản trị">🛡️</button>' : '') + '<button class="lb-rp" title="Báo cáo tin này" aria-label="Báo cáo">🚩</button>'}</div>`; };
   const scrollEnd = () => { const b = $('.lb-msgs'); b.scrollTop = b.scrollHeight; };
   const drawMsgs = () => { if (!chatReady && !(grp === 'game' && !selGame)) return; /* chưa có lịch sử chat: giữ skeleton */ if (grp === 'game' && !selGame) { $('.lb-msgs').innerHTML = '<div class="lb-empty">👆 Chọn 1 game ở trên để xem kênh chat của game đó nha!</div>'; return; } const l = msgs[ch] || []; $('.lb-msgs').innerHTML = l.length ? l.map(msgHTML).join('') : '<div class="lb-empty">Chưa ai nói gì… mở lời trước đi nè 👋</div>'; scrollEnd(); };
   let frN = 0;
@@ -249,7 +241,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       if (row && !row.classList.contains('me')) {
         const who = row.dataset.who || '', name = row.dataset.name || '';
         const uid = who.startsWith('u:') ? +who.slice(2) : 0;
-        import('./friends.js?v=34').then(m => m.showPlayerCard({ uid, name }, whoHit));
+        import('./friends.js?v=35').then(m => m.showPlayerCard({ uid, name }, whoHit));
         return;
       }
     }
@@ -304,7 +296,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   }
   const offFr = e => { frN = (e.detail && e.detail.count) || 0; syncFr(); };
   addEventListener('gumballz-friends', offFr);
-  import('./friends.js?v=34').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=35').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
   const off = auth.onChange(() => { drawWho(); hello(); });
   drawRooms(); drawChatArea(); drawWho(); drawMm(); connect();
   if (autoMatch) setTimeout(() => startMm(game || filter), 60);

@@ -144,7 +144,7 @@ export default {
       if (!okOrigin(origin)) return json({ ok: false }, 403); const H = cors(origin);
       if (p[1] === 'id' && req.method === 'POST') { const tok = bearer(); const me = tok && env.ADMIN_KEY ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || me.banned) return json({ ok: false }, 200, H); return json({ ok: true, p: await makeIdPass(env, me.id) }, 200, H); } /* 🪪 vé tài khoản */
       if (p[1] === 'check') { const u = new URL(req.url); return json({ ok: await checkPass(env, u.searchParams.get('p'), +u.searchParams.get('uid') || 0) }, 200, H); }
-      if (p[1] === 'pass' && req.method === 'POST') { const tok = bearer(); const me = tok ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || (me.role != null ? +me.role : (me.admin ? 2 : 0)) !== 2 || me.id !== 1 /* tài khoản đầu tiên = chủ web */ || me.banned || !env.ADMIN_KEY) return json({ ok: false }, 200, H); return json({ ok: true, pass: await makePass(env, me.id) }, 200, H); }
+      if (p[1] === 'pass' && req.method === 'POST') { const tok = bearer(); const U = env.USERS.get(env.USERS.idFromName('main')); const me = tok ? await U.whoami(tok) : null; if (!me || (me.role != null ? +me.role : (me.admin ? 2 : 0)) !== 2 || !(await U.isOwnerId(me.id)) /* 👑 chủ web hiện tại (patch -94) */ || me.banned || !env.ADMIN_KEY) return json({ ok: false }, 200, H); return json({ ok: true, pass: await makePass(env, me.id) }, 200, H); }
       return json({ ok: false }, 404, H);
     }
     if (p[0] === 'noitu') { /* 🔗 Nối từ: kho từ cộng đồng (từ cả bàn bỏ phiếu nhận, đã duyệt là có thật) */
@@ -217,6 +217,11 @@ export default {
           if (op === 'audit') { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem nhật ký' }, 403, H); return json({ ok: true, ...(await U.auditList(d.off, d.lim)) }, 200, H); }
           if (op === 'users') return json({ ok: true, users: await U.adminFind(d.q) }, 200, H);
           if (op === 'user') return json(await U.adminSet(d.id, d.patch || {}, adminUser ? adminUser.id : null), 200, H);
+          if (op === 'transfer-owner') { // 👑 nhượng quyền chủ web (patch -94): chỉ chủ web hiện tại (bằng token) hoặc ADMIN_KEY (không token)
+            const viaKey = !adminUser;
+            if (!viaKey && !(await U.isOwnerId(adminUser.id))) return json({ ok: false, msg: 'Chỉ chủ web mới nhượng quyền' }, 403, H);
+            return json(await U.transferOwner(adminUser ? { id: adminUser.id, name: adminUser.name } : null, +d.id), 200, H);
+          }
           if (op === 'stats') return json({ ok: true, ...(await L.admin('stats')), ...(await U.stats()) }, 200, H);
           if (op === 'usage') return json({ ok: true, ...(await L.status(env.PLAN, true)) }, 200, H);
           if (op === 'cf') { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem số Cloudflare' }, 403, H); return json(await cfUsage(env), 200, H); } /* số thật từ Cloudflare */

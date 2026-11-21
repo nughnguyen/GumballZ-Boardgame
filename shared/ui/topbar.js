@@ -69,7 +69,7 @@
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./account.js?v=50').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: avatar + cấp ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
-  import('./profile.js?v=49').then(function (m) {
+  import('./profile.js?v=50').then(function (m) {
     return import('./stats.js?v=89').then(function (st) {
       m.profileCss();
       var b = document.getElementById('btn-prof');
@@ -96,7 +96,7 @@
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=47').then(function (m) { m.openSettings(); }).catch(function () {}); };
   // xếp hạng / Trang chủ: nối cho cả nút trên nav (có sẵn lúc parse) lẫn nút
   // ở tab dưới (chèn sau DOMContentLoaded — xem wireTabbar trong addTab).
-  function openRank() { import('./leaderboard.js?v=34').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
+  function openRank() { import('./leaderboard.js?v=35').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
   function goHomeTop() { scrollTo({ top: 0, behavior: 'smooth' }); }
   function wireRankBtn(b) { b.onclick = openRank; }
   function wireHomeBtn(b) { b.onclick = goHomeTop; }
@@ -105,7 +105,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=49').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=50').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;

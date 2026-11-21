@@ -5,7 +5,7 @@
 // được trong ngày, chuỗi + số dư giữ nguyên qua máy khác. Khách (chưa đăng nhập): chỉ lưu
 // localStorage, xóa dữ liệu sẽ mất chuỗi (ghi rõ trong giao diện). Máy chủ cũ (chưa có action
 // nhận thưởng) thì dùng tạm bản local và ghi rõ — chưa chống được cho tới khi deploy lại Worker.
-import { auth, API } from '../net/api.js?v=28';
+import { auth, API } from '../net/api.js?v=29';
 
 const REWARDS = [20, 30, 40, 50, 60, 80, 100];
 const KEY = 'gumballz-login', POP = 'gumballz-login-pop';

@@ -53,7 +53,7 @@ export async function openInvite({ code, url, title = document.title.split(/[–
 /* 👥 danh sách bạn bè (đang online lên đầu) + nút Mời gửi tin nhắn riêng có thẻ vào bàn [invite:game:code] (friends.js vẽ thành nút "Vào bàn") */
 async function friendsPart(ov, code, url) {
   const box = ov.querySelector('.iv-fr'); if (!box) return;
-  let api; try { api = await import('../net/api.js?v=28'); } catch (e) { return; }
+  let api; try { api = await import('../net/api.js?v=29'); } catch (e) { return; }
   if (!api.auth.user()) { box.hidden = false; box.querySelector('.iv-fl').innerHTML = '<p class="iv-fe">Đăng nhập để mời thẳng bạn bè đang online trong web nha. <button type="button" class="iv-lg">Đăng nhập</button></p>'; box.querySelector('.iv-lg').onclick = () => import('./account.js?v=50').then(m => m.openLogin()).catch(() => {}); return; }
   const game = (window.__gumballzRoom && window.__gumballzRoom.game) || (new URL(url).pathname.split('/').filter(Boolean)[0] || '');
   const r = await api.friends.list().catch(() => null); if (!ov.isConnected) return;

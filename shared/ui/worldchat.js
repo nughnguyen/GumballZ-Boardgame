@@ -3,7 +3,7 @@
 // Chấm đỏ + bong bóng xem nhanh: worldchat giữ 1 WebSocket riêng tới /lobby chỉ để
 // nghe tin kênh 'all'; khi hộp Sảnh đang mở thì đóng WebSocket này (hộp Sảnh tự có
 // WebSocket của nó), đóng hộp thì mở lại. Không mở 2 WebSocket cùng lúc.
-import { WS, auth, guestId, myName } from '../net/api.js?v=28';
+import { WS, auth, guestId, myName } from '../net/api.js?v=29';
 
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const CSS = `
@@ -59,7 +59,7 @@ export function mountWorldChat() {
     if (!drag) return; const moved = drag.moved; drag = null;
     if (moved) { ls.set('gumballz-worldchat-y', parseFloat(tab.style.top)); return; }
     u.unread = 0; badge.textContent = ''; peek.hidden = true;
-    import('./lobby.js?v=59').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
+    import('./lobby.js?v=60').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
   };
   tab.addEventListener('pointerup', up); tab.addEventListener('pointercancel', () => { drag = null; });
   // WebSocket nghe tin kênh 'all' để hiện chấm đỏ + bong bóng (chỉ khi hộp Sảnh đang đóng)

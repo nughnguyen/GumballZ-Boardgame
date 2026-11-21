@@ -1,7 +1,7 @@
 // 🛍️ Cửa hàng — mua khung avatar, màu tên, banner hồ sơ, lưng bài và mở rương Gacha bằng xu ảo.
 // Tiền ảo, không nạp, không rút, không tiền thật. Mọi giá và tỉ lệ rơi lấy từ shared/ui/wallet.js.
 import { loadWallet, balance, fmt, spend, grantCosmetic, owns, widOf, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=4';
-import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=49';
+import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=50';
 import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js';
 import { totals } from '../../shared/ui/stats.js?v=89'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';

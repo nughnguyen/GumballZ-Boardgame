@@ -98,7 +98,7 @@ function askUI() {
     const q = inp.value.trim(); if (q.length < 4) { ans.textContent = 'Gõ câu hỏi dài hơn 4 ký tự nha.'; return; }
     ans.textContent = '⏳ Đang hỏi AI…';
     try {
-      const { API } = await import('../net/api.js?v=28');
+      const { API } = await import('../net/api.js?v=29');
       const r = await (await fetch(API() + '/ai/rules', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ game: GAME, q }), signal: AbortSignal.timeout(10000) })).json();
       if (r && r.ok) ans.textContent = r.text || 'AI chưa trả lời được.';
       else if (r && r.off) ans.textContent = 'Tính năng AI đang tắt.';

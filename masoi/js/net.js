@@ -1,8 +1,8 @@
 // Lớp mạng Ma Sói: chủ phòng giữ state + đồng hồ quản trò, người vào chỉ gửi action. Kết nối dùng chung shared/net/room.js
 import { createGame, applyAction, viewFor, actors, timeout, phaseMs, DEFAULT_OPTS, presetRoles, roleList, ROLES, MAX_PLAYERS, MIN_PLAYERS, P, isWolfRole } from './engine.js?v=11';
 import { botAction, botDayPlan, botWolfLine, botGhostLine, botLastWords } from './bot.js?v=10';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=52';
-import { API } from '../../shared/net/api.js?v=28';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=53';
+import { API } from '../../shared/net/api.js?v=29';
 /* 🤖 bot Ma Sói biết nói: POST /ai/masoi (server/src/ai.js masoiLine) – tắt hay hết trần thì tự nghỉ một lúc, bot dùng câu có sẵn */
 let aiOff = 0;
 async function aiLine(s, b, hint, code) {

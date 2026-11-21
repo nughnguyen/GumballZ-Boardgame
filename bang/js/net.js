@@ -3,7 +3,7 @@ import { createGame, applyAction, viewFor, topPrompt, current, alivePlayers, res
 export const TURN_TIME = 60, PROMPT_TIME = 20; // giây: hết giờ thì máy tự đánh thay (chống treo máy)
 import { botAction } from './bot.js?v=7';
 import { S } from './fx.js?v=9';
-import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=52';
+import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=53';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
 import { watch } from '../../shared/ui/stats.js?v=89';

@@ -8,13 +8,13 @@ import { peerOptions, keepAlive } from './ice.js';
 import { RelayHost, relayConnect } from './relay.js';
 import { FbHost, fbConnect, fbEnabled } from './fbrelay.js';
 import { CfHost, cfConnect, cfEnabled, cfClaim } from './cfrelay.js?v=16';
-import { announceRoom, auth, myLevel } from './api.js?v=28';
+import { announceRoom, auth, myLevel, API } from './api.js?v=29';
 import { unthrottleTimers } from './bgtimers.js?v=1'; /* ⏱️ hẹn giờ qua Web Worker để chủ phòng chuyển tab không làm bàn giật */
 /* 👑 vé chủ web (server/src/vip.js): vipCached/vipPass do shared/net/api.js cung cấp (worker client thêm, key 'gumballz-vp').
    🪪 vé tài khoản: idCached/idPass – gửi kèm khi vào phòng để máy chủ áp lệnh cấm / danh sách chặn.
    Nạp động + dự phòng rỗng để room.js vẫn chạy được nếu api.js chưa có các hàm đó. */
 let vipCached = () => null, vipPass = async () => null, idCached = () => '', idPass = async () => '';
-import('./api.js?v=28').then(m => { if (typeof m.vipCached === 'function') vipCached = m.vipCached; if (typeof m.vipPass === 'function') vipPass = m.vipPass; if (typeof m.idCached === 'function') idCached = m.idCached; if (typeof m.idPass === 'function') idPass = m.idPass; }).catch(() => {});
+import('./api.js?v=29').then(m => { if (typeof m.vipCached === 'function') vipCached = m.vipCached; if (typeof m.vipPass === 'function') vipPass = m.vipPass; if (typeof m.idCached === 'function') idCached = m.idCached; if (typeof m.idPass === 'function') idPass = m.idPass; }).catch(() => {});
 
 // 💬 Chat trong phòng (shared/ui/roomchat.js): chạy ngay ở lớp kết nối nên game nào cũng có, không phải sửa từng game.
 //   người chơi → chủ phòng : {t:'__chat', text}
@@ -24,7 +24,7 @@ const NO_CHAT = ['masoi', 'scribble', 'giandiep'];
 const gameOf = ns => String(ns || '').replace(/^gumballz-/, '');
 const chatOn = ns => !NO_CHAT.includes(gameOf(ns));
 const chatText = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, 140);
-function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=38').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
+function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=39').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
 const chatBuf = []; /* tin gần đây – để hộp chat nạp xong muộn vẫn có đủ */
 function chatEmit(m) { if (m.reset) chatBuf.length = 0; else { chatBuf.push(m); if (chatBuf.length > 40) chatBuf.shift(); } try { dispatchEvent(new CustomEvent('gumballz-chat', { detail: m })); } catch (e) {} }
 
@@ -34,7 +34,7 @@ function peersEmit(peers) {
 }
 function netUi(g) { try { import('../ui/netmeter.js?v=4').then(m => m.mountNetMeter(g)).catch(() => {}); } catch (e) {} }
 function netEmit(d) { try { dispatchEvent(new CustomEvent('gumballz-net', { detail: d })); } catch (e) {} }
-function friendsUi() { try { import('../ui/friends.js?v=34').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
+function friendsUi() { try { import('../ui/friends.js?v=35').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
 function showNotice(text) {
   try {
     const d = document.createElement('div');
@@ -234,6 +234,9 @@ export class RoomHost {
         c._uid = Number(m.uid) || 0;
         c._uname = String(m.uname || '').slice(0, 20);
         c._token = String(m.token || '').slice(0, 48);
+        if (m.token) { /* 🎖️ huy hiệu chat phòng (patch -95): kiểm tra token người vào 1 lần để biết role + supporter (lỗi mạng thì thôi, không hiện huy hiệu) */
+          fetch(API() + '/auth/me', { headers: { Authorization: 'Bearer ' + String(m.token) } }).then(r => r.json()).then(d => { if (d && d.ok && d.user) { c._role = d.user.role != null ? +d.user.role : (d.user.admin ? 2 : 0); c._sp = d.user.supporter ? 1 : 0; } }).catch(() => {});
+        }
         if (first && this.chatLog.length) setTimeout(() => { try { if (c.open) c.send({ t: '__chat', hist: this.chatLog }); } catch (e) {} }, 600);
         this.pushPeers();
       }
@@ -250,7 +253,7 @@ export class RoomHost {
     if (this.chatClean) try { text = this.chatClean(text).text; } catch (e) {}
     if (c) { if (!c._chatName) return; const now = Date.now(); if (now - (c._chatAt || 0) < 700) return; c._chatAt = now; } /* chưa vào phòng thì không được nói; chống spam */
     const u = !c ? auth.user() : null;
-    const m = { t: '__chat', id: ++this.chatN, from: c ? c._chatName : (localStorage.getItem('gumballz-name') || 'Chủ phòng'), host: !c, uid: c ? (c._uid || 0) : (u ? u.id : 0), uname: c ? (c._uname || '') : (u ? u.username : ''), text };
+    const m = { t: '__chat', id: ++this.chatN, from: c ? c._chatName : (localStorage.getItem('gumballz-name') || 'Chủ phòng'), host: !c, uid: c ? (c._uid || 0) : (u ? u.id : 0), uname: c ? (c._uname || '') : (u ? u.username : ''), rl: c ? (c._role || 0) : (u ? (u.role != null ? +u.role : (u.admin ? 2 : 0)) : 0), sp: c ? (c._sp ? 1 : 0) : (u && u.supporter ? 1 : 0), text }; /* 🎖️ huy hiệu chat phòng (patch -95): role + supporter của người gửi (chủ phòng đọc từ tài khoản mình, người khác do chủ phòng kiểm token lúc vào) */
     this.chatLog.push(m); if (this.chatLog.length > 40) this.chatLog.shift();
     for (const x of this.conns) if (x.open && x._chatName) try { x.send(m); } catch (e) {}
     chatEmit(m);
@@ -538,7 +541,7 @@ export class RoomClient {
     this.conn = conn;
     clearTimeout(this.joinTimer);
     this.joinTimer = setTimeout(() => { if (!this.id && conn === this.conn) { if (mode === 'cf') this._hostGone = !!conn.wasOpen; /* nối được máy chủ mà chủ phòng không đáp */ this.next(); } }, mode === 'p2p' ? 7000 : mode === 'cf' ? 8000 : 12000);
-    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(), ip = idCached(); conn.send({ t: 'join', token: token(), uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...(ip ? { ip } : {}), ...this.o.joinMsg() }); if (u) Promise.all([u.admin && u.id === 1 ? vipPass() : vp, idPass()]).then(([p, q]) => { if ((p !== vp || q !== ip) && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p || '', ip: q || '' }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js · 🪪 vé tài khoản */
+    conn.on('open', () => { if (conn === this.conn) { const u = auth.user(), vp = vipCached(), ip = idCached(); conn.send({ t: 'join', token: token(), uid: u ? u.id : 0, uname: u ? u.username : '', ...(vp ? { vp } : {}), ...(ip ? { ip } : {}), ...this.o.joinMsg() }); if (u) Promise.all([u.admin && u.owner ? vipPass() : vp, idPass()]).then(([p, q]) => { if ((p !== vp || q !== ip) && conn === this.conn && !this.dead) conn.send({ t: '__id', uid: u.id, uname: u.username || '', vp: p || '', ip: q || '' }); }); } }); /* 👑 vé chủ web – shared/ui/vip.js · 🪪 vé tài khoản */
     conn.on('data', msg => {
       if (conn !== this.conn || !msg) return;
       this.lastSeen = Date.now();

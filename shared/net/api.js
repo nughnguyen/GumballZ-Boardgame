@@ -50,7 +50,7 @@ const VP_KEY = 'gumballz-vp';
 export function vipCached() { return ls.get(VP_KEY) || null; }
 export async function vipPass() {
   const u = auth.user();
-  if (!u || !u.admin || u.id !== 1) return null; /* chỉ tài khoản quản trị đầu tiên = chủ web mới xin được vé */
+  if (!u || !u.admin || !u.owner) return null; /* chỉ chủ web hiện tại mới xin được vé (patch -94: cờ owner của máy chủ) */
   try { const r = await call('/vip/pass', {}, auth.token()); if (r && r.ok && r.pass) { ls.set(VP_KEY, r.pass); return r.pass; } } catch (e) {}
   return null;
 }
