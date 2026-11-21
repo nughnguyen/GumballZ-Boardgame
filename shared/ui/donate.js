@@ -101,7 +101,7 @@ export async function openDonate() {
   const code = () => 'SEVQR ' + (u ? `GZ ${show ? 'U' : 'A'}${uid6(u.id)}X` : 'GZ') + ` R${ref}Z`; /* SEVQR: tài khoản ngân hàng nối SePay chỉ báo giao dịch có chữ này – id hiển thị 6 số (patch -108) */
   const pct = Math.min(100, Math.round(I.got / Math.max(1, I.goal) * 100));
   const ROOT = new URL('../../', import.meta.url).href;
-  const qr = () => `https://img.vietqr.io/image/OCB-0388205003-compact2.png?amount=${amt || ''}&addInfo=${encodeURIComponent(code())}&accountName=GumballZ`; /* mã QR động VietQR (patch -108): OCB 0388205003 của chủ web — đổi amount/addInfo là mã đổi theo, không cần DONATE_ACC; đã kiểm bằng giải mã QR thật */
+  const qr = () => `https://img.vietqr.io/image/OCB-0388205003-payos.png?amount=${amt || ''}&addInfo=${encodeURIComponent(code())}&accountName=GumballZ`; /* mã QR động VietQR, mẫu payos (patch -118): OCB 0388205003 của chủ web — đổi amount/addInfo là mã đổi theo, không cần DONATE_ACC; mẫu payos trả về SVG (301 → .svg), đã kiểm HTTP 200 */
   bd.innerHTML = `
     <p class="dn-p">GumballZ miễn phí, không quảng cáo. Tiền máy chủ mỗi tháng khoảng <b>${vnd(I.goal)}</b> – ai thấy vui thì góp một ly cà phê giúp mình giữ web chạy lâu nha 💛</p>
     <p class="dn-p" style="font-size:12.5px">Ủng hộ là tự nguyện, chỉ nhận huy hiệu cảm ơn – <b>không</b> đổi được chip hay lợi thế gì trong game.</p>
