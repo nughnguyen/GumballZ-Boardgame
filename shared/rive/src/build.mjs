@@ -262,14 +262,14 @@ function card(riv, root, cx, cy, w, h, o) {
   return { back, face, all: [...back, ...face] };
 }
 
-// Lá UNO: nền màu + oval trắng + chấm màu lớn ở giữa (số) + 2 góc trắng.
-// Thứ tự vẽ: thêm trước = vẽ TRÊN — chấm/oval/góc add TRƯỚC nền.
+// Lá UNO: nền màu + oval kem + chấm màu lớn ở giữa (số).
+// Thứ tự vẽ: thêm trước = vẽ TRÊN — chấm/oval add TRƯỚC nền.
+// (v6.3: BỎ 2 ô góc trắng — lá xòe quạt xoay tới 0.30 rad, ô góc xoay
+//  quanh tâm riêng nên lệch khỏi góc lá thật, thò ra ngoài viền.)
 function unoCard(riv, root, cx, cy, w, h, color) {
   const parts = [];
   parts.push(ell(riv, root, { name: 'UDot', x: cx, y: cy, w: w * 0.3, color }));
   parts.push(ell(riv, root, { name: 'UOval', x: cx, y: cy, w: w * 0.62, h: h * 0.52, color: CREAM }));
-  parts.push(rect(riv, root, { name: 'UC1', x: cx - w / 2 + 7, y: cy - h / 2 + 7, w: 7, h: 7, r: 2, color: CREAM }));
-  parts.push(rect(riv, root, { name: 'UC2', x: cx + w / 2 - 7, y: cy + h / 2 - 7, w: 7, h: 7, r: 2, color: CREAM }));
   parts.push(rect(riv, root, { name: 'UBg', x: cx, y: cy, w, h, r: 8, color, stroke: INK, strokeW: 2 }));
   return parts;
 }
@@ -641,44 +641,50 @@ function makeCamel(riv, root, o) {
   save('camel', riv);
 }
 
-// ---- 5. uno: ĐÁNH BÀI XUỐNG CHỒNG BÀI (180f = 3s).
-// 4 lá UNO từ tay (dưới) bay lần lượt lên chồng bài giữa bàn, mỗi lá một
-// màu (đỏ -> vàng -> xanh lá -> lá Đen 4 màu); lá cuối cùng nằm trên cùng.
-// Tay: 4 lá; chồng: 2 lá tĩnh bên dưới. ----
+// ---- 5. uno: XÒE QUẠT 5 LÁ TO (180f = 3s).
+// 5 lá UNO 92×128 bay lần lượt từ dưới khung lên, đáp XÒE QUẠT như tay bài
+// thật (nghiêng dần -0.30 -> +0.30, chồng lên nhau), cụm lá chiếm ~84% bề
+// rộng khung. Lá Đen 4 màu ở phải cùng. Nền ĐỎ (màu thương hiệu UNO).
+// (v6.3: lá cũ 48×66 chụm giữa khung chỉ ~1/4 bề rộng — anh Hưng báo vẫn
+//  lỗi; phóng to gần gấp đôi + xòe quạt rõ, bỏ 2 lá tĩnh dưới chồng bài.)
 {
   const { riv, ab, root } = newFile('uno');
   const D = 180;
-  // Lá Đen 4 màu (wild) — tạo TRƯỚC để nằm trên cùng của chồng bài.
-  // Thứ tự vẽ: thêm trước = vẽ TRÊN — 4 ô màu add TRƯỚC nền đen.
+  const CW = 92, CH = 128; // cỡ lá mới (cũ 48×66)
+  const Y0 = 280; // vị trí xuất phát: dưới khung (ngoài artboard)
+  // Thứ tự tạo = thứ tự vẽ (thêm trước = vẽ TRÊN): lá phải tạo trước để
+  // nằm trên lá trái kề nó — quạt xòe trái -> phải.
+  // Lá Đen 4 màu (wild) — 4 ô màu add TRƯỚC nền đen. Tạo ở vị trí xuất
+  // phát (305, Y0), bay lên vị trí quạt (305, 108) như các lá khác.
   const wildParts = [];
-  wildParts.push(rect(riv, root, { name: 'WQ1', x: 273, y: 158, w: 12, h: 12, color: RED }));
-  wildParts.push(rect(riv, root, { name: 'WQ2', x: 287, y: 158, w: 12, h: 12, color: YELLOW }));
-  wildParts.push(rect(riv, root, { name: 'WQ3', x: 273, y: 172, w: 12, h: 12, color: TEAL }));
-  wildParts.push(rect(riv, root, { name: 'WQ4', x: 287, y: 172, w: 12, h: 12, color: BLUE }));
-  wildParts.push(rect(riv, root, { name: 'WBg', x: 280, y: 165, w: 48, h: 66, r: 8, color: INK, stroke: INK, strokeW: 2 }));
-  const c4 = { back: [], face: wildParts, all: wildParts };
-  const c3 = unoCard(riv, root, 225, 160, 48, 66, TEAL);
-  const c2 = unoCard(riv, root, 170, 160, 48, 66, YELLOW);
-  const c1 = unoCard(riv, root, 115, 168, 48, 66, RED);
-  // 2 lá tĩnh dưới đáy chồng bài.
-  const p1 = unoCard(riv, root, 198, 82, 48, 66, BLUE);
-  const p2 = unoCard(riv, root, 204, 78, 48, 66, RED);
+  wildParts.push(rect(riv, root, { name: 'WQ1', x: 305 - 11, y: Y0 - 11, w: 22, h: 22, color: RED }));
+  wildParts.push(rect(riv, root, { name: 'WQ2', x: 305 + 11, y: Y0 - 11, w: 22, h: 22, color: YELLOW }));
+  wildParts.push(rect(riv, root, { name: 'WQ3', x: 305 - 11, y: Y0 + 11, w: 22, h: 22, color: TEAL }));
+  wildParts.push(rect(riv, root, { name: 'WQ4', x: 305 + 11, y: Y0 + 11, w: 22, h: 22, color: BLUE }));
+  wildParts.push(rect(riv, root, { name: 'WBg', x: 305, y: Y0, w: CW, h: CH, r: 12, color: INK, stroke: INK, strokeW: 2 }));
+  const c5 = wildParts;
+  const c4 = unoCard(riv, root, 253, Y0, CW, CH, BLUE);
+  const c3 = unoCard(riv, root, 200, Y0, CW, CH, TEAL);
+  const c2 = unoCard(riv, root, 147, Y0, CW, CH, YELLOW);
+  const c1 = unoCard(riv, root, 95, Y0, CW, CH, RED);
   // Nền ĐỎ (màu thương hiệu UNO) — nỉ xanh FELT cũ làm UNO lẫn với mọi game
   // bài Việt khác, anh Hưng báo "màu bị lỗi". Lá đỏ vẫn đọc rõ nhờ viền mực
   // + oval kem của unoCard.
   bg(riv, root, RED);
   const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
-  // Mỗi lá bay lên chồng bài trong 30f: lệch x/y + xoay nhẹ khi đáp.
-  // 4 lá đáp XÒE QUẠT (không chồng 1 điểm) để cả 4 màu đều nhìn thấy.
-  const fly = (parts, x0, y0, tx, ty, t0, tilt) => {
-    shift(riv, an, parts, [[t0, 0], [t0 + 15, (tx - x0) / 2], [t0 + 30, tx - x0]], [[t0, 0], [t0 + 15, -105], [t0 + 30, ty - y0]]);
-    for (const p of parts) keys(riv, an, p.id, ROT, [[t0, 0], [t0 + 30, tilt], [D, tilt]]);
+  // Mỗi lá bay lên trong 25f (cách nhau 20f): từ dưới khung lên vị trí quạt,
+  // xoay dần tới góc quạt. Quạt đủ 5 lá từ 105f tới hết vòng.
+  const flyFan = (parts, ty, t0, tilt) => {
+    const mid = t0 + 12, end = t0 + 25;
+    shift(riv, an, parts, [[t0, 0], [mid, 0], [end, 0]], [[t0, 0], [mid, -105], [end, ty - Y0]]);
+    for (const p of parts) keys(riv, an, p.id, ROT, [[t0, 0], [end, tilt], [D, tilt]]);
   };
-  fly(c1, 115, 168, 168, 84, 0, 0.12);
-  fly(c2, 170, 160, 192, 78, 40, -0.08);
-  fly(c3, 225, 160, 216, 84, 80, 0.1);
-  fly(c4.all, 280, 165, 200, 72, 120, -0.05);
-  fadeEnds(riv, an, [...c1, ...c2, ...c3, ...c4.all, ...p1, ...p2], D);
+  flyFan(c1, 108, 0, -0.30);
+  flyFan(c2, 97, 20, -0.15);
+  flyFan(c3, 92, 40, 0);
+  flyFan(c4, 97, 60, 0.15);
+  flyFan(c5, 108, 80, 0.30);
+  fadeEnds(riv, an, [...c1, ...c2, ...c3, ...c4, ...c5], D);
   save('uno', riv);
 }
 
@@ -1989,36 +1995,48 @@ function makeCamel(riv, root, o) {
 
 // ---- 34. xiecthu: 3 CON THÚ LẬT LÊN SÂN KHẤU (180f = 3s).
 // Rèm đỏ trên + sàn gỗ dưới, sân khấu kem FULL-BLEED: 3 lá thú lật lên lần
-// lượt (sư tử -> voi -> khỉ) + sao vàng. Lá 76×104, dạt rộng 85/200/315.
+// lượt (sư tử -> voi -> khỉ) + sao vàng. Lá 104×140, dạt rộng 90/200/310.
 // (v6.1: bỏ rèm 2 bên + sân khấu 370×140 cũ — cảnh bị lồng khung, chưa full.)
 // (v6.2: phóng to lá 46×62 -> 76×104 + thú ×1.65 — lá cũ quá nhỏ, hai bên
 //  còn khoảng trống kem lớn, anh Hưng báo "chưa full khung".)
+// (v6.3: lá 76×104 -> 104×140 + thú to theo + SỬA THỨ TỰ VẼ của thú —
+//  thêm trước = vẽ TRÊN, mà mặt sư tử tạo SAU bờm nên bị bờm che (chỉ thấy
+//  vòng vàng, không rõ mặt), mõm khỉ tạo SAU mặt nên bị mặt che; giờ chi
+//  tiết mặt (mắt/mũi/mõm) tạo TRƯỚC mặt, mặt tạo TRƯỚC bờm/tai.)
 {
   const { riv, ab, root } = newFile('xiecthu');
   const D = 180;
   // Thú PHẢI tạo TRƯỚC các lá bài (thêm trước = vẽ TRÊN; tạo sau lá thì
-  // mặt lá kem che mất thú — lỗi tương tự Lô Tô đợt 3).
-  // Sư tử (bờm vàng + mặt vàng + tai) trên lá 1.
-  const lionMane = ell(riv, root, { name: 'LionMane', x: 85, y: 105, w: 66, color: GOLD, stroke: INK, strokeW: 2 });
-  const lionEar1 = ell(riv, root, { name: 'LionE1', x: 68, y: 84, w: 13, color: GOLD, stroke: INK, strokeW: 1 });
-  const lionEar2 = ell(riv, root, { name: 'LionE2', x: 102, y: 84, w: 13, color: GOLD, stroke: INK, strokeW: 1 });
-  const lionFace = ell(riv, root, { name: 'LionFace', x: 85, y: 105, w: 43, color: YELLOW, stroke: INK, strokeW: 2 });
-  // Voi (tai tím + đầu xám + vòi) trên lá 2.
-  const elEar1 = ell(riv, root, { name: 'ElE1', x: 174, y: 97, w: 23, color: LAVENDER, stroke: INK, strokeW: 1 });
-  const elEar2 = ell(riv, root, { name: 'ElE2', x: 226, y: 97, w: 23, color: LAVENDER, stroke: INK, strokeW: 1 });
-  const elTrunk = rect(riv, root, { name: 'ElTrunk', x: 200, y: 126, w: 13, h: 33, r: 4, color: hex('#8A9BA8'), stroke: INK, strokeW: 1 });
-  const elHead = ell(riv, root, { name: 'ElHead', x: 200, y: 100, w: 46, color: hex('#8A9BA8'), stroke: INK, strokeW: 2 });
-  // Khỉ (tai + mặt nâu + mõm kem — mõm tạo SAU mặt để nằm trên mặt).
-  const moEar1 = ell(riv, root, { name: 'MoE1', x: 295, y: 90, w: 16, color: hex('#A8763E'), stroke: INK, strokeW: 1 });
-  const moEar2 = ell(riv, root, { name: 'MoE2', x: 335, y: 90, w: 16, color: hex('#A8763E'), stroke: INK, strokeW: 1 });
-  const moFace = ell(riv, root, { name: 'MoFace', x: 315, y: 103, w: 43, color: hex('#A8763E'), stroke: INK, strokeW: 2 });
-  const moMuzzle = ell(riv, root, { name: 'MoMuzzle', x: 315, y: 117, w: 23, h: 16, color: CREAM, stroke: INK, strokeW: 1 });
-  // 3 lá thú (lật lên lần lượt) — 76×104, dạt rộng (85/200/315) cho đầy khung.
-  const l1 = card(riv, root, 85, 105, 76, 104, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
-  const l2 = card(riv, root, 200, 105, 76, 104, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
-  const l3 = card(riv, root, 315, 105, 76, 104, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
-  // Sao vàng trên sân khấu.
-  const star = poly(riv, root, { name: 'Star', cx: 200, cy: 44, points: starPoints(200, 44, 20), color: GOLD, stroke: INK, strokeW: 2 });
+  // mặt lá kem che mất thú — lỗi tương tự Lô Tô đợt 3). TRONG mỗi con thú
+  // cũng vậy: chi tiết mặt tạo TRƯỚC mặt, mặt tạo TRƯỚC bờm/tai.
+  // Sư tử (mắt + mũi mực, mặt vàng, tai vàng, bờm vàng) trên lá 1.
+  const lionEye1 = ell(riv, root, { name: 'LionEye1', x: 77, y: 105, w: 6, color: INK });
+  const lionEye2 = ell(riv, root, { name: 'LionEye2', x: 103, y: 105, w: 6, color: INK });
+  const lionNose = ell(riv, root, { name: 'LionNose', x: 90, y: 118, w: 9, h: 7, color: INK });
+  const lionFace = ell(riv, root, { name: 'LionFace', x: 90, y: 110, w: 58, color: YELLOW, stroke: INK, strokeW: 2 });
+  const lionEar1 = ell(riv, root, { name: 'LionE1', x: 60, y: 73, w: 18, color: GOLD, stroke: INK, strokeW: 1 });
+  const lionEar2 = ell(riv, root, { name: 'LionE2', x: 120, y: 73, w: 18, color: GOLD, stroke: INK, strokeW: 1 });
+  const lionMane = ell(riv, root, { name: 'LionMane', x: 90, y: 110, w: 88, color: GOLD, stroke: INK, strokeW: 2 });
+  // Voi (mắt mực, vòi xám trước đầu, đầu xám, tai tím sau đầu) trên lá 2.
+  const elEye1 = ell(riv, root, { name: 'ElEye1', x: 185, y: 100, w: 5, color: INK });
+  const elEye2 = ell(riv, root, { name: 'ElEye2', x: 215, y: 100, w: 5, color: INK });
+  const elTrunk = rect(riv, root, { name: 'ElTrunk', x: 200, y: 133, w: 18, h: 45, r: 6, color: hex('#8A9BA8'), stroke: INK, strokeW: 1 });
+  const elHead = ell(riv, root, { name: 'ElHead', x: 200, y: 105, w: 62, color: hex('#8A9BA8'), stroke: INK, strokeW: 2 });
+  const elEar1 = ell(riv, root, { name: 'ElE1', x: 165, y: 102, w: 31, color: LAVENDER, stroke: INK, strokeW: 1 });
+  const elEar2 = ell(riv, root, { name: 'ElE2', x: 235, y: 102, w: 31, color: LAVENDER, stroke: INK, strokeW: 1 });
+  // Khỉ (mắt mực, mõm kem trước mặt, mặt nâu, tai nâu sau mặt) trên lá 3.
+  const moEye1 = ell(riv, root, { name: 'MoEye1', x: 297, y: 103, w: 6, color: INK });
+  const moEye2 = ell(riv, root, { name: 'MoEye2', x: 323, y: 103, w: 6, color: INK });
+  const moMuzzle = ell(riv, root, { name: 'MoMuzzle', x: 310, y: 122, w: 31, h: 22, color: CREAM, stroke: INK, strokeW: 1 });
+  const moFace = ell(riv, root, { name: 'MoFace', x: 310, y: 108, w: 58, color: hex('#A8763E'), stroke: INK, strokeW: 2 });
+  const moEar1 = ell(riv, root, { name: 'MoE1', x: 283, y: 95, w: 22, color: hex('#A8763E'), stroke: INK, strokeW: 1 });
+  const moEar2 = ell(riv, root, { name: 'MoE2', x: 337, y: 95, w: 22, color: hex('#A8763E'), stroke: INK, strokeW: 1 });
+  // 3 lá thú (lật lên lần lượt) — 104×140, dạt rộng (90/200/310) cho đầy khung.
+  const l1 = card(riv, root, 90, 110, 104, 140, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
+  const l2 = card(riv, root, 200, 110, 104, 140, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
+  const l3 = card(riv, root, 310, 110, 104, 140, { back: RED, suit: 'heart', suitColor: RED, pips: 2 });
+  // Sao vàng trên sân khấu (nhô lên trên lá giữa — lá to hơn nên sao dời lên).
+  const star = poly(riv, root, { name: 'Star', cx: 200, cy: 30, points: starPoints(200, 30, 15), color: GOLD, stroke: INK, strokeW: 2 });
   // Rèm đỏ trên + sàn gỗ dưới, sân khấu kem FULL-BLEED (404×204).
   // BỎ 2 rèm bên (DrapeL/DrapeR): rèm bên + sân khấu 370×140 cũ làm cảnh như
   // bức tranh lồng khung, thụt vào so với mép thẻ — anh Hưng báo "chưa full
@@ -2039,13 +2057,13 @@ function makeCamel(riv, root, o) {
       keys(riv, an, p.id, SY, [[0, 0], [t, 0], [t + 8, 1.15], [t + 14, 1], [D, 1]]);
     }
   };
-  popAnimal([lionMane, lionEar1, lionEar2, lionFace], 30);
-  popAnimal([elEar1, elEar2, elTrunk, elHead], 60);
-  popAnimal([moEar1, moEar2, moMuzzle, moFace], 90);
+  popAnimal([lionEye1, lionEye2, lionNose, lionFace, lionEar1, lionEar2, lionMane], 30);
+  popAnimal([elEye1, elEye2, elTrunk, elHead, elEar1, elEar2], 60);
+  popAnimal([moEye1, moEye2, moMuzzle, moFace, moEar1, moEar2], 90);
   // Sao vàng bật lên khi đủ 3 thú (110-130).
   keys(riv, an, star.id, SX, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
   keys(riv, an, star.id, SY, [[0, 0], [110, 0], [121, 1.2], [130, 1], [D, 1]]);
-  fadeEnds(riv, an, [...l1.all, ...l2.all, ...l3.all, lionMane, lionEar1, lionEar2, lionFace, elEar1, elEar2, elTrunk, elHead, moEar1, moEar2, moMuzzle, moFace, star, curtain, floor, stage], D);
+  fadeEnds(riv, an, [...l1.all, ...l2.all, ...l3.all, lionEye1, lionEye2, lionNose, lionFace, lionEar1, lionEar2, lionMane, elEye1, elEye2, elTrunk, elHead, elEar1, elEar2, moEye1, moEye2, moMuzzle, moFace, moEar1, moEar2, star, curtain, floor, stage], D);
   save('xiecthu', riv);
 }
 
