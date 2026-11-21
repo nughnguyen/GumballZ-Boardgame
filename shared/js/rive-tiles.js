@@ -63,7 +63,7 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=4', /* ?v=4: bản full-board typhu/cangua + khổ rộng v5 — tránh trình duyệt giữ cache file cũ */
+        src: 'shared/rive/' + g + '.riv?v=5', /* ?v=5 (-116): tile uno/bang/xiecthu mới — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
@@ -97,7 +97,7 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=4', /* ?v=4: file full-board mới (typhu/cangua) — lúc push, thẻ game cũng dùng ?v=3 để trình duyệt tải file mới */
+        src: 'shared/rive/' + g + '.riv?v=5', /* ?v=5 (-116): tile uno/bang/xiecthu mới — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
