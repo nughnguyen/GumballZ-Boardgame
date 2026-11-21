@@ -76,6 +76,10 @@ html[data-theme="dark"] .psel select{background-image:url("data:image/svg+xml,%3
 /* ===== kệ theo nhóm – mỗi mục một khay riêng: divider tiêu đề + pattern nền riêng (patch -119) ===== */
 .shelves{display:block}
 .shelf{margin:0 0 22px;padding:16px;border:2px solid var(--ink);border-radius:24px;box-shadow:var(--sh);background-color:var(--card)}
+/* patch -137: kệ ngoài màn hình thì trình duyệt bỏ qua layout/paint (content-visibility)
+   cho cuộn mượt — khi cuộn tới nó render lại y hệt, không đổi 1 pixel nào.
+   contain-intrinsic-size giữ chỗ để thanh cuộn không nhảy (auto = nhớ cỡ thật sau lần render đầu). */
+.shelf{content-visibility:auto;contain-intrinsic-size:auto 1200px}
 .shelf.off{display:none}
 /* divider: tiêu đề mục full-width, tên loại to đậm + số game + phụ đề + nút "Xem tất cả →" */
 .shelf-h{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:0 0 14px;padding:10px 16px;border:2px solid var(--ink);border-radius:14px;box-shadow:var(--sh-sm)}
@@ -99,7 +103,7 @@ html[data-theme="dark"] .psel select{background-image:url("data:image/svg+xml,%3
 .empty-filter{display:none;text-align:center;color:var(--muted);grid-column:1/-1}
 
 /* ===== ô game ===== */
-.tile{position:relative;display:block;border-radius:16px;overflow:hidden;text-decoration:none;color:#fff;min-height:0;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s;isolation:isolate;animation:tin .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*45ms);background:var(--card)} /* nền thẻ kem: dải dưới nút Chơi (margin 14px) không lộ pattern khay (patch -120) */
+.tile{position:relative;display:block;border-radius:16px;overflow:hidden;text-decoration:none;color:#fff;min-height:0;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s;isolation:isolate;animation:tin .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(min(var(--i,0),10)*45ms);background:var(--card)} /* nền thẻ kem: dải dưới nút Chơi (margin 14px) không lộ pattern khay (patch -120) — patch -137: trễ vào tối đa 10 ô (450ms) để ô sâu trong trang không bị "tàng hình" lâu khi cuộn tới (kệ dùng content-visibility nên animation chỉ bắt đầu khi kệ gần vào màn hình) */
 .tile:hover{transform:translate(-2px,-2px);box-shadow:var(--sh)}
 .tile:not(.soon){display:flex;flex-direction:column;justify-content:flex-start;padding-top:104px}
 .tile.off{display:none}

@@ -30,6 +30,9 @@
 //   mọi instance nên giới hạn ở đây là số instance đang chạy, không phải số
 //   context.
 // - Tạm dừng animation khi thẻ ra khỏi màn hình (IntersectionObserver) để đỡ tốn pin/CPU.
+// - Hoãn mount khi đang cuộn (patch -137): tile mới vào vùng lúc đang cuộn thì chờ
+//   ngừng cuộn 200ms mới mount (tránh tải + giải mã .riv dồn lúc cuộn gây giật);
+//   tile đã mount rồi vẫn chạy bình thường, không đóng băng.
 (function () {
   var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang', 'scribble', 'meono', 'tamquoc', 'masoi', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'daochinh', 'xiecthu', 'cuuho', 'khaihoang', 'xuyenviet', 'noitu', 'baucua', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai'];
   /* Version riêng từng file .riv (mặc định 6; file nào làm lại thì bump riêng
@@ -115,17 +118,49 @@
   }
   var hasIO = ('IntersectionObserver' in window);
   var mountIO = null, destroyIO = null;
+  /* ===== hoãn mount khi đang cuộn (patch -137) ===== */
+  var pendingMount = {}; /* key -> rec: tile vào vùng lúc đang cuộn, chờ ngừng cuộn mới mount */
+  var scrolling = false, scrollT = 0;
+  function onScrollEnd() { /* ngừng cuộn 200ms: mount nốt các tile đang chờ (chỉ tile còn trong vùng) */
+    scrolling = false; scrollT = 0;
+    Object.keys(pendingMount).forEach(function (key) {
+      var rec = pendingMount[key];
+      delete pendingMount[key];
+      if (rec && rec.inZone && !live[key]) mountTarget(rec.host, rec.game, key);
+    });
+  }
+  /* Đang cuộn nhanh mà mount .riv mới (tải + giải mã wasm + khởi tạo artboard) thì
+     main-thread bị chặn từng đợt → cuộn giật. Tile mới vào vùng lúc đang cuộn chỉ
+     ghi nhớ để hiện icon SVG cũ; ngừng cuộn 200ms thì mount nốt. Tile đã mount rồi
+     vẫn chạy bình thường (không đóng băng — user đã báo không thích animation đứng
+     hình khi cuộn ở -132). Chỉ áp cho cuộn trang chính, không áp cho carousel kéo
+     ngang (lọc target như feel.js). */
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('scroll', function (e) {
+      var t = e.target;
+      if (t !== document && !(t && t.clientHeight > window.innerHeight * 0.5)) return;
+      scrolling = true;
+      clearTimeout(scrollT);
+      scrollT = setTimeout(onScrollEnd, 200);
+    }, { capture: true, passive: true });
+  }
   if (hasIO) {
     /* mount khi vào vùng cách viewport 300px; ra khỏi vùng đó thì pause */
     mountIO = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         var rec = en.target._rivMount;
         if (!rec) return;
+        rec.inZone = !!en.isIntersecting;
         if (en.isIntersecting) {
           var L = live[rec.key];
-          if (!L) mountTarget(en.target, rec.game, rec.key);
+          if (!L) {
+            /* patch -137: đang cuộn thì hoãn mount (ghi nhớ để mount khi ngừng cuộn) */
+            if (scrolling) { pendingMount[rec.key] = rec; }
+            else mountTarget(en.target, rec.game, rec.key);
+          }
           else { try { L.inst.play(); } catch (e) {} }
         } else {
+          delete pendingMount[rec.key]; /* ra khỏi vùng trước khi ngừng cuộn: khỏi mount nữa */
           var L2 = live[rec.key];
           if (L2) { try { L2.inst.pause(); } catch (e) {} }
         }
@@ -142,7 +177,7 @@
     }, { rootMargin: DESTROY_MARGIN });
   }
   function observeHost(host, game) {
-    host._rivMount = { key: 'k' + (++keySeq), game: game };
+    host._rivMount = { key: 'k' + (++keySeq), game: game, host: host, inZone: false };
     if (hasIO) {
       mountIO.observe(host);
       destroyIO.observe(host);
