@@ -119,9 +119,12 @@ body::before{display:none}
 .grid .tile:nth-child(4n+2) .art{background:var(--y1)}
 .grid .tile:nth-child(4n+3) .art{background:var(--p2)}
 .grid .tile:nth-child(4n+4) .art{background:var(--p3)}
-/* 2 ô art đặc biệt giữ nền riêng (art tự vẽ che hết đầu thẻ) */
-.tile.bang{background:var(--p2)}
-.tile.uno{background:var(--p1)}
+/* (patch -133: BỎ nền riêng của .tile.bang/.tile.uno — nền tile chỉ còn lộ
+   ra ở dải quanh nút Chơi (margin 14px), vì đầu thẻ đã bị canvas .riv che
+   kín; để nền đỏ/ngọc thì dải quanh nút thành đỏ/ngọc, lệch với 91 tile
+   còn lại (nền kem) — anh Hưng báo "lỗi ở cái nền của nút play" ở UNO.
+   Xóa 2 rule này thì dải nút về kem như mọi tile; đầu thẻ không đổi vì
+   canvas .riv tự mang nền full-bleed.) */
 .tile.soon{border:2px dashed var(--neo-ink);background:var(--neo-y2);border-radius:20px;box-shadow:var(--neo-sh-sm)}
 /* ô đang chơi dở: giữ vòng sáng trắng + nhịp đập (ghi đè bóng cứng của .tile .play) */
 .tile .play.resume{box-shadow:0 0 0 3px #fff,var(--neo-sh-sm);animation:rz 1.6s ease-in-out infinite}

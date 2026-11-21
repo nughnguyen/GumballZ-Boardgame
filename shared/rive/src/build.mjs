@@ -262,14 +262,47 @@ function card(riv, root, cx, cy, w, h, o) {
   return { back, face, all: [...back, ...face] };
 }
 
-// Lá UNO: nền màu + oval kem + chấm màu lớn ở giữa (số).
-// Thứ tự vẽ: thêm trước = vẽ TRÊN — chấm/oval add TRƯỚC nền.
-// (v6.3: BỎ 2 ô góc trắng — lá xòe quạt xoay tới 0.30 rad, ô góc xoay
-//  quanh tâm riêng nên lệch khỏi góc lá thật, thò ra ngoài viền.)
-function unoCard(riv, root, cx, cy, w, h, color) {
+// Chữ số 7 đoạn (mỗi đoạn = 1 rect nhỏ) — vẽ số đọc được ở cỡ nhỏ
+// (runtime Rive không có text). d = 0..9, (cx,cy) = tâm chữ số.
+// W×H = 18×30, đoạn dày 3.5 — đủ đọc ở cỡ thẻ (tỉ lệ hiển thị ~0.53).
+const SEV_SEG = { 0: 'abcdef', 1: 'bc', 2: 'abdeg', 3: 'abcdg', 4: 'bcfg', 5: 'acdfg', 6: 'acdefg', 7: 'abc', 8: 'abcdefg', 9: 'abcdfg' };
+function digit7(riv, root, cx, cy, d, color, tag) {
   const parts = [];
-  parts.push(ell(riv, root, { name: 'UDot', x: cx, y: cy, w: w * 0.3, color }));
-  parts.push(ell(riv, root, { name: 'UOval', x: cx, y: cy, w: w * 0.62, h: h * 0.52, color: CREAM }));
+  const W = 18, H = 30, T = 3.5;
+  const seg = {
+    a: [cx, cy - H / 2 + T / 2, W, T],
+    d: [cx, cy + H / 2 - T / 2, W, T],
+    g: [cx, cy, W, T],
+    f: [cx - W / 2 + T / 2, cy - H / 4, T, H / 2],
+    b: [cx + W / 2 - T / 2, cy - H / 4, T, H / 2],
+    e: [cx - W / 2 + T / 2, cy + H / 4, T, H / 2],
+    c: [cx + W / 2 - T / 2, cy + H / 4, T, H / 2],
+  };
+  for (const s of SEV_SEG[d]) {
+    const [x, y, w, h] = seg[s];
+    parts.push(rect(riv, root, { name: tag + s.toUpperCase(), x, y, w, h, color }));
+  }
+  return parts;
+}
+
+// Lá UNO: nền màu + oval kem + số 7 đoạn ở GÓC TRÊN-TRÁI (kiểu số góc
+// của lá bài thật — phần này không bị lá kề bên phải che; oval giữa lá
+// cũ bị che mất phần phải thành hình chữ "C", anh Hưng báo vẫn lỗi).
+// Góc lá xoay theo quạt nên vị trí oval được tính SẴN ở góc xoay cuối
+// (offset góc quay theo tilt): lúc quạt đã đủ thì oval nằm đúng góc lá;
+// lúc bay lên thì lệch vài px, không nhìn ra (lá đang chuyển động nhanh).
+// Thứ tự vẽ: thêm trước = vẽ TRÊN — số/oval add TRƯỚC nền.
+// (v6.3: BỎ 2 ô góc trắng — ô góc xoay quanh tâm riêng nên lệch khỏi góc
+//  lá thật, thò ra ngoài viền. Bản này khác: vị trí góc được tính sẵn
+//  theo tilt cuối nên oval nằm đúng góc khi quạt dừng.)
+function unoCard(riv, root, cx, cy, w, h, color, num, tilt, tag) {
+  const parts = [];
+  // Góc trên-trái (oval 40×52, tâm cách tâm lá (-24,-36) — mép lá 92×128
+  // nên oval cách mép trái/trên 2px), quay offset theo tilt cuối.
+  const dx = -24, dy = -36, c = Math.cos(tilt), s = Math.sin(tilt);
+  const ox = cx + dx * c - dy * s, oy = cy + dx * s + dy * c;
+  parts.push(...digit7(riv, root, ox, oy, num, INK, tag));
+  parts.push(ell(riv, root, { name: 'UOval', x: ox, y: oy, w: 40, h: 52, color: CREAM, stroke: INK, strokeW: 1.5 }));
   parts.push(rect(riv, root, { name: 'UBg', x: cx, y: cy, w, h, r: 8, color, stroke: INK, strokeW: 2 }));
   return parts;
 }
@@ -647,6 +680,8 @@ function makeCamel(riv, root, o) {
 // rộng khung. Lá Đen 4 màu ở phải cùng. Nền ĐỎ (màu thương hiệu UNO).
 // (v6.3: lá cũ 48×66 chụm giữa khung chỉ ~1/4 bề rộng — anh Hưng báo vẫn
 //  lỗi; phóng to gần gấp đôi + xòe quạt rõ, bỏ 2 lá tĩnh dưới chồng bài.)
+// (patch -133: số góc — oval kem + số 7 đoạn ở góc trên-trái mỗi lá;
+//  oval giữa lá cũ bị lá kề che mất phần phải thành hình chữ "C".)
 {
   const { riv, ab, root } = newFile('uno');
   const D = 180;
@@ -663,10 +698,11 @@ function makeCamel(riv, root, o) {
   wildParts.push(rect(riv, root, { name: 'WQ4', x: 305 + 11, y: Y0 + 11, w: 22, h: 22, color: BLUE }));
   wildParts.push(rect(riv, root, { name: 'WBg', x: 305, y: Y0, w: CW, h: CH, r: 12, color: INK, stroke: INK, strokeW: 2 }));
   const c5 = wildParts;
-  const c4 = unoCard(riv, root, 253, Y0, CW, CH, BLUE);
-  const c3 = unoCard(riv, root, 200, Y0, CW, CH, TEAL);
-  const c2 = unoCard(riv, root, 147, Y0, CW, CH, YELLOW);
-  const c1 = unoCard(riv, root, 95, Y0, CW, CH, RED);
+  // Số góc mỗi lá (đỏ 7, vàng 3, ngọc 9, xanh 2) — lá Đen giữ 4 ô màu ở giữa.
+  const c4 = unoCard(riv, root, 253, Y0, CW, CH, BLUE, 2, 0.15, 'U4');
+  const c3 = unoCard(riv, root, 200, Y0, CW, CH, TEAL, 9, 0, 'U3');
+  const c2 = unoCard(riv, root, 147, Y0, CW, CH, YELLOW, 3, -0.15, 'U2');
+  const c1 = unoCard(riv, root, 95, Y0, CW, CH, RED, 7, -0.30, 'U1');
   // Nền ĐỎ (màu thương hiệu UNO) — nỉ xanh FELT cũ làm UNO lẫn với mọi game
   // bài Việt khác, anh Hưng báo "màu bị lỗi". Lá đỏ vẫn đọc rõ nhờ viền mực
   // + oval kem của unoCard.

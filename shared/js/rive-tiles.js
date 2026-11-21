@@ -25,7 +25,7 @@
   var GAMES = ['typhu', 'cotuong', 'cangua', 'camel', 'uno', 'tienlen', 'catte', 'bacao', 'xidach', 'poker', 'solitaire', 'bang', 'scribble', 'meono', 'tamquoc', 'masoi', 'thathaythach', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'bantau', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'daochinh', 'xiecthu', 'cuuho', 'khaihoang', 'xuyenviet', 'noitu', 'baucua', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai'];
   /* Version riêng từng file .riv (mặc định 6; file nào làm lại thì bump riêng
      để trình duyệt không giữ cache cũ — -122: uno + xiecthu lên v=7). */
-  var RIV_VER = { uno: 7, xiecthu: 7 };
+  var RIV_VER = { uno: 8, xiecthu: 7 };
   function rivSrc(g) { return 'shared/rive/' + g + '.riv?v=' + (RIV_VER[g] || 6); }
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') return;
