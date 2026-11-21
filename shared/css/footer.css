@@ -67,8 +67,16 @@
 .gmf-tip-icon:hover .gmf-tip-label{color:var(--tip)}
 @media (prefers-reduced-motion:reduce){.gmf-tip-card,.gmf-tip-layer,.gmf-tip-layer span{transition:none}}
 .gmf h3{margin:4px 0 8px;font:800 14px/1.3 "Baloo 2",Nunito,sans-serif;color:#fff;letter-spacing:.5px;display:inline-block;background:#FF5A60;border-radius:999px;padding:4px 12px}
-.gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative;color:#FFF8EE}
-.gmf nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:8px;height:2px;background:#FACD33;transform:scaleX(0);transform-origin:bottom right;transition:transform .25s ease-out}.gmf nav a:hover::after{transform:scaleX(1);transform-origin:bottom left}
+/* Link nav footer kiểu Uiverse WhiteNervosa/popular-ladybug-27 (patch -126):
+   gạch chân vàng mọc TỪ GIỮA lan ra 2 bên (width + left, 400ms,
+   cubic-bezier(0.25,0.8,0.25,1)), chữ sáng lên khi hover/focus; gạch giữ
+   màu vàng #FACD33 của web thay vì trắng #fff của gốc. Hover dùng
+   left:12px + width:calc(100% - 24px) để gạch ôm đúng chiều rộng chữ
+   (link có padding ngang 12px), thay vì 100%/0% của gốc. */
+.gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative;color:#FFF8EE;transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:color}
+.gmf nav a:focus,.gmf nav a:hover{color:#fff}
+.gmf nav a::after{content:"";pointer-events:none;bottom:8px;left:50%;position:absolute;width:0%;height:2px;background-color:#FACD33;transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:width,left}
+.gmf nav a:focus::after,.gmf nav a:hover::after{width:calc(100% - 24px);left:12px}
 .gmf-bot{max-width:1020px;margin:14px auto 0;padding:16px 18px 22px;border-top:1px solid #5A4E7A;display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:#DCD5EE}
 /* .gmf-note: chỉ còn dùng ở footer tĩnh của các trang hướng dẫn (huong-dan/),
    component footer đã bỏ dòng disclaimer nên không còn render span này nữa. */
@@ -89,6 +97,6 @@
 .gmf-top-prog{fill:none;stroke:#FF5A60;stroke-width:3;stroke-linecap:round}
 .gmf-top-arrow{display:block;font:800 24px/1 "Baloo 2",Nunito,sans-serif;transform:translateY(-1px)}
 @media(max-width:1150px){.gmf-top{bottom:calc(84px + env(safe-area-inset-bottom))}}
-@media (prefers-reduced-motion:reduce){.gmf-top{transition:none}}
+@media (prefers-reduced-motion:reduce){.gmf-top{transition:none}.gmf nav a,.gmf nav a::after{transition:none}}
 @media(max-width:760px){.gmf-band-in{flex-direction:column;align-items:flex-start;gap:16px}.gmf-cta{width:100%}.gmf-in{grid-template-columns:1fr 1fr;row-gap:30px}.gmf-brand{grid-column:1/-1}}
 @media(max-width:430px){.gmf-band h2{font-size:24px}.gmf-in{grid-template-columns:1fr}}
