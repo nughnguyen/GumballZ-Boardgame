@@ -90,7 +90,7 @@
     addEventListener('gumballz-wallet', dx);
   }).catch(function () {});
   // điểm danh hằng ngày: nút 🎁 (module tự chèn CSS + modal, tự mở 1 lần/ngày ở trang chủ)
-  import('./daily-login.js?v=1').then(function (m) { m.mountDailyLogin(document.getElementById('btn-login')); }).catch(function () {});
+  import('./daily-login.js?v=2').then(function (m) { m.mountDailyLogin(document.getElementById('btn-login')); }).catch(function () {});
   // cài đặt
   var setBtn = document.getElementById('btn-set');
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=47').then(function (m) { m.openSettings(); }).catch(function () {}); };

@@ -191,21 +191,32 @@ async function doClaim() {
   }
   await claimLocal(); /* khách */
 }
+/* tự mở 1 lần/ngày ở trang chủ — chạy lại mỗi khi đăng nhập / hồ sơ đồng bộ về, vì lúc mount
+   người dùng có thể chưa đăng nhập (đăng nhập sau thì hôm đó bảng không bao giờ tự mở nữa).
+   Điều kiện giữ nguyên: trang chủ, đã đăng nhập, hôm nay chưa nhận, chưa mở hôm nay,
+   không có hộp đăng nhập đang mở; delay 2s + kiểm tra lại trước khi mở. Hẹn 1 lần duy nhất
+   (popTimer) để auth + stats-sync bắn cùng lúc không mở 2 lần. */
+let popTimer = 0;
+function maybePop() {
+  if (popTimer) return; /* đã hẹn mở rồi */
+  try {
+    const home = location.pathname.replace(/\/+$/, '') === '';
+    if (!home || !auth.user() || readLocal().last === dayVN() || ls.get(POP) === dayVN() || document.getElementById('ac-ov')) return;
+    popTimer = setTimeout(() => {
+      popTimer = 0;
+      if (!auth.user() || document.getElementById('ac-ov') || (ov && ov.style.display !== 'none')) return; /* overlay giờ giữ cố định → kiểm tra hiển thị, không kiểm tra tồn tại */
+      if (readLocal().last === dayVN() || ls.get(POP) === dayVN()) return; /* trong 2s chờ: nhận ở máy khác / tab khác mở trước thì thôi */
+      ls.set(POP, dayVN());
+      openModal();
+    }, 2000);
+  } catch (e) {}
+}
 export function mountDailyLogin(btn) {
   css();
   if (btn && !btn._lg) { btn._lg = 1; btn.addEventListener('click', () => openModal()); }
   refreshDot();
   addEventListener('gumballz-stats-sync', refreshDot); /* hồ sơ đồng bộ về (mang P.dl) → cập nhật chấm đỏ */
-  /* tự mở 1 lần/ngày ở trang chủ: đã đăng nhập, chưa nhận hôm nay, chưa mở hôm nay, không có hộp đăng nhập đang mở */
-  try {
-    const home = location.pathname.replace(/\/+$/, '') === '';
-    if (home && auth.user() && readLocal().last !== dayVN() && ls.get(POP) !== dayVN() && !document.getElementById('ac-ov')) {
-      setTimeout(() => {
-        if (document.getElementById('ac-ov') || (ov && ov.style.display !== 'none')) return; /* overlay giờ giữ cố định → kiểm tra hiển thị, không kiểm tra tồn tại */
-        if (readLocal().last === dayVN()) return;
-        ls.set(POP, dayVN());
-        openModal();
-      }, 2000);
-    }
-  } catch (e) {}
+  addEventListener('gumballz-stats-sync', maybePop); /* hồ sơ về: chưa nhận thì mở, đã nhận ở máy khác thì không */
+  auth.onChange(u => { if (u) maybePop(); }); /* đăng nhập (hoặc đổi tài khoản) sau khi trang đã tải → kiểm tra lại */
+  maybePop(); /* kiểm tra lúc mount như trước */
 }
