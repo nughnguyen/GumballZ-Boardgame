@@ -4,7 +4,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
 import { statOf, titlesOf, pickTitle, levelOf, gameXp } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
 import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
-import { isKnownPart } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS */
+import { isKnownPart, FRAMES, NAME_COLORS, BANNERS } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS; 🎁 khung/màu/banner để cấp tay (patch -127) */
 
 const te = new TextEncoder();
 const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -49,6 +49,34 @@ const dayAfter = x => { const dt = new Date(x + 'T12:00:00Z'); dt.setUTCDate(dt.
 export function walletAccepts(storedAt, incomingAt) {
   const n = v => Math.min(4e12, Math.max(0, Math.floor(+v || 0)));
   return n(incomingAt) > n(storedAt);
+}
+
+/* 🎁 Cấp vật phẩm thủ công (patch -127, chỉ Quản trị role 2 qua /admin/list):
+   - Danh sách wid hợp lệ: khung/màu tên/banner lấy từ avatar-rewards.js (cùng nguồn với shop/rương),
+     4 lưng bài ghi tay ở đây vì lưng bài chỉ có trong COSMETICS.backs của wallet.js — mà server KHÔNG
+     import được wallet.js (nó import avatar-rewards.js?v=1, wrangler không resolve được) — thêm lưng bài
+     mới thì thêm id vào cả 2 chỗ (GRANT_BACKS này + COSMETICS.backs trong wallet.js).
+   - Món được cấp lưu vào P.granted (danh sách riêng, chỉ thêm không bớt — giống cách gộp linh kiện
+     P.parts): KHÔNG sửa thẳng P.wal.own, vì ví client đồng bộ sau (at mới hơn) sẽ ghi đè cả P.wal
+     và làm mất món cấp. mergeGranted() gộp P.granted vào P.wal.own ở mỗi lần profile()/claimLogin(),
+     user nhận món sau lần đồng bộ/đăng nhập lại tiếp theo. */
+export const GRANT_ITEMS = new Map(); // wid -> tên món hiển thị
+for (const f of FRAMES) if (f && f.id) GRANT_ITEMS.set('frame:' + f.id, f.name || f.id);
+for (const c of NAME_COLORS) if (c && c.id) GRANT_ITEMS.set('color:' + c.id, c.name || c.id);
+for (const b of BANNERS) if (b && b.id) GRANT_ITEMS.set('banner:' + b.id, b.name || b.id);
+const GRANT_BACKS = { hongphan: 'Lưng bài Hồng Phấn', lucdam: 'Lưng bài Lục Đậm', timbiec: 'Lưng bài Tím Biếc', vangchanh: 'Lưng bài Vàng Chanh' };
+for (const [id, name] of Object.entries(GRANT_BACKS)) GRANT_ITEMS.set('back:' + id, name);
+export function mergeGranted(P) { // gộp P.granted vào P.wal.own; trả true nếu đã thêm món mới (cần lưu prof)
+  if (!P || !Array.isArray(P.granted) || !P.granted.length) return false;
+  if (!P.wal || typeof P.wal !== 'object') return false; // chưa có ví trên máy chủ: giữ trong P.granted, đợi ví đầu tiên lên rồi gộp
+  const granted = [...new Set(P.granted.filter(x => typeof x === 'string' && GRANT_ITEMS.has(x)))].slice(0, 200);
+  if (!granted.length) return false;
+  const own = Array.isArray(P.wal.own) ? P.wal.own : [];
+  const merged = [...new Set([...own, ...granted])].slice(0, 200);
+  if (merged.length === own.length) return false;
+  P.wal.own = merged;
+  P.wal.at = Math.max(Date.now(), Math.floor(+P.wal.at || 0) + 1); // đóng dấu mới hơn để máy user nhận ví mới (adoptServer)
+  return true;
 }
 
 /* 🎁 Điểm danh hằng ngày — bảng thưởng chu kỳ 7 ngày, tăng dần (giờ VN).
@@ -277,6 +305,7 @@ export class Users extends DurableObject {
       P.wal = { xu: Math.min(10000000, num(w.xu)), inv, own, eq, dbl: Math.min(99, num(w.dbl)), chest: Math.min(100000, num(w.chest)), at: num(w.at, 4e12) };
       changed = true;
     }
+    if (mergeGranted(P)) changed = true; /* 🎁 vật phẩm cấp tay (patch -127): gộp P.granted vào ví để user nhận được sau khi đồng bộ */
     /* 🧸 Nhân vật: giữ đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên).
        Bản mới hơn thì thắng; cùng thời gian thì bản đủ (có nhân vật) thắng bản thiếu — để tài khoản cũ
        từng mất nhân vật tự lành khi máy chính đồng bộ lại. Bản thiếu {e:'ch'} không có nhân vật thì
@@ -363,6 +392,7 @@ export class Users extends DurableObject {
     P.dl = { last: today, streak: next.streak, total: num(dl.total) + 1 };
     const base = P.wal && typeof P.wal === 'object' ? P.wal : { xu: 0, inv: {}, own: [], eq: {}, dbl: 0, chest: 0, at: 0 };
     P.wal = { ...base, xu: Math.min(10000000, num(base.xu) + next.xu), at: Math.max(Date.now(), num(base.at, 4e12) + 1) };
+    mergeGranted(P); /* 🎁 vật phẩm cấp tay (patch -127): gộp P.granted vào ví điểm danh để user nhận món luôn */
     this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(P), me.id);
     return { ok: true, day: next.day, streak: next.streak, total: P.dl.total, xu: next.xu, wal: P.wal };
   }
@@ -497,6 +527,20 @@ export class Users extends DurableObject {
     if ('password' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới đặt lại mật khẩu' };
     if ('supporter' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi danh hiệu Ủng hộ' }; // 💎 danh hiệu Ủng hộ đặc biệt (patch -95): chỉ role 2
     if ('supporter' in patch && patch.supporter && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💎 không cấp danh hiệu cho tài khoản bị khoá (thu hồi thì vẫn được)
+    // 🎁 cấp vật phẩm thủ công (patch -127): chỉ Quản trị (role 2); không cấp cho tài khoản bị khoá; tự cấp cho mình thì được (ghi rõ trong audit); kiểm tra wid + trùng trước khi sửa gì
+    let grantWid = null, grantName = null, grantP = null;
+    if ('grant' in patch) {
+      if (callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp vật phẩm' };
+      if (target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' };
+      grantWid = typeof patch.grant === 'string' ? patch.grant.trim() : '';
+      if (!GRANT_ITEMS.has(grantWid)) return { ok: false, msg: 'Không có vật phẩm này' };
+      grantP = null; try { grantP = JSON.parse(target.prof || 'null'); } catch (e) {}
+      grantP = grantP && typeof grantP === 'object' ? grantP : {};
+      const g0 = Array.isArray(grantP.granted) ? grantP.granted : [];
+      const o0 = (grantP.wal && Array.isArray(grantP.wal.own)) ? grantP.wal.own : [];
+      if (g0.includes(grantWid) || o0.includes(grantWid)) return { ok: false, msg: 'Người này đã có món này rồi' };
+      grantName = GRANT_ITEMS.get(grantWid);
+    }
     const oid = this.ownerId(); // 👑 chủ web hiện tại (patch -94): các lệnh cấm với chủ web luôn nhắm đúng người
     if (uid === oid && adminUid != null && +adminUid !== oid) {
       if (wantsRole) return { ok: false, msg: 'Chỉ chủ web mới đổi quyền của chủ web' };
@@ -515,6 +559,12 @@ export class Users extends DurableObject {
     if ('banned' in patch) { this.sql.exec('UPDATE users SET banned = ? WHERE id = ?', patch.banned ? 1 : 0, uid); if (patch.banned) this.sql.exec('DELETE FROM sessions WHERE uid = ?', uid); }
     if (patch.password) { const salt = rand(16); this.sql.exec('UPDATE users SET pw = ?, salt = ? WHERE id = ? AND username IS NOT NULL', await hashPw(String(patch.password), salt), salt, uid); }
     if ('supporter' in patch) { this.sql.exec('UPDATE users SET supporter = ? WHERE id = ?', patch.supporter ? 1 : 0, uid); if (this.lbCache) this.lbCache.clear(); } // 💎 cấp/thu hồi danh hiệu Ủng hộ (patch -95) – xoá bảng xếp hạng đã nhớ để huy hiệu đổi ngay
+    if (grantWid) { // 🎁 lưu món cấp vào P.granted (chỉ thêm không bớt); mergeGranted() gộp vào ví ở lần đồng bộ sau (patch -127)
+      const granted = Array.isArray(grantP.granted) ? grantP.granted.filter(x => typeof x === 'string') : [];
+      if (!granted.includes(grantWid)) granted.push(grantWid);
+      grantP.granted = granted.slice(0, 200);
+      this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(grantP), uid);
+    }
     if ('mute' in patch && patch.mute && typeof patch.mute === 'object') { /* 🔇 cấm chat (c) / cấm mở phiếu (v) theo tài khoản, theo giờ – 0 = gỡ */
       const now = Date.now(), cur = this.one('SELECT mute FROM users WHERE id = ?', uid); let m = { c: 0, v: 0 };
       try { m = JSON.parse((cur && cur.mute) || 'null') || m; } catch (e) {}
@@ -536,7 +586,11 @@ export class Users extends DurableObject {
       const h = +patch.mute.c || 0;
       await this.auditLog(actor, h ? 'mute' : 'unmute', uid, tName, h ? `cấm chat ${h} giờ` : 'gỡ cấm chat');
     }
-    return { ok: true };
+    if (grantWid) { // 🎁 ghi rõ tên món; tự cấp cho chính mình thì ghi rõ (patch -127)
+      const self = adminUid != null && uid === +adminUid;
+      await this.auditLog(actor, 'grant-item', uid, tName, 'cấp ' + grantName + (self ? ' (tự cấp cho chính mình)' : ''));
+    }
+    return { ok: true, ...(grantWid ? { granted: grantWid, name: grantName } : {}) };
   }
   /* 👑 Nhượng quyền chủ web (patch -94): chủ web hiện tại chuyển 👑 cho tài khoản khác.
      Người cũ giữ role 2 (vẫn là Quản trị, 🛠️); người mới được lên role 2 + thành chủ web.
