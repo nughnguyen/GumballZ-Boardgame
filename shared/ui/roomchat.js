@@ -3,8 +3,8 @@
 //   { game, host, send(text), history(), alive() }  – tin mới tới qua sự kiện window 'gumballz-chat' ({id, from, text, host, old} hoặc {reset:true}).
 // Giao diện: một "tai" 💬 dính mép trái màn hình (kéo lên xuống được), bấm mở hộp chat; có tin mới khi đang đóng thì hiện chấm đỏ + bong bóng xem nhanh.
 import { auth } from '../net/api.js?v=29';
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
-import { titlePillHtml, ensureTitleCSS } from './titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên (patch -97) */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
+import { titlePillHtml, ensureTitleCSS } from './titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên (patch -97) */
 const blockedIds = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const CSS = `

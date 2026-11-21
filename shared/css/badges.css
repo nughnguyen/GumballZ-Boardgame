@@ -1,27 +1,27 @@
 /* 🎖️ Huy hiệu + danh hiệu 4 bậc (patch -95): Chủ web / Quản trị / Mod / Ủng hộ đặc biệt.
    Dùng chung cho mọi nơi hiện huy hiệu: chat Sảnh + chat thế giới + chat phòng, bảng xếp hạng,
    hộp Hồ sơ, danh sách bạn bè, trang Quản trị. Class: .bdg + .bdg-own/.bdg-adm/.bdg-mod/.bdg-sup.
-   Mỗi pill = icon + nhãn (CHỦ WEB / QUẢN TRỊ / MOD / ỦNG HỘ). Thuần CSS keyframes, không vòng lặp JS.
+   Mỗi pill = icon + nhãn (CHỦ SẢNH / QUẢN SẢNH / MOD SẢNH / NHÀ TÀI TRỢ). Thuần CSS keyframes, không vòng lặp JS.
    Tôn trọng prefers-reduced-motion: tắt hết hiệu ứng khi người dùng bật giảm chuyển động.
    HTML pill do shared/ui/badges.js (tierBadges) sinh – đừng tự viết lại markup ở từng nơi. */
 .bdg{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:999px;font:800 11px/1.7 Nunito,sans-serif;letter-spacing:.3px;white-space:nowrap;vertical-align:middle}
 .bdg i{font-style:normal;display:inline-block}
 .bdg b{position:absolute;right:3px;top:-1px;font-size:9px;pointer-events:none}
 .bdg .t{white-space:nowrap}
-/* 👑 Chủ web: vàng kim lấp lánh trên nền rượu vang + tím mực, vương miện lắc, tia sáng quét, sao nhấp nháy, viền phát sáng */
-.bdg-own{background:linear-gradient(135deg,#3a1030,#7a1630 45%,#241A38);color:#ffd84a;box-shadow:inset 0 0 0 1.5px #ffcf3d,0 0 0 1px #b8780a,0 3px 14px -3px #ff7a45cc;text-shadow:0 1px 0 #00000066;animation:bdg-glow-gold 2.6s ease-in-out infinite}
+/* 👑 Chủ sảnh: vàng kim lấp lánh trên nền mực + vàng đậm, vương miện lắc, tia sáng quét, sao nhấp nháy, viền phát sáng */
+.bdg-own{background:linear-gradient(135deg,#241A38,#B8860B 45%,#FACD33);color:#FFE9A8;box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 14px -3px #ff9a3dcc;text-shadow:0 1px 0 #00000066;animation:bdg-glow-gold 2.6s ease-in-out infinite}
 .bdg-own i{transform-origin:50% 90%;animation:bdg-bounce 2.8s ease-in-out infinite}
-.bdg-own .t{background:linear-gradient(90deg,#ffd84a,#fff2b3,#ff9a3d,#ffd84a);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bdg-shimmer 3s linear infinite}
+.bdg-own .t{background:linear-gradient(90deg,#FFE9A8,#fff2b3,#ff9a3d,#FFE9A8);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bdg-shimmer 3s linear infinite}
 .bdg-own b{color:#fff6c2;animation:bdg-twinkle 1.9s ease-in-out infinite}
 .bdg-own::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 3s ease-in-out infinite}
-/* 🛠️ Quản trị: đỏ → tím, phát sáng nhẹ nhàng */
-.bdg-adm{background:linear-gradient(135deg,#FF5A60,#7b61ff);color:#fff;box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #7b61ffcc;text-shadow:0 1px 0 #00000033;animation:bdg-glow-violet 2.2s ease-in-out infinite}
+/* 🛠️ Quản sảnh: đỏ → lavender, phát sáng nhẹ nhàng */
+.bdg-adm{background:linear-gradient(135deg,#FF5A60,#B9A6FF);color:#fff;box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #B9A6FFcc;text-shadow:0 1px 0 #00000033;animation:bdg-glow-violet 2.2s ease-in-out infinite}
 .bdg-adm i{animation:bdg-bounce 3.2s ease-in-out infinite}
-/* 🛡️ Mod: xanh ngọc → xanh dương, tia sáng quét nhẹ */
-.bdg-mod{background:linear-gradient(135deg,#2EC5B6,#3d8bff);color:#fff;box-shadow:inset 0 0 0 1.5px #bfefff,0 2px 10px -3px #2ec5b6cc;text-shadow:0 1px 0 #00000033}
+/* 🛡️ Mod sảnh: xanh ngọc → teal đậm, tia sáng quét nhẹ */
+.bdg-mod{background:linear-gradient(135deg,#2EC5B6,#0E7C72);color:#fff;box-shadow:inset 0 0 0 1.5px #bfefff,0 2px 10px -3px #2ec5b6cc;text-shadow:0 1px 0 #00000033}
 .bdg-mod::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 4s ease-in-out infinite}
-/* 💎 Ủng hộ đặc biệt: hồng → vàng kim, sao nhấp nháy */
-.bdg-sup{background:linear-gradient(135deg,#ffe3f0,#ffc2dc 55%,#ffd6ea);color:#b3165c;box-shadow:inset 0 0 0 1px #ff8fbf,0 2px 8px -3px #ff5fa288}
+/* 💎 Nhà Tài Trợ: đỏ → vàng → vàng nhạt, sao nhấp nháy */
+.bdg-sup{background:linear-gradient(135deg,#FF5A60,#FACD33 55%,#FFE9A8);color:#241A38;box-shadow:inset 0 0 0 1px #FF5A60,0 2px 8px -3px #ff9a3d88}
 .bdg-sup i{animation:bdg-twinkle 2.4s ease-in-out infinite}
 .bdg-sup b{color:#ff9a3d;animation:bdg-twinkle 2.7s ease-in-out infinite}
 .bdg-sup::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:bdg-sweep 3.6s ease-in-out infinite}
@@ -29,6 +29,6 @@
 @keyframes bdg-sweep{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
 @keyframes bdg-twinkle{0%,100%{opacity:.15;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
 @keyframes bdg-shimmer{to{background-position:200% 0}}
-@keyframes bdg-glow-gold{0%,100%{box-shadow:inset 0 0 0 1.5px #ffcf3d,0 0 0 1px #b8780a,0 3px 14px -3px #ff7a45cc}50%{box-shadow:inset 0 0 0 1.5px #ffcf3d,0 0 0 1px #b8780a,0 3px 20px -1px #ff9a3dee}}
-@keyframes bdg-glow-violet{0%,100%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #7b61ffcc}50%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 16px -1px #7b61ffee}}
+@keyframes bdg-glow-gold{0%,100%{box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 14px -3px #ff9a3dcc}50%{box-shadow:inset 0 0 0 1.5px #FACD33,0 0 0 1px #B8860B,0 3px 20px -1px #ff9a3dee}}
+@keyframes bdg-glow-violet{0%,100%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 10px -3px #B9A6FFcc}50%{box-shadow:inset 0 0 0 1.5px #ffb3c2,0 2px 16px -1px #B9A6FFee}}
 @media (prefers-reduced-motion:reduce){.bdg,.bdg i,.bdg b,.bdg .t,.bdg::after{animation:none}.bdg::after{display:none}}

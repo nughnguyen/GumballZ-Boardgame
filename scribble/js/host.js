@@ -1,7 +1,7 @@
 // Lõi chủ phòng Scribble it! – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê… được truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván thay cho máy chủ phòng.
 import { createGame, applyAction, viewFor, tick, addDraw, addPlayer, setOnline, bookItems, shiftTime, cleanOpts, maxPlayers, MAX_CROWD, MAX_NORMAL, checkTease } from './engine.js?v=13';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 // Engine chưa có dropPlayer: bản tương đương, chỉ dùng hình dạng state
 // công khai (players/order/turn/guessed/gains/chat/mid) – gỡ khỏi hàng vẽ + bảng điểm, hoặc đánh dấu vắng lâu.
 function dropPlayer(s, pid, now = Date.now()) {

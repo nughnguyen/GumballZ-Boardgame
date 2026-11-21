@@ -8,7 +8,7 @@ import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứ
 import { netStatus } from './status.js';
 import { confirmBox } from './dialog.js?v=8';
 import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */
-import { paintTitles, ensureTitleCSS } from './titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles, ensureTitleCSS } from './titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 ensureSkCSS(); ensureTitleCSS();
 export const $ = s => document.querySelector(s);
 export const $$ = s => [...document.querySelectorAll(s)];

@@ -1,7 +1,7 @@
 // Lõi chủ phòng UNO – KHÔNG phụ thuộc trình duyệt: mọi thứ gắn với môi trường (kết nối, lưu trữ, thống kê, tốc độ hiệu ứng) được truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (makeHost với RoomHost thật + localStorage); sau này máy chủ (Durable Object) dùng lại đúng lớp này để giữ ván thay cho máy chủ phòng.
 import { createGame, applyAction, viewFor, current, MODES, newMatch, recordRound, MATCH_TARGETS, CARD_NAME } from './engine.js?v=27';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction, botCatch } from './bot.js?v=27';
 export const NS = 'gumballz-uno', PREFIX = 'gumballz-uno-', GAME = 'uno';
 export const SNAP = 'gumballz-hostsnap-' + GAME;

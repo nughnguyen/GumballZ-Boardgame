@@ -2,10 +2,10 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=53'
-import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=89';
-import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=5';
-import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=5'; /* 💰 Ví xu */
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=54'
+import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=90';
+import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
+import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=6'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js';
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
@@ -75,11 +75,11 @@ export function avatarHTML(size = 40, a = avatar()) {
   return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
 }
 /* 🎖️ huy hiệu 4 bậc (patch -95) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
-export const ownerBadge = on => on ? '<span class="bdg bdg-own" title="Người làm ra GumballZ Boardgame"><i>👑</i><span class="t">CHỦ WEB</span><b aria-hidden="true">✦</b></span>' : '';
-export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ web: lấp lánh */
-export const adminBadge = on => on ? '<span class="bdg bdg-adm" title="Quản trị viên GumballZ"><i>🛠️</i><span class="t">QUẢN TRỊ</span></span>' : ''; /* 🛠️ Quản trị = role 2, không phải chủ web */
-export const modBadge = on => on ? '<span class="bdg bdg-mod" title="Quản lý – giữ trật tự cho GumballZ Boardgame"><i>🛡️</i><span class="t">MOD</span></span>' : ''; /* 🛡️ Mod = role 1 */
-export const supporterBadge = on => on ? '<span class="bdg bdg-sup" title="Người ủng hộ đặc biệt của GumballZ"><i>💎</i><span class="t">ỦNG HỘ</span><b aria-hidden="true">✦</b></span>' : '';
+export const ownerBadge = on => on ? '<span class="bdg bdg-own" title="Người làm ra GumballZ Boardgame"><i>👑</i><span class="t">CHỦ SẢNH</span><b aria-hidden="true">✦</b></span>' : '';
+export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ sảnh: lấp lánh */
+export const adminBadge = on => on ? '<span class="bdg bdg-adm" title="Quản lý Sảnh GumballZ"><i>🛠️</i><span class="t">QUẢN SẢNH</span></span>' : ''; /* 🛠️ Quản sảnh = role 2, không phải chủ sảnh */
+export const modBadge = on => on ? '<span class="bdg bdg-mod" title="Mod – giữ trật tự Sảnh"><i>🛡️</i><span class="t">MOD SẢNH</span></span>' : ''; /* 🛡️ Mod = role 1 */
+export const supporterBadge = on => on ? '<span class="bdg bdg-sup" title="Nhà Tài Trợ của GumballZ"><i>💎</i><span class="t">NHÀ TÀI TRỢ</span><b aria-hidden="true">✦</b></span>' : '';
 /* màu tên đã mở (thuộc tính style) */
 export const nameStyle = n => nameCss(n);
 /* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
@@ -88,10 +88,10 @@ export const nameClass = n => nameAnim(n) ? ' nc-anim' : '';
 export const bannerHTML = b => { const css = bannerCss(b); return css ? `<div class="pf-banner${bannerAnim(b) ? ' bn-anim' : ''}" style="background:${css}"></div>` : ''; };
 /* CSS diện mạo ở shared/css/avatar.css (nạp bằng <link>), gồm cả pill danh hiệu (.pf-tt/.pf-tts) */
 export function profileCss() {
-  import('./badges.js?v=1').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
+  import('./badges.js?v=2').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=4', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=4'; }
+  try { l.href = new URL('../css/avatar.css?v=5', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=5'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -122,7 +122,7 @@ function picker(a, st, tab, name, sub = 'pre') {
         if (k === 'hair' && cur.kind && cur.kind !== 'human') return `<div class="lk-sec"><b>${LBL[k]}</b><p class="pf-note" style="margin:0;text-align:left">Chỉ nhân vật kiểu Người mới có tóc – chọn ở mục 🧑 Dáng.</p></div>`;
         const btn = o => {
           if (!Array.isArray(o)) return `<button type="button" class="lk-sw" data-k="${k}" data-v="${o}" aria-pressed="${String(cur[k]).toLowerCase() === o.toLowerCase()}" style="background:${o}" aria-label="${o}"></button>`;
-          const l = charLock(k, o[0]), lk = l && !isOpen(l, st) && !hasGachaPart(k, o[0]); if (l === 'admin' && lk) return ''; /* đồ riêng của chủ web: người khác không thấy luôn */
+          const l = charLock(k, o[0]), lk = l && !isOpen(l, st) && !hasGachaPart(k, o[0]); if (l === 'admin' && lk) return ''; /* đồ riêng của chủ sảnh: người khác không thấy luôn */
           return `<button type="button" class="lk-chip${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lockDesc(l))}"` : `data-k="${k}" data-v="${o[0]}"`} aria-pressed="${cur[k] === o[0]}">${lk ? '🔒 ' : ''}${esc(o[1])}</button>`; };
         const byV = Object.fromEntries(list.map(o => [Array.isArray(o) ? o[0] : o, o]));
         const rows = GROUPS[k] ? GROUPS[k].map(([lbl, vs]) => { const h = vs.map(v => byV[v] ? btn(byV[v]) : '').join(''); return h ? `<div class="lk-sub">${lbl}</div><div class="lk-row">${h}</div>` : ''; }).join('') : `<div class="lk-row">${list.map(btn).join('')}</div>`;
@@ -216,14 +216,14 @@ const achCard = (x, ok, of, ver = null) => {
 };
 /* 5 mẫu thành tích theo game (stats.js TPL, id `<mẫu>-<game>`): gộp thành 1 thẻ mỗi mẫu ở mục chung, ghi đạt ở mấy game */
 const TPL5 = [
-  { id: 'g-first', icon: '🎮', name: 'Ê game này vui nè', desc: 'Chơi xong ván đầu tiên' },
-  { id: 'g-w5', icon: '😆', name: 'Vui thiệt bây ơi', desc: 'Thắng 5 ván' },
-  { id: 'g-w25', icon: '📈', name: 'Leo rank', desc: 'Thắng 25 ván' },
-  { id: 'g-w50', icon: '🏆', name: 'Cao thủ thật sự', desc: 'Thắng 50 ván' },
-  { id: 'g-w100', icon: '👑', name: 'Vô địch', desc: 'Thắng 100 ván' },
-  { id: 'g-l10', icon: '💀', name: '💀', desc: 'Thua 10 ván (vẫn chơi tiếp)' },
-  { id: 'g-s3', icon: '🔥', name: 'Chuỗi thắng', desc: 'Thắng 3 ván liên tiếp' },
-  { id: 'g-p50', icon: '🕹️', name: 'Chơi hoài không chán', desc: 'Chơi 50 ván' },
+  { id: 'g-first', icon: '🎮', name: 'Khởi Đầu Huyền Thoại', desc: 'Chơi xong ván đầu tiên' },
+  { id: 'g-w5', icon: '😆', name: 'Ngũ Liên Thắng', desc: 'Thắng 5 ván' },
+  { id: 'g-w25', icon: '📈', name: 'Thăng Cấp Thần Tốc', desc: 'Thắng 25 ván' },
+  { id: 'g-w50', icon: '🏆', name: 'Cao Thủ Sảnh', desc: 'Thắng 50 ván' },
+  { id: 'g-w100', icon: '👑', name: 'Vô Địch', desc: 'Thắng 100 ván' },
+  { id: 'g-l10', icon: '💀', name: 'Thập Tử Nhất Sinh', desc: 'Thua 10 ván (vẫn chơi tiếp)' },
+  { id: 'g-s3', icon: '🔥', name: 'Tam Liên Thắng', desc: 'Thắng 3 ván liên tiếp' },
+  { id: 'g-p50', icon: '🕹️', name: 'Chơi Hoài Không Chán', desc: 'Chơi 50 ván' },
 ];
 const isTpl = x => TPL5.some(t => x.id.startsWith(t.id + '-'));
 
@@ -275,7 +275,7 @@ export function openProfile() {
     let hasAcc = false; try { hasAcc = !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) {}
     const achN = Object.keys(s.ach || {}).length, pct = lv.to ? Math.round((lv.xp - lv.from) / (lv.to - lv.from) * 100) : 100;
     const games = recentGames(srvT ? srvT.g : s.g); /* 🕒 3 game mới chơi nhất (patch -100) — trước đây xếp theo số ván chơi nhiều nhất */
-    const st = { ...statOf(s, srv || {}), admin: flags.owner /* khoá 'admin' = đồ riêng chủ web */ };
+    const st = { ...statOf(s, srv || {}), admin: flags.owner /* khoá 'admin' = đồ riêng chủ sảnh */ };
     const ust = statsFromTotals(t, { created: (srv && srv.created) || 0, rank: (srv && srv.rank) || 0, admin: flags.owner }); /* khoá og/top10 dùng ngày lập tài khoản + hạng BXH thật */
     const tts = titlesOf(st), look = { ...a, ...(cleanLook({ ...a, ch: a.ch }, st) || {}) }, cur = pickTitle(tts, ls.get('gumballz-title')), locked = ALL_TITLES.filter(x => !tts.some(y => y.id === x.id) && !(x.id.startsWith('top') && !hasAcc));
     curSt = ust;

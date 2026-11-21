@@ -63,7 +63,7 @@ export const COSMETICS = {
     { id: 'timmong', name: 'Khung Tím Mộng', price: 250, shop: true },
     { id: 'bongbong', name: 'Khung Bong Bóng', price: 0, chest: true },
     { id: 'saobang', name: 'Khung Sao Băng', price: 0, chest: true },
-    { id: 'keongot', name: 'Khung Kẹo Ngọt', price: 0, chest: true },
+    { id: 'keongot', name: 'Khung Mật Ngọt', price: 0, chest: true },
     { id: 'hoanggia', name: 'Khung Hoàng Gia', price: 0, chest: true, rare: true },
     /* 🛍️ thêm 2026-11-21: khung thường bán bằng xu */
     { id: 'anhdao', name: 'Khung Anh Đào', price: 200, shop: true },

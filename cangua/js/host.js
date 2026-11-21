@@ -1,6 +1,6 @@
 // 🐴 Lõi chủ phòng Cờ cá ngựa – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, actorOf, P } from './engine.js?v=3';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=4';
 export const NS = 'gumballz-cangua', PREFIX = 'gumballz-cangua-', GAME = 'cangua', SNAP = 'gumballz-hostsnap-' + GAME;
 export const MAX = 4;

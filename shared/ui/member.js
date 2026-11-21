@@ -3,11 +3,11 @@
 //   import('…/shared/ui/member.js?v=3').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
-import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=53';
-import { ACHS, GAME_NAMES } from './stats.js?v=89';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=54';
+import { ACHS, GAME_NAMES } from './stats.js?v=90';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95) — hồ sơ công khai (patch -98) */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) — hồ sơ công khai (patch -98) */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -72,7 +72,7 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=53').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=54').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=50').then(m => m.openLogin()); }
     else if (a === 'dm') { close(); import('./friends.js?v=35').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {

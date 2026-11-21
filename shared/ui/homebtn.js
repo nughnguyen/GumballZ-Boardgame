@@ -49,7 +49,7 @@ import('./feedback.js?v=34').then(() => {
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';
   box.innerHTML = '<a href="#" data-rank style="color:inherit">🏆 Bảng xếp hạng</a> · <a href="#" data-profile style="color:inherit">🏅 Hồ sơ</a> · <a href="#" data-friends style="color:inherit">🤝 Bạn bè</a> · <a href="#" data-feedback style="color:inherit">💌 Góp ý</a> · <a href="#" data-donate style="color:inherit">☕ Ủng hộ</a>';
   box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=35').then(m => m.openLeaderboard(GAME)); };
-  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=53').then(m => m.openProfile()); };
+  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=54').then(m => m.openProfile()); };
   box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=35').then(m => m.openFriends()); };
   if (!a) return;
   if (a.mode === 'footer') a.el.after(box);

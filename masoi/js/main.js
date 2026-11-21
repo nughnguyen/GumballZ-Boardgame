@@ -1,6 +1,6 @@
 import { Host, Client, RemoteHost, srvMode, MAX, MIN, loadSnapshot, session, MS_PHRASES, REACT_PHASES } from './net.js?v=64';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
 import { ROLES, ROLE_ORDER, STEP_TEXT, TEAM_NAME, roleList, presetRoles, suggestRoles, HUNTER_PIN, isWolfRole, DEFAULT_OPTS } from './engine.js?v=11';

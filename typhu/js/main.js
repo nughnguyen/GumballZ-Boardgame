@@ -1,7 +1,7 @@
 // Cờ Tỷ Phú Sài Gòn – giao diện: trang chủ, tạo nhân vật, sảnh, ván chơi 3D, hoạt ảnh sự kiện.
 import { hintsAllowed, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, cleanAvatar, TYPHU_PHRASES } from './net.js?v=113';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import {

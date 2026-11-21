@@ -7,7 +7,7 @@ import { openLogin } from './account.js?v=50';
 import { promptBox, chooseBox } from './dialog.js?v=8';
 import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=1'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {

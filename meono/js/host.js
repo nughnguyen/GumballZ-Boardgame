@@ -1,7 +1,7 @@
 // Lõi chủ phòng Mèo Nổ – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, tốc độ hoạt ảnh… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
 import { createGame, applyAction, viewFor, resolveWindow, waitingOn, getPlayer, DEFAULT_OPTS } from './engine.js?v=11';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction, botNope } from './bot.js?v=11';
 export { DEFAULT_OPTS };
 export const NS = 'gumballz-meono', PREFIX = 'gumballz-meono-', GAME = 'meono', SNAP = 'gumballz-hostsnap-' + GAME;

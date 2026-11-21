@@ -2,7 +2,7 @@ import { flipRender } from '../../shared/lib/gsap/flip.js?v=1';
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, TL_PHRASES, BEG_LIMIT } from './net.js?v=62';
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { netStatus } from '../../shared/ui/status.js';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 

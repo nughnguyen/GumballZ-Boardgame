@@ -1,6 +1,6 @@
 // Cờ cá ngựa 3D – giao diện: trang chủ, sảnh, ván chơi 3D, hoạt ảnh sự kiện, nút đổ giữ-để-đổ.
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, CANGUA_PHRASES } from './net.js?v=60';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import { COLOR_NAMES, GATE, HOME0, exitOk } from './engine.js?v=4';

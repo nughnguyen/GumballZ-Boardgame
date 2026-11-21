@@ -1,7 +1,7 @@
 // Lõi chủ phòng Cờ Tỷ Phú – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, tốc độ hoạt ảnh… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
 import { createGame, applyAction, viewFor, actorOf, P } from './engine.js?v=66';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 export { setData } from './engine.js?v=66'; /* máy chủ nạp tiles.json + cards.json qua đây để cùng một bản engine với lõi */
 import { botAction } from './bot.js?v=66';
 import { OPTIONS, PRESETS, adminOnly } from '../../shared/js/avatar-opts.js?v=12';

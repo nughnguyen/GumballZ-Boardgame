@@ -1,6 +1,6 @@
 // Lõi chủ phòng camel – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, DEFAULT_OPTS, MAX_PLAYERS, MIN_PLAYERS, CAMEL } from './engine.js?v=1';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=1';
 export const NS = 'gumballz-camel', PREFIX = 'gumballz-camel-', GAME = 'camel', SNAP = 'gumballz-hostsnap-' + GAME;
 // Câu chọc kiểu đua lạc đà (≤ 24 ký tự)

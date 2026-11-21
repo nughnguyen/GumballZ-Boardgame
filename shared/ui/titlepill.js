@@ -1,7 +1,7 @@
 // 🎖️ Pill danh hiệu (.pf-tt) + vẽ vào danh sách người chơi (phòng chờ #plist / trong ván #players).
 // Dùng chung cho gamekit (77 game) và chat phòng. Icon/tên LUÔN tra từ ALL_TITLES qua titleById,
 // không tin text người khác gửi. Không import gì ngoài titles.js (thuần logic) để node test được.
-import { titleById } from '../titles.js?v=5';
+import { titleById } from '../titles.js?v=6';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 /* 1 pill danh hiệu (đúng 1 cái / người). t có thể là id chuỗi hoặc object { id, icon, name } –
    lúc nào cũng tra lại bằng titleById để icon/tên lấy từ bảng của máy mình. */
@@ -14,7 +14,7 @@ export function ensureTitleCSS() {
   try {
     if (typeof document === 'undefined' || document.getElementById('tt-css')) return;
     const s = document.createElement('style'); s.id = 'tt-css';
-    s.textContent = '.pf-tt{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;background:#FFE9A8;color:#241A38;font:800 12.5px/1.5 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}';
+    s.textContent = '.pf-tt{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:999px;background:#FACD33;color:#241A38;font:800 12.5px/1.5 Nunito,sans-serif;box-shadow:inset 0 0 0 2px #241A38;white-space:nowrap}';
     document.head.appendChild(s);
   } catch (e) {}
 }

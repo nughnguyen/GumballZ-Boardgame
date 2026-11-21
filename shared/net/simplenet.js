@@ -11,10 +11,10 @@
 // Người chơi cùng máy (local) và bot do máy chủ phòng điều khiển: hành động của họ gửi qua net.actAs(id, a).
 import { RoomHost, RoomClient, token, session } from './room.js?v=54';
 import { specBanner } from '../ui/spectate.js?v=8';
-import { watch } from '../ui/stats.js?v=89';
+import { watch } from '../ui/stats.js?v=90';
 export { session };
 import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=1';
-import { titleById, myTitleId } from '../titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */
+import { titleById, myTitleId } from '../titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */
 const HB_MS = 2500, STALL_MS = 8000, AWAY_MS = 8000;
 
 export function makeNet(cfg) {

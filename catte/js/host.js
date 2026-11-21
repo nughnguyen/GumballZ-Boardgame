@@ -1,6 +1,6 @@
 // Lõi chủ phòng catte – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, waitingOn, nextHand, getPlayer, DEFAULT_OPTS, OPT_CHOICES, MAX_PLAYERS, CUT } from './engine.js?v=2';
-import { titleById, myTitleId } from '../../shared/titles.js?v=5'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=2';
 export const NS = 'gumballz-catte', PREFIX = 'gumballz-catte-', GAME = 'catte', SNAP = 'gumballz-hostsnap-' + GAME;
 // Câu chọc cho bảng thả emoji (≤ 24 ký tự)

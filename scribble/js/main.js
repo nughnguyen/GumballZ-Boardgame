@@ -1,6 +1,6 @@
 import { Host, Client, RemoteHost, srvMode, MAX, maxPlayers, loadSnapshot, session, PHRASES, SOLO_DEFAULT } from './net.js?v=63';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
 import { Board, buildToolbar, opsToCanvas, W, H } from './draw.js?v=5';

@@ -1,7 +1,7 @@
 // Đua Lạc Đà 3D – giao diện: trang chủ, sảnh, ván chơi (3D + bảng HUD 2D), hoạt ảnh sự kiện.
 import { hintsAllowed, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
-import { paintTitles } from '../../shared/ui/titlepill.js?v=1'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
+import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, CAMEL_PHRASES, setSpeedFn } from './net.js?v=56';
 import { createReactions, EMOJIS as REACT_EMOJIS } from '../../shared/ui/react.js?v=6';
 import { CAMEL, RACERS, TRACK, LEG_ROLLS, OVERALL_PAY, legalTiles, ranking } from './engine.js?v=1';
