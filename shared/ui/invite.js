@@ -1,6 +1,6 @@
 // 📨 Hộp "Mời bạn": mời bạn bè trong web lên đầu, rồi link + mã QR. Dùng chung cho mọi game (homebtn.js tự gắn nút cạnh mã phòng).
 // QR vẽ bằng thư viện qrcode-generator (MIT, Kazuhiko Arase) – shared/vendor/qrcode.js
-import { toast } from './dialog.js?v=9';
+import { toast } from './dialog.js?v=10';
 const CSS = `.iv-ov{position:fixed;inset:0;z-index:10040;background:rgba(74,62,92,.7);display:grid;place-items:center;padding:16px;backdrop-filter:blur(3px);animation:iv-f .16s ease-out}
 .iv-box{width:min(380px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border-radius:26px;padding:22px 20px 18px;box-shadow:0 24px 70px #0008;font:600 15px/1.45 Nunito,system-ui,sans-serif;text-align:center;position:relative;animation:iv-p .24s cubic-bezier(.2,1.2,.4,1)}
 .iv-box h2{margin:0 30px 2px;font:400 22px/1.2 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.iv-box p{margin:0;color:#8B7E9E}
@@ -54,7 +54,7 @@ export async function openInvite({ code, url, title = document.title.split(/[–
 async function friendsPart(ov, code, url) {
   const box = ov.querySelector('.iv-fr'); if (!box) return;
   let api; try { api = await import('../net/api.js?v=29'); } catch (e) { return; }
-  if (!api.auth.user()) { box.hidden = false; box.querySelector('.iv-fl').innerHTML = '<p class="iv-fe">Đăng nhập để mời thẳng bạn bè đang online trong web nha. <button type="button" class="iv-lg">Đăng nhập</button></p>'; box.querySelector('.iv-lg').onclick = () => import('./account.js?v=52').then(m => m.openLogin()).catch(() => {}); return; }
+  if (!api.auth.user()) { box.hidden = false; box.querySelector('.iv-fl').innerHTML = '<p class="iv-fe">Đăng nhập để mời thẳng bạn bè đang online trong web nha. <button type="button" class="iv-lg">Đăng nhập</button></p>'; box.querySelector('.iv-lg').onclick = () => import('./account.js?v=53').then(m => m.openLogin()).catch(() => {}); return; }
   const game = (window.__gumballzRoom && window.__gumballzRoom.game) || (new URL(url).pathname.split('/').filter(Boolean)[0] || '');
   const r = await api.friends.list().catch(() => null); if (!ov.isConnected) return;
   const L = (r && r.ok && r.friends || []).slice().sort((a, b) => (b.on ? 1 : 0) - (a.on ? 1 : 0));

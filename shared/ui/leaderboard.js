@@ -2,8 +2,8 @@
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
 import { auth, leaderboard } from '../net/api.js?v=29';
 import { GAME_NAMES } from './stats.js?v=91';
-import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, ownName } from './profile.js?v=55';
-import { openLogin } from './account.js?v=52';
+import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, ownName } from './profile.js?v=56';
+import { openLogin } from './account.js?v=53';
 import { syncNow } from './sync.js?v=49';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
@@ -14,47 +14,47 @@ const BG = ['#ff7a8a,#ffb23d', '#7b61ff,#3d8bff', '#2fc76f,#8fe3a8', '#ff9a3d,#f
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const CSS = `
-.rk-ov{position:fixed;inset:0;z-index:9998;background:#241A38;display:grid;place-items:center;padding:12px;backdrop-filter:blur(4px);animation:rk-f .16s ease-out;font:600 14.5px/1.4 Nunito,system-ui,sans-serif;color:#241A38}
+.rk-ov{position:fixed;inset:0;z-index:9998;background:var(--overlay);display:grid;place-items:center;padding:12px;backdrop-filter:blur(4px);animation:rk-f .16s ease-out;font:600 14.5px/1.4 Nunito,system-ui,sans-serif;color:var(--ink)}
 @keyframes rk-f{from{opacity:0}}@keyframes rk-p{from{opacity:0;transform:translateY(10px) scale(.97)}}
-.rk-box{width:min(580px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;background:#FFFDF9;border:2px solid #241A38;border-radius:26px;box-shadow:4px 4px 0 #241A38;overflow:hidden;animation:rk-p .22s cubic-bezier(.2,1.2,.4,1)}
-.rk-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;background:#FFFDF9;border-bottom:2px solid #241A38;color:#241A38}
+.rk-box{width:min(580px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;background:var(--card);border:2px solid var(--ink);border-radius:26px;box-shadow:var(--sh);overflow:hidden;animation:rk-p .22s cubic-bezier(.2,1.2,.4,1)}
+.rk-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px;background:var(--card);border-bottom:2px solid var(--ink);color:var(--ink)}
 .rk-hd h2{margin:0;font:800 22px/1.1 "Baloo 2",Nunito,sans-serif;display:flex;align-items:center;gap:8px}
 .rk-hd small{display:block;font:700 12.5px Nunito,sans-serif;opacity:.92}
-.rk-x{width:44px;height:44px;border-radius:50%;border:2px solid #241A38;background:#FFFDF9;color:#241A38;font:800 16px Nunito;cursor:pointer;flex:none;box-shadow:3px 3px 0 #241A38}
-.rk-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 6px;background:#FFFDF9}
-.rk-tabs button{border:2px solid #241A38;background:#FFFDF9;color:#241A38;border-radius:999px;padding:7px 8px;font:800 13px Nunito,sans-serif;cursor:pointer;transition:transform .1s;box-shadow:3px 3px 0 #241A38}
-.rk-tabs button[aria-pressed=true]{background:#241A38;color:#FFFDF9;border-color:#241A38}
-.rk-sel-w{padding:4px 14px 10px;background:#FFFDF9;flex:none}
-.rk-sel{width:100%;appearance:none;font:800 14px Nunito,sans-serif;color:#241A38;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid #241A38;border-radius:12px;padding:9px 36px 9px 14px;min-height:44px;cursor:pointer;box-shadow:3px 3px 0 #241A38}
+.rk-x{width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:800 16px Nunito;cursor:pointer;flex:none;box-shadow:var(--sh-sm)}
+.rk-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 6px;background:var(--card)}
+.rk-tabs button{border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 8px;font:800 13px Nunito,sans-serif;cursor:pointer;transition:transform .1s;box-shadow:var(--sh-sm)}
+.rk-tabs button[aria-pressed=true]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.rk-sel-w{padding:4px 14px 10px;background:var(--card);flex:none}
+.rk-sel{width:100%;appearance:none;font:800 14px Nunito,sans-serif;color:var(--ink);background:var(--input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid var(--ink);border-radius:12px;padding:9px 36px 9px 14px;min-height:44px;cursor:pointer;box-shadow:var(--sh-sm)}
 .rk-list{flex:1;min-height:220px;overflow-y:auto;padding:6px 14px 10px;display:flex;flex-direction:column;gap:0}
 /* bục top 3: hạng 2 ngọc – hạng 1 vàng cao nhất – hạng 3 tím */
 .rk-podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end;padding:12px 0 6px}
-.rk-pd{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;text-align:center;border:2px solid #241A38;border-radius:16px;padding:14px 6px 12px;box-shadow:3px 3px 0 #241A38;cursor:pointer;min-height:118px;justify-content:flex-end}
-.rk-pd.rk-p1{background:#FACD33;min-height:150px}
-.rk-pd.rk-p2{background:#2EC5B6}
-.rk-pd.rk-p3{background:#B9A6FF}
-.rk-pno{font:800 13px Nunito,sans-serif;color:#241A38}
+.rk-pd{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;text-align:center;border:2px solid var(--ink);border-radius:16px;padding:14px 6px 12px;box-shadow:var(--sh-sm);cursor:pointer;min-height:118px;justify-content:flex-end}
+.rk-pd.rk-p1{background:var(--y1);min-height:150px}
+.rk-pd.rk-p2{background:var(--p2)}
+.rk-pd.rk-p3{background:var(--p3)}
+.rk-pno{font:800 13px Nunito,sans-serif;color:var(--ink)}
 .rk-pd .rk-av{width:48px;height:48px;font-size:26px}
-.rk-pnm{font:800 14px/1.2 Nunito,sans-serif;color:#241A38;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rk-pval{font:800 13px Nunito,sans-serif;color:#241A38}
-.rk-row{display:flex;align-items:center;gap:10px;padding:12px 6px;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;background:none;cursor:pointer}
-.rk-row:hover{background:#FFF8EE}
+.rk-pnm{font:800 14px/1.2 Nunito,sans-serif;color:var(--ink);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-pval{font:800 13px Nunito,sans-serif;color:var(--ink)}
+.rk-row{display:flex;align-items:center;gap:10px;padding:12px 6px;border:0;border-bottom:2px dashed var(--line);border-radius:0;background:none;cursor:pointer}
+.rk-row:hover{background:var(--bg)}
 .rk-row.me{background:#FFF3D6}
-.rk-no{width:30px;text-align:center;font:800 16px "Baloo 2",Nunito,sans-serif;color:#8B7E9E;flex:none}
+.rk-no{width:30px;text-align:center;font:800 16px "Baloo 2",Nunito,sans-serif;color:var(--muted);flex:none}
 .rk-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex:none;box-shadow:inset 0 -2px 0 #0002}
 .rk-inf{flex:1;min-width:0}
-.rk-nm{font:800 15px/1.2 Nunito,sans-serif;color:#241A38;display:flex;align-items:center;gap:6px; flex-wrap:wrap}
-.rk-nm small{font:700 12px Nunito,sans-serif;color:#8B7E9E}
-.rk-lv{display:inline-block;padding:1px 7px;border-radius:999px;background:#efe6da;color:#8B7E9E;font:800 11px Nunito,sans-serif}
-.rk-tt{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:999px;background:#FFE9A8;color:#241A38;font:800 11px/1.7 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}
-.rk-sub{font:700 12px Nunito,sans-serif;color:#8B7E9E;margin-top:2px}
+.rk-nm{font:800 15px/1.2 Nunito,sans-serif;color:var(--ink);display:flex;align-items:center;gap:6px; flex-wrap:wrap}
+.rk-nm small{font:700 12px Nunito,sans-serif;color:var(--muted)}
+.rk-lv{display:inline-block;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--muted);font:800 11px Nunito,sans-serif}
+.rk-tt{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:999px;background:var(--y2);color:var(--ink);font:800 11px/1.7 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}
+.rk-sub{font:700 12px Nunito,sans-serif;color:var(--muted);margin-top:2px}
 .rk-val{text-align:right;flex:none}
-.rk-val b{display:block;font:800 16px/1.1 "Baloo 2",Nunito,sans-serif;color:#241A38}
-.rk-val small{font:700 11.5px Nunito,sans-serif;color:#8B7E9E}
-.rk-empty{padding:36px 16px;text-align:center;color:#8B7E9E;font-weight:700}
-.rk-ft{padding:10px 14px;background:#FFF8EE;border-top:2px solid #241A38;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:800}
-.rk-ft b{color:#241A38}
-.rk-btn{border:2px solid #241A38;border-radius:999px;padding:7px 14px;font:400 13px "Baloo 2",Nunito,sans-serif;background:#FACD33;color:#241A38;cursor:pointer;flex:none;box-shadow:3px 3px 0 #241A38}
+.rk-val b{display:block;font:800 16px/1.1 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.rk-val small{font:700 11.5px Nunito,sans-serif;color:var(--muted)}
+.rk-empty{padding:36px 16px;text-align:center;color:var(--muted);font-weight:700}
+.rk-ft{padding:10px 14px;background:var(--bg);border-top:2px solid var(--ink);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:800}
+.rk-ft b{color:var(--ink)}
+.rk-btn{border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font:400 13px "Baloo 2",Nunito,sans-serif;background:var(--y1);color:var(--ink);cursor:pointer;flex:none;box-shadow:var(--sh-sm)}
 `;
 
 function injectCss() {
@@ -145,7 +145,7 @@ export function openLeaderboard(initialGame = 'all') {
           <span class="rk-no">#${r.rank}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:#B9A6FF;color:#241A38">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:var(--p3);color:var(--on-accent)">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-sub">${subVal}</div>
           </div>
           <div class="rk-val"><b>${mainVal}</b><small>${by === 'xp' ? `🔥 chuỗi ${r.best}` : `⭐ ${r.xp} XP`}</small></div>
@@ -181,7 +181,7 @@ export function openLeaderboard(initialGame = 'all') {
     const row = e.target.closest('.rk-row,.rk-pd');
     if (row) { /* bấm một dòng / một khối bục: mở hồ sơ công khai của người đó (trong hồ sơ có nút kết bạn / nhắn tin) */
       const uid = +row.dataset.uid || 0;
-      if (uid) import('./member.js?v=4').then(m => m.openMember(uid));
+      if (uid) import('./member.js?v=5').then(m => m.openMember(uid));
     }
   });
 

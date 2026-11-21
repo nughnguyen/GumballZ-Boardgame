@@ -19,29 +19,32 @@ function writeLocal(r) { ls.set(KEY, JSON.stringify({ last: r.last || '', streak
 function nextOf(r) { const yest = dayVN(Date.now() - 864e5); const streak = r.last === yest ? r.streak + 1 : 1; const day = ((streak - 1) % 7) + 1; return { streak, day, xu: REWARDS[day - 1] }; }
 
 const CSS = `
-.loginbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1.5px solid #ecdfd0;background:#FFFDF9;font-size:19px;cursor:pointer;flex:none}
-.lg-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#ff4d6a;border:2px solid #FFFDF9;pointer-events:none}
+.loginbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:19px;cursor:pointer;flex:none}
+.lg-dot{position:absolute;top:-2px;right:-2px;width:11px;height:11px;border-radius:50%;background:#ff4d6a;border:2px solid var(--card);pointer-events:none}
 .lg-dot[hidden]{display:none}
 .lg-ov{position:fixed;inset:0;z-index:9997;background:#1a1426aa;display:grid;place-items:center;padding:14px}
-.lg-box{width:min(420px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#fffaf3;color:#4A3E5C;border-radius:22px;padding:18px;box-shadow:0 20px 60px #0006;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
-.lg-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#4A3E5C}
-.lg-box h2{margin:0 36px 4px 0;font:800 22px/1.2 "Baloo 2",Nunito,sans-serif;color:#241A38}
-.lg-riv{width:100%;height:200px;border:2px solid #241A38;border-radius:14px;overflow:hidden;background:#FACD33;margin:0 0 12px;box-shadow:2px 2px 0 rgba(36,26,56,.9)}
+.lg-box{width:min(420px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink2);border-radius:22px;padding:18px;box-shadow:0 20px 60px #0006;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.lg-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:var(--line);font-size:18px;cursor:pointer;color:var(--ink2)}
+.lg-box h2{margin:0 36px 4px 0;font:800 22px/1.2 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.lg-riv{width:100%;height:200px;border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--y1);margin:0 0 12px;box-shadow:2px 2px 0 var(--shc)}
 .lg-riv canvas{width:100%;height:100%;display:block}
 .lg-riv[hidden]{display:none}
-.lg-streak{margin:0 0 12px;color:#6b5f7a}
-.lg-streak b{color:#241A38}
+.lg-streak{margin:0 0 12px;color:var(--muted)}
+.lg-streak b{color:var(--ink)}
 .lg-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:0 0 12px}
-.lg-cell{border:2px solid #241A38;border-radius:12px;padding:7px 1px;text-align:center;background:#FFFDF9;box-shadow:2px 2px 0 rgba(36,26,56,.9)}
-.lg-cell b{display:block;font:800 12px/1.2 "Baloo 2",Nunito,sans-serif;color:#241A38}
+.lg-cell{border:2px solid var(--ink);border-radius:12px;padding:7px 1px;text-align:center;background:var(--card);box-shadow:2px 2px 0 var(--shc)}
+.lg-cell b{display:block;font:800 12px/1.2 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
 .lg-cell span{display:block;font:800 12px/1.3 Nunito,sans-serif;color:#2f9e5b}
 .lg-cell i{display:block;font-style:normal;font-size:14px;margin-top:1px}
 .lg-cell.done{background:#E7F9E9}
-.lg-cell.today{background:#FACD33}
+.lg-cell.today{background:var(--y1)}
+/* patch -130: ô "đã nhận" (xanh nhạt) và ô "hôm nay" (vàng) giữ nền sáng ở cả 2 theme
+   nên chữ trong ô phải là chữ tối --on-accent (chữ var(--ink) ở dark sẽ chìm trên nền sáng). */
+.lg-cell.done b,.lg-cell.done span,.lg-cell.today b,.lg-cell.today span{color:var(--on-accent)}
 .lg-cell.lock{opacity:.55}
-.lg-claim{width:100%;border:2px solid #241A38;border-radius:999px;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:#fff;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);cursor:pointer;box-shadow:3px 3px 0 #241A38}
+.lg-claim{width:100%;border:2px solid var(--ink);border-radius:999px;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:var(--on-accent);background:linear-gradient(90deg,#ff4d5e,#ff9a3d);cursor:pointer;box-shadow:var(--sh-sm)}
 .lg-claim:disabled{opacity:.6;cursor:default}
-.lg-note{font-size:12.5px;color:#8a7f96;margin:12px 0 0}
+.lg-note{font-size:12.5px;color:var(--muted);margin:12px 0 0}
 `;
 function css() { if (document.getElementById('lg-css')) return; const s = document.createElement('style'); s.id = 'lg-css'; s.textContent = CSS; document.head.append(s); }
 
@@ -145,7 +148,7 @@ function openModal() {
   mountLoginRiv();
 }
 function closeModal() { if (ov) ov.style.display = 'none'; try { if (loginAnim) loginAnim.pause(); } catch (e) {} }
-async function toast(msg) { try { const d = await import('./dialog.js?v=9'); d.toast(msg); } catch (e) {} }
+async function toast(msg) { try { const d = await import('./dialog.js?v=10'); d.toast(msg); } catch (e) {} }
 /* nhận local (khách, hoặc máy chủ cũ chưa hỗ trợ): cộng xu + ghi chuỗi vào localStorage */
 async function claimLocal() {
   const r = readLocal(), nx = nextOf(r), today = dayVN();

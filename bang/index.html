@@ -20,11 +20,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Rye&family=Bevan&family=Oswald:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=20">
 <link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
-<link rel="stylesheet" href="../shared/css/topbar.css?v=5">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=21">
+<link rel="stylesheet" href="../shared/css/topbar.css?v=6">
 </head>
 <body>
-<script src="../shared/ui/topbar.js?v=7"></script>
+<script src="../shared/ui/topbar.js?v=8"></script>
 
 <!-- ===== Màn hình chính ===== -->
 <section id="screen-home" class="screen active">
@@ -44,7 +44,7 @@
           <button id="btn-join" class="btn">Vào phòng</button>
         </div>
         <button id="btn-offline" class="btn ghost small">Chơi một mình với bot (offline)</button>
-      <button id="btn-lobby" class="btn ghost small" type="button" onclick="import('../shared/ui/lobby.js?v=60').then(m=>m.openLobby('bang'))">🌐 Phòng công khai &amp; chat</button>
+      <button id="btn-lobby" class="btn ghost small" type="button" onclick="import('../shared/ui/lobby.js?v=61').then(m=>m.openLobby('bang'))">🌐 Phòng công khai &amp; chat</button>
       </div>
       <div class="theme-pick" id="theme-pick"></div>
       <div class="theme-pick" id="speed-pick"></div>
@@ -128,7 +128,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script type="module" src="js/main.js?v=111"></script>
-<script type="module" async src="../shared/ui/homebtn.js?v=70"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/homebtn.js?v=71"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
 <script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
 <script type="module" src="../shared/net/presence.js?v=26"></script>
 <script type="module" async src="../shared/ui/feel.js?v=54"></script>

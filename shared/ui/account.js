@@ -1,28 +1,28 @@
 // 👤 Tài khoản GumballZ (tuỳ chọn): nút đăng nhập + hộp đăng nhập / tạo tài khoản / Google.
-// Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
+// Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=53'; mountAccount(element)
 import { auth } from '../net/api.js?v=29';
-import { promptBox, formBox } from './dialog.js?v=9';
-import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=55';
+import { promptBox, formBox } from './dialog.js?v=10';
+import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=56';
 
 const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */
-.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
-.ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-lv{flex:none;background:#FACD33;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:1px 7px;font:800 12px/1.4 Nunito,sans-serif;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
-.ac-menu{position:absolute;z-index:9998;background:#FFFDF9;border-radius:14px;box-shadow:0 12px 32px #4A3E5C33;padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
-.ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:#4A3E5C;font:inherit}.ac-menu button:hover{background:#f6efe6}
+.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink2);font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
+.ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-lv{flex:none;background:var(--y1);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:1px 7px;font:800 12px/1.4 Nunito,sans-serif;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:var(--on-accent);border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
+.ac-menu{position:absolute;z-index:9998;background:var(--card);border-radius:14px;box-shadow:0 12px 32px var(--sh-soft);padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
+.ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--ink2);font:inherit}.ac-menu button:hover{background:var(--bg)}
 .ac-ov{position:fixed;inset:0;z-index:9999;background-color:#1a1426aa;background-image:linear-gradient(0deg,transparent 24%,rgba(185,166,255,.16) 25%,rgba(185,166,255,.16) 26%,transparent 27%,transparent 74%,rgba(185,166,255,.16) 75%,rgba(185,166,255,.16) 76%,transparent 77%,transparent),linear-gradient(90deg,transparent 24%,rgba(185,166,255,.16) 25%,rgba(185,166,255,.16) 26%,transparent 27%,transparent 74%,rgba(185,166,255,.16) 75%,rgba(185,166,255,.16) 76%,transparent 77%,transparent);background-size:55px 55px;display:grid;place-items:center;padding:14px}
-.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border:2px solid #241A38;border-radius:20px;padding:18px;box-shadow:3px 4px 0 #FACD33;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
-.ac-box h2{margin:0 36px 4px 0;font:900 22px/1.2 "Baloo 2",Nunito,sans-serif;color:#241A38}
-.ac-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#4A3E5C}
-.ac-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0e6da;border:2px solid #241A38;border-radius:999px;padding:4px;margin:10px 0}
-.ac-tabs button{border:0;border-radius:999px;min-height:38px;font:800 14px Nunito,sans-serif;background:none;color:#4A3E5C;cursor:pointer}.ac-tabs button[aria-pressed=true]{background:#FFFDF9;box-shadow:0 2px 6px #0001}
-.ac-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:#241A38}
-.ac-box input{width:100%;box-sizing:border-box;border:2px solid #241A38;border-radius:4px;box-shadow:3px 4px 0 #FACD33;padding:12px 10px;font:600 16px Nunito,sans-serif;background:#fff;color:#4A3E5C;outline:none}
-.ac-box input:focus{transform:translateY(4px);box-shadow:1px 2px 0 #FACD33}
-.ac-go{width:100%;margin-top:14px;border:2px solid #241A38;border-radius:10px;box-shadow:3px 3px 0 #241A38;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:#241A38;background:#FACD33;cursor:pointer}.ac-go:hover{opacity:.9}.ac-go:focus{transform:translateY(4px);box-shadow:1px 2px 0 #241A38}.ac-go:disabled{opacity:.6}
+.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink2);border:2px solid var(--ink);border-radius:20px;padding:18px;box-shadow:3px 4px 0 var(--y1);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.ac-box h2{margin:0 36px 4px 0;font:900 22px/1.2 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.ac-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:var(--line);font-size:18px;cursor:pointer;color:var(--ink2)}
+.ac-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--line);border:2px solid var(--ink);border-radius:999px;padding:4px;margin:10px 0}
+.ac-tabs button{border:0;border-radius:999px;min-height:38px;font:800 14px Nunito,sans-serif;background:none;color:var(--ink2);cursor:pointer}.ac-tabs button[aria-pressed=true]{background:var(--card);box-shadow:0 2px 6px #0001}
+.ac-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:var(--ink)}
+.ac-box input{width:100%;box-sizing:border-box;border:2px solid var(--ink);border-radius:4px;box-shadow:3px 4px 0 var(--y1);padding:12px 10px;font:600 16px Nunito,sans-serif;background:#fff;color:var(--ink2);outline:none}
+.ac-box input:focus{transform:translateY(4px);box-shadow:1px 2px 0 var(--y1)}
+.ac-go{width:100%;margin-top:14px;border:2px solid var(--ink);border-radius:10px;box-shadow:var(--sh-sm);min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:var(--ink);background:var(--y1);cursor:pointer}.ac-go:hover{opacity:.9}.ac-go:focus{transform:translateY(4px);box-shadow:1px 2px 0 var(--ink)}.ac-go:disabled{opacity:.6}
 .ac-err{color:#c0263b;font-weight:700;min-height:20px;margin:8px 0 0;font-size:14px}
-.ac-or{display:flex;align-items:center;gap:10px;color:#8a7f96;font-size:13px;margin:14px 0 10px}.ac-or::before,.ac-or::after{content:"";flex:1;height:1.5px;background:#ecdfd0}
+.ac-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:14px 0 10px}.ac-or::before,.ac-or::after{content:"";flex:1;height:1.5px;background:var(--line)}
 .ac-g{display:flex;justify-content:center;min-height:44px}
-.ac-note{font-size:12.5px;color:#8a7f96;margin-top:12px}`;
+.ac-note{font-size:12.5px;color:var(--muted);margin-top:12px}`;
 function css() { if (document.getElementById('ac-css')) return; const s = document.createElement('style'); s.id = 'ac-css'; s.textContent = CSS; document.head.append(s); }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -75,7 +75,7 @@ async function maybeOneTap() {
 }
 
 export async function openLogin(mode = 'login') {
-  const box = modal(`<h2>👤 Tài khoản GumballZ</h2><p style="margin:0;color:#6b5f7a">Không bắt buộc nha – đăng nhập để giữ tên, có dấu ✓ khi chat ở Sảnh chung.</p>
+  const box = modal(`<h2>👤 Tài khoản GumballZ</h2><p style="margin:0;color:var(--muted)">Không bắt buộc nha – đăng nhập để giữ tên, có dấu ✓ khi chat ở Sảnh chung.</p>
     <div class="ac-tabs"><button data-m="login">Đăng nhập</button><button data-m="register">Tạo tài khoản</button></div>
     <form id="ac-f" autocomplete="on"><div id="ac-name-w"><label for="ac-name">Tên hiển thị</label><input id="ac-name" maxlength="20" autocomplete="nickname" placeholder="VD: Kẹo"></div>
     <label for="ac-u">Tên đăng nhập</label><input id="ac-u" maxlength="20" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="chữ thường không dấu, số, . _">
@@ -114,7 +114,7 @@ export async function openLogin(mode = 'login') {
 
 function toast(t) {
   css(); const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;background:#4A3E5C;color:#fff;padding:10px 18px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
+  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:999px;font:800 15px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
   d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2600);
 }
 
@@ -124,7 +124,7 @@ function menu(anchor) {
   const m = document.createElement('div'); m.className = 'ac-menu';
   const u = auth.user();
   const b = frCount ? ` <span class="ac-bdg">${frCount > 9 ? '9+' : frCount}</span>` : '';
-  m.innerHTML = `<div style="padding:8px 12px;color:#8a7f96;font-size:13px">${u.username ? '@' + esc(u.username) : 'Tài khoản Google'}</div>${u.admin ? '<button data-a="admin">🛠️ Quản trị GumballZ</button>' : ''}<button data-a="friends">🤝 Bạn bè &amp; Tin nhắn${b}</button><button data-a="prof">🏅 Hồ sơ &amp; thành tích</button><button data-a="set">⚙️ Cài đặt</button><button data-a="name">✏️ Đổi tên hiển thị</button>${u.username ? '<button data-a="pw">🔑 Đổi mật khẩu</button>' : ''}<button data-a="out">🚪 Đăng xuất</button>`;
+  m.innerHTML = `<div style="padding:8px 12px;color:var(--muted);font-size:13px">${u.username ? '@' + esc(u.username) : 'Tài khoản Google'}</div>${u.admin ? '<button data-a="admin">🛠️ Quản trị GumballZ</button>' : ''}<button data-a="friends">🤝 Bạn bè &amp; Tin nhắn${b}</button><button data-a="prof">🏅 Hồ sơ &amp; thành tích</button><button data-a="set">⚙️ Cài đặt</button><button data-a="name">✏️ Đổi tên hiển thị</button>${u.username ? '<button data-a="pw">🔑 Đổi mật khẩu</button>' : ''}<button data-a="out">🚪 Đăng xuất</button>`;
   document.body.append(m);
   const r = anchor.getBoundingClientRect(); m.style.top = (r.bottom + scrollY + 6) + 'px'; m.style.left = Math.max(8, Math.min(r.right + scrollX - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
   const off = e => { if (!m.contains(e.target)) { m.remove(); removeEventListener('pointerdown', off, true); } };
@@ -133,9 +133,9 @@ function menu(anchor) {
     const a = e.target.closest('button')?.dataset.a; if (!a) return; m.remove();
     if (a === 'out') { await auth.logout(); toast('Đã đăng xuất'); }
     if (a === 'admin') location.href = new URL('../../quantri/', import.meta.url).href;
-    if (a === 'friends') import('./friends.js?v=36').then(m => m.openFriends());
+    if (a === 'friends') import('./friends.js?v=37').then(m => m.openFriends());
     if (a === 'prof') openProfile();
-    if (a === 'set') import('./settings.js?v=47').then(m => m.openSettings());
+    if (a === 'set') import('./settings.js?v=48').then(m => m.openSettings());
     if (a === 'name') { const n = await promptBox('Tên này hiện khi bạn vào phòng và chat (2–20 ký tự).', { title: '✏️ Đổi tên hiển thị', value: u.name, maxlength: 20, ok: 'Đổi tên', required: true }); if (n) { const r = await auth.rename(n); toast(r.ok ? 'Đổi tên rồi nè ✨' : r.msg); } }
     if (a === 'pw') {
       const v = await formBox('🔑 Đổi mật khẩu', [{ id: 'o', label: 'Mật khẩu hiện tại', type: 'password', autocomplete: 'current-password' }, { id: 'n', label: 'Mật khẩu mới (ít nhất 6 ký tự)', type: 'password', autocomplete: 'new-password', maxlength: 100 }], { ok: 'Đổi mật khẩu', validate: v => !v.o ? 'Nhập mật khẩu hiện tại nha' : v.n.length < 6 ? 'Mật khẩu mới cần ít nhất 6 ký tự' : '' });
@@ -158,7 +158,7 @@ export function mountAccount(el) {
   import('./stats.js?v=91').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
   addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
-  import('./friends.js?v=36').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=37').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
   import('./friends-chat.js?v=1').catch(() => {}); /* hộp chat bạn bè kiểu Messenger (tự bật khi nạp) */
   if (auth.user()) auth.refresh(); // phiên hết hạn → tự đăng xuất
 }

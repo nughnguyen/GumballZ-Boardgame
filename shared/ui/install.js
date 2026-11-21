@@ -1,5 +1,5 @@
 // 📲 Hộp thoại "Thêm vào màn hình chính" — chơi như 1 game/app, không cần vào lại web. (patch -129)
-//   Nạp bằng <script src="…/shared/ui/install.js?v=1"></script> (trang chủ + Sảnh). Không cần import.
+//   Nạp bằng <script src="…/shared/ui/install.js?v=2"></script> (trang chủ + Sảnh). Không cần import.
 //   - Chỉ hiện trên ĐIỆN THOẠI, sau 12 giây chơi; KHÔNG hiện trên máy tính, KHÔNG hiện khi đã mở từ màn hình chính.
 //   - Android/Chrome: bắt beforeinstallprompt, nút "Thêm vào màn hình chính" gọi prompt() gốc của trình duyệt.
 //   - iOS/Safari (không có beforeinstallprompt): hướng dẫn bằng tay (Chia sẻ → Thêm vào MH chính).
@@ -14,19 +14,19 @@
   var deferredPrompt = null, shown = false, loadAt = Date.now();
 
   var CSS = '.in-ov{position:fixed;inset:0;z-index:10070;display:flex;align-items:flex-end;justify-content:center;background:rgba(36,26,56,.55);animation:in-f .18s ease-out}\n'
-    + '.in-box{width:min(440px,100%);box-sizing:border-box;background:#FFFDF9;color:#241A38;border:2px solid #241A38;border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -8px 30px rgba(36,26,56,.35);padding:18px 18px calc(18px + env(safe-area-inset-bottom));font:600 15px/1.5 Nunito,system-ui,sans-serif;animation:in-up .25s cubic-bezier(.2,1.2,.4,1);position:relative}\n'
-    + '.in-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border:2px solid #241A38;border-radius:50%;background:#FFFDF9;color:#241A38;font:800 16px/1 Nunito,sans-serif;cursor:pointer}\n'
+    + '.in-box{width:min(440px,100%);box-sizing:border-box;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -8px 30px var(--sh-soft);padding:18px 18px calc(18px + env(safe-area-inset-bottom));font:600 15px/1.5 Nunito,system-ui,sans-serif;animation:in-up .25s cubic-bezier(.2,1.2,.4,1);position:relative}\n'
+    + '.in-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border:2px solid var(--ink);border-radius:50%;background:var(--card);color:var(--ink);font:800 16px/1 Nunito,sans-serif;cursor:pointer}\n'
     + '.in-head{display:flex;gap:12px;align-items:center;margin-bottom:6px;padding-right:36px}\n'
-    + '.in-ic{flex:none;width:56px;height:56px;border:2px solid #241A38;border-radius:16px;box-shadow:3px 3px 0 #241A38;object-fit:cover;background:#FACD33}\n'
-    + '.in-box h2{margin:0;font:800 19px/1.25 "Baloo 2",Nunito,sans-serif;color:#241A38}\n'
-    + '.in-sub{margin:0 0 12px;color:#8B7E9E;font-size:14.5px}\n'
-    + '.in-steps{margin:0 0 12px;padding:12px 14px;border:2px solid #241A38;border-radius:14px;background:#FFF8EE;font-size:14.5px}\n'
+    + '.in-ic{flex:none;width:56px;height:56px;border:2px solid var(--ink);border-radius:16px;box-shadow:var(--sh-sm);object-fit:cover;background:var(--y1)}\n'
+    + '.in-box h2{margin:0;font:800 19px/1.25 "Baloo 2",Nunito,sans-serif;color:var(--ink)}\n'
+    + '.in-sub{margin:0 0 12px;color:var(--muted);font-size:14.5px}\n'
+    + '.in-steps{margin:0 0 12px;padding:12px 14px;border:2px solid var(--ink);border-radius:14px;background:var(--bg);font-size:14.5px}\n'
     + '.in-steps b{display:block;margin-bottom:4px}\n'
     + '.in-steps ol{margin:0;padding-left:20px}\n'
     + '.in-steps li{margin:2px 0}\n'
-    + '.in-go{display:block;width:100%;min-height:50px;border:2px solid #241A38;border-radius:999px;background:#FACD33;color:#241A38;font:800 16px Nunito,sans-serif;cursor:pointer;box-shadow:4px 4px 0 #241A38}\n'
-    + '.in-go:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #241A38}\n'
-    + '.in-later{display:block;width:100%;margin-top:10px;min-height:44px;border:0;background:none;color:#8B7E9E;font:800 14.5px Nunito,sans-serif;cursor:pointer}\n'
+    + '.in-go{display:block;width:100%;min-height:50px;border:2px solid var(--ink);border-radius:999px;background:var(--y1);color:var(--ink);font:800 16px Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh)}\n'
+    + '.in-go:active{transform:translate(2px,2px);box-shadow:var(--sh-xs)}\n'
+    + '.in-later{display:block;width:100%;margin-top:10px;min-height:44px;border:0;background:none;color:var(--muted);font:800 14.5px Nunito,sans-serif;cursor:pointer}\n'
     + '@keyframes in-f{from{opacity:0}}\n'
     + '@keyframes in-up{from{opacity:0;transform:translateY(24px)}}\n'
     + '@media (prefers-reduced-motion:reduce){.in-ov,.in-box{animation:none}}';

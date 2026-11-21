@@ -13,7 +13,7 @@ import { loadExtraDict } from './words.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=9';
+import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
 
 /* ---------- từ điển mở rộng: nạp kho từ Nối từ trước khi mở phòng ----------
    (words.js: ~710 từ gốc → ~45.000 từ). Nạp lỗi (mất mạng/file://) thì

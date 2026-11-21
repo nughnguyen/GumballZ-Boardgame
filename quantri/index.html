@@ -2,6 +2,8 @@
 <html lang="vi" data-ui-sfx="1">
 <head>
 <meta charset="utf-8">
+<!-- patch -130: áp chế độ tối SỚM (trước khi CSS vẽ) để không chớp sáng khi tải trang -->
+<script>try{var t=localStorage.getItem('gumballz-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quản trị – GumballZ Boardgame</title>
 <meta name="robots" content="noindex">
@@ -13,24 +15,24 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:600 15px/1.5 Nunito,system-ui,sans-serif}
 main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.back{display:inline-flex;align-items:center;min-height:42px;padding:6px 16px;border-radius:999px;background:#FFFDF9;border:1.5px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800}
+.back{display:inline-flex;align-items:center;min-height:42px;padding:6px 16px;border-radius:999px;background:var(--card);border:1.5px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800}
 h1{font:400 clamp(24px,6vw,36px) var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:0;flex:1;text-align:center;white-space:nowrap}@media(max-width:560px){h1{order:-1;flex-basis:100%}.top{justify-content:space-between}}
-.card{background:#FFFDF9;border:3px solid var(--ink);border-radius:20px;padding:16px;margin:14px 0;box-shadow:3px 3px 0 rgba(74,62,92,.13)}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:16px;margin:14px 0;box-shadow:3px 3px 0 var(--sh-soft-sm)}
 input,button,select{font:inherit;padding:9px 12px;border-radius:12px;border:1.5px solid #E9DCC6}
-button{background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:800}button.sm{padding:5px 11px;font-size:13px;border-radius:999px}button.red{background:#e0384a}button.gray{background:#8B7E9E}
-.tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0;scrollbar-width:none}.tabs button{flex:none;background:#FFFDF9;color:var(--ink);border:1.5px solid var(--line);border-radius:999px}.tabs button.on{background:var(--ink);color:#fff}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.stat{background:#FFFDF9;border-radius:16px;padding:12px;text-align:center;box-shadow:0 8px 20px -16px rgba(74,62,92,.4)}.stat b{display:block;font:800 30px "Baloo 2",Nunito}.stat small{color:var(--muted)}
-.it{background:#FFFDF9;border-radius:16px;padding:12px 14px;margin:10px 0;box-shadow:0 2px 10px #0001}.meta{font-size:12.5px;color:#8B7E9E;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tag{padding:2px 8px;border-radius:999px;background:#eee;font-weight:800}.bug{background:#ffd9dc}.idea{background:#dff5e6}.adm{background:#e6e0ff}
+button{background:var(--ink);color:var(--on-ink);border:0;cursor:pointer;font-weight:800}button.sm{padding:5px 11px;font-size:13px;border-radius:999px}button.red{background:#e0384a}button.gray{background:var(--muted);color:var(--on-accent)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0;scrollbar-width:none}.tabs button{flex:none;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:999px}.tabs button.on{background:var(--ink);color:var(--on-ink)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.stat{background:var(--card);border-radius:16px;padding:12px;text-align:center;box-shadow:0 8px 20px -16px var(--sh-soft)}.stat b{display:block;font:800 30px "Baloo 2",Nunito}.stat small{color:var(--muted)}
+.it{background:var(--card);border-radius:16px;padding:12px 14px;margin:10px 0;box-shadow:0 2px 10px #0001}.meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tag{padding:2px 8px;border-radius:999px;background:#eee;font-weight:800;color:var(--on-accent)}.bug{background:#ffd9dc}.idea{background:#dff5e6}.adm{background:#e6e0ff}
 .msg{white-space:pre-wrap;margin:6px 0;word-break:break-word}.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.r{margin-left:auto}
 .muted{color:var(--muted)}
-.cfl{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;background:#f6821f;color:#fff;text-decoration:none;font-weight:800;font-size:13.5px}.cfl:nth-child(n+2){background:#FFFDF9;color:var(--ink);border:1.5px solid var(--line)}
-.use h2{margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.bar{height:14px;border-radius:999px;background:#F1E8D8;overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:999px;background:#2fc76f;transition:width .4s}
+.cfl{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;background:#f6821f;color:var(--on-accent);text-decoration:none;font-weight:800;font-size:13.5px}.cfl:nth-child(n+2){background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.use h2{margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.bar{height:14px;border-radius:999px;background:var(--line);overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:999px;background:#2fc76f;transition:width .4s}
 .bar.warn i{background:#f5a524}.bar.full i{background:#e0384a}.alert{border-radius:14px;padding:10px 14px;margin:8px 0;font-weight:800}.alert.warn{background:#fff1d6;color:#8a5a00}.alert.full{background:#ffd9dc;color:#a01828}
 .days{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:10px}.days div{flex:1;text-align:center;font-size:11px;color:var(--muted)}.days span{display:block;background:#C9BDF3;border-radius:6px 6px 0 0;margin:0 auto 2px;width:70%;min-height:2px}.hrs{display:flex;gap:2px;align-items:flex-end;height:86px;margin-top:4px}.hrs div{flex:1;min-width:0;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}.hrs span{display:block;background:#ffb27a;border-radius:4px 4px 0 0;margin:0 auto 2px;width:82%;min-height:2px}.hrs .now span{background:#ff7a45}.hrs em{font-style:normal;display:block;height:13px}.chart-h{font-weight:800;font-size:13.5px;margin-top:14px}.chart-h small{font-weight:700;color:var(--muted)}#st{min-height:22px;color:#c0263b;font-weight:700}
-.cfu{margin-top:14px;padding-top:12px;border-top:1px dashed #E9DCC6}.cfu h3{margin:0 0 6px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.cfr{margin:8px 0 2px}.cfr span{display:inline-block;margin-right:12px;font-size:13.5px}.cfr>b{display:block}.cfcost{margin:4px 0 8px;font-size:15px}.cfu code{background:#FFF8EE;padding:1px 5px;border-radius:5px}
+.cfu{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}.cfu h3{margin:0 0 6px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.cfr{margin:8px 0 2px}.cfr span{display:inline-block;margin-right:12px;font-size:13.5px}.cfr>b{display:block}.cfcost{margin:4px 0 8px;font-size:15px}.cfu code{background:var(--bg);padding:1px 5px;border-radius:5px}
 </style>
-<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=21">
 </head>
 <body>
 <main>
@@ -45,11 +47,12 @@ button{background:var(--ink);color:#fff;border:0;cursor:pointer;font-weight:800}
 </main>
 <script type="module">
 import { auth, API } from '../shared/net/api.js?v=29';
-import { mountAccount, openLogin } from '../shared/ui/account.js?v=52';
-import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=9';
+import { mountAccount, openLogin } from '../shared/ui/account.js?v=53';
+import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=10';
 import { ensureBadgesCSS, tierBadges, uid6 } from '../shared/ui/badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sách vật phẩm để cấp tay (patch -127) */
 import '../shared/net/presence.js?v=26';
+import '../shared/ui/theme.js?v=1'; /* patch -130: chế độ tối (áp theme + meta theme-color + theo hệ thống) */
 mountAccount(document.getElementById('acct'));
 ensureBadgesCSS();
 const $ = s => document.querySelector(s), esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -164,7 +167,7 @@ function donTab(dd) { /* 🧾 quỹ tháng + yêu cầu chờ duyệt + khoản 
   $('#l').innerHTML = `<div class="card" style="margin:0 0 12px"><h2 style="margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)">☕ Quỹ máy chủ tháng này</h2><p class="muted" style="margin:0">Đã nhận <b>${vnd(dd.month)}</b> / mục tiêu ${vnd(dd.goal)} · Xác nhận tự động: <b>${dd.auto ? `đang bật (còn ${dd.quotaLeft}/${dd.quota} lượt)` : `HẾT lượt (${dd.quota} lượt/tháng) – người ủng hộ chuyển sang duyệt tay`}</b> · Mã QR: ${dd.on ? 'đã cấu hình tài khoản' : '<b style="color:#e0432f">chưa đặt DONATE_ACC/DONATE_BANK</b>'} · Webhook SePay: ${dd.hook ? 'đã cấu hình secret' : '<b style="color:#e0432f">chưa đặt SEPAY_KEY/SEPAY_HMAC</b>'}</p></div>` +
     `<h2 style="font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:0 0 8px">⏳ Yêu cầu chờ duyệt (${(dd.pend || []).length})</h2>` + ((dd.pend || []).map(c => `<div class="it"><div class="meta"><b>${esc(c.name || 'Ẩn danh')}</b><span>id ${uid6(c.uid)}</span><span>${vnd(c.amt)}</span><span>ref ${esc(c.ref || '—')}</span><span>${dt(c.at)}</span></div>${c.msg ? `<div class="msg">${esc(c.msg)}</div>` : ''}<div class="acts"><button class="sm" data-claim="${c.id}" data-v="1">✅ Duyệt – cộng tiền + huy hiệu</button><button class="sm red" data-claim="${c.id}" data-v="0">❌ Từ chối</button></div></div>`).join('') || '<p class="muted">Không có yêu cầu nào đang chờ.</p>') +
     `<h2 style="font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:16px 0 8px">✅ Đã xử lý gần đây</h2>` + ((dd.done || []).slice(0, 10).map(c => `<div class="it"><div class="meta"><b>${esc(c.name || 'Ẩn danh')}</b><span>${vnd(c.amt)}</span><span>${c.st === 'ok' ? '✅ đã duyệt' : '❌ đã từ chối'}</span><span>${dt(c.at)}${c.decided ? ' · bởi ' + esc(c.decided) : ''}</span></div>${c.msg ? `<div class="msg">${esc(c.msg)}</div>` : ''}</div>`).join('') || '<p class="muted">Chưa có yêu cầu nào được xử lý.</p>') +
-    `<h2 style="font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:16px 0 8px">💛 Khoản ủng hộ đã nhận</h2>` + ((dd.list || []).slice(0, 30).map(d => `<div class="it"><div class="meta"><b>${d.hide ? 'Ẩn danh' : esc(d.name || 'Ẩn danh')}</b><span>${vnd(d.amt)}</span><span>${d.src === 'auto' ? 'SePay tự động' : d.src === 'claim' ? 'duyệt tay' : 'chủ web nhập'}</span><span>${dt(d.at)}</span></div>${d.msg ? `<div class="msg">${esc(d.msg)}</div>${d.reply ? `<div class="msg" style="border-left:3px solid #FACD33">👑 Chủ web: ${esc(d.reply)}</div>` : `<div class="acts"><input data-reply-in="${d.id}" placeholder="Trả lời lời nhắn này…" style="flex:1"><button class="sm" data-dreply="${d.id}">Trả lời</button></div>`}` : ''}</div>`).join('') || '<p class="muted">Tháng này chưa có khoản ủng hộ nào.</p>');
+    `<h2 style="font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:16px 0 8px">💛 Khoản ủng hộ đã nhận</h2>` + ((dd.list || []).slice(0, 30).map(d => `<div class="it"><div class="meta"><b>${d.hide ? 'Ẩn danh' : esc(d.name || 'Ẩn danh')}</b><span>${vnd(d.amt)}</span><span>${d.src === 'auto' ? 'SePay tự động' : d.src === 'claim' ? 'duyệt tay' : 'chủ web nhập'}</span><span>${dt(d.at)}</span></div>${d.msg ? `<div class="msg">${esc(d.msg)}</div>${d.reply ? `<div class="msg" style="border-left:3px solid var(--y1)">👑 Chủ web: ${esc(d.reply)}</div>` : `<div class="acts"><input data-reply-in="${d.id}" placeholder="Trả lời lời nhắn này…" style="flex:1"><button class="sm" data-dreply="${d.id}">Trả lời</button></div>`}` : ''}</div>`).join('') || '<p class="muted">Tháng này chưa có khoản ủng hộ nào.</p>');
 }
 async function go(t) {
   tab = t; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));

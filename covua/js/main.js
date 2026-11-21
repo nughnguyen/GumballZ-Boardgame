@@ -6,7 +6,7 @@ import { PUZZLES } from './puzzles.js?v=2';
 import { POOLS, LEVELS, puzzleFor, indexOf as levelIndexOf, nextPuzzle, byId as levelById } from './levels.js?v=1';
 import { DAILY, START as D_START } from './daily.js?v=1';
 import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { promptBox } from '../../shared/ui/dialog.js?v=9';
+import { promptBox } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet({
   game: 'covua', min: 2, max: 2, maxSeats: 10, allowLocal: true, minMsg: 'Cờ vua cần 2 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',

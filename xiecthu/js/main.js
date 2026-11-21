@@ -3,7 +3,7 @@ import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast, confirmBox } from '../../shared/ui/dialog.js?v=9';
+import { toast, confirmBox } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);
 const { TOONS } = E;

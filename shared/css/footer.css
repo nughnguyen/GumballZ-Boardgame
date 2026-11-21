@@ -1,27 +1,27 @@
 /* Footer chung GumballZ Boardgame (.gmf) — component riêng (patch 20261119-24).
    Trước đây khối CSS này được dán inline vào 64 trang; giờ chỉ còn ở đây. */
-.gmf{margin:40px 0 0;background:#241A38;color:#FFF8EE;font:600 15px/1.6 Nunito,system-ui,sans-serif}
-.gmf a{color:#FFF8EE}
-.gmf-band{background:#FFE3A3;border-top:2px solid #241A38;border-bottom:2px solid #241A38;color:#241A38}
+.gmf{margin:40px 0 0;background:var(--foot-bg);color:var(--foot-text);font:600 15px/1.6 Nunito,system-ui,sans-serif}
+.gmf a{color:var(--foot-text)}
+.gmf-band{background:#FFE3A3;border-top:2px solid var(--on-accent);border-bottom:2px solid var(--on-accent);color:var(--on-accent)}
 .gmf-band-in{max-width:1020px;margin:0 auto;padding:26px 18px;display:flex;align-items:center;gap:24px;justify-content:space-between}
 .gmf-band h2{margin:0;font:800 30px/1.15 "Baloo 2",Nunito,sans-serif;letter-spacing:.5px}
 .gmf-band p{margin:6px 0 0;font-size:15px;font-weight:800}
-.gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:#FACD33;color:#241A38;text-decoration:none;font:400 17px/1.2 "Baloo 2",Nunito,sans-serif;border:2px solid #241A38;box-shadow:4px 4px 0 #241A38;transition:background .15s ease,transform .15s ease,box-shadow .15s ease;box-sizing:border-box}
-.gmf-cta:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #241A38}
-.gmf-cta:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
+.gmf-cta{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:12px 30px;border-radius:999px;background:var(--y1);color:var(--on-accent);text-decoration:none;font:400 17px/1.2 "Baloo 2",Nunito,sans-serif;border:2px solid var(--on-accent);box-shadow:var(--sh);transition:background .15s ease,transform .15s ease,box-shadow .15s ease;box-sizing:border-box}
+.gmf-cta:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--shc)}
+.gmf-cta:active{transform:translate(2px,2px);box-shadow:var(--sh-1px)}
 .gmf-in{max-width:1020px;margin:0 auto;padding:40px 18px 18px;display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px 36px}
 .gmf-logo{display:flex;align-items:center;gap:10px;text-decoration:none;transition:transform .15s ease}
 .gmf-logo:hover{transform:translateY(-2px)}
 .gmf-logo svg{width:56px;height:56px;flex:none;transition:transform .15s ease}
 .gmf-logo:hover svg{transform:rotate(8deg)}
-.gmf-name{font:800 22px/1.15 "Baloo 2",Nunito,sans-serif;letter-spacing:.5px;color:#FFF8EE}
-.gmf-name em{display:block;font-style:normal;font-size:11px;letter-spacing:5px;color:#241A38;background:#FACD33;border-radius:999px;padding:2px 10px;margin-top:4px;width:max-content}
-.gmf-brand p{margin:14px 0 16px;font-size:14px;font-weight:700;color:#DCD5EE;max-width:340px}
+.gmf-name{font:800 22px/1.15 "Baloo 2",Nunito,sans-serif;letter-spacing:.5px;color:var(--foot-text)}
+.gmf-name em{display:block;font-style:normal;font-size:11px;letter-spacing:5px;color:var(--on-accent);background:var(--y1);border-radius:999px;padding:2px 10px;margin-top:4px;width:max-content}
+.gmf-brand p{margin:14px 0 16px;font-size:14px;font-weight:700;color:var(--foot-muted);max-width:340px}
 .gmf-chips{display:flex;flex-wrap:wrap;gap:10px}
-.gmf-chips a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:#FFFDF9;color:#241A38;border:2px solid #241A38;box-shadow:2px 2px 0 #241A38;text-decoration:none;font-size:14px;font-weight:800;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
-.gmf-chips a:hover{background:#2EC5B6;transform:translate(-1px,-1px);box-shadow:3px 3px 0 #241A38}
-.gmf-chips a:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #241A38}
-.gmf-chips a.donate{background:#FACD33}
+.gmf-chips a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border-radius:999px;background:var(--card);color:var(--ink);border:2px solid var(--ink);box-shadow:var(--sh-xs);text-decoration:none;font-size:14px;font-weight:800;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
+.gmf-chips a:hover{background:var(--p2);color:var(--on-accent);transform:translate(-1px,-1px);box-shadow:var(--sh-sm)}
+.gmf-chips a:active{transform:translate(1px,1px);box-shadow:var(--sh-1px)}
+.gmf-chips a.donate{background:var(--y1);color:var(--on-accent)}
 .gmf-chips a.donate:hover{background:#FFD94D}
 /* Nút mạng xã hội kiểu Uiverse imtausef/fuzzy-dragon-2 (patch -114, thay
    horrible-stingray-49): mỗi nút = ô vuông 55×55 với 5 lớp span xếp chồng
@@ -44,15 +44,15 @@
 .gmf-tip:hover .gmf-tip-card{top:-150px;opacity:1;visibility:visible;pointer-events:auto}
 .gmf-tip:first-child .gmf-tip-card{left:0;transform:none}
 .gmf-tip:last-child .gmf-tip-card{left:auto;right:0;transform:none}
-.gmf-tip-prof{background:#241A38;border-radius:10px 15px 10px 15px;padding:10px;border:1px solid var(--tip);box-shadow:5px 5px 15px rgba(0,0,0,.3)}
+.gmf-tip-prof{background:var(--foot-bg);border-radius:10px 15px 10px 15px;padding:10px;border:1px solid var(--tip);box-shadow:5px 5px 15px rgba(0,0,0,.3)}
 .gmf-tip-user{display:flex;gap:10px;align-items:center}
-.gmf-tip-img{width:50px;height:50px;flex:none;position:relative;overflow:hidden;font-size:22px;font-weight:800;border:1px solid var(--tip);border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;color:#241A38}
+.gmf-tip-img{width:50px;height:50px;flex:none;position:relative;overflow:hidden;font-size:22px;font-weight:800;border:1px solid var(--tip);border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--on-accent)}
 .gmf-tip-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.gmf-tip-det{display:flex;flex-direction:column;gap:2px;color:#FFF8EE;min-width:0}
-.gmf-tip-name{font-size:16px;font-weight:800;color:#FFF8EE;white-space:nowrap}
-.gmf-tip-handle{font-size:13px;font-weight:700;color:#DCD5EE;white-space:nowrap}
+.gmf-tip-det{display:flex;flex-direction:column;gap:2px;color:var(--foot-text);min-width:0}
+.gmf-tip-name{font-size:16px;font-weight:800;color:var(--foot-text);white-space:nowrap}
+.gmf-tip-handle{font-size:13px;font-weight:700;color:var(--foot-muted);white-space:nowrap}
 .gmf-tip-btn{display:block}
-.gmf-tip-icon{display:block;text-decoration:none;color:#FFF8EE;position:relative}
+.gmf-tip-icon{display:block;text-decoration:none;color:var(--foot-text);position:relative}
 .gmf-tip-layer{width:55px;height:55px;transition:transform .3s ease;position:relative}
 .gmf-tip-icon:hover .gmf-tip-layer{transform:rotate(-35deg) skew(20deg)}
 .gmf-tip-layer span{position:absolute;top:0;left:0;height:100%;width:100%;border:1px solid var(--tip);border-radius:5px;transition:all .3s ease}
@@ -63,38 +63,38 @@
 .gmf-tip-layer span:nth-child(5){opacity:1;transform:translate(20px,-20px)}
 .gmf-tip-fab{display:flex;align-items:center;justify-content:center;background:#000;color:var(--tip)}
 .gmf-tip-fab svg{width:28px;height:28px;fill:currentColor}
-.gmf-tip-label{margin-top:8px;text-align:center;font-size:13px;font-weight:800;color:#FFF8EE;white-space:nowrap;transition:color .2s ease}
+.gmf-tip-label{margin-top:8px;text-align:center;font-size:13px;font-weight:800;color:var(--foot-text);white-space:nowrap;transition:color .2s ease}
 .gmf-tip-icon:hover .gmf-tip-label{color:var(--tip)}
 @media (prefers-reduced-motion:reduce){.gmf-tip-card,.gmf-tip-layer,.gmf-tip-layer span{transition:none}}
-.gmf h3{margin:4px 0 8px;font:800 14px/1.3 "Baloo 2",Nunito,sans-serif;color:#fff;letter-spacing:.5px;display:inline-block;background:#FF5A60;border-radius:999px;padding:4px 12px}
+.gmf h3{margin:4px 0 8px;font:800 14px/1.3 "Baloo 2",Nunito,sans-serif;color:var(--on-accent);letter-spacing:.5px;display:inline-block;background:var(--p1);border-radius:999px;padding:4px 12px}
 /* Link nav footer kiểu Uiverse WhiteNervosa/popular-ladybug-27 (patch -126):
    gạch chân vàng mọc TỪ GIỮA lan ra 2 bên (width + left, 400ms,
    cubic-bezier(0.25,0.8,0.25,1)), chữ sáng lên khi hover/focus; gạch giữ
    màu vàng #FACD33 của web thay vì trắng #fff của gốc. Hover dùng
    left:12px + width:calc(100% - 24px) để gạch ôm đúng chiều rộng chữ
    (link có padding ngang 12px), thay vì 100%/0% của gốc. */
-.gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative;color:#FFF8EE;transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:color}
+.gmf nav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:700;position:relative;color:var(--foot-text);transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:color}
 .gmf nav a:focus,.gmf nav a:hover{color:#fff}
-.gmf nav a::after{content:"";pointer-events:none;bottom:8px;left:50%;position:absolute;width:0%;height:2px;background-color:#FACD33;transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:width,left}
+.gmf nav a::after{content:"";pointer-events:none;bottom:8px;left:50%;position:absolute;width:0%;height:2px;background-color:var(--y1);transition-timing-function:cubic-bezier(0.25,0.8,0.25,1);transition-duration:400ms;transition-property:width,left}
 .gmf nav a:focus::after,.gmf nav a:hover::after{width:calc(100% - 24px);left:12px}
-.gmf-bot{max-width:1020px;margin:14px auto 0;padding:16px 18px 22px;border-top:1px solid #5A4E7A;display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:#DCD5EE}
+.gmf-bot{max-width:1020px;margin:14px auto 0;padding:16px 18px 22px;border-top:1px solid var(--foot-line);display:flex;flex-wrap:wrap;gap:2px 20px;justify-content:space-between;font-size:13.5px;font-weight:700;color:var(--foot-muted)}
 /* .gmf-note: chỉ còn dùng ở footer tĩnh của các trang hướng dẫn (huong-dan/),
    component footer đã bỏ dòng disclaimer nên không còn render span này nữa. */
-.gmf-note{flex-basis:100%;font-size:12.5px;font-weight:600;color:#DCD5EE}
+.gmf-note{flex-basis:100%;font-size:12.5px;font-weight:600;color:var(--foot-muted)}
 /* Nút về đầu trang (.gmf-top): nút tròn fixed góc phải dưới, vòng tiến độ SVG
    (đỏ #FF5A60) chạy quanh nút theo % đã cuộn. Đặt bên phải để tránh tab 💬
    worldchat (fixed bên trái, .wc-tab); trên mobile (≤1150px) nâng lên khỏi
    thanh tab dưới cùng (tabbar cao ~64px + safe-area). Vòng: r=24 → chu vi
    C = 2π×24 ≈ 150.8; dashoffset = C×(1 − p) — ở 50% trang offset = C/2
    nên vòng chạy đúng 1/2 nút. Ẩn khi chưa cuộn (hiện sau ~400px). */
-.gmf-top{position:fixed;right:16px;bottom:20px;z-index:55;width:56px;height:56px;padding:0;border:2px solid #241A38;border-radius:50%;background:#FACD33;color:#241A38;text-align:center;cursor:pointer;box-shadow:4px 4px 0 #241A38;opacity:0;visibility:hidden;transform:translateY(8px) scale(.9);transition:opacity .2s ease,transform .2s ease,visibility .2s,box-shadow .15s ease,background .15s ease}
+.gmf-top{position:fixed;right:16px;bottom:20px;z-index:55;width:56px;height:56px;padding:0;border:2px solid var(--on-accent);border-radius:50%;background:var(--y1);color:var(--on-accent);text-align:center;cursor:pointer;box-shadow:var(--sh);opacity:0;visibility:hidden;transform:translateY(8px) scale(.9);transition:opacity .2s ease,transform .2s ease,visibility .2s,box-shadow .15s ease,background .15s ease}
 .gmf-top.on{opacity:1;visibility:visible;transform:none}
 .gmf-top:hover{background:#FFD94D}
-.gmf-top:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
-.gmf-top:focus-visible{outline:3px solid #2EC5B6;outline-offset:2px}
+.gmf-top:active{transform:translate(2px,2px);box-shadow:var(--sh-1px)}
+.gmf-top:focus-visible{outline:3px solid var(--p2);outline-offset:2px}
 .gmf-top-ring{position:absolute;left:-2px;top:-2px;width:56px;height:56px;transform:rotate(-90deg);pointer-events:none}
-.gmf-top-track{fill:none;stroke:rgba(36,26,56,.14);stroke-width:3}
-.gmf-top-prog{fill:none;stroke:#FF5A60;stroke-width:3;stroke-linecap:round}
+.gmf-top-track{fill:none;stroke:var(--track);stroke-width:3}
+.gmf-top-prog{fill:none;stroke:var(--p1);stroke-width:3;stroke-linecap:round}
 .gmf-top-arrow{display:block;font:800 24px/1 "Baloo 2",Nunito,sans-serif;transform:translateY(-1px)}
 @media(max-width:1150px){.gmf-top{bottom:calc(84px + env(safe-area-inset-bottom))}}
 @media (prefers-reduced-motion:reduce){.gmf-top{transition:none}.gmf nav a,.gmf nav a::after{transition:none}}

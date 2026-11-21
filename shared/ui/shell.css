@@ -1,6 +1,6 @@
 /* 🧩 Khung chung GumballZ – nạp ở MỌI trang (trang chủ, trang phụ, từng game):
    chuyển trang mượt, nút "GumballZ" về trang chủ, hiệu ứng nhấn nút. */
-@import url("neo.css?v=19"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
+@import url("neo.css?v=20"); /* theme Neo-Brutalism dùng chung: trang chủ, shell, sảnh, dialog – không đụng bàn chơi trong game */
 @view-transition{navigation:auto}
 ::view-transition-old(root){animation:.16s ease-in both gumballz-vt-out}
 ::view-transition-new(root){animation:.26s cubic-bezier(.2,.9,.3,1) both gumballz-vt-in}
@@ -10,7 +10,7 @@
 
 
 /* nút về trang chủ: giống nhau ở mọi game và trang phụ */
-.gumballz-chip{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:5px 14px 5px 6px!important;min-height:40px!important;box-sizing:border-box!important;border-radius:999px!important;background:#FFFDF9!important;color:#4A3E5C!important;font:800 15.5px/1 "Baloo 2",Nunito,system-ui,sans-serif!important;letter-spacing:.5px!important;text-decoration:none!important;text-shadow:none!important;border:1.5px solid #4A3E5C1a!important;box-shadow:3px 3px 0 rgba(74,62,92,.20)!important;transition:transform .15s!important;width:auto!important}
+.gumballz-chip{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:5px 14px 5px 6px!important;min-height:40px!important;box-sizing:border-box!important;border-radius:999px!important;background:var(--card)!important;color:var(--ink2)!important;font:800 15.5px/1 "Baloo 2",Nunito,system-ui,sans-serif!important;letter-spacing:.5px!important;text-decoration:none!important;text-shadow:none!important;border:1.5px solid var(--line)!important;box-shadow:3px 3px 0 var(--sh-soft)!important;transition:transform .15s!important;width:auto!important}
 .gumballz-chip img{width:26px;height:26px;display:block;transition:transform .3s cubic-bezier(.2,1.6,.4,1)}
 .gumballz-chip:hover{transform:translateY(-1px)}.gumballz-chip:hover img{transform:rotate(14deg) scale(1.1)}
 .gumballz-chip:active{transform:scale(.96)}
@@ -18,7 +18,7 @@
 /* cảm giác nhấn: mọi nút lún nhẹ khi bấm (game nào có hiệu ứng riêng thì vẫn giữ) */
 @media (hover:hover){button:not(:disabled),a.btn,.btn{-webkit-tap-highlight-color:transparent}}
 button,a,.tile{-webkit-tap-highlight-color:transparent}
-:focus-visible{outline:3px solid #4A3E5C;outline-offset:2px;border-radius:8px}
+:focus-visible{outline:3px solid var(--ink2);outline-offset:2px;border-radius:8px}
 @media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
 
 /* 🧈 đang cuộn (feel.js gắn html.gumballz-scroll): tạm dừng hoạt ảnh CSS cho cuộn mượt */

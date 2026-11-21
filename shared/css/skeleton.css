@@ -12,9 +12,9 @@
 .sk-pill{border-radius:999px}
 .sk-lines{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0;width:100%}
 /* Hàng phòng (trang chủ #rooms-list + sảnh .lb-rooms): khớp .room-card/.lb-room – tròn 40 + 2 dòng + pill */
-.sk-room{display:flex;align-items:center;gap:12px;min-width:0;padding:14px 4px;min-height:58px;border-bottom:2px dashed #E5DCC8}
+.sk-room{display:flex;align-items:center;gap:12px;min-width:0;padding:14px 4px;min-height:58px;border-bottom:2px dashed var(--line)}
 .sk-room:last-child{border-bottom:0}
-.sk-player{display:flex;align-items:center;gap:10px;min-height:56px;padding:5px 8px;border-radius:14px;background:#f3f7ff;list-style:none}
+.sk-player{display:flex;align-items:center;gap:10px;min-height:56px;padding:5px 8px;border-radius:14px;background:var(--card);list-style:none}
 /* Dòng bảng tỉ lệ (shop #drop-table li) */
 .sk-drop{display:flex;align-items:center;gap:8px;padding:6px 0;list-style:none}
 .sk-drop .sk-line{flex:1}

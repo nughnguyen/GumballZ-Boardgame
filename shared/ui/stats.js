@@ -1302,7 +1302,7 @@ export function record(game, won, extra = [], info = {}) {
   const up = level(t); const msgs = []; if (up.lv > before) { msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`); for (const p of LOCKED_PARTS.filter(x => x.lv > before && x.lv <= up.lv)) msgs.push(`🔓 Mở khóa ${itemLabel(p.k, p.v)}`); } /* 🧸 linh kiện mở theo cấp: cấp suy ra từ XP nên không cần lưu riêng — đủ cấp là mở, kể cả khi lên nhiều cấp cùng lúc */
   if (xuEarned > 0) msgs.push(`🪙 +${xuEarned} xu vào ví`);
   if (fresh.length) setTimeout(() => import('./achpop.js?v=1').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
-  if (msgs.length) import('./dialog.js?v=9').then(m => msgs.forEach((x, i) => setTimeout(() => m.toast(x, 3600), 1800 + i * 3800))).catch(() => {});
+  if (msgs.length) import('./dialog.js?v=10').then(m => msgs.forEach((x, i) => setTimeout(() => m.toast(x, 3600), 1800 + i * 3800))).catch(() => {});
   return fresh;
 }
 /* ghi sự kiện trong ván (Bắn Tàu, Ô Ăn Quan, Cờ Caro, TicTacToe và Memory dùng): chìm tàu, chuỗi trúng, dùng vật phẩm, ăn Quan, ăn dây, cứu dân, thắng nhanh… – không đổi số ván/thắng */

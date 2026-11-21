@@ -10,6 +10,14 @@
    theo URL của chính file này (shared/ui/topbar.js) nên './x.js' đã đúng ở mọi
    độ sâu — không cộng tiền tố P cho import. */
 (function () {
+  /* patch -130: chế độ tối — áp theme SỚM (trước khi vẽ trang) để không chớp sáng:
+     đọc localStorage 'gumballz-theme', chưa chọn thì theo hệ thống. Logic đầy đủ
+     (toggle/meta/theo hệ thống) ở shared/ui/theme.js, nạp động bên dưới. */
+  try {
+    var __t = localStorage.getItem('gumballz-theme');
+    if (!__t) __t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', __t);
+  } catch (e) {}
   var parts = location.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
   if (parts.length && parts[parts.length - 1].indexOf('.') !== -1) parts.pop(); // bỏ tên file nếu có
   var depth = parts.length;
@@ -37,7 +45,7 @@
     '<button type="button" data-donate>Ủng hộ</button>' +
     '<i class="nav-ind" aria-hidden="true"></i>' +
     '</nav>' +
-    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="loginbtn" id="btn-login" type="button" aria-label="Điểm danh hằng ngày — nhận xu" title="Điểm danh hằng ngày">🎁<i class="lg-dot" id="lg-dot" hidden></i></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><span id="acct"></span></div>' +
+    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="loginbtn" id="btn-login" type="button" aria-label="Điểm danh hằng ngày — nhận xu" title="Điểm danh hằng ngày">🎁<i class="lg-dot" id="lg-dot" hidden></i></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><button class="themebtn" id="btn-theme" type="button" aria-label="Chuyển sang chế độ tối" title="Chế độ tối">🌙</button><span id="acct"></span></div>' + /* patch -130: nút chuyển chế độ tối (icon do theme.js đồng bộ) */
     '</div></header>';
 
   var tabHome = isHome
@@ -67,9 +75,18 @@
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */
-  import('./account.js?v=52').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
+  /* patch -130: chế độ tối — theme.js tự áp theme + nối nút #btn-theme + theo hệ thống.
+     Icon nút đồng bộ ngay tại đây để đúng từ lần vẽ đầu (theme.js nạp động có thể về sau). */
+  (function () {
+    var b = document.getElementById('btn-theme');
+    if (b && document.documentElement.getAttribute('data-theme') === 'dark') {
+      b.textContent = '☀️'; b.setAttribute('aria-label', 'Chuyển sang chế độ sáng'); b.setAttribute('title', 'Chế độ sáng');
+    }
+  })();
+  import('./theme.js?v=1').catch(function () {});
+  import('./account.js?v=53').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
-  import('./profile.js?v=55').then(function (m) {
+  import('./profile.js?v=56').then(function (m) {
     m.profileCss();
     var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
     var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
@@ -82,13 +99,13 @@
     addEventListener('gumballz-wallet', dx);
   }).catch(function () {});
   // điểm danh hằng ngày: nút 🎁 (module tự chèn CSS + modal, tự mở 1 lần/ngày ở trang chủ)
-  import('./daily-login.js?v=2').then(function (m) { m.mountDailyLogin(document.getElementById('btn-login')); }).catch(function () {});
+  import('./daily-login.js?v=3').then(function (m) { m.mountDailyLogin(document.getElementById('btn-login')); }).catch(function () {});
   // cài đặt
   var setBtn = document.getElementById('btn-set');
-  if (setBtn) setBtn.onclick = function () { import('./settings.js?v=47').then(function (m) { m.openSettings(); }).catch(function () {}); };
+  if (setBtn) setBtn.onclick = function () { import('./settings.js?v=48').then(function (m) { m.openSettings(); }).catch(function () {}); };
   // xếp hạng / Trang chủ: nối cho cả nút trên nav (có sẵn lúc parse) lẫn nút
   // ở tab dưới (chèn sau DOMContentLoaded — xem wireTabbar trong addTab).
-  function openRank() { import('./leaderboard.js?v=35').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
+  function openRank() { import('./leaderboard.js?v=37').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
   function goHomeTop() { scrollTo({ top: 0, behavior: 'smooth' }); }
   function wireRankBtn(b) { b.onclick = openRank; }
   function wireHomeBtn(b) { b.onclick = goHomeTop; }
@@ -97,7 +114,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=55').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=56').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;
@@ -134,7 +151,7 @@
      Nút mở modal (Xếp hạng, Hồ sơ, Ủng hộ, Cài đặt) không rời trang nên không bị chặn. */
   var leaveMod = null, leaveConfirm = null;
   window.__gumballzTopbar = { inMatch: function () { return leaveMod ? leaveMod.inMatch(document) : false; } }; /* hook cho test */
-  Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=9')]).then(function (ms) {
+  Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=10')]).then(function (ms) {
     leaveMod = ms[0]; leaveConfirm = ms[1].confirmBox;
     window.__gumballzTopbar.leaveMatch = function () { return leaveMod.leaveMatch(document); };
   }).catch(function () {});

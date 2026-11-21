@@ -1,6 +1,6 @@
 // Nút "🏠 Trang chủ" trong hộp thoại "Rời ván/bàn/làng?" của mọi game:
 // bấm → chạy đúng thủ tục rời của game (bấm hộ nút Rời), rồi về trang chủ GumballZ.
-// Dùng: <script type="module" src="../shared/ui/homebtn.js?v=70"></script>
+// Dùng: <script type="module" src="../shared/ui/homebtn.js?v=71"></script>
 const HOME = '../';
 const isLeaveBtn = b => !b.dataset.home && (/^(m-leave|m-quit)$/.test(b.id) || /^\s*(🚪\s*)?Rời/.test(b.textContent || ''));
 
@@ -43,14 +43,14 @@ function homeAnchor() {
 }
 
 // 💌 Góp ý / ☕ Ủng hộ: thêm link vào chân trang của game (dùng shared/ui/feedback.js)
-import('./feedback.js?v=35').then(() => {
+import('./feedback.js?v=37').then(() => {
   const a = homeAnchor();
   const box = document.createElement('p'); box.className = 'gumballz-fbline';
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';
   box.innerHTML = '<a href="#" data-rank style="color:inherit">🏆 Bảng xếp hạng</a> · <a href="#" data-profile style="color:inherit">🏅 Hồ sơ</a> · <a href="#" data-friends style="color:inherit">🤝 Bạn bè</a> · <a href="#" data-feedback style="color:inherit">💌 Góp ý</a> · <a href="#" data-donate style="color:inherit">☕ Ủng hộ</a>';
-  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=35').then(m => m.openLeaderboard(GAME)); };
-  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=55').then(m => m.openProfile()); };
-  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=36').then(m => m.openFriends()); };
+  box.querySelector('[data-rank]').onclick = e => { e.preventDefault(); import('./leaderboard.js?v=37').then(m => m.openLeaderboard(GAME)); };
+  box.querySelector('[data-profile]').onclick = e => { e.preventDefault(); import('./profile.js?v=56').then(m => m.openProfile()); };
+  box.querySelector('[data-friends]').onclick = e => { e.preventDefault(); import('./friends.js?v=37').then(m => m.openFriends()); };
   if (!a) return;
   if (a.mode === 'footer') a.el.after(box);
   else a.el.append(box);
@@ -84,12 +84,12 @@ try {
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:10px 0 4px';
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
-  mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=60').then(m => m.openMatchmaking(GAME));
+  mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid var(--on-accent);border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:var(--on-accent);background:#FFB98A;box-shadow:3px 3px 0 var(--sh-soft-sm);padding:0 12px';
+  mm.onclick = () => import('./lobby.js?v=61').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
-  b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=60').then(m => m.openLobby(GAME));
+  b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid var(--on-accent);border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:var(--on-accent);background:#FFB9CF;box-shadow:3px 3px 0 var(--sh-soft-sm);padding:0 12px';
+  b.onclick = () => import('./lobby.js?v=61').then(m => m.openLobby(GAME));
   row.append(mm, b);
   if (a.mode === 'footer') a.el.before(row);
   else a.el.append(row);
@@ -110,8 +110,8 @@ function pubToggle() {
   let saved = null; try { saved = sessionStorage.getItem(key); } catch (e) {}
   if (!w) {
     w = document.createElement('label'); w.id = 'gumballz-pub';
-    w.style.cssText = 'display:flex;align-items:center;gap:10px;margin:10px auto;max-width:420px;padding:10px 14px;border-radius:16px;background:#FFE3A3;border:2px solid #4A3E5C;color:#4A3E5C;font:700 14px/1.35 Nunito,system-ui,sans-serif;cursor:pointer;text-align:left';
-    w.innerHTML = '<input type="checkbox" style="width:22px;height:22px;flex:none;accent-color:#4A3E5C"><span><b>🌐 Công khai phòng</b><br><small style="font-weight:600;opacity:.85">Hiện ở Sảnh chung để người lạ vào chơi cùng. Tắt = chỉ ai có mã/link mới vào được.</small></span>';
+    w.style.cssText = 'display:flex;align-items:center;gap:10px;margin:10px auto;max-width:420px;padding:10px 14px;border-radius:16px;background:#FFE3A3;border:2px solid var(--on-accent);color:var(--on-accent);font:700 14px/1.35 Nunito,system-ui,sans-serif;cursor:pointer;text-align:left';
+    w.innerHTML = '<input type="checkbox" style="width:22px;height:22px;flex:none;accent-color:var(--ink2)"><span><b>🌐 Công khai phòng</b><br><small style="font-weight:600;opacity:.85">Hiện ở Sảnh chung để người lạ vào chơi cùng. Tắt = chỉ ai có mã/link mới vào được.</small></span>';
     anchor.after(w);
     w.querySelector('input').onchange = e => { const on = e.target.checked; try { sessionStorage.setItem(key, on ? '1' : '0'); sessionStorage.removeItem('gumballz-pub-next'); } catch (x) {} host.setPublic(on); };
   }
@@ -151,7 +151,7 @@ function worldInviteBtn() {
   if (!b || b.previousElementSibling !== after) {
     if (b) b.remove();
     b = document.createElement('button'); b.id = 'gumballz-world-invite'; b.type = 'button';
-    b.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;min-height:44px;padding:8px 20px;border-radius:999px;border:0;cursor:pointer;color:#4A3E5C;font:400 15.5px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 8px 18px -8px rgba(255,185,138,.8)';
+    b.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;min-height:44px;padding:8px 20px;border-radius:999px;border:0;cursor:pointer;color:var(--on-accent);font:400 15.5px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);background:linear-gradient(90deg,#FFB98A,#FFB9CF);box-shadow:0 8px 18px -8px rgba(255,185,138,.8)';
     b.textContent = '📣 Mời lên kênh thế giới';
     b.onclick = async () => {
       if (b.disabled || b.dataset.busy === '1') return;
@@ -162,9 +162,9 @@ function worldInviteBtn() {
       b.dataset.busy = '';
       if (r && r.ok) {
         try { localStorage.setItem('gumballz-invite-' + h.game + '-' + c, String(Date.now())); } catch (e) {}
-        import('./dialog.js?v=9').then(m => m.toast('Đã mời lên kênh thế giới 📣')).catch(() => {});
+        import('./dialog.js?v=10').then(m => m.toast('Đã mời lên kênh thế giới 📣')).catch(() => {});
       } else {
-        import('./dialog.js?v=9').then(m => m.toast((r && r.msg) || 'Không mời được, thử lại sau nha.')).catch(() => {});
+        import('./dialog.js?v=10').then(m => m.toast((r && r.msg) || 'Không mời được, thử lại sau nha.')).catch(() => {});
         b.disabled = false; b.textContent = '📣 Mời lên kênh thế giới';
       }
     };

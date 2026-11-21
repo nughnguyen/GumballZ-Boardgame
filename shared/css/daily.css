@@ -1,20 +1,20 @@
 /* 📅 Thử thách hôm nay – CSS cho thẻ #daily ở trang chủ (cột phải hero, vị trí spotlight cũ).
    Dùng kèm shared/js/daily.js (renderDaily tự chèn file này nếu trang chưa có <link>;*/
-   nối dây chính thức thì thêm <link rel="stylesheet" href="shared/css/daily.css?v=3"> vào <head> index.html). */
-.daily{margin-top:0;padding:10px 10px 8px;border-radius:16px;background:#FFFDF9;border:3px solid #4A3E5C;box-shadow:3px 3px 0 rgba(74,62,92,.13);color:#4A3E5C}
+   nối dây chính thức thì thêm <link rel="stylesheet" href="shared/css/daily.css?v=4"> vào <head> index.html). */
+.daily{margin-top:0;padding:10px 10px 8px;border-radius:16px;background:var(--card);border:3px solid var(--ink2);box-shadow:3px 3px 0 var(--sh-soft-sm);color:var(--ink2)}
 .daily[hidden]{display:none}
 .daily.alldone{border-color:#ABE0C6}
 .dq-hd{display:flex;align-items:center;gap:8px;padding:0 4px 6px}
 .dq-hd i{font-style:normal;font-size:22px}
 .dq-hd b{font:400 16px "Bungee","Baloo 2",Nunito,sans-serif;flex:1}
-.dq-hd small{color:#8B7E9E;font-weight:800;font-size:12.5px}
+.dq-hd small{color:var(--muted);font-weight:800;font-size:12.5px}
 .dq-list{display:flex;flex-direction:column;gap:4px}
 .dq{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 4px;border-radius:12px;color:inherit;text-decoration:none;min-height:44px;transition:background .15s}
-.dq:hover{background:#FFF8EE}
-.dq img,.dq-emo{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:22px;background:#FFE3A3;border:2px solid #4A3E5C}
+.dq:hover{background:var(--bg)}
+.dq img,.dq-emo{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:22px;background:#FFE3A3;border:2px solid var(--ink2)}
 .dq-t{flex:1;min-width:0;line-height:1.2}
 .dq-t b{display:block;font:800 14.5px Nunito,sans-serif}
-.dq-t small{display:block;color:#8B7E9E;font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dq em{font-style:normal;flex:none;padding:5px 11px;border-radius:999px;color:#4A3E5C;background:linear-gradient(120deg,#FFE3A3,#FFB98A);font:800 13px Nunito,sans-serif;border:2px solid #4A3E5C}
-.dq.done em{background:#ABE0C6;color:#4A3E5C}
+.dq-t small{display:block;color:var(--muted);font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dq em{font-style:normal;flex:none;padding:5px 11px;border-radius:999px;color:var(--on-accent);background:linear-gradient(120deg,#FFE3A3,#FFB98A);font:800 13px Nunito,sans-serif;border:2px solid var(--on-accent)}
+.dq.done em{background:#ABE0C6;color:var(--on-accent)}
 .dq.done .dq-t b{color:#007A6E}

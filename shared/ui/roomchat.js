@@ -8,32 +8,32 @@ import { titlePillHtml, ensureTitleCSS } from './titlepill.js?v=2'; /* 🎖️ p
 const blockedIds = () => { try { return JSON.parse(localStorage.getItem('gumballz-blocked') || '[]') || []; } catch (e) { return []; } };
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const CSS = `
-.brc-tab{position:fixed;left:0;z-index:25;width:44px;height:46px;border:0;border-radius:0 16px 16px 0;background:#FFFDF9;box-shadow:0 8px 20px -8px rgba(74,62,92,.53),0 2px 6px rgba(74,62,92,.13);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 2px 0 0;touch-action:none;-webkit-tap-highlight-color:transparent}
+.brc-tab{position:fixed;left:0;z-index:25;width:44px;height:46px;border:0;border-radius:0 16px 16px 0;background:var(--card);box-shadow:0 8px 20px -8px var(--sh-soft),0 2px 6px var(--sh-soft-sm);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 2px 0 0;touch-action:none;-webkit-tap-highlight-color:transparent}
 .brc-tab[hidden],.brc-box[hidden],.brc-peek[hidden]{display:none}
 /* điện thoại / máy tính bảng: "tai" mép trái đè lên bàn chơi → nút tròn góc trái dưới, đối xứng với nút 😂 góc phải */
 @media (max-width:899px){.brc-tab{top:auto!important;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(var(--gumballz-dock,12px) + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;padding:0;touch-action:manipulation}.brc-peek{top:auto!important;left:calc(64px + env(safe-area-inset-left,0px));bottom:calc(var(--gumballz-dock,12px) + 6px + env(safe-area-inset-bottom,0px));max-width:min(240px,calc(100vw - 136px))}}
-.brc-tab b{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#FFB98A;color:#4A3E5C;font:800 11px/18px Nunito,sans-serif;padding:0 4px;box-sizing:border-box}
+.brc-tab b{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:#FFB98A;color:var(--on-accent);font:800 11px/18px Nunito,sans-serif;padding:0 4px;box-sizing:border-box}
 .brc-tab b:empty{display:none}
-.brc-peek{position:fixed;left:50px;z-index:25;max-width:min(260px,calc(100vw - 60px));background:#4A3E5C;color:#fff;border-radius:14px;padding:7px 11px;font:700 13px/1.3 Nunito,sans-serif;box-shadow:0 10px 24px -8px rgba(74,62,92,.66);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:brc-in .2s ease-out}
+.brc-peek{position:fixed;left:50px;z-index:25;max-width:min(260px,calc(100vw - 60px));background:var(--ink);color:var(--on-ink);border-radius:14px;padding:7px 11px;font:700 13px/1.3 Nunito,sans-serif;box-shadow:0 10px 24px -8px var(--overlay);pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;animation:brc-in .2s ease-out}
 .brc-peek i{font-style:normal;color:#FFE3A3;font-weight:800}
-.brc-box{position:fixed;left:8px;bottom:8px;z-index:95;width:min(340px,calc(100vw - 16px));height:min(420px,62vh);background:#FFF8EE;color:#4A3E5C;border-radius:20px;box-shadow:0 18px 40px -12px rgba(74,62,92,.66),0 2px 8px rgba(74,62,92,.13);display:flex;flex-direction:column;overflow:hidden;font:700 14px/1.35 Nunito,sans-serif;animation:brc-in .18s ease-out}
-.brc-head{display:flex;align-items:center;gap:8px;padding:9px 8px 9px 14px;background:linear-gradient(90deg,#FFB98A,#FFB9CF,#FFE3A3);color:#4A3E5C;font:400 15px/1 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
+.brc-box{position:fixed;left:8px;bottom:8px;z-index:95;width:min(340px,calc(100vw - 16px));height:min(420px,62vh);background:var(--bg);color:var(--ink2);border-radius:20px;box-shadow:0 18px 40px -12px var(--overlay),0 2px 8px var(--sh-soft-sm);display:flex;flex-direction:column;overflow:hidden;font:700 14px/1.35 Nunito,sans-serif;animation:brc-in .18s ease-out}
+.brc-head{display:flex;align-items:center;gap:8px;padding:9px 8px 9px 14px;background:linear-gradient(90deg,#FFB98A,#FFB9CF,#FFE3A3);color:var(--on-accent);font:400 15px/1 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .brc-head span{flex:1}
-.brc-head button{width:32px;height:32px;border:0;border-radius:50%;background:#ffffff33;color:#4A3E5C;font-size:16px;cursor:pointer}
+.brc-head button{width:32px;height:32px;border:0;border-radius:50%;background:#ffffff33;color:var(--on-accent);font-size:16px;cursor:pointer}
 .brc-head .brc-fr{width:auto;border-radius:999px;padding:0 11px;font:800 13px/1 Nunito,sans-serif;position:relative;white-space:nowrap}
-.brc-turn{border:0;min-height:40px;background:#FFD84D;color:#241A38;font:800 14px Nunito,sans-serif;cursor:pointer;animation:brc-tp 1s ease-in-out infinite alternate}@keyframes brc-tp{to{opacity:.7}}
+.brc-turn{border:0;min-height:40px;background:#FFD84D;color:var(--on-accent);font:800 14px Nunito,sans-serif;cursor:pointer;animation:brc-tp 1s ease-in-out infinite alternate}@keyframes brc-tp{to{opacity:.7}}
 .brc-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
-.brc-empty{margin:auto;text-align:center;color:#8B7E9E;font-weight:700}
-.brc-m{max-width:86%;align-self:flex-start;background:#FFFDF9;border-radius:14px 14px 14px 4px;padding:6px 10px;box-shadow:0 1px 3px rgba(74,62,92,.09);overflow-wrap:anywhere}
+.brc-empty{margin:auto;text-align:center;color:var(--muted);font-weight:700}
+.brc-m{max-width:86%;align-self:flex-start;background:var(--card);border-radius:14px 14px 14px 4px;padding:6px 10px;box-shadow:0 1px 3px rgba(74,62,92,.09);overflow-wrap:anywhere}
 .brc-m.me{align-self:flex-end;background:#ffe3d2;border-radius:14px 14px 4px 14px}
 .brc-m.vip{background:linear-gradient(135deg,#fff6d6,#ffe3f0);box-shadow:inset 0 0 0 1.5px #FFE3A3,0 2px 10px -3px #ff7ab899}
 .brc-m.vip small span{background:linear-gradient(90deg,#d97a00,#e0408a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .brc-m small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-weight:800;font-size:11.5px;color:#c2581f}
 .brc-add{border:0;background:#ffe9d6;color:#c2581f;border-radius:999px;padding:1px 6px;font:800 10.5px/1.35 Nunito,sans-serif;cursor:pointer}.brc-add:hover{filter:brightness(.95)}
-.brc-form{display:flex;gap:6px;padding:8px;background:#FFFDF9;border-top:1px solid #f0e4d8}
-.brc-form input{flex:1;min-width:0;border:2px solid #eadfd2;border-radius:999px;padding:8px 13px;font:700 16px/1.2 Nunito,sans-serif;color:#4A3E5C;background:#fffdfb;outline:none}
+.brc-form{display:flex;gap:6px;padding:8px;background:var(--card);border-top:1px solid #f0e4d8}
+.brc-form input{flex:1;min-width:0;border:2px solid #eadfd2;border-radius:999px;padding:8px 13px;font:700 16px/1.2 Nunito,sans-serif;color:var(--ink2);background:#fffdfb;outline:none}
 .brc-form input:focus{border-color:#FFB98A}
-.brc-form button{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:#FFB98A;color:#4A3E5C;font-size:18px;cursor:pointer}
+.brc-form button{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:#FFB98A;color:var(--ink2);font-size:18px;cursor:pointer}
 /* điện thoại: hộp chat gọn, nằm phía TRÊN màn hình – không che bài trên tay, và bàn phím bật lên cũng không che mất tin nhắn */
 @media (max-width:640px){.brc-box{left:8px;right:8px;top:8px;bottom:auto;width:auto;height:min(250px,34vh);border-radius:18px}.brc-head{padding:5px 6px 5px 12px;font-size:14px}.brc-head button{width:28px;height:28px;font-size:14px}.brc-list{padding:7px 8px;gap:4px}.brc-m{padding:4px 9px;font-size:13.5px}.brc-form{padding:6px}.brc-form input{padding:6px 12px}.brc-form button{width:44px;height:44px}}
 /* điện thoại xoay ngang: cột hẹp bên trái, cao hết màn hình */
@@ -104,7 +104,7 @@ function build() {
       const meU = auth.user();
       if (m.uid && (!meU || +m.uid !== meU.id)) {
         const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'brc-add'; ab.textContent = '＋ Kết bạn';
-        ab.onclick = () => import('./friends.js?v=36').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
+        ab.onclick = () => import('./friends.js?v=37').then(x => x.quickAddFriend({ id: +m.uid, username: m.uname, name: m.from }));
         s.appendChild(ab);
       }
       el.appendChild(s);

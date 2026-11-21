@@ -2,7 +2,7 @@
 // Dùng kèm shared/css/skeleton.css (ensureSkCSS nạp 1 lần). Mọi khối skeleton có class `sk`
 // + aria-hidden="true"; nội dung thật luôn thay thế toàn bộ innerHTML nên không chồng nhau.
 // import { ensureSkCSS, skRooms, skHot, skChat, skShop, skRanks, skPodium, skPlayers, skDrop } from '…/shared/ui/skeleton.js?v=1'
-const SK_CSS = new URL('../css/skeleton.css?v=1', import.meta.url).href;
+const SK_CSS = new URL('../css/skeleton.css?v=2', import.meta.url).href;
 export function ensureSkCSS() {
   if (document.getElementById('sk-css')) return;
   const l = document.createElement('link'); l.id = 'sk-css'; l.rel = 'stylesheet'; l.href = SK_CSS;

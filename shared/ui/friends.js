@@ -1,8 +1,8 @@
 // 🤝 Bạn bè & Nhắn tin 1-1 + Mời vào bàn (cần đăng nhập tài khoản GumballZ).
 import { auth, friends } from '../net/api.js?v=29';
 const amOwner = () => { const u = auth.user(); return !!(u && u.admin && u.owner); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) – patch -94: dùng cờ owner của máy chủ, không ghi cứng id 1 */
-import { openLogin } from './account.js?v=52';
-import { confirmBox } from './dialog.js?v=9';
+import { openLogin } from './account.js?v=53';
+import { confirmBox } from './dialog.js?v=10';
 import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 
 const ROOT = new URL('../../', import.meta.url).href;
@@ -20,49 +20,49 @@ const INV_RE = /\[invite:([a-z0-9]{2,16}):([A-Z0-9]{5})\]/g;
 
 const CSS = `.bf-ub{flex:none;border:0;border-radius:999px;background:#ffe9d6;color:#c2581f;font:800 12px/1 Nunito,sans-serif;padding:7px 11px;cursor:pointer}
 .bf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:12px}
-.bf-mod{width:min(760px,100%);height:min(620px,calc(100dvh - 24px));background:#fffaf3;color:#4A3E5C;border-radius:24px;box-shadow:0 24px 60px #0006;display:flex;flex-direction:column;overflow:hidden;font:600 14.5px/1.4 Nunito,system-ui,sans-serif}
+.bf-mod{width:min(760px,100%);height:min(620px,calc(100dvh - 24px));background:var(--card);color:var(--ink2);border-radius:24px;box-shadow:0 24px 60px #0006;display:flex;flex-direction:column;overflow:hidden;font:600 14.5px/1.4 Nunito,system-ui,sans-serif}
 .bf-mod *{box-sizing:border-box}
-.bf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#FFFDF9;border-bottom:1.5px solid #ecdfd0;flex-wrap:wrap}
+.bf-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--card);border-bottom:1.5px solid var(--line);flex-wrap:wrap}
 .bf-hd h2{margin:0;font:800 20px "Baloo 2",Nunito,sans-serif;flex:1;min-width:140px}
-.bf-tag{border:1.5px solid #ecdfd0;background:#fff6eb;color:#6b5f7a;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
-.bf-x{width:36px;height:36px;border-radius:50%;border:0;background:#f0e6da;color:#4A3E5C;font-size:17px;cursor:pointer;font-weight:800}
+.bf-tag{border:1.5px solid var(--line);background:#fff6eb;color:var(--muted);border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
+.bf-x{width:36px;height:36px;border-radius:50%;border:0;background:var(--line);color:var(--ink2);font-size:17px;cursor:pointer;font-weight:800}
 .bf-body{flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr}
-.bf-side{border-right:1.5px solid #ecdfd0;display:flex;flex-direction:column;min-height:0;background:#fff}
-.bf-add{display:flex;gap:6px;padding:10px;border-bottom:1.5px solid #ecdfd0}
-.bf-add input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:7px 12px;font:600 14px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
+.bf-side{border-right:1.5px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--card)}
+.bf-add{display:flex;gap:6px;padding:10px;border-bottom:1.5px solid var(--line)}
+.bf-add input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:999px;padding:7px 12px;font:600 14px Nunito,sans-serif;background:var(--card);color:var(--ink2)}
 .bf-add button{flex:none;border:0;border-radius:999px;padding:0 12px;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff;font:800 13.5px Nunito,sans-serif;cursor:pointer}
 .bf-list{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
-.bf-sec{font:800 12px Nunito,sans-serif;color:#8a7f96;text-transform:uppercase;padding:4px 6px 0}
-.bf-it{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;border:1.5px solid #f0e4d6;background:#fffaf3;cursor:pointer;text-align:left;width:100%}
+.bf-sec{font:800 12px Nunito,sans-serif;color:var(--muted);text-transform:uppercase;padding:4px 6px 0}
+.bf-it{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;border:1.5px solid #f0e4d6;background:var(--card);cursor:pointer;text-align:left;width:100%}
 .bf-it:hover{border-color:#ffb27a}.bf-it.on{border-color:#ff7a45;background:#fff0e4}
 .bf-av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font:800 15px "Baloo 2",Nunito,sans-serif}
 .bf-it .t{flex:1;min-width:0}
-.bf-it .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;color:#4A3E5C}
+.bf-it .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px;color:var(--ink2)}
 .bf-it .t small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#7b7391;font-size:12px}
 .bf-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 7px;font:800 11.5px Nunito,sans-serif}
 .bf-rbtns{display:flex;gap:4px;flex:none}
 .bf-rbtns button{border:0;border-radius:10px;padding:5px 8px;font:800 12px Nunito,sans-serif;cursor:pointer}
-.bf-rbtns .ok{background:#2fc76f;color:#fff}.bf-rbtns .no{background:#f0e6da;color:#4A3E5C}
+.bf-rbtns .ok{background:#2fc76f;color:var(--on-accent)}.bf-rbtns .no{background:var(--line);color:var(--ink2)}
 .bf-rm{border:0;background:none;color:#a095ae;font-size:14px;cursor:pointer;padding:4px 6px;border-radius:8px}
 .bf-rm:hover{background:#ffe5e8;color:#c0263b}
-.bf-chat{display:flex;flex-direction:column;min-height:0;background:#fffaf3}
-.bf-chd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#FFFDF9;border-bottom:1.5px solid #ecdfd0}
-.bf-bk{display:none;border:0;background:#f0e6da;color:#4A3E5C;border-radius:999px;padding:5px 10px;font:800 13px Nunito,sans-serif;cursor:pointer}
+.bf-chat{display:flex;flex-direction:column;min-height:0;background:var(--card)}
+.bf-chd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);border-bottom:1.5px solid var(--line)}
+.bf-bk{display:none;border:0;background:var(--line);color:var(--ink2);border-radius:999px;padding:5px 10px;font:800 13px Nunito,sans-serif;cursor:pointer}
 .bf-msgs{flex:1;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.bf-m{max-width:82%;align-self:flex-start;background:#FFFDF9;border-radius:14px 14px 14px 4px;padding:7px 11px;box-shadow:0 1px 3px #4A3E5C18;overflow-wrap:anywhere}
+.bf-m{max-width:82%;align-self:flex-start;background:var(--card);border-radius:14px 14px 14px 4px;padding:7px 11px;box-shadow:0 1px 3px var(--sh-soft-sm);overflow-wrap:anywhere}
 .bf-m.me{align-self:flex-end;background:#ffe3d2;border-radius:14px 14px 4px 14px}
-.bf-m time{display:block;font-size:11px;color:#8a7f96;margin-top:2px}
+.bf-m time{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 .bf-inv{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:6px 12px;border-radius:12px;background:linear-gradient(90deg,#2fc76f,#20a8a0);color:#fff;text-decoration:none;font:800 13px Nunito,sans-serif}
 .bf-inv:hover{filter:brightness(1.06)}
-.bf-in{display:flex;gap:6px;padding:8px 10px;background:#FFFDF9;border-top:1.5px solid #ecdfd0;align-items:center}
-.bf-in input{flex:1;min-width:0;border:1.5px solid #e2d4c4;border-radius:999px;padding:8px 13px;font:600 15px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
+.bf-in{display:flex;gap:6px;padding:8px 10px;background:var(--card);border-top:1.5px solid var(--line);align-items:center}
+.bf-in input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:999px;padding:8px 13px;font:600 15px Nunito,sans-serif;background:var(--card);color:var(--ink2)}
 .bf-in button{flex:none;border:0;border-radius:999px;min-height:38px;padding:0 14px;font:800 14px Nunito,sans-serif;cursor:pointer}
 .bf-in .send{background:#ff7a45;color:#fff}.bf-in .inv{background:#eafaf1;color:#147a44;border:1.5px solid #bce8cf}
-.bf-empty{margin:auto;text-align:center;color:#8a7f96;padding:24px 16px}
+.bf-empty{margin:auto;text-align:center;color:var(--muted);padding:24px 16px}
 .bf-login{padding:28px 20px;text-align:center;margin:auto;max-width:360px}
 .bf-login button{margin-top:12px;border:0;border-radius:999px;padding:11px 22px;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff;font:800 16px "Baloo 2",Nunito,sans-serif;cursor:pointer}
 .bf-pop-bg{position:fixed;inset:0;z-index:10001;background:transparent}
-.bf-pop{position:fixed;z-index:10002;width:min(280px,calc(100vw - 24px));background:#fffaf3;color:#4A3E5C;border:2px solid #f0dfd0;border-radius:20px;box-shadow:0 14px 36px #0004;padding:12px 14px;font:600 14px/1.4 Nunito,system-ui,sans-serif;animation:bfPop .14s ease-out}
+.bf-pop{position:fixed;z-index:10002;width:min(280px,calc(100vw - 24px));background:var(--card);color:var(--ink2);border:2px solid #f0dfd0;border-radius:20px;box-shadow:0 14px 36px #0004;padding:12px 14px;font:600 14px/1.4 Nunito,system-ui,sans-serif;animation:bfPop .14s ease-out}
 @keyframes bfPop{from{opacity:0;transform:scale(.94) translateY(4px)}to{opacity:1;transform:none}}
 .bf-pop-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .bf-pop-hd .t{flex:1;min-width:0}
@@ -74,7 +74,7 @@ const CSS = `.bf-ub{flex:none;border:0;border-radius:999px;background:#ffe9d6;co
 .bf-pop-btns .pri{background:linear-gradient(90deg,#ff4d5e,#ff9a3d);color:#fff}
 .bf-pop-btns .dm{background:#eafaf1;color:#147a44;border:1.5px solid #bce8cf}
 .bf-pop-btns .ok{background:#2fc76f;color:#fff}
-.bf-pop-btns .sub{background:#f0e6da;color:#4A3E5C}
+.bf-pop-btns .sub{background:var(--line);color:var(--ink2)}
 #plist li[data-id],#g-players .pl[data-id],#g-chat b[data-id],.item .by[data-id],.lb li[data-id],.final li[data-id],.pod[data-id],.gains li[data-id],.who li[data-id],#msgs .m b[data-id],.seat .avatar,.seat .av,[data-gumballz-pid]{cursor:pointer}
 @media (max-width:640px){
   .bf-body{grid-template-columns:minmax(0,1fr)}.bf-side,.bf-chat{min-width:0}.bf-list>*{min-width:0;max-width:100%}
@@ -99,7 +99,7 @@ function css() {
 }
 function toast(t) {
   const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:#4A3E5C;color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
+  d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;background:var(--ink2);color:#fff;padding:10px 18px;border-radius:999px;font:800 14.5px Nunito,sans-serif;box-shadow:0 8px 24px #0004;max-width:90vw;text-align:center';
   d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2600);
 }
 const AV = ['#ff4d5e', '#ff8a3d', '#2fc76f', '#20a8a0', '#3d8bff', '#C9BDF3', '#d94dff'];
@@ -368,7 +368,7 @@ function createFriendsPanel(root, initialUid = null) {
         const sub = p.uid ? `${p.uname ? '@' + esc(p.uname) + ' · ' : ''}#${uid6(p.uid)}` : 'Chơi khách (chưa đăng nhập)';
         const act = isFr ? `<div class="bf-rbtns"><button type="button" class="ok" data-open="${+p.uid}">💬 Nhắn</button></div>`
           : isIn ? `<div class="bf-rbtns"><button type="button" class="ok" data-act="accept" data-id="${+p.uid}">Đồng ý</button></div>`
-          : isOut ? '<small style="color:#8a7f96">Đã gửi</small>'
+          : isOut ? '<small style="color:var(--muted)">Đã gửi</small>'
           : p.uid ? `<div class="bf-rbtns"><button type="button" class="ok" data-room-add="${+p.uid}" data-uname="${esc(p.uname || '')}" data-nm="${esc(p.name)}">＋ Kết bạn</button></div>`
           : '';
         return `<div class="bf-it" ${isFr ? `data-open="${+p.uid}"` : 'style="cursor:default"'}><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}${p.host ? ' 👑' : ''}</b><small>${sub}</small></div>${act}</div>`;
@@ -384,7 +384,7 @@ function createFriendsPanel(root, initialUid = null) {
         const prev = f.last ? (INV_RE.test(f.last.msg) ? '🎲 Lời mời vào bàn' : f.last.msg) : (f.username ? '@' + f.username : '#' + f.id);
         INV_RE.lastIndex = 0;
         const bdgs = tierBadges(f);
-        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}${bdgs ? ' ' + bdgs : f.dm ? ' <small style="color:#8a7f96">· chưa kết bạn</small>' : ''}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
+        return `<div class="bf-it ${activeId === f.id ? 'on' : ''}" data-open="${f.id}"><span class="bf-av" style="background:${avCol(f.name)}">${esc([...f.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(f.name)}${bdgs ? ' ' + bdgs : f.dm ? ' <small style="color:var(--muted)">· chưa kết bạn</small>' : ''}</b><small>${esc(prev)}</small></div>${f.unread ? `<span class="bf-bdg">${f.unread}</span>` : ''}<button type="button" class="bf-rm" data-act="remove" data-id="${f.id}" data-nm="${esc(f.name)}" title="Xoá bạn">✕</button></div>`;
       }).join('');
     } else {
       html += '<div class="bf-empty" style="padding:14px 8px">Chưa có bạn bè nào.<br>Nhập <b>@tênđăngnhập</b> hoặc <b>#ID</b> ở trên, hoặc bấm <b>＋ Kết bạn</b> ngay trong chat phòng!</div>';
@@ -414,7 +414,7 @@ function createFriendsPanel(root, initialUid = null) {
     const room = activeRoom();
     if (!chatEl.querySelector('.bf-chd') || +chatEl.dataset.fid !== fr.id) {
       chatEl.dataset.fid = fr.id;
-      chatEl.innerHTML = `<div class="bf-chd"><button type="button" class="bf-bk">← Bạn bè</button><span class="bf-av" style="width:28px;height:28px;font-size:13px;background:${avCol(fr.name)}">${esc([...fr.name][0] || '?').toUpperCase()}</span><b style="flex:1">${esc(fr.name)}</b><small style="color:#8a7f96">${fr.username ? '@' + esc(fr.username) + ' · ' : ''}#${uid6(fr.id)}</small></div>
+      chatEl.innerHTML = `<div class="bf-chd"><button type="button" class="bf-bk">← Bạn bè</button><span class="bf-av" style="width:28px;height:28px;font-size:13px;background:${avCol(fr.name)}">${esc([...fr.name][0] || '?').toUpperCase()}</span><b style="flex:1">${esc(fr.name)}</b><small style="color:var(--muted)">${fr.username ? '@' + esc(fr.username) + ' · ' : ''}#${uid6(fr.id)}</small></div>
         <div class="bf-msgs"></div>
         <form class="bf-in"><input type="text" maxlength="400" placeholder="Nhắn ${esc(fr.name)}…" autocomplete="off">${room ? '<button type="button" class="inv" title="Gửi link mời vào bàn hiện tại">🎲 Mời bàn</button>' : ''}<button type="submit" class="send">Gửi</button></form>`;
       chatEl.querySelector('.bf-bk').onclick = () => { activeId = null; mod.dataset.chat = '0'; drawSide(); drawChat(); };

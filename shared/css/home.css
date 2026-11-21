@@ -18,11 +18,11 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .hero-title{margin:0 0 6px;font:800 clamp(30px,3.8vw,46px)/1.05 var(--font-display);color:var(--ink);letter-spacing:.2px}
 .hero-sub{margin:0 0 12px;font:700 15.5px/1.5 Nunito,sans-serif;color:var(--muted)}
 .play-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.play-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:48px;padding:9px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--y1);color:var(--ink);text-decoration:none;font-family:Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm);text-align:center;transition:transform .12s}
+.play-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:48px;padding:9px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--y1);color:var(--on-accent);text-decoration:none;font-family:Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm);text-align:center;transition:transform .12s}
 .play-card:nth-child(2){background:var(--y1)}
 .play-card:nth-child(3){background:var(--p2)}
 .play-card:hover{transform:translate(-1px,-1px)}
-.play-card:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #241A38}
+.play-card:active{transform:translate(2px,2px);box-shadow:var(--sh-1px)}
 .play-card b{font:400 18px/1.2 var(--font-display)}
 .play-card small{display:none}
 .code-card{grid-column:1/-1;background:var(--card)!important;cursor:default;align-items:stretch;text-align:left;padding:10px 14px}
@@ -34,7 +34,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .code-row input{flex:1;min-width:0;min-height:48px;font:800 18px Nunito,sans-serif;letter-spacing:3px;text-transform:uppercase;text-align:center;color:var(--ink);background:var(--bg);border:2px solid var(--ink);border-radius:12px;padding:0 10px}
 .code-row input::placeholder{letter-spacing:2px;font-weight:700;font-size:15px;text-transform:none;color:var(--muted)}
 .code-row input:focus{outline:3px solid var(--p1);border-color:var(--ink)}
-.code-row button{white-space:nowrap;flex:none;font:400 16px var(--font-display);color:#fff;background:var(--p1);border:2px solid var(--ink);border-radius:12px;padding:0 20px;min-height:48px;cursor:pointer;box-shadow:var(--sh-sm)}
+.code-row button{white-space:nowrap;flex:none;font:400 16px var(--font-display);color:var(--on-accent);background:var(--p1);border:2px solid var(--ink);border-radius:12px;padding:0 20px;min-height:48px;cursor:pointer;box-shadow:var(--sh-sm)}
 .code-row button:disabled{opacity:.6}
 .code-row button:hover{transform:translate(-1px,-1px)}
 .code-msg{margin:6px 0 0;font:700 13.5px Nunito,sans-serif;color:var(--ink);min-height:0;text-align:center}
@@ -51,14 +51,14 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .rooms-list{display:block;margin-top:4px;overflow:visible;padding:0}
 .rooms-empty{margin:12px 0 0;font:700 14px Nunito,sans-serif;color:var(--muted)}
 .rooms-empty a{color:var(--ink)}
-.room-card{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:var(--ink);background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:14px 4px;min-height:58px;box-shadow:none}
+.room-card{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:var(--ink);background:none;border:0;border-bottom:2px dashed var(--line);border-radius:0;padding:14px 4px;min-height:58px;box-shadow:none}
 .room-card:last-child{border-bottom:0}
 .room-card:hover{transform:none}
 .room-card img{width:40px;height:40px;flex:none}
 .room-card span{flex:1;min-width:0}
 .room-card b{display:block;font:800 15.5px/1.2 "Baloo 2",Nunito,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .room-card small{display:block;font:700 12.5px Nunito,sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.room-card em{flex:none;font:800 13px Nunito,sans-serif;font-style:normal;color:var(--ink);background:var(--p2);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;box-shadow:var(--sh-sm)}
+.room-card em{flex:none;font:800 13px Nunito,sans-serif;font-style:normal;color:var(--on-accent);background:var(--p2);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;box-shadow:var(--sh-sm)}
 
 /* ===== thanh lọc dính trên kệ – phẳng, không thẻ: tiêu đề + ô chọn hàng 1, pill lọc hàng 2 ===== */
 .sec-head{position:sticky;top:54px;z-index:40;background:var(--bg);border:0;border-radius:0;box-shadow:none;padding:8px 0;margin:0 0 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
@@ -67,9 +67,11 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .filter{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;background:none;border:0;border-radius:0;padding:0;box-shadow:none;margin-left:0;order:3;flex-basis:100%}
 .filter button{border:2px solid var(--ink);background:var(--card);font:400 14px var(--font-display);color:var(--ink);border-radius:999px;padding:7px 16px;min-height:42px;cursor:pointer;letter-spacing:.2px;transition:background .12s,transform .12s;box-shadow:var(--sh-sm)}
 .filter button:hover{background:var(--y2)}
-.filter button[aria-pressed="true"]{background:var(--ink);color:#FFFDF9;border-color:var(--ink);box-shadow:var(--sh-sm)}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink);box-shadow:var(--sh-sm)}
 .psel{display:flex;align-items:center;gap:8px;font:800 13.5px Nunito,sans-serif;color:var(--muted);margin-left:auto}
-.psel select{appearance:none;font:800 14px Nunito,sans-serif;color:var(--ink);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid var(--ink);border-radius:12px;padding:9px 36px 9px 16px;min-height:44px;cursor:pointer;box-shadow:var(--sh-sm)}
+.psel select{appearance:none;font:800 14px Nunito,sans-serif;color:var(--ink);background:var(--input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23241A38' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center/11px;border:2px solid var(--ink);border-radius:12px;padding:9px 36px 9px 16px;min-height:44px;cursor:pointer;box-shadow:var(--sh-sm)}
+/* patch -130: mũi tên dropdown phải sáng trên nền tối */
+html[data-theme="dark"] .psel select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23F6F1E7' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")}
 
 /* ===== kệ theo nhóm – mỗi mục một khay riêng: divider tiêu đề + pattern nền riêng (patch -119) ===== */
 .shelves{display:block}
@@ -79,20 +81,20 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .shelf-h{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:0 0 14px;padding:10px 16px;border:2px solid var(--ink);border-radius:14px;box-shadow:var(--sh-sm)}
 .shelf-h h3{margin:0;flex:1;min-width:0;font:400 24px/1.15 var(--font-display);color:var(--ink)}
 .shelf-h h3 span{white-space:nowrap}
-.shelf-h h3 small{font:700 14px/1.4 Nunito,sans-serif;color:var(--muted);margin-left:8px}
+.shelf-h h3 small{font:700 14px/1.4 Nunito,sans-serif;color:var(--text2);margin-left:8px}
 .shelf-h h3 small b{color:var(--ink)}
 .shelf-all{flex:none;font:400 14px var(--font-display);color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;min-height:40px;cursor:pointer;box-shadow:var(--sh-sm);transition:transform .12s}
 .shelf-all:hover{transform:translate(-1px,-1px);background:var(--y2)}
 /* pattern nền riêng từng mục (mờ để ô game vẫn đọc được), nằm trong khay */
-#shelf-board{background-color:#F2ECFD;background-image:repeating-conic-gradient(rgba(36,26,56,.07) 0% 25%,transparent 0% 50%);background-size:28px 28px}
-#shelf-card{background-color:#FDECEC;background-image:radial-gradient(circle,rgba(36,26,56,.12) 1.6px,transparent 1.7px);background-size:22px 22px}
-#shelf-party{background-color:#FFF7DA;background-image:repeating-linear-gradient(45deg,rgba(255,90,96,.09) 0 10px,transparent 10px 20px)}
-#shelf-other{background-color:#E4F7F3;background-image:linear-gradient(rgba(46,197,182,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(46,197,182,.14) 1px,transparent 1px);background-size:26px 26px}
+#shelf-board{background-color:var(--shelf-board);background-image:repeating-conic-gradient(var(--dot) 0% 25%,transparent 0% 50%);background-size:28px 28px}
+#shelf-card{background-color:var(--shelf-card);background-image:radial-gradient(circle,var(--dot-strong) 1.6px,transparent 1.7px);background-size:22px 22px}
+#shelf-party{background-color:var(--shelf-party);background-image:repeating-linear-gradient(45deg,rgba(255,90,96,.09) 0 10px,transparent 10px 20px)}
+#shelf-other{background-color:var(--shelf-other);background-image:linear-gradient(rgba(46,197,182,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(46,197,182,.14) 1px,transparent 1px);background-size:26px 26px}
 /* màu divider theo mục */
-#shelf-board .shelf-h{background:#E2D5FF}
-#shelf-card .shelf-h{background:#FFD3D5}
+#shelf-board .shelf-h{background:var(--shelf-board-h)}
+#shelf-card .shelf-h{background:var(--shelf-card-h)}
 #shelf-party .shelf-h{background:var(--y2)}
-#shelf-other .shelf-h{background:#BDEBE4}
+#shelf-other .shelf-h{background:var(--shelf-other-h)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 .empty-filter{display:none;text-align:center;color:var(--muted);grid-column:1/-1}
 
@@ -145,7 +147,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .tags i:not(:last-child)::after{content:" · "}
 /* nút Chơi kiểu Uiverse Voxybuns: lớp dưới màu mực, mặt trên nổi lên khi rê chuột, ấn xuống khi bấm */
 .play{position:absolute;right:10px;top:10px;z-index:2;background:var(--ink);border-radius:10px;padding:0;border:0;box-shadow:var(--sh-sm)}
-.play-top{display:block;background:var(--y2);color:var(--ink);font-family:var(--font-display);font-size:13px;border:2px solid var(--ink);border-radius:10px;padding:4px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
+.play-top{display:block;background:var(--y2);color:var(--on-accent);font-family:var(--font-display);font-size:13px;border:2px solid var(--ink);border-radius:10px;padding:4px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
 .tile:hover .play-top{transform:translateY(-0.33em)}
 .tile:active .play-top{transform:translateY(0)}
 .play.resume{box-shadow:0 0 0 3px #fff,0 8px 18px #0004;animation:rz 1.6s ease-in-out infinite}
@@ -156,21 +158,21 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .livetag::before{content:"";width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px #3ddc8444;animation:lv 1.6s ease-in-out infinite}
 .livetag.on{display:inline-flex}
 @keyframes lv{50%{opacity:.35;transform:scale(.8)}}
-.badge{position:absolute;z-index:4;right:10px;top:10px;font:800 12px Nunito,sans-serif;letter-spacing:.5px;color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:4px 10px;box-shadow:var(--sh-sm);pointer-events:none}
+.badge{position:absolute;z-index:4;right:10px;top:10px;font:800 12px Nunito,sans-serif;letter-spacing:.5px;color:var(--on-accent);border:2px solid var(--ink);border-radius:999px;padding:4px 10px;box-shadow:var(--sh-sm);pointer-events:none}
 .badge.new{background:var(--p1)}
 .badge.hot{background:var(--y1)}
-.soon{border:2px dashed var(--ink);background:var(--y2);color:var(--muted);display:grid;place-items:center;text-align:center;min-height:150px;box-shadow:none}
+.soon{border:2px dashed var(--ink);background:var(--y2);color:var(--on-accent);display:grid;place-items:center;text-align:center;min-height:150px;box-shadow:none}
 .soon:hover{transform:none;box-shadow:none}
 
 /* ===== đang hot ===== */
 .hot{margin:0;display:flex;flex-direction:column}
-.hot h2{font:400 22px/1 var(--font-display);margin:0 0 4px;background:var(--p1);border:2px solid var(--ink);border-radius:12px;padding:7px 14px;box-shadow:var(--sh-sm);transform:rotate(-1deg);display:inline-block;align-self:flex-start}
+.hot h2{font:400 22px/1 var(--font-display);margin:0 0 4px;background:var(--p1);border:2px solid var(--ink);border-radius:12px;padding:7px 14px;box-shadow:var(--sh-sm);transform:rotate(-1deg);display:inline-block;align-self:flex-start;color:var(--on-accent)}
 /* ===== carousel game hot (kiểu scroll carousel trên CodePen: thẻ số + ảnh + tên, kéo ngang) ===== */
 .hot-carousel{position:relative;flex:1;min-width:0;margin-top:10px}
 /* Carousel "Đang hot": thẻ vừa đúng chiều rộng vùng chứa (3 thẻ desktop / 2 thẻ ≤860px / 1 thẻ ≤480px) + snap-start, nên lúc dừng cuộn thẻ nào cũng nguyên vẹn, không bị cắt dọc. */
 .hot-row{flex:1;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 8px;padding:6px 4px 12px;scrollbar-width:none}
 .hot-row::-webkit-scrollbar{display:none}
-.hot-card{flex:0 0 calc((100% - 28px)/3);scroll-snap-align:start;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;text-decoration:none;color:var(--ink);background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:14px 16px 12px;box-shadow:var(--sh-sm);transition:transform .15s ease,box-shadow .15s ease}
+.hot-card{flex:0 0 calc((100% - 28px)/3);scroll-snap-align:start;position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;text-decoration:none;color:var(--on-accent);background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:14px 16px 12px;box-shadow:var(--sh-sm);transition:transform .15s ease,box-shadow .15s ease}
 .hot-card:hover{transform:translateY(-3px);box-shadow:var(--sh)}
 .hot-card:nth-child(4n+1){background:var(--y2)}
 .hot-card:nth-child(4n+2){background:var(--p1)}
@@ -178,15 +180,15 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .hot-card:nth-child(4n+4){background:var(--sky)}
 .hot-num{font:400 26px/1 var(--font-display);font-style:normal;letter-spacing:1px}
 /* khung mount Rive 2:1 đúng artboard 400×200 — canvas lấp kín, không viền (ảnh icon chỉ là dự phòng tới lúc .riv nạp xong) */
-.hot-art{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:2/1;overflow:hidden;border-radius:14px;border:2px solid var(--ink);background:#FFFDF9;padding:0}
-.hot-art img{width:104px;height:104px;object-fit:contain;filter:drop-shadow(3px 3px 0 #241A38);pointer-events:none}
+.hot-art{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:2/1;overflow:hidden;border-radius:14px;border:2px solid var(--ink);background:var(--card);padding:0}
+.hot-art img{width:104px;height:104px;object-fit:contain;filter:drop-shadow(var(--sh-sm));pointer-events:none}
 .hot-art canvas.riv-cv{position:absolute;inset:0;display:block;width:100%;height:100%}
 .hot-card.has-riv .hot-art img{display:none}
 .hot-tx{min-width:0;width:100%}
 .hot-tx b{display:block;font:400 19px/1.2 var(--font-display);overflow-wrap:break-word}
 .hot-tx small{display:block;margin-top:5px;font:800 13px Nunito,sans-serif}
 .hot-play{margin-top:auto;align-self:stretch;background:var(--ink);border-radius:999px;padding:0;border:0}
-.hot-play-top{display:block;text-align:center;background:var(--y1);color:var(--ink);font:400 15px/1 var(--font-display);border:2px solid var(--ink);border-radius:999px;padding:10px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
+.hot-play-top{display:block;text-align:center;background:var(--y1);color:var(--on-accent);font:400 15px/1 var(--font-display);border:2px solid var(--ink);border-radius:999px;padding:10px 12px;transform:translateY(-0.2em);transition:transform .1s ease}
 .hot-card:hover .hot-play-top{transform:translateY(-0.33em)}
 .hot-card:active .hot-play-top{transform:translateY(0)}
 .hot-nav{position:absolute;top:50%;z-index:2;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:400 24px/1 var(--font-display);cursor:pointer;box-shadow:var(--sh-sm);display:grid;place-items:center;padding:0 0 2px}

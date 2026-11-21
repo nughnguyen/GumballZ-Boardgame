@@ -6,7 +6,7 @@ import { CITIES, ROUTES, TICKETS, COLORS, COLOR_NAME, ROUTE_PTS } from './map.js
 import { botAction } from './bot.js?v=5';
 import { LAND, LBL, MAP_W, MAP_H } from './geo.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
-import { toast } from '../../shared/ui/dialog.js?v=9';
+import { toast } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);
 const LV = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' }, CC = c => `var(--c-${c})`;

@@ -36,7 +36,7 @@ export class RemoteBase {
       onMsg: msg => {
         if (!msg) return;
         if (msg.t === 'local') { const f = this._localWait; this._localWait = null; f && f(msg); return; }
-        if (msg.t === 'guest') { if (this.local) { this.backToServer(true); import('../ui/dialog.js?v=9').then(d => d.toast(`👋 ${String(msg.name || 'Có người').slice(0, 20)} vừa vào phòng – ván chuyển lên máy chủ để bạn ấy xem cùng, ván sau chơi chung nha`, 6000)).catch(() => {}); } return; } /* có người vào: đẩy nguyên ván đang chơi lên máy chủ */
+        if (msg.t === 'guest') { if (this.local) { this.backToServer(true); import('../ui/dialog.js?v=10').then(d => d.toast(`👋 ${String(msg.name || 'Có người').slice(0, 20)} vừa vào phòng – ván chuyển lên máy chủ để bạn ấy xem cùng, ván sau chơi chung nha`, 6000)).catch(() => {}); } return; } /* có người vào: đẩy nguyên ván đang chơi lên máy chủ */
         if ((this.local || this._resume) && (msg.t === 'lobby' || msg.t === 'state')) { if (msg.t === 'lobby') this.n = (Array.isArray(msg.info) ? msg.info : (msg.info && msg.info.players) || []).filter(p => !p.isBot).length || 1; return; } /* đang chơi với máy trên máy mình: phòng trên máy chủ chỉ giữ chỗ */
         if (o.onMsg && o.onMsg(msg)) return;
         if (msg.t === 'lobby') { this.n = (Array.isArray(msg.info) ? msg.info : (msg.info && msg.info.players) || []).filter(p => !p.isBot).length || 1; this.h.onLobby(msg.info, msg.code, msg.started); }

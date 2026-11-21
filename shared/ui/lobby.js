@@ -3,8 +3,8 @@
 // openLobby(game) – mở dạng hộp nổi (dùng trong trang game)
 import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=29';
 export const LV_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ']; /* trùng LEVELS trong stats.js */
-import { openLogin } from './account.js?v=52';
-import { promptBox, chooseBox } from './dialog.js?v=9';
+import { openLogin } from './account.js?v=53';
+import { promptBox, chooseBox } from './dialog.js?v=10';
 import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js?v=1'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
 import { ensureBadgesCSS, tierBadges } from './badges.js?v=4'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
@@ -21,33 +21,33 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const hhmm = t => new Date(t).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'vừa mở' : m < 60 ? m + ' phút' : Math.round(m / 60) + ' giờ'; };
 
-const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);font:600 15px/1.45 Nunito,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px;min-height:0}
+const CSS = `.lb{color:var(--ink);font:600 15px/1.45 Nunito,system-ui,sans-serif;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:16px;min-height:0}
 .lb *{box-sizing:border-box}
-.lb-col{background:#FFFDF9;border:2px solid var(--ink);border-radius:24px;box-shadow:4px 4px 0 #241A38;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.lb-col{background:var(--card);border:2px solid var(--ink);border-radius:24px;box-shadow:var(--sh);display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .lb-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1.5px solid var(--line);flex-wrap:wrap}
 .lb-h h3{margin:0;font:400 19px var(--font-display,"Baloo 2",Nunito,sans-serif);flex:1;min-width:120px}
 .lb-dot{width:9px;height:9px;border-radius:50%;background:#bbb;display:inline-block;margin-right:4px}.lb-dot.on{background:#2fc76f;box-shadow:0 0 0 3px #2fc76f33}
 .lb-chips-w{position:relative;display:flex;align-items:center;border-bottom:1.5px solid var(--line)}
 .lb-chips-w .lb-chips{flex:1;border-bottom:0;scroll-behavior:smooth}
-.lb-arr{width:28px;height:28px;margin:0 4px;border-radius:50%;border:1.5px solid var(--line);background:#FFFDF9;color:var(--ink);font:800 16px/1 Nunito,sans-serif;cursor:pointer;flex:none;display:grid;place-items:center;box-shadow:0 2px 6px #0001}
+.lb-arr{width:28px;height:28px;margin:0 4px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:800 16px/1 Nunito,sans-serif;cursor:pointer;flex:none;display:grid;place-items:center;box-shadow:0 2px 6px #0001}
 .lb-arr[hidden]{display:none}
 .lb-chips{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-bottom:1.5px solid var(--line);scrollbar-width:none}.lb-chips::-webkit-scrollbar{display:none}
-.lb-chips button{flex:none;border:2px solid var(--ink);background:#FFFDF9;border-radius:999px;padding:5px 12px;min-height:44px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);box-shadow:3px 3px 0 #241A38}
-.lb-chips button[aria-pressed=true]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
+.lb-chips button{flex:none;border:2px solid var(--ink);background:var(--card);border-radius:999px;padding:5px 12px;min-height:44px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);box-shadow:var(--sh-sm)}
+.lb-chips button[aria-pressed=true]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .lb-groups{display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none}.lb-groups::-webkit-scrollbar{display:none}
-.lb-groups button{flex:1 0 auto;border:2px solid var(--ink);background:#FFFDF9;border-radius:999px;padding:6px 10px;min-height:40px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);white-space:nowrap;box-shadow:3px 3px 0 #241A38}
-.lb-groups button[aria-pressed=true]{background:var(--ink);color:#FFFDF9;border-color:var(--ink)}
+.lb-groups button{flex:1 0 auto;border:2px solid var(--ink);background:var(--card);border-radius:999px;padding:6px 10px;min-height:40px;font:800 13px Nunito,sans-serif;cursor:pointer;color:var(--ink);white-space:nowrap;box-shadow:var(--sh-sm)}
+.lb-groups button[aria-pressed=true]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .lb-chat[hidden],.lb-friends[hidden],.lb-gc[hidden]{display:none}
 .lb-friends{flex:1;min-height:0;display:flex;flex-direction:column}
 .lb-rooms{overflow:auto;padding:10px 12px;display:grid;gap:0;align-content:start;min-height:0}
-.lb-room{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:14px 4px;text-decoration:none;color:inherit}
-.lb-room:hover{background:#FFF8EE}
+.lb-room{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed var(--line);border-radius:0;padding:14px 4px;text-decoration:none;color:inherit}
+.lb-room:hover{background:var(--bg)}
 .lb-room .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-room .t{flex:1;min-width:0}.lb-room b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-room small{color:var(--mut)}.lb-room .go{flex:none;background:#2EC5B6;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:3px 3px 0 #241A38}
-.lb-inv{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed #E5DCC8;border-radius:0;padding:10px 4px;text-decoration:none;color:inherit}
-.lb-inv:hover{background:#FFF8EE}
+.lb-room small{color:var(--muted)}.lb-room .go{flex:none;background:var(--p2);color:var(--on-accent);border:2px solid var(--ink);border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:var(--sh-sm)}
+.lb-inv{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px dashed var(--line);border-radius:0;padding:10px 4px;text-decoration:none;color:inherit}
+.lb-inv:hover{background:var(--bg)}
 .lb-inv .e{font-size:28px;width:40px;text-align:center;flex:none}.lb-inv .t{flex:1;min-width:0}.lb-inv b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lb-inv small{color:var(--mut)}.lb-inv .go{flex:none;background:#2EC5B6;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:3px 3px 0 #241A38}
+.lb-inv small{color:var(--muted)}.lb-inv .go{flex:none;background:var(--p2);color:var(--on-accent);border:2px solid var(--ink);border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);box-shadow:var(--sh-sm)}
 .lb-empty a,.lb-new{color:#2f5fd0}
 .lb-chat{display:flex;flex-direction:column;min-height:0;flex:1}
 .lb-msgs{flex:1;min-height:0;overflow:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
@@ -55,9 +55,9 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-m:not(.me) .lb-av,.lb-m:not(.me) .lb-n{cursor:pointer}
 .lb-m:not(.me) .lb-n:hover{text-decoration:underline}
 .lb-av{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font:800 14px Nunito}
-.lb-b{background:#f6efe6;border-radius:4px 14px 14px 14px;padding:6px 10px;max-width:calc(100% - 70px);word-wrap:break-word;overflow-wrap:anywhere}
+.lb-b{background:var(--bg);border-radius:4px 14px 14px 14px;padding:6px 10px;max-width:calc(100% - 70px);word-wrap:break-word;overflow-wrap:anywhere}
 .lb-m.me{flex-direction:row-reverse}.lb-m.me .lb-b{background:#ffe9d6;border-radius:14px 4px 14px 14px}
-.lb-n{font-weight:800;font-size:13px}.lb-n .v{color:#2f9e5b}.lb-n time{font-weight:600;color:var(--mut);font-size:11.5px;margin-left:6px}
+.lb-n{font-weight:800;font-size:13px}.lb-n .v{color:#2f9e5b}.lb-n time{font-weight:600;color:var(--muted);font-size:11.5px;margin-left:6px}
 /* 🎖️ huy hiệu chat ở shared/css/badges.css (.bdg) – nạp bằng ensureBadgesCSS() khi mở Sảnh */
 /* ✨ đồ Nitro trong chat (2026-11-21): khung avatar quanh chữ cái, tên gradient chạy, tin nhắn phát sáng */
 .lb-avfr{display:inline-grid;place-items:center;border-radius:50%;padding:2px;flex:none;position:relative}
@@ -65,7 +65,7 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-avfr.fr-anim::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ring);animation:fr-spin 3.5s linear infinite}
 .lb-avfr.fr-anim>.lb-av{position:relative;z-index:1}
 .lb-avfr.fr-glow{animation:fr-glow 1.8s ease-in-out infinite}
-.lb-m-hot .lb-b{box-shadow:0 0 0 2px #FACD33,0 0 14px rgba(255,90,96,.45)}
+.lb-m-hot .lb-b{box-shadow:0 0 0 2px var(--y1),0 0 14px rgba(255,90,96,.45)}
 @keyframes nc-slide{to{background-position:200% 0}}
 .nc-anim{animation:nc-slide 2.8s linear infinite}
 @keyframes fr-spin{to{transform:rotate(360deg)}}
@@ -75,38 +75,38 @@ const CSS = `.lb{--ink:#241A38;--mut:#8B7E9E;--line:#ecdfd0;color:var(--ink);fon
 .lb-in{display:flex;gap:8px;padding:10px 12px;border-top:1.5px solid var(--line);align-items:flex-end;flex-wrap:wrap;flex:none}
 .lb-in input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;font:600 16px Nunito,sans-serif;color:var(--ink);background:#fff}
 .lb-in button{border:0;border-radius:999px;min-height:44px;padding:0 16px;font:400 15px var(--font-display,"Baloo 2",Nunito,sans-serif);background:var(--ink);color:#fff;cursor:pointer}
-.lb-who{width:100%;font-size:12.5px;color:var(--mut);display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:none}
+.lb-who{width:100%;font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:none}
 .lb-who input{flex:0 1 150px;padding:5px 10px;font-size:14px;border-radius:10px}
 .lb-who a{color:#2f5fd0;cursor:pointer}
-.lb-fr{margin-left:auto;border:1.5px solid #ecdfd0;background:#fff6eb;color:#241A38;border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.lb-fr b{background:#FACD33;color:#241A38;border-radius:999px;padding:0 5px;font-size:11px;line-height:1.4}.lb-fr b:empty{display:none}
-.lb-actbar{display:flex;gap:8px;padding:8px 12px;border-bottom:1.5px solid var(--line);background:#fffdf9;align-items:center;flex-wrap:wrap}
-.lb-mm-btn{flex:1;min-width:150px;min-height:44px;border:2px solid #241A38;border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);color:#241A38;background:#2EC5B6;box-shadow:3px 3px 0 #241A38;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.lb-fr{margin-left:auto;border:1.5px solid var(--line);background:#fff6eb;color:var(--ink);border-radius:999px;padding:4px 10px;font:800 12.5px Nunito,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.lb-fr b{background:var(--y1);color:var(--ink);border-radius:999px;padding:0 5px;font-size:11px;line-height:1.4}.lb-fr b:empty{display:none}
+.lb-actbar{display:flex;gap:8px;padding:8px 12px;border-bottom:1.5px solid var(--line);background:var(--card);align-items:center;flex-wrap:wrap}
+.lb-mm-btn{flex:1;min-width:150px;min-height:44px;border:2px solid var(--ink);border-radius:999px;padding:8px 14px;font:400 14px var(--font-display,"Baloo 2",Nunito,sans-serif);color:var(--ink);background:var(--p2);box-shadow:var(--sh-sm);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .lb-mm-btn.on{background:linear-gradient(90deg,#2fc76f,#1ca356);box-shadow:0 6px 14px -6px #2fc76faa}
 .lb-mm-btn small{font:700 11.5px Nunito,sans-serif;background:#ffffff30;padding:1px 7px;border-radius:999px}
-.lb-rk-btn{min-height:44px;border:2px solid #241A38;border-radius:999px;padding:7px 12px;font:800 13.5px "Baloo 2",Nunito,sans-serif;color:#241A38;background:#FFFDF9;box-shadow:3px 3px 0 #241A38;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.lb-rk-btn{min-height:44px;border:2px solid var(--ink);border-radius:999px;padding:7px 12px;font:800 13.5px "Baloo 2",Nunito,sans-serif;color:var(--ink);background:var(--card);box-shadow:var(--sh-sm);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .lb-mm-bar{margin:8px 12px 0;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,#fff6eb,#ffe9d2);border:1.5px solid #ffc996;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13.5px;font-weight:800}
 .lb-mm-bar .acts{display:flex;gap:6px;flex-wrap:wrap}
 .lb-mm-bar button{border:0;border-radius:999px;padding:5px 11px;font:800 12.5px Nunito,sans-serif;cursor:pointer}
-.lb-mm-bar .go-host{background:#241A38;color:#fff}
-.lb-mm-bar .go-cancel{background:#FFFDF9;color:#7a6f8c;border:1px solid #e0d2c2}
-.lb-rule{font-size:12px;color:var(--mut);padding:0 12px 8px;flex:none}
+.lb-mm-bar .go-host{background:var(--ink);color:#fff}
+.lb-mm-bar .go-cancel{background:var(--card);color:#7a6f8c;border:1px solid #e0d2c2}
+.lb-rule{font-size:12px;color:var(--muted);padding:0 12px 8px;flex:none}
 .lb-err{font-size:13px;color:#c0263b;padding:0 12px;min-height:0}
 .lb-tabs{display:none}
 @media (max-width:760px){
  .lb{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px}
- .lb-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0e6da;border-radius:999px;padding:4px}
+ .lb-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--line);border-radius:999px;padding:4px}
  .lb-tabs button{border:0;border-radius:999px;min-height:42px;font:800 15px Nunito,sans-serif;background:none;color:var(--ink);cursor:pointer}
- .lb-tabs button[aria-pressed=true]{background:#FFFDF9;box-shadow:0 2px 6px #0001}
+ .lb-tabs button[aria-pressed=true]{background:var(--card);box-shadow:0 2px 6px #0001}
  .lb[data-tab=rooms] .lb-col.c{display:none}.lb[data-tab=chat] .lb-col.r{display:none}
  .lb-msgs{min-height:0}
  .lb-col.c .lb-h{display:none} /* điện thoại: đã có tab "💬 Chat" ở trên nên bỏ tiêu đề cột cho rộng chỗ */
  .lb-rule{font-size:12px;margin:2px 12px}
 }
-.lb-ov{position:fixed;inset:0;z-index:9990;background:#241A38;display:grid;place-items:center;padding:10px}
-.lb-mod{width:min(980px,100%);height:min(720px,calc(100dvh - 20px));background:#FFF8EE;border-radius:24px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px #0006}
-.lb-mod > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lb-mod > header h2{margin:0;flex:1;font:400 22px var(--font-display,"Baloo 2",Nunito,sans-serif);color:#241A38}
-.lb-mod > header button.x{width:40px;height:40px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer}
+.lb-ov{position:fixed;inset:0;z-index:9990;background:var(--ink);display:grid;place-items:center;padding:10px}
+.lb-mod{width:min(980px,100%);height:min(720px,calc(100dvh - 20px));background:var(--bg);border-radius:24px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px #0006}
+.lb-mod > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.lb-mod > header h2{margin:0;flex:1;font:400 22px var(--font-display,"Baloo 2",Nunito,sans-serif);color:var(--ink)}
+.lb-mod > header button.x{width:40px;height:40px;border-radius:50%;border:0;background:var(--line);font-size:18px;cursor:pointer}
 .lb-mod .lb{flex:1;min-height:0}.lb-mod .lb-col{min-height:0}
 /* Scribble có sẵn lớp .lb (bảng điểm) của riêng nó → gỡ khung/độ rộng lạ khỏi sảnh */
 .lb[data-tab]{width:auto;max-width:none;background:none;border:0;border-radius:0;padding:0;margin:0}`;
@@ -166,7 +166,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
           ? `😕 <b>Hiện có quá ít người đang tìm trận ${esc(gLabel)}</b> (${waitingN <= 1 ? 'chỉ mới có mình bạn' : `mới có ${waitingN} người`}). Bạn có thể đợi thêm chút, mở bàn công khai chờ sẵn hoặc vào chơi với bot nha!`
           : `🔍 Đang tìm đối thủ cho <b>${esc(gLabel)}</b>${waitingN > 1 ? ` · có ${waitingN} người đang tìm!` : '… ưu tiên người cùng trình (nếu ít người quá em sẽ báo sau vài giây)'}`;
       const botTarget = gKey !== 'all' ? gKey : 'uno';
-      slot.innerHTML = `<div class="lb-mm-bar"><span>${txt}</span><div class="acts"><button type="button" class="go-host">🚀 Mở bàn chờ sẵn</button>${mmState.low ? `<a class="go-host" href="${ROOT}${botTarget}/" style="text-decoration:none;padding:5px 11px;border-radius:999px;font:800 12.5px Nunito,sans-serif;background:#FFFDF9;color:#241A38;border:1px solid #e0d2c2">🤖 Chơi với bot</a>` : ''}<button type="button" class="go-cancel">Huỷ</button></div></div>`;
+      slot.innerHTML = `<div class="lb-mm-bar"><span>${txt}</span><div class="acts"><button type="button" class="go-host">🚀 Mở bàn chờ sẵn</button>${mmState.low ? `<a class="go-host" href="${ROOT}${botTarget}/" style="text-decoration:none;padding:5px 11px;border-radius:999px;font:800 12.5px Nunito,sans-serif;background:var(--card);color:var(--ink);border:1px solid #e0d2c2">🤖 Chơi với bot</a>` : ''}<button type="button" class="go-cancel">Huỷ</button></div></div>`;
       slot.querySelector('.go-host').onclick = () => { stopMm(); hostNow(mmState?.game || gKey); };
       slot.querySelector('.go-cancel').onclick = () => stopMm();
     } else {
@@ -191,7 +191,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
     if (ws && ws.readyState === 1) send({ t: 'mm_cancel' });
   };
   $('.lb-mm-btn').onclick = () => { if (mmState) stopMm(); else startMm(game || filter); };
-  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=35').then(m => m.openLeaderboard(game || filter));
+  $('.lb-rk-btn').onclick = () => import('./leaderboard.js?v=37').then(m => m.openLeaderboard(game || filter));
 
   const drawRooms = () => {
     if (!roomsReady) return; /* chưa có danh sách phòng từ máy chủ: giữ skeleton */
@@ -205,7 +205,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   const mountFriends = () => {
     if (friendsPanel || friendsLoading) return;
     friendsLoading = true;
-    import('./friends.js?v=36').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
+    import('./friends.js?v=37').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
   };
   const drawGroups = () => { el.querySelectorAll('.lb-groups button').forEach(b => b.setAttribute('aria-pressed', b.dataset.grp === grp)); };
   const drawGameChips = () => { const gc = $('.lb-gc'); gc.hidden = grp !== 'game'; if (grp !== 'game') return; gc.innerHTML = Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button type="button" data-g="${k}" aria-pressed="${k === selGame}">${e} ${n}</button>`).join(''); };
@@ -241,7 +241,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       if (row && !row.classList.contains('me')) {
         const who = row.dataset.who || '', name = row.dataset.name || '';
         const uid = who.startsWith('u:') ? +who.slice(2) : 0;
-        import('./friends.js?v=36').then(m => m.showPlayerCard({ uid, name }, whoHit));
+        import('./friends.js?v=37').then(m => m.showPlayerCard({ uid, name }, whoHit));
         return;
       }
     }
@@ -296,7 +296,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   }
   const offFr = e => { frN = (e.detail && e.detail.count) || 0; syncFr(); };
   addEventListener('gumballz-friends', offFr);
-  import('./friends.js?v=36').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=37').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
   const off = auth.onChange(() => { drawWho(); hello(); });
   drawRooms(); drawChatArea(); drawWho(); drawMm(); connect();
   if (autoMatch) setTimeout(() => startMm(game || filter), 60);

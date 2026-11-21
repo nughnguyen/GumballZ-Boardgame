@@ -99,7 +99,7 @@ export async function mountDaily(el) {
       (dòng ~353) bằng: <div class="daily" id="daily" hidden><div class="dq-hd">… (xem mẫu ở trên) HOẶC giữ thẻ rỗng <div class="daily" id="daily" hidden></div> rồi gọi mountDaily
       trong 1 thẻ <script type="module">: import { mountDaily } from './shared/js/daily.js?v=3';
       mountDaily(document.getElementById('daily'));
-      Đồng thời: thêm <link rel="stylesheet" href="shared/css/daily.css?v=3"> vào <head>
+      Đồng thời: thêm <link rel="stylesheet" href="shared/css/daily.css?v=4"> vào <head>
       (nếu không muốn dựa vào ensureDailyCss tự chèn), và XÓA đoạn script cũ ở dòng ~592
       import('./cotuong/js/today.js?v=1').then(…) vẽ 1 việc Cờ thế (kẻo vẽ đè), và xóa/bỏ
       CSS .daily cũ ở dòng ~197-199 (đã chuyển sang shared/css/daily.css).

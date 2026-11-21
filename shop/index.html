@@ -2,6 +2,8 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
+<!-- patch -130: áp chế độ tối SỚM (trước khi CSS vẽ) để không chớp sáng khi tải trang -->
+<script>try{var t=localStorage.getItem('gumballz-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cửa hàng — mua đồ bằng xu | GumballZ Boardgame</title>
 <meta name="description" content="Cửa hàng GumballZ: mua khung avatar, màu tên, banner hồ sơ, lưng bài và mở rương Gacha bằng xu ảo kiếm được khi chơi game. Tiền ảo, không nạp, không rút.">
@@ -15,17 +17,17 @@
 <link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/ui/gamekit.css?v=5">
-<link rel="stylesheet" href="../shared/ui/shell.css?v=20">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=6">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=21">
 <link rel="stylesheet" href="css/shop.css?v=4">
-<link rel="stylesheet" href="../shared/css/skeleton.css?v=1">
-<link rel="stylesheet" href="../shared/css/topbar.css?v=5">
+<link rel="stylesheet" href="../shared/css/skeleton.css?v=2">
+<link rel="stylesheet" href="../shared/css/topbar.css?v=6">
 <link rel="stylesheet" href="../shared/css/page-trans.css?v=1">
 </head>
 <body>
 
 <div id="topbar"></div>
-<script src="../shared/ui/topbar.js?v=7"></script>
+<script src="../shared/ui/topbar.js?v=8"></script>
 <main class="shop-wrap">
   <header class="shop-title">
     <h1>Cửa hàng</h1>
@@ -103,7 +105,7 @@
   </section>
   <p class="shop-foot"><a href="../">← Về trang chủ</a> · <a href="../luat/">Luật chơi</a></p>
 </main>
-<script type="module" src="../shared/ui/feedback.js?v=36"></script>
+<script type="module" src="../shared/ui/feedback.js?v=37"></script>
 <script src="../shared/js/rive/rive.js"></script>
 <script type="module" src="js/shop.js?v=5"></script>
 <script src="../shared/ui/page-trans.js?v=1"></script>

@@ -25,7 +25,7 @@ const NO_CHAT = ['masoi', 'scribble', 'giandiep'];
 const gameOf = ns => String(ns || '').replace(/^gumballz-/, '');
 const chatOn = ns => !NO_CHAT.includes(gameOf(ns));
 const chatText = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim().slice(0, 140);
-function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=40').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
+function chatUi(api) { try { window.__gumballzChat = api; import('../ui/roomchat.js?v=41').then(m => m.mountRoomChat(api)).catch(() => {}); } catch (e) {} }
 const chatBuf = []; /* tin gần đây – để hộp chat nạp xong muộn vẫn có đủ */
 function chatEmit(m) { if (m.reset) chatBuf.length = 0; else { chatBuf.push(m); if (chatBuf.length > 40) chatBuf.shift(); } try { dispatchEvent(new CustomEvent('gumballz-chat', { detail: m })); } catch (e) {} }
 
@@ -35,7 +35,7 @@ function peersEmit(peers) {
 }
 function netUi(g) { try { import('../ui/netmeter.js?v=4').then(m => m.mountNetMeter(g)).catch(() => {}); } catch (e) {} }
 function netEmit(d) { try { dispatchEvent(new CustomEvent('gumballz-net', { detail: d })); } catch (e) {} }
-function friendsUi() { try { import('../ui/friends.js?v=36').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
+function friendsUi() { try { import('../ui/friends.js?v=37').then(m => m.mountPlayerClick && m.mountPlayerClick()).catch(() => {}); import('../ui/vip.js?v=1').then(m => m.mountVip()).catch(() => {}); } catch (e) {} }
 function showNotice(text) {
   try {
     const d = document.createElement('div');
@@ -147,7 +147,7 @@ export class RoomHost {
       /* nhắc chủ phòng (game còn chạy trên máy chủ phòng: Xì dách, Poker, Cờ tướng…): để tab ở nền ≥ 8 giây khi có người trong phòng thì cả bàn bị đứng (số đo 📶 Lag 18/11/2026) */
       try { const others = [...this.conns].some(c => c.open && c._chatName);
         if (document.hidden) this._hidAt = others ? Date.now() : 0;
-        else if (this._hidAt && Date.now() - this._hidAt > 8000 && others && Date.now() - (this._nagAt || 0) > 600000) { this._nagAt = Date.now(); import('../ui/dialog.js?v=9').then(d => d.toast('👋 Bạn đang là chủ phòng – lúc nãy tab bị ẩn nên cả bàn phải chờ. Để trang này mở khi đang chơi nha!', 6000)).catch(() => {}); }
+        else if (this._hidAt && Date.now() - this._hidAt > 8000 && others && Date.now() - (this._nagAt || 0) > 600000) { this._nagAt = Date.now(); import('../ui/dialog.js?v=10').then(d => d.toast('👋 Bạn đang là chủ phòng – lúc nãy tab bị ẩn nên cả bàn phải chờ. Để trang này mở khi đang chơi nha!', 6000)).catch(() => {}); }
         if (!document.hidden) this._hidAt = 0; } catch (e) {}
       for (const c of this.conns) if (c.open && c._chatName) try { c.send({ t: '__away', on: !!document.hidden }); } catch (e) {} }; /* báo cho cả phòng khi chủ phòng để tab game ở nền */
     try { document.addEventListener('visibilitychange', this._vis); } catch (e) {}

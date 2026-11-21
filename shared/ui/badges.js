@@ -7,7 +7,7 @@
 // uid6(id) (patch -108): id tài khoản HIỂN THỊ dạng 6 chữ số theo thứ tự tạo acc (acc đầu tiên = 000001,
 // quá 6 số giữ nguyên, không cắt); id NỘI BỘ (số nguyên trong DB/API/token/data-uid) KHÔNG đổi – chỉ đổi lúc hiển thị.
 export const uid6 = id => { const s = String(id ?? ''); return s ? s.padStart(6, '0') : ''; };
-const BDG_CSS = new URL('../css/badges.css?v=3', import.meta.url).href;
+const BDG_CSS = new URL('../css/badges.css?v=4', import.meta.url).href;
 export function ensureBadgesCSS() {
   ensureBadgeRive(); /* 🎬 huy hiệu Rive (patch -109) — mọi nơi hiện huy hiệu đều gọi hàm này */
   if (document.getElementById('bdg-css')) return;

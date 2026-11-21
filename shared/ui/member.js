@@ -1,9 +1,9 @@
 // 👤 Hồ sơ công khai của một thành viên: hình đại diện, cấp độ, danh hiệu, số liệu chơi, thành tích, game chơi nhiều.
 // Mở từ thẻ người chơi (bấm tên/avatar trong phòng), bảng xếp hạng, hộp bạn bè, trang quản trị:
-//   import('…/shared/ui/member.js?v=4').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
+//   import('…/shared/ui/member.js?v=5').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
-import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=55';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=56';
 import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
@@ -18,10 +18,10 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 const CSS = `.mb-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
 .mb-rank{display:flex;align-items:center;gap:8px;margin:0 0 4px;padding:9px 12px;border-radius:14px;background:linear-gradient(135deg,#fff6dc,#ffe09e);color:#7a4300;font:800 14px Nunito,sans-serif}
 .mb-tts{display:flex;flex-wrap:wrap;gap:6px}.mb-tts .pf-tt{font-size:13px;padding:4px 11px}
-.mb-achs{display:flex;flex-wrap:wrap;gap:6px}.mb-achs span{display:inline-flex;align-items:center;gap:5px;background:#FFFDF9;border:1.5px solid #f0e2d2;border-radius:999px;padding:3px 10px;font:800 12.5px Nunito,sans-serif}
-.mb-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mb-acts button{flex:1;min-width:130px;min-height:46px;border:0;border-radius:999px;font:800 15px "Baloo 2",Nunito,sans-serif;cursor:pointer;background:#f0e6da;color:#4A3E5C}
+.mb-achs{display:flex;flex-wrap:wrap;gap:6px}.mb-achs span{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:3px 10px;font:800 12.5px Nunito,sans-serif}
+.mb-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mb-acts button{flex:1;min-width:130px;min-height:46px;border:0;border-radius:999px;font:800 15px "Baloo 2",Nunito,sans-serif;cursor:pointer;background:var(--line);color:var(--ink2)}
 .mb-acts .pri{background:linear-gradient(120deg,#ff4d6a,#ff8a3d);color:#fff}.mb-acts .dm{background:#eafaf1;color:#147a44;box-shadow:inset 0 0 0 1.5px #bce8cf}.mb-acts button:disabled{opacity:.6;cursor:default}
-.mb-load{padding:40px 10px;text-align:center;color:#6b5f7a;font-weight:800}
+.mb-load{padding:40px 10px;text-align:center;color:var(--muted);font-weight:800}
 .pf-ov.pf-shown,.pf-ov.pf-shown .pf-box{animation:none}`;
 function css() { profileCss(); ensureBadgesCSS(); if (document.getElementById('mb-css')) return; const s = document.createElement('style'); s.id = 'mb-css'; s.textContent = CSS; document.head.append(s); }
 export const titlePill = t => (t ? `<span class="pf-tt" tabindex="0" role="button" data-iicon="${esc(t.icon)}" data-iname="${esc(t.name)}" data-ihow="${esc(titleDesc(t))}" data-istate="✅ Đã đạt">${esc(t.icon)} ${esc(t.name)}</span>` : '');
@@ -72,12 +72,12 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=55').then(m => m.openProfile()); }
-    else if (a === 'login') { close(); import('./account.js?v=52').then(m => m.openLogin()); }
-    else if (a === 'dm') { close(); import('./friends.js?v=36').then(m => m.openFriends(U.id)); }
+    if (a === 'edit') { close(); import('./profile.js?v=56').then(m => m.openProfile()); }
+    else if (a === 'login') { close(); import('./account.js?v=53').then(m => m.openLogin()); }
+    else if (a === 'dm') { close(); import('./friends.js?v=37').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
-      try { const m = await import('./friends.js?v=36'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
+      try { const m = await import('./friends.js?v=37'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
       busy = false; await loadRel(); if (ov.isConnected && rel == null) draw();
     }
   });

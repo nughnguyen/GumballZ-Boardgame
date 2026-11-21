@@ -10,22 +10,22 @@ const ROOT = new URL('../../', import.meta.url).href; // gốc web (dù đang �
 const GAMES = { '': 'Trang chủ / chung', bang: 'CÀ ĐÙNG!', uno: 'UNÔ', typhu: 'Cờ Tỷ Phú', tamquoc: 'Tam Quốc Sát', meono: 'Mèo Nổ', masoi: 'Ma Sói', scribble: 'Scribble', tienlen: 'Tiến Lên', poker: 'Poker', xidach: 'Xì Dách', catte: 'Cát Tê', bacao: 'Ba Cào', cangua: 'Cờ Cá Ngựa', camel: 'Đua Lạc Đà', solitaire: 'Xếp bài', cotuong: 'Cờ tướng', thathaythach: 'Thật hay Thách', baitan: 'Bài Tấn', loto: 'Lô tô', covua: 'Cờ vua', tala: 'Tá lả', cholon: 'Chợ Lớn', tusac: 'Tứ sắc', bantau: 'Bắn Tàu', oanquan: 'Ô Ăn Quan', caro: 'Cờ Caro', tictactoe: 'TicTacToe', memory: 'Memory', covay: 'Cờ Vây', cothu: 'Cờ Thú', ranvathang: 'Rắn và Thang', sam: 'Sâm Lốc', baucua: 'Bầu Cua', noitu: 'Nối Từ', xuyenviet: 'Tàu Xuyên Việt', khaihoang: 'Đảo Khai Hoang', daochinh: 'Đảo Chính', cuuho: 'Đội Cứu Hộ', xiecthu: 'Gánh Xiếc Thú' };
 const curGame = () => { const seg = location.pathname.replace(/\/+$/, '').split('/').pop(); return GAMES[seg] !== undefined && seg !== '' ? seg : ''; };
 
-const CSS = `.fb-ov{position:fixed;inset:0;z-index:9999;background:rgba(74,62,92,.66);display:grid;place-items:center;padding:14px;animation:fbIn .2s}
+const CSS = `.fb-ov{position:fixed;inset:0;z-index:9999;background:var(--overlay);display:grid;place-items:center;padding:14px;animation:fbIn .2s}
 @keyframes fbIn{from{opacity:0}}
-.fb-box{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border-radius:22px;padding:18px 18px 16px;box-shadow:0 20px 60px #0006;font:500 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.fb-box{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink2);border-radius:22px;padding:18px 18px 16px;box-shadow:0 20px 60px #0006;font:500 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
 .fb-box h2{margin:0 36px 6px 0;font:400 21px/1.2 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .fb-box p{margin:6px 0}
-.fb-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#4A3E5C}
+.fb-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--line);font-size:18px;cursor:pointer;color:var(--ink2)}
 .fb-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-.fb-chips button{border:1.5px solid #e2d4c4;background:#FFFDF9;border-radius:999px;padding:7px 12px;font:800 14px Nunito,sans-serif;cursor:pointer;color:#4A3E5C;min-height:44px}
-.fb-chips button[aria-pressed=true]{background:#4A3E5C;color:#fff;border-color:#4A3E5C}
-.fb-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:#8B7E9E}
-.fb-box select,.fb-box textarea,.fb-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:12px;padding:10px 12px;font:500 15px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
+.fb-chips button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font:800 14px Nunito,sans-serif;cursor:pointer;color:var(--ink2);min-height:44px}
+.fb-chips button[aria-pressed=true]{background:var(--ink2);color:var(--on-ink);border-color:var(--ink2)}
+.fb-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:var(--muted)}
+.fb-box select,.fb-box textarea,.fb-box input{width:100%;box-sizing:border-box;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:500 15px Nunito,sans-serif;background:var(--card);color:var(--ink2)}
 .fb-box textarea{min-height:120px;resize:vertical}
-.fb-count{text-align:right;font-size:12px;color:#8B7E9E}
-.fb-send{width:100%;margin-top:12px;border:0;border-radius:999px;min-height:48px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);color:#4A3E5C;background:linear-gradient(90deg,#FFB98A,#FFB9CF);cursor:pointer}
+.fb-count{text-align:right;font-size:12px;color:var(--muted)}
+.fb-send{width:100%;margin-top:12px;border:0;border-radius:999px;min-height:48px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);color:var(--on-accent);background:linear-gradient(90deg,#FFB98A,#FFB9CF);cursor:pointer}
 .fb-send:disabled{opacity:.55;cursor:default}
-.fb-note{font-size:12.5px;color:#8B7E9E}
+.fb-note{font-size:12.5px;color:var(--muted)}
 .fb-ok{text-align:center;padding:14px 0}.fb-ok b{font-size:40px;display:block}
 .fb-qr{display:block;width:min(300px,100%);margin:10px auto;border-radius:14px;box-shadow:0 6px 20px #0002}
 .fb-tip{background:#fff1d6;border-radius:12px;padding:8px 12px;font-size:13.5px}`;
@@ -100,7 +100,7 @@ export function openFeedback(game = curGame()) {
 
 export function openDonate() {
   /* hộp ủng hộ đầy đủ (patch -102): quỹ tháng, mã QR động, bậc, tường cảm ơn, duyệt tay – nạp lười để không nặng trang */
-  import('./donate.js?v=4').then(m => m.openDonate()).catch(() => openDonateStatic());
+  import('./donate.js?v=5').then(m => m.openDonate()).catch(() => openDonateStatic());
 }
 function openDonateStatic() { /* dự phòng khi không nạp được hộp mới: QR tĩnh như trước */
   modal(`<h2>☕ Ủng hộ chủ web</h2>
