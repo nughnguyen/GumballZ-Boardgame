@@ -1,0 +1,93 @@
+<section class="hub-sec" id="luat-mac-dinh">
+    <h2>⚙️ Luật mặc định</h2>
+    <p class="sub">Tuỳ chọn được chọn sẵn khi tạo phòng mới ở từng game – đọc trực tiếp từ file <code>luat-mac-dinh.js</code>. Mục này chỉ để xem; trong sảnh chủ phòng vẫn đổi được như thường.</p>
+    <div class="status" id="status">⏳ Đang đọc file luật…</div>
+    <details class="how">
+      <summary>✏️ Cách đổi luật mặc định</summary>
+      <ol>
+        <li>Mở luat-mac-dinh.js trong mã nguồn web → bấm nút ✏️ (Edit).</li>
+        <li>Chỉ sửa giá trị sau dấu <code>:</code> – phải là một trong các lựa chọn ghi ở chú thích. Chữ giữ dấu nháy <code>'house'</code>, số không nháy <code>45</code>, bật/tắt là <code>true</code>/<code>false</code>.</li>
+        <li>Bấm <b>Commit changes</b>, đợi 1–10 phút rồi tải lại trang này để kiểm tra.</li>
+        <li>Giá trị sai sẽ bị bỏ qua (game dùng luật gốc) – trang này đánh dấu ⚠️. Luật mới chỉ áp dụng cho <b>phòng mới</b>.</li>
+      </ol>
+    </details>
+    <nav class="jump" id="jump"></nav>
+    <div id="games"><p class="loading">…</p></div>
+  </section>
+<script type="module">
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const t = Math.floor(Date.now() / 60000);
+const URL_ = `../luat-mac-dinh.js?t=${t}`;
+const lit = v => typeof v === 'string' ? `'${v}'` : String(v);
+// đọc giá trị literal trong file (chỉ dùng khi file lỗi, không import được)
+const parseLit = s => { s = s.trim(); if (/^'.*'$/.test(s) || /^".*"$/.test(s)) return s.slice(1, -1); if (s === 'true') return true; if (s === 'false') return false; if (s === 'null') return null; const n = Number(s); return Number.isFinite(n) && s !== '' ? n : s; };
+
+// Phân tích chú thích: "Tên — giải thích · Chọn: 'a' = A | 'b' = B" hoặc "· Khoảng: số nguyên từ X đến Y (bước S)"
+function parseComment(c) {
+  const out = { label: c, help: '', choices: null, range: null, rangeText: '' };
+  let [head, tail] = c.split(/ · (?=Chọn:|Khoảng:)/);
+  const m = head.split(' — '); out.label = m[0]; out.help = m.slice(1).join(' — ');
+  if (tail && tail.startsWith('Chọn:')) {
+    out.choices = tail.slice(5).split(' | ').map(x => { const i = x.indexOf(' = '); return i < 0 ? null : { v: parseLit(x.slice(0, i)), label: x.slice(i + 3).trim() }; }).filter(Boolean);
+  } else if (tail && tail.startsWith('Khoảng:')) {
+    out.rangeText = tail.slice(7).trim();
+    const r = tail.match(/từ (-?\d+) đến (-?\d+)(?: \(bước (\d+)\))?/);
+    if (r) out.range = { min: +r[1], max: +r[2], step: +(r[3] || 1) };
+  }
+  return out;
+}
+function parseFile(src) {
+  const games = [], stack = []; let pendTitle = null, pendNotes = [], g = null;
+  for (const line of src.split(/\r?\n/)) {
+    let m;
+    if ((m = line.match(/^\s*\/\/ ===== (.+?) =====\s*$/))) { pendTitle = m[1]; pendNotes = []; continue; }
+    if (pendTitle && !stack.length && (m = line.match(/^\s*\/\/\s?(.*)$/))) { pendNotes.push(m[1]); continue; }
+    if ((m = line.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*\{\s*(?:\/\/\s*(.*))?$/))) {
+      if (!stack.length) { g = { key: m[1], title: pendTitle || m[1], notes: pendNotes, rows: [] }; games.push(g); pendTitle = null; pendNotes = []; }
+      else g.rows.push({ group: true, depth: stack.length, text: m[2] || m[1] });
+      stack.push(m[1]); continue;
+    }
+    if (/^\s*\},?\s*$/.test(line)) { stack.pop(); continue; }
+    if (g && stack.length && (m = line.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*(.+?)\s*,\s*\/\/\s*(.*)$/))) {
+      g.rows.push({ path: [...stack, m[1]], raw: m[2], ...parseComment(m[3]) });
+    }
+  }
+  return games;
+}
+const get = (o, path) => path.reduce((x, k) => (x && typeof x === 'object' ? x[k] : undefined), o);
+function valid(r, v) {
+  if (r.choices) return r.choices.some(c => c.v === v);
+  if (r.range) { if (r.path.join('.') === 'scribble.frames' && v === 0) return true; return typeof v === 'number' && Number.isInteger(v) && v >= r.range.min && v <= r.range.max && (v - r.range.min) % r.range.step === 0 && !(r.path.join('.') === 'scribble.frames' && v > 0 && v < 4); }
+  return true;
+}
+function rowHTML(r, cfg, live) {
+  if (r.group) return `<div class="grp" style="padding-left:${18 + (r.depth - 1) * 12}px">${esc(r.text)}</div>`;
+  const v = live ? get(cfg, r.path) : parseLit(r.raw);
+  const ok = v !== undefined && valid(r, v);
+  let vals = '';
+  if (r.choices) vals = r.choices.map(c => `<span class="ch ${c.v === v ? 'on' : ''}" title="${esc(lit(c.v))}">${esc(c.label)}</span>`).join('');
+  else vals = `<span class="cur">${esc(v === undefined ? '(trống)' : String(v))}</span><span class="rng">${esc(r.rangeText)}</span>`;
+  if (!ok) vals += `<span class="bad">⚠️ Giá trị ${esc(v === undefined ? '(thiếu)' : lit(v))} không hợp lệ → game dùng luật gốc trong code.</span>`;
+  return `<div class="row"><div class="nm"><b>${esc(r.label)}</b>${r.help ? `<small>${esc(r.help)}</small>` : ''}<code>${esc(r.path.slice(1).join('.'))}</code></div><div class="vals">${vals}</div></div>`;
+}
+(async () => {
+  let src = '', cfg = null, err = null;
+  try { const res = await fetch(URL_, { cache: 'no-store' }); if (!res.ok) throw new Error('HTTP ' + res.status); src = await res.text(); }
+  catch (e) { $('#status').className = 'status err'; $('#status').innerHTML = `❌ Không tải được file luat-mac-dinh.js – các game đang dùng luật gốc trong code.<small>${esc(e.message || e)}</small>`; $('#games').innerHTML = ''; return; }
+  try { const m = await import(URL_); cfg = m.default; if (!cfg || typeof cfg !== 'object') throw new Error('file không có "export default { … }"'); }
+  catch (e) { err = e; }
+  const games = parseFile(src);
+  const st = $('#status');
+  if (err) { st.className = 'status err'; st.innerHTML = `❌ File luật đang LỖI (thường do thiếu dấu phẩy, ngoặc hoặc dấu nháy) → mọi game đang chạy bằng luật gốc trong code. Bảng dưới chỉ là nội dung file, CHƯA có hiệu lực.<small>${esc(err.message || err)}</small>`; }
+  else {
+    let bad = 0; for (const g of games) for (const r of g.rows) if (!r.group && !valid(r, get(cfg, r.path))) bad++;
+    const n = games.reduce((t, g) => t + g.rows.filter(r => !r.group).length, 0);
+    st.className = 'status' + (bad ? ' err' : '');
+    st.innerHTML = bad ? `⚠️ File đọc được, nhưng có ${bad} giá trị không hợp lệ (đánh dấu bên dưới) – các giá trị đó dùng luật gốc.<small>${games.length} game · ${n} tuỳ chọn</small>`
+      : `✅ File luật đang hoạt động: ${games.length} game · ${n} tuỳ chọn.<small>Vừa sửa trên GitHub mà chưa thấy đổi? Đợi thêm vài phút (GitHub Pages lưu bộ nhớ đệm ~10 phút) rồi tải lại.</small>`;
+  }
+  $('#jump').innerHTML = games.map(g => `<a href="#g-${esc(g.key)}">${esc(g.title)}</a>`).join('');
+  $('#games').innerHTML = games.map(g => `<section class="game" id="g-${esc(g.key)}"><h2>${esc(g.title)} <small>${g.rows.filter(r => !r.group).length} tuỳ chọn</small></h2>${g.notes.length ? `<p class="note">${esc(g.notes.join(' '))}</p>` : ''}${g.rows.map(r => rowHTML({ ...r, path: r.group ? r.path : [g.key, ...r.path.slice(1)] }, cfg, !err)).join('')}</section>`).join('') || '<p class="loading">Không đọc được nội dung nào.</p>';
+})();
+</script>
