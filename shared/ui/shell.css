@@ -23,3 +23,7 @@ button,a,.tile{-webkit-tap-highlight-color:transparent}
 
 /* 🧈 đang cuộn (feel.js gắn html.gumballz-scroll): tạm dừng hoạt ảnh CSS cho cuộn mượt */
 html.gumballz-scroll *,html.gumballz-scroll *::before,html.gumballz-scroll *::after{animation-play-state:paused!important}
+/* patch -138: chữ GUMBALLZ trên topbar (.wm) vẫn chạy khi cuộn — ngoại lệ của rule pause trên.
+   Rule này có specificity cao hơn (2 class so với 1 class của rule pause) nên thắng dù cả 2 đều !important.
+   Chỉ 1 chữ nhỏ nên không ảnh hưởng độ mượt khi cuộn; -132 đã đẩy 2 lớp logo lên compositor (will-change) nên animation chạy được trên compositor lúc cuộn. */
+html.gumballz-scroll .wm,html.gumballz-scroll .wm *,html.gumballz-scroll .wm *::before,html.gumballz-scroll .wm *::after{animation-play-state:running!important}
