@@ -19,10 +19,17 @@ const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) 
 const num = v => Math.max(0, Math.floor(+v || 0));
 const lastT = s => Math.max(0, ...Object.values(s.g).map(g => +g.last || 0));
 let busy = false, again = false, timer = 0;
+const waiters = new Set(); /* người chờ lần chạy đang dở (nút Đồng bộ bấm đúng lúc đồng bộ nền đang chạy) */
 export function syncSoon(ms = 3000) { clearTimeout(timer); timer = setTimeout(syncNow, ms); }
 export async function syncNow() {
-  const u = auth.user(), tok = auth.token(); if (!u || !tok) return;
-  if (busy) { again = true; return; } busy = true;
+  const u = auth.user(), tok = auth.token(); if (!u || !tok) return false;
+  if (busy) { again = true; return new Promise(res => waiters.add(res)); } /* chờ lần chạy đang dở xong rồi lấy đúng kết quả của nó, thay vì báo lỗi sai */
+  busy = true;
+  let ok; try { ok = await runSync(u, tok); } catch (e) { ok = false; } finally { busy = false; for (const w of waiters) w(ok); waiters.clear(); if (again) { again = false; syncSoon(1500); } }
+  return ok;
+}
+/* phần chạy đồng bộ thật — được syncNow bọc ngoài để xử lý bận/chờ */
+async function runSync(u, tok) {
   try {
     let m = meta(); const s = load();
     const other = m && m.uid !== u.id; /* máy này từng đồng bộ cho tài khoản khác: không cộng số của người đó vào tài khoản này */
@@ -43,8 +50,8 @@ export async function syncNow() {
     const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace ? cleanAvatar(av) : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot(), parts: readParts() }; /* nhân vật: gửi đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên) · danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian · linh kiện trúng rương: máy chủ gộp (hợp nhất 2 danh sách, chỉ nhận id đã biết) */
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
     let r; try { r = await (await fetch(API() + '/auth/profile', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body), signal: ctl.signal })).json(); } finally { clearTimeout(to); }
-    if (!r || !r.ok || !r.prof) return; /* lỗi mạng / hết phiên: giữ gói đang gửi dở, lần sau gửi lại */
-    { const cur = meta(); if (!cur || !cur.pend || cur.pend.op !== m.pend.op) return; } /* tab khác (hoặc bản module khác) đã gộp gói này rồi: gộp lần nữa là cộng trùng */
+    if (!r || !r.ok || !r.prof) return false; /* lỗi mạng / hết phiên: giữ gói đang gửi dở, lần sau gửi lại */
+    { const cur = meta(); if (!cur || !cur.pend || cur.pend.op !== m.pend.op) return true; } /* tab khác (hoặc bản module khác) đã gộp gói này rồi: gộp lần nữa là cộng trùng – dữ liệu đã đồng bộ qua tab kia */
     saveServerSnapshot(r.prof); /* tổng máy chủ (mốc cũ + đã xác minh + ván local đã nhận) để hiện riêng với số trên máy này */
     try { if (r.prof.dl && typeof r.prof.dl === 'object') { const dl = r.prof.dl; ls.set(LOGIN, JSON.stringify({ last: typeof dl.last === 'string' ? dl.last : '', streak: num(dl.streak), total: num(dl.total) })); } } catch (e) {} /* 🎁 điểm danh: máy chủ là chuẩn — hồ sơ trả về mang chuỗi điểm danh, ghi đè bản local */
     try { adoptServer(r.prof.wal); } catch (e) {} /* 💰 ví xu: máy chủ trả bản mới nhất — máy này nhận nếu mới hơn bản trên máy */
@@ -68,7 +75,8 @@ export async function syncNow() {
     if (avatarUsable(P.av) && (m.replace || num(P.av.t) > num(av && av.t))) { ls.set(AV, JSON.stringify(cleanAvatar(P.av))); try { dispatchEvent(new CustomEvent('gumballz-avatar', { detail: { fromSync: true } })); } catch (e) {} } /* nhân vật ở máy khác mới hơn thì nhận — bản thiếu {e:'ch'} không có nhân vật thì bỏ qua, không đè nhân vật ở máy này (đó là vòng lặp khiến F5 lại ra nhân vật khác) */
     if (typeof P.title === 'string' && num(P.titleT) > num(ls.get(TTT))) { ls.set(TT, P.title); ls.set(TTT, String(num(P.titleT))); } /* danh hiệu chọn ở máy khác mới hơn */
     try { dispatchEvent(new CustomEvent('gumballz-stats-sync')); } catch (e) {}
-  } catch (e) { /* thử lại ở lần sau */ } finally { busy = false; if (again) { again = false; syncSoon(1500); } }
+    return true;
+  } catch (e) { /* thử lại ở lần sau */ return false; }
 }
 // tự chạy: lúc tải trang (nếu có ván chưa gửi hoặc đã hơn 10 phút), khi đăng nhập, và sau mỗi ván
 export function autoSync() {

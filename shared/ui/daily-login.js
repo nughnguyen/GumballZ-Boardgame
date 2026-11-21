@@ -154,7 +154,7 @@ async function claimLocal() {
   toast('Nhận +' + nx.xu + ' xu! Chuỗi ' + nx.streak + ' ngày 🔥');
   refreshDot();
   render({ last: today, streak: nx.streak, total: r.total + 1, claimed: true, day: nx.day, nextDay: nx.day, nextXu: nx.xu, mode: auth.user() ? 'old-server' : 'guest' });
-  try { const s = await import('./sync.js?v=47'); s.syncSoon(800); } catch (e) {}
+  try { const s = await import('./sync.js?v=48'); s.syncSoon(800); } catch (e) {}
 }
 async function doClaim() {
   const btn = document.getElementById('lg-claim'); if (!btn || btn.disabled) return;
@@ -171,7 +171,7 @@ async function doClaim() {
         toast('Nhận +' + r.xu + ' xu! Chuỗi ' + r.streak + ' ngày 🔥');
         refreshDot();
         render({ last: today, streak: r.streak, total: r.total, claimed: true, day: r.day, nextDay: r.day, nextXu: r.xu, mode: 'server' });
-        try { const s = await import('./sync.js?v=47'); s.syncSoon(800); } catch (e) {} /* đồng bộ để mở khóa thành tích dl-7 / dl-30 nếu đủ */
+        try { const s = await import('./sync.js?v=48'); s.syncSoon(800); } catch (e) {} /* đồng bộ để mở khóa thành tích dl-7 / dl-30 nếu đủ */
         return;
       }
       if (r && r.already) { /* đã nhận rồi (tab khác nhận trước / bấm 2 lần) */

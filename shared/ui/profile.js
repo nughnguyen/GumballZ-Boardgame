@@ -2,13 +2,14 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=50'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=51'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=89';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=4'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js';
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
+import { syncNow } from './sync.js?v=48'; /* 🔄 Đồng bộ ngay (patch -96): kéo hồ sơ từ máy chủ về máy này */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
 const gameURL = g => { try { return new URL('../../' + g + '/', import.meta.url).href; } catch (e) { return g + '/'; } };
@@ -253,8 +254,15 @@ export function openProfile() {
   profileCss(); document.getElementById('pf-ov')?.remove();
   const ov = document.createElement('div'); ov.className = 'pf-ov'; ov.id = 'pf-ov';
   const onSync = () => { if (ov.isConnected) draw(); }, close = () => { ov.remove(); removeEventListener('keydown', key, true); removeEventListener('gumballz-stats-sync', onSync); removeEventListener('gumballz-wallet', onSync); }, key = e => { if (e.key === 'Escape' && !document.querySelector('.dg-ov')) { e.stopPropagation(); close(); } };
-  let picking = false, tab = 'ch', sub = 'pre', srv = null, curSt = {} /* { rank, created } từ máy chủ – để tính danh hiệu Top / Thành viên đời đầu */;
+  let picking = false, tab = 'ch', sub = 'pre', srv = null, syncing = false, curSt = {} /* { rank, created } từ máy chủ – để tính danh hiệu Top / Thành viên đời đầu */;
   const selectTitle = id => { ls.set('gumballz-title', id); ls.set('gumballz-title-t', String(Date.now())); try { dispatchEvent(new CustomEvent('gumballz-title')); } catch (x) {} draw(); };
+  /* 🔄 Đồng bộ ngay (patch -96): kéo hồ sơ từ máy chủ về – tiền xu, XP, nhân vật ở máy khác sẽ hiện ở máy này */
+  const doSync = async () => {
+    if (syncing) return; syncing = true; draw();
+    let ok = false; try { ok = await syncNow(); } catch (e) { ok = false; }
+    syncing = false; if (ov.isConnected) draw();
+    import('./dialog.js?v=8').then(m => m.toast(ok ? '✅ Đã đồng bộ dữ liệu từ máy chủ' : '⚠️ Không đồng bộ được — thử lại sau nhé', 2600)).catch(() => {});
+  };
   /* ℹ️ gắn bong bóng thông tin (chạm mobile / rê chuột + focus desktop) cho mọi thành tích + danh hiệu trong hộp này */
   const bindInfo = () => {
     ov.querySelectorAll('[data-iname]').forEach(el => {
@@ -286,6 +294,7 @@ export function openProfile() {
       <div class="pf-wal"><span><b>${fmt(w.xu)}</b> xu</span><small>Thắng +10 xu · chơi +2 xu</small></div>
       <div class="pf-nums"><div><b>${nt.p}</b><small>Trận đã chơi</small></div><div><b>${nt.w}</b><small>Trận thắng</small></div><div><b>${fmt(w.xu)}</b><small>Xu hiện có</small></div></div>
       <p class="pf-note" style="margin:6px 0 0;text-align:left">${srvT ? `✅ Số máy chủ đã công nhận${verT ? ` (trong đó ${verT.p} ván đã xác minh)` : ''} · trên máy này: ${t.p} ván, ${t.w} thắng.` : 'Số trên máy này – đăng nhập để đồng bộ lên máy chủ.'}</p>
+      ${hasAcc ? `<button type="button" data-a="sync" ${syncing ? 'disabled' : ''} style="width:100%;border:2px solid #241A38;border-radius:12px;padding:10px 14px;margin-bottom:4px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;color:#241A38;background:${syncing ? '#E8E0F0' : '#FACD33'};cursor:${syncing ? 'wait' : 'pointer'};box-shadow:3px 3px 0 #241A38">${syncing ? '⏳ Đang đồng bộ…' : '🔄 Đồng bộ ngay'}</button>` : ''}
       <button type="button" data-a="rank" style="width:100%;border:2px solid #241A38;border-radius:12px;padding:10px 14px;margin-bottom:4px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;color:#241A38;background:#FACD33;cursor:pointer;box-shadow:3px 3px 0 #241A38">🏆 Xem Bảng xếp hạng toàn server ▶</button>
       <h3>🎖️ Danh hiệu <small>${tts.length} đã đạt</small></h3>
       <div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div>
@@ -308,6 +317,7 @@ export function openProfile() {
     if (b.dataset.a === 'pick') { picking = !picking; return draw(); }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
     if (b.dataset.a === 'rank') { close(); import('./leaderboard.js?v=35').then(m => m.openLeaderboard('all')); return; }
+    if (b.dataset.a === 'sync') { doSync(); return; }
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
     if (b.dataset.shopgo) { close(); location.href = shopURL(); return; } /* khung/màu tên bán bằng xu: sang Cửa hàng mua */
     if (b.dataset.lock) { import('./dialog.js?v=8').then(m => m.toast('🔒 ' + b.dataset.lock + ' để mở khoá', 2600)).catch(() => {}); return; }
