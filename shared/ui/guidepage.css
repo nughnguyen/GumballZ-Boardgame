@@ -1,7 +1,7 @@
 /* Trang luật chơi tĩnh /<game>/huong-dan/ + Giới thiệu (khung ngoài) — palette pastel */
 :root{--ink:#4A3E5C;--muted:#8B7E9E;--bg:#FFF8EE;--card:#FFFDF9;--line:#E9DCC6}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:600 16.5px/1.6 Nunito,system-ui,sans-serif}
+body{margin:0;background-color:var(--bg);background-image:var(--dotgrid);background-size:55px 55px;color:var(--ink);font:600 16.5px/1.6 Nunito,system-ui,sans-serif}
 a{color:#C22A0E}
 .gp-top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-bottom:3px solid var(--ink);box-shadow:0 3px 0 rgba(74,62,92,.13)}
 .gp-top .gumballz-chip{position:static;flex:none}
@@ -34,3 +34,6 @@ h1{font:400 clamp(30px,7vw,46px)/1.15 var(--font-display,"Bungee","Baloo 2",Nuni
 .gp-body ol.gp-steps>li::after{content:"Bước " counter(gp);display:inline-block;margin-top:4px;padding:1px 9px;border-radius:99px;background:#4A3E5C;color:#FFE3A3;font-weight:800;font-size:12px}
 .gp-more h2{font:400 20px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:22px 0 4px}.gp-more a{white-space:nowrap}
 @media(max-width:480px){.gp-top{padding:8px 10px}.gp-play,.gp-cta{font-size:13.5px;padding:8px 14px;min-height:46px}.gp-cta{min-height:50px}}
+/* Ảnh hướng dẫn từng game (patch -111): thẻ vuông 1080×1080, đặt đầu bài hướng dẫn. Parent nhớ bump guidepage.css?v=8→8 khi đăng ký. */
+.gp-body .gp-card{margin:16px auto 8px;max-width:640px;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:4px 4px 0 rgba(74,62,92,.15);background:#FFF8EE}
+.gp-body .gp-card img{display:block;width:100%;height:auto;max-height:none;margin:0;border-radius:0;box-shadow:none}

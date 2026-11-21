@@ -4,19 +4,21 @@ import { auth } from '../net/api.js?v=29';
 import { promptBox, formBox } from './dialog.js?v=8';
 import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=54';
 
-const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
+const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */
+.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
 .ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-lv{flex:none;background:#FACD33;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:1px 7px;font:800 12px/1.4 Nunito,sans-serif;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
 .ac-menu{position:absolute;z-index:9998;background:#FFFDF9;border-radius:14px;box-shadow:0 12px 32px #4A3E5C33;padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
 .ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:#4A3E5C;font:inherit}.ac-menu button:hover{background:#f6efe6}
-.ac-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:14px}
-.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#fffaf3;color:#4A3E5C;border-radius:22px;padding:18px;box-shadow:0 20px 60px #0006;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
-.ac-box h2{margin:0 36px 4px 0;font:800 22px/1.2 "Baloo 2",Nunito,sans-serif}
+.ac-ov{position:fixed;inset:0;z-index:9999;background-color:#1a1426aa;background-image:linear-gradient(0deg,transparent 24%,rgba(185,166,255,.16) 25%,rgba(185,166,255,.16) 26%,transparent 27%,transparent 74%,rgba(185,166,255,.16) 75%,rgba(185,166,255,.16) 76%,transparent 77%,transparent),linear-gradient(90deg,transparent 24%,rgba(185,166,255,.16) 25%,rgba(185,166,255,.16) 26%,transparent 27%,transparent 74%,rgba(185,166,255,.16) 75%,rgba(185,166,255,.16) 76%,transparent 77%,transparent);background-size:55px 55px;display:grid;place-items:center;padding:14px}
+.ac-box{width:min(400px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#FFFDF9;color:#4A3E5C;border:2px solid #241A38;border-radius:20px;padding:18px;box-shadow:3px 4px 0 #FACD33;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative}
+.ac-box h2{margin:0 36px 4px 0;font:900 22px/1.2 "Baloo 2",Nunito,sans-serif;color:#241A38}
 .ac-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:#f0e6da;font-size:18px;cursor:pointer;color:#4A3E5C}
-.ac-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0e6da;border-radius:999px;padding:4px;margin:10px 0}
+.ac-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f0e6da;border:2px solid #241A38;border-radius:999px;padding:4px;margin:10px 0}
 .ac-tabs button{border:0;border-radius:999px;min-height:38px;font:800 14px Nunito,sans-serif;background:none;color:#4A3E5C;cursor:pointer}.ac-tabs button[aria-pressed=true]{background:#FFFDF9;box-shadow:0 2px 6px #0001}
-.ac-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:#6b5f7a}
-.ac-box input{width:100%;box-sizing:border-box;border:1.5px solid #e2d4c4;border-radius:12px;padding:11px 12px;font:600 16px Nunito,sans-serif;background:#FFFDF9;color:#4A3E5C}
-.ac-go{width:100%;margin-top:14px;border:0;border-radius:999px;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:#fff;background:linear-gradient(90deg,#ff4d5e,#ff9a3d);cursor:pointer}.ac-go:disabled{opacity:.6}
+.ac-box label{display:block;font-weight:800;font-size:13px;margin:10px 0 4px;color:#241A38}
+.ac-box input{width:100%;box-sizing:border-box;border:2px solid #241A38;border-radius:4px;box-shadow:3px 4px 0 #FACD33;padding:12px 10px;font:600 16px Nunito,sans-serif;background:#fff;color:#4A3E5C;outline:none}
+.ac-box input:focus{transform:translateY(4px);box-shadow:1px 2px 0 #FACD33}
+.ac-go{width:100%;margin-top:14px;border:2px solid #241A38;border-radius:10px;box-shadow:3px 3px 0 #241A38;min-height:48px;font:800 16px "Baloo 2",Nunito,sans-serif;color:#241A38;background:#FACD33;cursor:pointer}.ac-go:hover{opacity:.9}.ac-go:focus{transform:translateY(4px);box-shadow:1px 2px 0 #241A38}.ac-go:disabled{opacity:.6}
 .ac-err{color:#c0263b;font-weight:700;min-height:20px;margin:8px 0 0;font-size:14px}
 .ac-or{display:flex;align-items:center;gap:10px;color:#8a7f96;font-size:13px;margin:14px 0 10px}.ac-or::before,.ac-or::after{content:"";flex:1;height:1.5px;background:#ecdfd0}
 .ac-g{display:flex;justify-content:center;min-height:44px}

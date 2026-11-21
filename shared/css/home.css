@@ -5,7 +5,7 @@
 :root{--ink:#241A38;--muted:#8B7E9E;--bg:#FFF8EE;--card:#FFFDF9;--y1:#FACD33;--y2:#FFE9A8;--p1:#FF5A60;--p2:#2EC5B6;--p3:#B9A6FF;--sky:#B9A6FF;--sh:4px 4px 0 #241A38;--sh-sm:3px 3px 0 #241A38;--font-display:"Baloo 2",Nunito,sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:84px}
-body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:600 16px/1.5 Nunito,system-ui,sans-serif;overflow-x:hidden}
+body{margin:0;min-height:100vh;background-color:var(--bg);background-image:var(--dotgrid);background-size:55px 55px;color:var(--ink);font:600 16px/1.5 Nunito,system-ui,sans-serif;overflow-x:hidden}
 .blob{display:none}
 main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16px 32px}
 
