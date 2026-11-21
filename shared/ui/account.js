@@ -5,7 +5,7 @@ import { promptBox, formBox } from './dialog.js?v=8';
 import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=54';
 
 const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
-.ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
+.ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-lv{flex:none;background:#FACD33;color:#241A38;border:2px solid #241A38;border-radius:999px;padding:1px 7px;font:800 12px/1.4 Nunito,sans-serif;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}
 .ac-menu{position:absolute;z-index:9998;background:#FFFDF9;border-radius:14px;box-shadow:0 12px 32px #4A3E5C33;padding:6px;min-width:190px;font:700 14px Nunito,sans-serif}
 .ac-menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;cursor:pointer;color:#4A3E5C;font:inherit}.ac-menu button:hover{background:#f6efe6}
 .ac-ov{position:fixed;inset:0;z-index:9999;background:#1a1426aa;display:grid;place-items:center;padding:14px}
@@ -144,14 +144,17 @@ function menu(anchor) {
 
 export function mountAccount(el) {
   css();
+  let lv = 1, stMod = null; /* cấp người chơi — nạp stats.js động như topbar.js (tránh vòng lặp import); Lv mặc định 1 cho tới khi nạp xong */
   const draw = u => {
     const b = u && frCount ? `<b class="ac-bdg">${frCount > 9 ? '9+' : frCount}</b>` : `<b class="ac-bdg"></b>`;
-    el.innerHTML = u ? `<button class="ac-btn" type="button" aria-haspopup="menu" style="padding-left:5px">${avatarHTML(30)} <span>${esc(u.name)}</span> <b class="v" title="Đã đăng nhập">✓</b>${b}</button>` : `<button class="ac-btn" type="button">👤 <span>Đăng nhập</span></button>`;
+    el.innerHTML = u ? `<button class="ac-btn" type="button" aria-haspopup="menu" style="padding-left:5px">${avatarHTML(30)} <span class="ac-lv">Lv ${lv}</span><span>${esc(u.name)}</span> <b class="v" title="Đã đăng nhập">✓</b>${b}</button>` : `<button class="ac-btn" type="button">👤 <span>Đăng nhập</span></button>`;
     el.firstElementChild.onclick = e => u ? menu(e.currentTarget) : openLogin();
   };
   const syncBdg = () => { const d = el.querySelector('.ac-btn .ac-bdg'); if (d) d.textContent = frCount ? (frCount > 9 ? '9+' : frCount) : ''; };
   addEventListener('gumballz-friends', e => { frCount = (e.detail && e.detail.count) || 0; syncBdg(); });
   profileCss(); draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
+  import('./stats.js?v=90').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
+  addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
   import('./friends.js?v=35').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
   import('./friends-chat.js?v=1').catch(() => {}); /* hộp chat bạn bè kiểu Messenger (tự bật khi nạp) */

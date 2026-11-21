@@ -165,7 +165,7 @@ export async function openDonate() {
     else if (b.dataset.cp) copy(code(), b);
     else if (b.hasAttribute('data-sendmsg')) sendMsg(b);
     else if (b.hasAttribute('data-claim-send')) sendClaim(b);
-    else if (b.hasAttribute('data-login')) { close(); import('./account.js?v=50').then(m => m.openLogin()); }
+    else if (b.hasAttribute('data-login')) { close(); import('./account.js?v=51').then(m => m.openLogin()); }
   });
   /* ⚡ quét xong là báo liền: hỏi máy chủ 3 giây/lần (sau 5 phút thì 8 giây/lần) xem khoản có mã R…Z của hộp này về chưa */
   let tries = 0;

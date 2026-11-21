@@ -54,7 +54,7 @@ export async function openInvite({ code, url, title = document.title.split(/[–
 async function friendsPart(ov, code, url) {
   const box = ov.querySelector('.iv-fr'); if (!box) return;
   let api; try { api = await import('../net/api.js?v=29'); } catch (e) { return; }
-  if (!api.auth.user()) { box.hidden = false; box.querySelector('.iv-fl').innerHTML = '<p class="iv-fe">Đăng nhập để mời thẳng bạn bè đang online trong web nha. <button type="button" class="iv-lg">Đăng nhập</button></p>'; box.querySelector('.iv-lg').onclick = () => import('./account.js?v=50').then(m => m.openLogin()).catch(() => {}); return; }
+  if (!api.auth.user()) { box.hidden = false; box.querySelector('.iv-fl').innerHTML = '<p class="iv-fe">Đăng nhập để mời thẳng bạn bè đang online trong web nha. <button type="button" class="iv-lg">Đăng nhập</button></p>'; box.querySelector('.iv-lg').onclick = () => import('./account.js?v=51').then(m => m.openLogin()).catch(() => {}); return; }
   const game = (window.__gumballzRoom && window.__gumballzRoom.game) || (new URL(url).pathname.split('/').filter(Boolean)[0] || '');
   const r = await api.friends.list().catch(() => null); if (!ov.isConnected) return;
   const L = (r && r.ok && r.friends || []).slice().sort((a, b) => (b.on ? 1 : 0) - (a.on ? 1 : 0));

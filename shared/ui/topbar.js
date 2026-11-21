@@ -67,20 +67,18 @@
 
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
-  import('./account.js?v=50').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
-  // hồ sơ: avatar + cấp ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
+  import('./account.js?v=51').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
+  // hồ sơ: avatar ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
   import('./profile.js?v=54').then(function (m) {
-    return import('./stats.js?v=90').then(function (st) {
-      m.profileCss();
-      var b = document.getElementById('btn-prof');
-      var d = function () { b.innerHTML = m.avatarHTML(42) + '<span class="lv">' + st.level().lv + '</span>'; };
-      d();
-      addEventListener('gumballz-avatar', d);
-      addEventListener('gumballz-stats', d);
-      b.onclick = function () { m.openProfile(); };
-      var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
-      var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
-    });
+    m.profileCss();
+    var b = document.getElementById('btn-prof');
+    var d = function () { b.innerHTML = m.avatarHTML(42); };
+    d();
+    addEventListener('gumballz-avatar', d);
+    addEventListener('gumballz-stats', d);
+    b.onclick = function () { m.openProfile(); };
+    var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
+    var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
   }).catch(function () {});
   // pill xu: hiện số dư, cập nhật khi ví đổi
   import('./wallet.js?v=6').then(function (w) {

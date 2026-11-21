@@ -73,7 +73,7 @@ export function openMember(key) {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
     if (a === 'edit') { close(); import('./profile.js?v=54').then(m => m.openProfile()); }
-    else if (a === 'login') { close(); import('./account.js?v=50').then(m => m.openLogin()); }
+    else if (a === 'login') { close(); import('./account.js?v=51').then(m => m.openLogin()); }
     else if (a === 'dm') { close(); import('./friends.js?v=35').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
