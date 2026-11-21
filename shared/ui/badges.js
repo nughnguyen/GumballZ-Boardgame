@@ -150,6 +150,14 @@ function cleanupBadgePills(root) {
 }
 let badgeRiveStarted = false;
 export function ensureBadgeRive() {
+  /* patch -140: trang Quản trị KHÔNG mount huy hiệu Rive — cờ window.__gumballzNoBadgeRive do
+     quantri/index.html đặt trước khi gọi mountAccount(). Lý do: -139 chỉ gỡ lời gọi ensureBadgesCSS
+     trực tiếp trong quantri/index.html, nhưng mountAccount() → profileCss() → ensureBadgesCSS() vẫn cài
+     lại MutationObserver này (lỗ hổng của -139). Observer cài rồi thì mở tab Tài khoản là nó nạp runtime
+     Rive + mount 3 instance → treo y như trước -139 (đúng lúc user bấm dropdown cấp vật phẩm thì runtime
+     đang nạp nên tưởng dropdown gây treo — thực ra dropdown không có handler nào, xem quantri/index.html).
+     Các trang khác không đặt cờ nên không ảnh hưởng. */
+  if (typeof window !== 'undefined' && window.__gumballzNoBadgeRive) return;
   if (badgeRiveStarted) return;
   badgeRiveStarted = true;
   if (!shouldMountBadgeRive()) return; /* giảm chuyển động / không có DOM: giữ pill CSS */

@@ -44,6 +44,15 @@ import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sác
 import { FRAMES, NAME_COLORS } from '../shared/js/avatar-rewards.js?v=2'; /* 🎁 món thành tích để cấp tay (patch -131) */
 import '../shared/net/presence.js?v=26';
 import '../shared/ui/theme.js?v=1'; /* patch -130: chế độ tối (áp theme + meta theme-color + theo hệ thống) */
+/* patch -140: trang Quản trị KHÔNG mount huy hiệu Rive — đặt cờ TRƯỚC mountAccount() vì mountAccount →
+   profileCss() → ensureBadgesCSS() → ensureBadgeRive() sẽ cài lại MutationObserver toàn trang (lỗ hổng
+   của -139: -139 chỉ gỡ lời gọi trực tiếp trong file này). Observer mà cài rồi thì mở tab Tài khoản là nó
+   nạp runtime Rive (~694KB + wasm ~2,3MB) + mount 3 instance → treo y như trước -139. Cờ này làm
+   ensureBadgeRive() thoát ngay (xem shared/ui/badges.js); các trang khác không đặt cờ nên không ảnh hưởng.
+   Dropdown cấp vật phẩm KHÔNG phải nguyên nhân treo: nó là <select> native, không có handler click/focus/
+   change nào (chỉ nút "🎁 Cấp vật phẩm" mới đọc sel.value); user bấm dropdown đúng lúc runtime Rive đang
+   nạp (do bảng vừa render ra 3 pill .bdg) nên tưởng dropdown gây treo — thực ra main-thread đã bị chặn sẵn. */
+window.__gumballzNoBadgeRive = true;
 mountAccount(document.getElementById('acct'));
 /* patch -139: KHÔNG gọi ensureBadgesCSS() trên trang Quản trị nữa. Lý do: ensureBadgesCSS() khởi động
    ensureBadgeRive() — 1 MutationObserver toàn trang; mỗi lần vào mục Tài khoản, bảng render ra 3 pill .bdg
@@ -83,7 +92,13 @@ async function gate() {
     if (r.ok) { localStorage.setItem('gumballz-auth', JSON.stringify({ token: auth.token(), user: r.user })); gate(); } else $('#g-e').textContent = r.msg; };
 }
 auth.onChange(() => gate()); auth.refresh().then(() => gate());
+/* patch -140: gate() chạy 3× lúc tải (refresh → save → onChange, refresh.then, refresh của mountAccount)
+   nên stats()/usage() bị gọi 3× dồn → 3× fetch + 3× render to. Chặn bằng cờ đang-chạy: lần gọi sau thấy
+   đang chạy thì bỏ qua; lần gọi sau khi xong (vd. interval 60s của usage) vẫn chạy bình thường. */
+let statsBusy = false, usageBusy = false;
 async function stats() {
+  if (statsBusy) return; statsBusy = true;
+  try {
   const s = await api({ op: 'stats' }); if (!s.ok) return;
   const on = await fetch(API() + '/presence').then(r => r.json()).catch(() => ({}));
   /* Gộp cả 2 thẻ ủng hộ vào cùng 1 lần gán innerHTML — để gọi stats() nhiều lần
@@ -94,6 +109,7 @@ async function stats() {
     if (dd.ok) { const vnd = n => (+n || 0).toLocaleString('vi-VN') + 'đ'; h += `<div class="stat"><b>${vnd(dd.month)}</b><small>☕ Ủng hộ tháng này</small></div><div class="stat"><b>${(dd.pend || []).length}</b><small>⏳ Chờ duyệt ủng hộ</small></div>`; }
   }
   $('#stats').innerHTML = h;
+  } finally { statsBusy = false; }
 }
 // 📊 Hạn mức Cloudflare (ước tính, cập nhật mỗi phút)
 const CF_DASH = 'https://dash.cloudflare.com/?to=/:account';
@@ -106,6 +122,8 @@ const drawLive = () => {
 };
 addEventListener('gumballz-live', e => { LIVE = e.detail; drawLive(); });
 async function usage() {
+  if (usageBusy) return; usageBusy = true;
+  try {
   const u = await api({ op: 'usage' }); if (!u.ok) { $('#use').innerHTML = '<p class="muted">Chưa đọc được hạn mức (máy chủ chưa cập nhật?)</p>'; return; }
   const pg = Math.min(100, u.gbs / u.limGbs * 100), pr = Math.min(100, u.req / u.limReq * 100), lv = p => p >= 100 ? 'full' : p >= 85 ? 'warn' : '';
   const per = u.per === 'day' ? 'hôm nay' : 'tháng này', reset = u.per === 'day' ? 'Làm mới lúc ' + hm(u.resetAt) + ' sáng mai' : 'Làm mới ngày ' + new Date(u.resetAt).toLocaleDateString('vi-VN');
@@ -125,6 +143,7 @@ async function usage() {
     <div class="acts" style="margin-top:10px"><a class="cfl" href="${CF_DASH}/workers/services/view/gumballz-rooms/production/metrics" target="_blank" rel="noopener">📈 Số chính xác trên Cloudflare</a><a class="cfl" href="${CF_DASH}/workers/plans" target="_blank" rel="noopener">⬆️ Nâng gói Workers</a><a class="cfl" href="${CF_DASH}/workers/services/view/gumballz-rooms/production/settings" target="_blank" rel="noopener">⚙️ Cài đặt máy chủ</a></div>
     <p class="muted" style="font-size:12px;margin:6px 0 0">"Đang chơi" cập nhật tức thì (chỉ tính phòng online, không tính chơi với bot trên máy). Số hạn mức do GumballZ tự đo nên lệch chút ít – bấm nút để xem số chính xác (cần đăng nhập Cloudflare).</p>`;
   drawLive(); if (window.__role !== 1) cfUse(); /* Mod không được xem số Cloudflare → khỏi gọi (tránh 403) */
+  } finally { usageBusy = false; }
 }
 // 📈 số thật đọc từ Cloudflare (máy chủ hỏi GraphQL Analytics, giữ 5 phút)
 async function cfUse() {
