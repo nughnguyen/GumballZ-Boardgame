@@ -3,7 +3,7 @@ import { auth, friends } from '../net/api.js?v=29';
 const amOwner = () => { const u = auth.user(); return !!(u && u.admin && u.owner); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) – patch -94: dùng cờ owner của máy chủ, không ghi cứng id 1 */
 import { openLogin } from './account.js?v=51';
 import { confirmBox } from './dialog.js?v=6';
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
+import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=3'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 
 const ROOT = new URL('../../', import.meta.url).href;
 const GAMES = {
@@ -222,7 +222,7 @@ export function showPlayerCard(target, anchorEl = null) {
 
   const draw = () => {
     const u = auth.user();
-    const tag = info.uid ? `${info.uname ? '@' + esc(info.uname) + ' · ' : ''}#${info.uid}` : 'Chơi khách (chưa đăng nhập)';
+    const tag = info.uid ? `${info.uname ? '@' + esc(info.uname) + ' · ' : ''}#${uid6(info.uid)}` : 'Chơi khách (chưa đăng nhập)';
     let note = '', btns = '';
     if (!info.uid) {
       note = 'Bạn này chưa đăng nhập tài khoản GumballZ nên chưa kết bạn hoặc nhắn tin riêng được.';
@@ -365,7 +365,7 @@ function createFriendsPanel(root, initialUid = null) {
         const isFr = p.uid && (data.friends || []).some(f => f.id === p.uid);
         const isIn = p.uid && (data.incoming || []).some(f => f.id === p.uid);
         const isOut = p.uid && (data.outgoing || []).some(f => f.id === p.uid);
-        const sub = p.uid ? `${p.uname ? '@' + esc(p.uname) + ' · ' : ''}#${+p.uid}` : 'Chơi khách (chưa đăng nhập)';
+        const sub = p.uid ? `${p.uname ? '@' + esc(p.uname) + ' · ' : ''}#${uid6(p.uid)}` : 'Chơi khách (chưa đăng nhập)';
         const act = isFr ? `<div class="bf-rbtns"><button type="button" class="ok" data-open="${+p.uid}">💬 Nhắn</button></div>`
           : isIn ? `<div class="bf-rbtns"><button type="button" class="ok" data-act="accept" data-id="${+p.uid}">Đồng ý</button></div>`
           : isOut ? '<small style="color:#8a7f96">Đã gửi</small>'
@@ -376,7 +376,7 @@ function createFriendsPanel(root, initialUid = null) {
     }
     if (data.incoming && data.incoming.length) {
       html += '<div class="bf-sec">Lời mời kết bạn</div>';
-      html += data.incoming.map(p => `<div class="bf-it" style="cursor:default"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>${p.username ? '@' + esc(p.username) + ' · ' : ''}#${p.id}</small></div><div class="bf-rbtns"><button type="button" class="ok" data-act="accept" data-id="${p.id}">Đồng ý</button><button type="button" class="no" data-act="reject" data-id="${p.id}">✕</button></div></div>`).join('');
+      html += data.incoming.map(p => `<div class="bf-it" style="cursor:default"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>${p.username ? '@' + esc(p.username) + ' · ' : ''}#${uid6(p.id)}</small></div><div class="bf-rbtns"><button type="button" class="ok" data-act="accept" data-id="${p.id}">Đồng ý</button><button type="button" class="no" data-act="reject" data-id="${p.id}">✕</button></div></div>`).join('');
     }
     html += '<div class="bf-sec">Bạn bè</div>';
     if (data.friends && data.friends.length) {
@@ -395,7 +395,7 @@ function createFriendsPanel(root, initialUid = null) {
     }
     if (data.blocked && data.blocked.length) {
       html += '<div class="bf-sec">🚫 Đã chặn</div>';
-      html += data.blocked.map(p => `<div class="bf-it" style="cursor:default;opacity:.75"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>${p.username ? '@' + esc(p.username) + ' · ' : ''}#${p.id}</small></div><button type="button" class="bf-ub" data-unblock="${p.id}" data-nm="${esc(p.name)}">Bỏ chặn</button></div>`).join('');
+      html += data.blocked.map(p => `<div class="bf-it" style="cursor:default;opacity:.75"><span class="bf-av" style="background:${avCol(p.name)}">${esc([...p.name][0] || '?').toUpperCase()}</span><div class="t"><b>${esc(p.name)}</b><small>${p.username ? '@' + esc(p.username) + ' · ' : ''}#${uid6(p.id)}</small></div><button type="button" class="bf-ub" data-unblock="${p.id}" data-nm="${esc(p.name)}">Bỏ chặn</button></div>`).join('');
     }
     list.innerHTML = html;
   }
@@ -414,7 +414,7 @@ function createFriendsPanel(root, initialUid = null) {
     const room = activeRoom();
     if (!chatEl.querySelector('.bf-chd') || +chatEl.dataset.fid !== fr.id) {
       chatEl.dataset.fid = fr.id;
-      chatEl.innerHTML = `<div class="bf-chd"><button type="button" class="bf-bk">← Bạn bè</button><span class="bf-av" style="width:28px;height:28px;font-size:13px;background:${avCol(fr.name)}">${esc([...fr.name][0] || '?').toUpperCase()}</span><b style="flex:1">${esc(fr.name)}</b><small style="color:#8a7f96">${fr.username ? '@' + esc(fr.username) + ' · ' : ''}#${fr.id}</small></div>
+      chatEl.innerHTML = `<div class="bf-chd"><button type="button" class="bf-bk">← Bạn bè</button><span class="bf-av" style="width:28px;height:28px;font-size:13px;background:${avCol(fr.name)}">${esc([...fr.name][0] || '?').toUpperCase()}</span><b style="flex:1">${esc(fr.name)}</b><small style="color:#8a7f96">${fr.username ? '@' + esc(fr.username) + ' · ' : ''}#${uid6(fr.id)}</small></div>
         <div class="bf-msgs"></div>
         <form class="bf-in"><input type="text" maxlength="400" placeholder="Nhắn ${esc(fr.name)}…" autocomplete="off">${room ? '<button type="button" class="inv" title="Gửi link mời vào bàn hiện tại">🎲 Mời bàn</button>' : ''}<button type="submit" class="send">Gửi</button></form>`;
       chatEl.querySelector('.bf-bk').onclick = () => { activeId = null; mod.dataset.chat = '0'; drawSide(); drawChat(); };
@@ -532,7 +532,7 @@ export function openFriends(initialUid = null) {
   document.body.append(ov);
   const u0 = auth.user();
   ov.innerHTML = `<div class="bf-mod" role="dialog" aria-modal="true" data-chat="0">
-      <div class="bf-hd"><h2>🤝 Bạn bè &amp; Tin nhắn</h2><button type="button" class="bf-tag" title="Bấm để sao chép mã kết bạn">${u0 ? esc(`${u0.username ? '@' + u0.username + ' · ' : ''}#${u0.id}`) + ' 📋' : ''}</button><button type="button" class="bf-x" aria-label="Đóng">✕</button></div>
+      <div class="bf-hd"><h2>🤝 Bạn bè &amp; Tin nhắn</h2><button type="button" class="bf-tag" title="Bấm để sao chép mã kết bạn">${u0 ? esc(`${u0.username ? '@' + u0.username + ' · ' : ''}#${uid6(u0.id)}`) + ' 📋' : ''}</button><button type="button" class="bf-x" aria-label="Đóng">✕</button></div>
       <div class="bf-panel-host"></div>
     </div>`;
   const panel = createFriendsPanel(ov.querySelector('.bf-panel-host'), initialUid);
@@ -552,7 +552,7 @@ export function openFriends(initialUid = null) {
   };
   const offTag = auth.onChange(() => {
     const u = auth.user(), tagEl = ov.querySelector('.bf-tag');
-    if (tagEl) tagEl.textContent = u ? `${u.username ? '@' + u.username + ' · ' : ''}#${u.id} 📋` : '';
+    if (tagEl) tagEl.textContent = u ? `${u.username ? '@' + u.username + ' · ' : ''}#${uid6(u.id)} 📋` : '';
   });
   closeOpen = close;
 }

@@ -81,7 +81,7 @@ import { GROUPS } from './js/avatar-opts.js';
 import { FRAMES, NAME_COLORS, WIN_FX, TRACK, FRAME_RING, isOpen, lockDesc, charLock, charOpen, trackProgress, statsFromLoad, readAuthFlags, itemLabel } from './js/avatar-rewards.js';
 import { load as loadStats } from './ui/stats.js';
 import { playWin } from './ui/winfx.js';
-import { tierBadges } from './ui/badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
+import { tierBadges } from './ui/badges.js?v=3'; /* 🎖️ huy hiệu 4 bậc (patch -95) */
 const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let cfg = { ...(PRESETS.find(p => p.name === 'Bị cắm sừng') || PRESETS[0]) };
 let selP = PRESETS.findIndex(p => p.name === 'Bị cắm sừng');

@@ -131,7 +131,7 @@ function menu(anchor) {
     const a = e.target.closest('button')?.dataset.a; if (!a) return; m.remove();
     if (a === 'out') { await auth.logout(); toast('Đã đăng xuất'); }
     if (a === 'admin') location.href = new URL('../../quantri/', import.meta.url).href;
-    if (a === 'friends') import('./friends.js?v=35').then(m => m.openFriends());
+    if (a === 'friends') import('./friends.js?v=36').then(m => m.openFriends());
     if (a === 'prof') openProfile();
     if (a === 'set') import('./settings.js?v=47').then(m => m.openSettings());
     if (a === 'name') { const n = await promptBox('Tên này hiện khi bạn vào phòng và chat (2–20 ký tự).', { title: '✏️ Đổi tên hiển thị', value: u.name, maxlength: 20, ok: 'Đổi tên', required: true }); if (n) { const r = await auth.rename(n); toast(r.ok ? 'Đổi tên rồi nè ✨' : r.msg); } }
@@ -156,7 +156,7 @@ export function mountAccount(el) {
   import('./stats.js?v=91').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
   addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
-  import('./friends.js?v=35').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=36').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});
   import('./friends-chat.js?v=1').catch(() => {}); /* hộp chat bạn bè kiểu Messenger (tự bật khi nạp) */
   if (auth.user()) auth.refresh(); // phiên hết hạn → tự đăng xuất
 }

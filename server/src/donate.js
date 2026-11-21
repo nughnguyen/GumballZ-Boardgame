@@ -4,7 +4,7 @@
 // Giao thức SePay (học từ bản gốc, viết lại): webhook POST JSON { content, transferAmount, transferType, id }.
 //   Xác thực: header X-SePay-Signature = "sha256=" + HMAC-SHA256(SEPAY_HMAC, X-SePay-Timestamp + "." + rawBody),
 //   hoặc fallback header Authorization: "Apikey <SEPAY_KEY>". Chưa đặt secret nào → từ chối hết.
-//   Nội dung chuyển khoản: "SEVQR GZ U<id>X R<ref>Z" – U<id>X gắn tiền cho tài khoản <id>, A<id>X thì giấu tên,
+//   Nội dung chuyển khoản: "SEVQR GZ U<id 6 số>X R<ref>Z" (vd. U000001X) – U<id>X gắn tiền cho tài khoản <id>, A<id>X thì giấu tên,
 //   R<ref>Z là mã của lần mở hộp (hộp tự báo đã nhận), chỉ "SEVQR GZ" = ủng hộ ẩn danh.
 // Provider-pluggable: verifyWebhook(provider, ...) – SePay implement đầy đủ; Casso/PayOS chỉ có interface
 //   (cần định dạng webhook + cách ký của từng hãng mới implement được – xem cuối file).
@@ -27,6 +27,7 @@ export function timingSafeEqual(a, b) {
 }
 
 /* "SEVQR GZ U12X R123456Z" → { uid: 12, hide: false, ref: '123456' }; "SEVQR GZ A12X R123456Z" → hide: true; "SEVQR GZ R123456Z" → { uid: 0, hide: true, ref: '123456' }.
+   Id trong nội dung là dạng 6 số (patch -108): "SEVQR GZ U000001X R123456Z" → uid 1; regex \d{1,8} chấp nhận cả số 0 ở đầu và dạng cũ U1X.
    Mã R<6 số>Z BẮT BUỘC phải đúng định dạng – thiếu/sai thì trả null (webhook bỏ qua, không cộng tiền, không xếp chờ; người chuyển có thể gửi yêu cầu duyệt tay). */
 export function parseDonContent(text) {
   const t = String(text || '').toUpperCase();

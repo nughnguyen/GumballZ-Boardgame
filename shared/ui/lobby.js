@@ -7,7 +7,7 @@ import { openLogin } from './account.js?v=51';
 import { promptBox, chooseBox } from './dialog.js?v=8';
 import { nameCss, nameAnim, frameAnim, FRAME_RING } from '../js/avatar-rewards.js'; /* ✨ đồ Nitro trong chat: màu tên, khung avatar (kể cả động) */
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=3'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {
@@ -205,7 +205,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   const mountFriends = () => {
     if (friendsPanel || friendsLoading) return;
     friendsLoading = true;
-    import('./friends.js?v=35').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
+    import('./friends.js?v=36').then(m => { const host = $('.lb-friends'); if (!host) return; friendsPanel = m.mountFriendsChat(host); }).catch(() => { friendsLoading = false; });
   };
   const drawGroups = () => { el.querySelectorAll('.lb-groups button').forEach(b => b.setAttribute('aria-pressed', b.dataset.grp === grp)); };
   const drawGameChips = () => { const gc = $('.lb-gc'); gc.hidden = grp !== 'game'; if (grp !== 'game') return; gc.innerHTML = Object.entries(GAME_INFO).map(([k, [e, n]]) => `<button type="button" data-g="${k}" aria-pressed="${k === selGame}">${e} ${n}</button>`).join(''); };
@@ -241,7 +241,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       if (row && !row.classList.contains('me')) {
         const who = row.dataset.who || '', name = row.dataset.name || '';
         const uid = who.startsWith('u:') ? +who.slice(2) : 0;
-        import('./friends.js?v=35').then(m => m.showPlayerCard({ uid, name }, whoHit));
+        import('./friends.js?v=36').then(m => m.showPlayerCard({ uid, name }, whoHit));
         return;
       }
     }
@@ -296,7 +296,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
   }
   const offFr = e => { frN = (e.detail && e.detail.count) || 0; syncFr(); };
   addEventListener('gumballz-friends', offFr);
-  import('./friends.js?v=35').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
+  import('./friends.js?v=36').then(m => { frN = m.unreadCount(); syncFr(); m.mountFriendsPoll(); }).catch(() => {});
   const off = auth.onChange(() => { drawWho(); hello(); });
   drawRooms(); drawChatArea(); drawWho(); drawMm(); connect();
   if (autoMatch) setTimeout(() => startMm(game || filter), 60);

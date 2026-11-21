@@ -55,7 +55,7 @@ export function mountFriendsDock() {
     const pr = t.closest('[data-prof]');
     if (!pr || !pr.closest('#bf-ov')) return;
     e.stopPropagation(); e.preventDefault();
-    import('./member.js?v=3').then(m => m.openMember(+pr.dataset.prof)).catch(() => {});
+    import('./member.js?v=4').then(m => m.openMember(+pr.dataset.prof)).catch(() => {});
   }, true);
   /* bấm tiêu đề hộp (trừ nút đóng ✕ và nút sao chép mã) → thu gọn / mở lại */
   document.addEventListener('click', e => {

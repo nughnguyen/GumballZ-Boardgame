@@ -1,10 +1,11 @@
 // ☕ Ủng hộ GumballZ: mã QR chuyển khoản (SePay tự báo về máy chủ), thanh "quỹ máy chủ tháng này", tường cảm ơn, duyệt tay khi hết lượt auto.
 // Máy chủ: GET /donate/info, POST /donate/msg, POST /donate/claim, POST /sepay/hook (server/src/donate.js).
-// Chuyển khoản ghi "SEVQR GZ U<id>X R<ref>Z" → tài khoản <id> có huy hiệu 💎 Nhà Tài Trợ (bậc theo tổng tiền, shared/donor.js).
-// Số tài khoản / ngân hàng KHÔNG nằm trong repo: đặt secret DONATE_ACC, DONATE_BANK (+ DONATE_GOAL, DONATE_AUTO_QUOTA) trên Cloudflare
-// → mã QR có sẵn nội dung chuyển khoản. Chưa đặt thì dùng ảnh QR cũ shared/img/donate-qr.png và nhắc người ủng hộ tự gõ nội dung.
+// Chuyển khoản ghi "SEVQR GZ U<id 6 số>X R<ref>Z" (vd. U000001X) → tài khoản <id> có huy hiệu 💎 Nhà Tài Trợ (bậc theo tổng tiền, shared/donor.js).
+// Mã QR động VietQR: OCB 0388205003 (tài khoản công khai của chủ web, lấy từ mã QR cũ — đổi amount/addInfo là mã đổi theo, không cần secret).
+// Ảnh QR cũ shared/img/donate-qr.png chỉ còn là dự phòng khi img.vietqr.io không tải được. DONATE_ACC/DONATE_BANK chỉ còn dùng cho SePay tự báo về (xác nhận tự động), không ảnh hưởng mã QR.
 import { auth, API } from '../net/api.js?v=29';
 import { TIERS, tierOf, tierInfo } from '../donor.js?v=1'; /* 🏅 bậc ủng hộ (patch -102) */
+import { uid6 } from './badges.js?v=3'; /* 🆔 id tài khoản hiển thị 6 chữ số trong nội dung chuyển khoản (patch -108) */
 
 const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const vnd = n => (Math.round(+n || 0)).toLocaleString('vi-VN') + 'đ';
@@ -95,21 +96,21 @@ export async function openDonate() {
   ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('.dn-x')) close(); });
   const I = await info(auth.user() ? auth.user().id : 0); const bd = ov.querySelector('.dn-bd');
   if (!I.ok) Object.assign(I, { got: 0, goal: 300000, wall: [], anon: 0, msgs: [], mine: 0, auto: true }); /* máy chủ không trả lời: vẫn cho quét mã QR cũ */
-  const u = auth.user(), opened = Date.now(); let amt = 50000, show = ls.get('gumballz-don-hide') !== '1';
+  const u = auth.user(), opened = Date.now(); let amt = 0, show = ls.get('gumballz-don-hide') !== '1'; /* patch -108: mặc định là số tiền TÙY CHỈNH (chưa nhập → amt 0, nút "Khác" được chọn) */
   const ref = String(100000 + Math.floor(Math.random() * 900000)); /* mã riêng của lần mở hộp này → máy chủ báo "đã nhận" ngay khi SePay gửi về */
-  const code = () => 'SEVQR ' + (u ? `GZ ${show ? 'U' : 'A'}${u.id}X` : 'GZ') + ` R${ref}Z`; /* SEVQR: tài khoản ngân hàng nối SePay chỉ báo giao dịch có chữ này */
+  const code = () => 'SEVQR ' + (u ? `GZ ${show ? 'U' : 'A'}${uid6(u.id)}X` : 'GZ') + ` R${ref}Z`; /* SEVQR: tài khoản ngân hàng nối SePay chỉ báo giao dịch có chữ này – id hiển thị 6 số (patch -108) */
   const pct = Math.min(100, Math.round(I.got / Math.max(1, I.goal) * 100));
   const ROOT = new URL('../../', import.meta.url).href;
-  const qr = () => I.on ? `https://qr.sepay.vn/img?acc=${encodeURIComponent(I.acc)}&bank=${encodeURIComponent(I.bank)}&amount=${amt || ''}&des=${encodeURIComponent(code())}` : ROOT + 'shared/img/donate-qr.png?v=3'; /* chưa có DONATE_ACC: mã QR cũ (không kèm số tiền / nội dung) */
+  const qr = () => `https://img.vietqr.io/image/OCB-0388205003-compact2.png?amount=${amt || ''}&addInfo=${encodeURIComponent(code())}&accountName=GumballZ`; /* mã QR động VietQR (patch -108): OCB 0388205003 của chủ web — đổi amount/addInfo là mã đổi theo, không cần DONATE_ACC; đã kiểm bằng giải mã QR thật */
   bd.innerHTML = `
     <p class="dn-p">GumballZ miễn phí, không quảng cáo. Tiền máy chủ mỗi tháng khoảng <b>${vnd(I.goal)}</b> – ai thấy vui thì góp một ly cà phê giúp mình giữ web chạy lâu nha 💛</p>
     <p class="dn-p" style="font-size:12.5px">Ủng hộ là tự nguyện, chỉ nhận huy hiệu cảm ơn – <b>không</b> đổi được chip hay lợi thế gì trong game.</p>
     <div class="dn-fund"><div class="t"><span>Quỹ máy chủ tháng này</span><b>${vnd(I.got)} / ${vnd(I.goal)}</b></div><div class="dn-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div></div>
-    ${I.on ? '' : '<div class="dn-note">Quét mã rồi <b>tự nhập số tiền</b> và <b>chép nội dung bên dưới</b> vào ô nội dung chuyển khoản nha.</div>'}
+    ${I.on ? '' : '<div class="dn-note">Mã QR đã có sẵn nội dung chuyển khoản — quét mã rồi kiểm tra lại số tiền trong app ngân hàng trước khi xác nhận nha.</div>'}
     ${I.auto === false ? '<div class="dn-note">⚠️ Lượt xác nhận tự động tháng này đã hết – chuyển khoản xong nhớ gửi yêu cầu duyệt tay ở cuối hộp (chủ web duyệt là có huy hiệu ngay).</div>' : ''}
-    <div class="dn-amt"${I.on ? '' : ' hidden'}>${AMOUNTS.map(a => `<button type="button" data-amt="${a}" class="${a === amt ? 'on' : ''}">${a / 1000}k</button>`).join('')}<button type="button" data-amt="own" aria-label="Tự nhập số tiền">Khác</button></div>
-    <div data-ownbox hidden><label class="dn-own"><input type="text" inputmode="numeric" autocomplete="off" placeholder="Nhập số tiền, vd 30.000" aria-label="Số tiền muốn ủng hộ (đồng)" data-own><span>đ</span></label><small style="display:block;color:#8a7f96;font-size:12px;margin:4px 2px 0">Tối thiểu 1.000đ – mã QR tự đổi theo số bạn nhập.</small></div>
-    <div class="dn-qr"><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}"></div>
+    <div class="dn-amt">${AMOUNTS.map(a => `<button type="button" data-amt="${a}" class="${a === amt ? 'on' : ''}">${a / 1000}k</button>`).join('')}<button type="button" data-amt="own" class="${amt === 0 ? 'on' : ''}" aria-label="Tự nhập số tiền">Khác</button></div>
+    <div data-ownbox><label class="dn-own"><input type="text" inputmode="numeric" autocomplete="off" placeholder="Nhập số tiền, vd 30.000" aria-label="Số tiền muốn ủng hộ (đồng)" data-own><span>đ</span></label><small style="display:block;color:#8a7f96;font-size:12px;margin:4px 2px 0">Tối thiểu 1.000đ – mã QR tự đổi theo số bạn nhập.</small></div>
+    <div class="dn-qr"><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}" onerror="this.onerror=null;this.src='${ROOT}shared/img/donate-qr.png?v=3'"></div>
     <div class="dn-row"><span><small>Nội dung chuyển khoản (giữ nguyên)</small><code data-code>${esc(code())}</code></span><button type="button" data-cp="code">Chép</button></div>
     ${u ? `<label class="dn-chk"><input type="checkbox" data-show ${show ? 'checked' : ''}> Hiện tên <b>${esc(u.name)}</b> trên Tường cảm ơn</label>
     <div class="dn-note">Quét mã bằng app ngân hàng / MoMo / ZaloPay. Chuyển xong vài giây là hộp này báo đã nhận và tài khoản có huy hiệu <b>💎 Nhà Tài Trợ</b> – cứ để hộp mở nha.</div>`

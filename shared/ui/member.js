@@ -1,13 +1,13 @@
 // 👤 Hồ sơ công khai của một thành viên: hình đại diện, cấp độ, danh hiệu, số liệu chơi, thành tích, game chơi nhiều.
 // Mở từ thẻ người chơi (bấm tên/avatar trong phòng), bảng xếp hạng, hộp bạn bè, trang quản trị:
-//   import('…/shared/ui/member.js?v=3').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
+//   import('…/shared/ui/member.js?v=4').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
 import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=54';
 import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=2'; /* 🎖️ huy hiệu 4 bậc (patch -95) — hồ sơ công khai (patch -98) */
+import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=3'; /* 🎖️ huy hiệu 4 bậc (patch -95) — hồ sơ công khai (patch -98); uid6: id hiển thị 6 số (patch -108) */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -49,7 +49,7 @@ export function openMember(key) {
     ov.innerHTML = frame(`
       ${bannerHTML(U.av && safeAv(U.av, U.id).b)}
       <div class="pf-head">${avatarHTML(72, safeAv(U.av, U.id))}<div style="min-width:0"><div class="pf-name${nameClass(U.av && U.av.n)}" style="${nameStyle(U.av && U.av.n)}">${esc(U.name)}</div>
-        <div class="pf-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${U.id}</div>
+        <div class="pf-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${uid6(U.id)}</div>
         <div class="mb-tags"><span class="pf-tt lv">⭐ Cấp ${U.lv} · ${esc(U.lvName)}</span>${titlePill(U.title && { ...U.title, desc: titleDesc(U.title) })}${tierBadges({ owner: !!U.owner, role: U.owner || U.admin ? 2 : U.mod ? 1 : 0, supporter: !!U.supporter })}</div></div></div>
       <div class="pf-nums"><div><b>${U.p}</b><small>ván đã chơi</small></div><div><b>${U.w}</b><small>ván thắng</small></div><div><b>${U.rate}%</b><small>tỉ lệ thắng</small></div><div><b>${U.best}</b><small>chuỗi thắng</small></div></div>
       ${U.rank ? `<div class="mb-rank">🏆 Hạng ${U.rank}${U.total ? ' / ' + U.total : ''} trên bảng xếp hạng toàn máy chủ</div>` : ''}
@@ -74,10 +74,10 @@ export function openMember(key) {
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
     if (a === 'edit') { close(); import('./profile.js?v=54').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=51').then(m => m.openLogin()); }
-    else if (a === 'dm') { close(); import('./friends.js?v=35').then(m => m.openFriends(U.id)); }
+    else if (a === 'dm') { close(); import('./friends.js?v=36').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {
       busy = true; b.disabled = true;
-      try { const m = await import('./friends.js?v=35'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
+      try { const m = await import('./friends.js?v=36'); if (a === 'add') await m.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await friends.act(U.id, 'accept'); await m.refreshUnread(); } catch (err) {}
       busy = false; await loadRel(); if (ov.isConnected && rel == null) draw();
     }
   });

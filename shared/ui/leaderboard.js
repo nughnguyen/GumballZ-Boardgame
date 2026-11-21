@@ -59,7 +59,7 @@ const CSS = `
 
 function injectCss() {
   ensureSkCSS();
-  import('./badges.js?v=2').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
+  import('./badges.js?v=3').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);
@@ -181,7 +181,7 @@ export function openLeaderboard(initialGame = 'all') {
     const row = e.target.closest('.rk-row,.rk-pd');
     if (row) { /* bấm một dòng / một khối bục: mở hồ sơ công khai của người đó (trong hồ sơ có nút kết bạn / nhắn tin) */
       const uid = +row.dataset.uid || 0;
-      if (uid) import('./member.js?v=3').then(m => m.openMember(uid));
+      if (uid) import('./member.js?v=4').then(m => m.openMember(uid));
     }
   });
 
