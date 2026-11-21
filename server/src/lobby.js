@@ -3,6 +3,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { clean, cleanName } from './filter.js';
 import { Meter, LIMITS, GB } from './meter.js';
+import { donTables, donHas as _donHas, donAdd as _donAdd, donInfo as _donInfo, donRef as _donRef, donList as _donList, donAutoCount as _donAutoCount, donMsg as _donMsg, donReply as _donReply, donDel as _donDel, donClaimAdd as _donClaimAdd, donClaims as _donClaims, donClaimDecide as _donClaimDecide } from './donate.js'; /* ☕ ủng hộ (patch -102): logic ở donate.js, Lobby chỉ giữ bảng + gọi qua */
 
 const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai'];
 const DUO = new Set(['cotuong', 'covua', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'codam', 'colat', 'connect4', 'sudoku']); /* game đúng 2 người (+ Sudoku: Tìm trận ghép solo 1v1) */
@@ -33,6 +34,7 @@ export class Lobby extends DurableObject {
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN code TEXT DEFAULT ''"); } catch (e) {} // mã phòng của lời mời
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN av TEXT DEFAULT ''"); } catch (e) {} // ✨ diện mạo chat: JSON {f,n} (khung/màu tên) – chỉ để hiện, không ảnh hưởng kiểm duyệt
     try { this.sql.exec('ALTER TABLE chat ADD COLUMN sp INTEGER DEFAULT 0'); } catch (e) {} // 💎 người ủng hộ đặc biệt (patch -95): 1 = tin này của supporter
+    donTables(this.sql); // ☕ ủng hộ (patch -102): bảng don / donmsg / donclaim
     this.inviteLast = new Map(); // phòng (game/code) → lúc mời gần nhất (chống spam mời, 60 giây/lần)
     if (!this.sql.exec("SELECT v FROM stat WHERE k = 'live-v'").toArray().length) { this.sql.exec('DELETE FROM live'); this.sql.exec("INSERT INTO stat (k, v) VALUES ('live-v', 2)"); } // bỏ số cũ (kiểu đếm trước)
     if (!this.sql.exec("SELECT v FROM stat WHERE k = 'meter-v'").toArray().length) { this.sql.exec('UPDATE usage10 SET ms = ms / 10'); this.sql.exec("INSERT INTO stat (k, v) VALUES ('meter-v', 2)"); } // bản đo cũ đếm dư ~10 lần → chia lại số cũ cho khớp số thật trên Cloudflare
@@ -401,6 +403,19 @@ export class Lobby extends DurableObject {
   async ntWords() { return this.sql.exec("SELECT w FROM nt WHERE st = 'ok'").toArray().map(r => r.w); }
   async ntList() { return this.sql.exec('SELECT w, st, n, yes, no, ts, why FROM nt ORDER BY ts DESC LIMIT 300').toArray(); }
   async ntDel(w) { this.sql.exec('DELETE FROM nt WHERE w = ?', w); }
+  // ---------- ☕ ủng hộ (patch -102): bảng + logic ở server/src/donate.js ----------
+  async donHas(id) { return _donHas(this.sql, id); }
+  async donAdd(d) { return _donAdd(this.sql, d); }
+  async donInfo(since, uid, after) { return _donInfo(this.sql, since, uid, after); }
+  async donRef(ref) { return _donRef(this.sql, ref); }
+  async donList() { return _donList(this.sql); }
+  async donAutoCount(since) { return _donAutoCount(this.sql, since); }
+  async donMsg(ref, msg) { return _donMsg(this.sql, ref, msg); }
+  async donReply(id, text) { return _donReply(this.sql, id, text); }
+  async donDel(id) { return _donDel(this.sql, id); }
+  async donClaimAdd(c) { return _donClaimAdd(this.sql, c); }
+  async donClaims() { return _donClaims(this.sql); }
+  async donClaimDecide(id, ok, byName) { return _donClaimDecide(this.sql, id, ok, byName); }
   async auditMod(by, action, who, detail) { // 📜 ghi hành động cấm/ẩn/bỏ qua vào nhật ký quản trị (Users DO)
     try {
       const us = this.env.USERS.get(this.env.USERS.idFromName('main'));

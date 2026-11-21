@@ -99,6 +99,10 @@ export function openFeedback(game = curGame()) {
 }
 
 export function openDonate() {
+  /* hộp ủng hộ đầy đủ (patch -102): quỹ tháng, mã QR động, bậc, tường cảm ơn, duyệt tay – nạp lười để không nặng trang */
+  import('./donate.js?v=1').then(m => m.openDonate()).catch(() => openDonateStatic());
+}
+function openDonateStatic() { /* dự phòng khi không nạp được hộp mới: QR tĩnh như trước */
   modal(`<h2>☕ Ủng hộ chủ web</h2>
     <p>GumballZ miễn phí, không quảng cáo. Nếu bạn thấy vui thì mời chủ web ly cà phê để có động lực làm thêm game mới nha 🥹</p>
     <img class="fb-qr" src="${ROOT}shared/img/donate-qr.png?v=3" alt="Mã QR chuyển khoản ủng hộ (VietQR)">

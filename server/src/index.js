@@ -13,6 +13,7 @@ import { cfUsage } from './cfstats.js';
 import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
+import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
 import { TUT } from '../../shared/tutorials.js';
 import { DurableObject } from 'cloudflare:workers';
 export { Users } from './users.js';
@@ -49,6 +50,33 @@ const NOT_HUMAN = { ok: false, msg: 'Chưa xác nhận được bạn là ngư�
 /* 🔗 Nối từ: giới hạn 30 lượt báo từ/giờ cho mỗi IP. Tạm đếm trong bộ nhớ – giống bộ đếm trần AI trong server/src/ai.js, mất khi Worker khởi động lại. */
 const ntRateHits = new Map();
 function ntRateOk(ip) { const now = Date.now(), a = (ntRateHits.get(ip) || []).filter(t => now - t < 3600e3); if (a.length >= 30) return false; if (ntRateHits.size > 5000) ntRateHits.clear(); a.push(now); ntRateHits.set(ip, a); return true; }
+
+/* ---------- ☕ ủng hộ qua SePay (patch -102) ---------- */
+let donCache = null;
+const donMsgRate = new Map(); /* 💌 mỗi IP tối đa 8 lời nhắn / 10 phút */
+async function sepayHook(req, env) {
+  const raw = await req.text();
+  const v = await verifyWebhook('sepay', raw, req.headers, env);
+  if (!v.ok) return new Response(v.msg, { status: v.status });
+  const d = v.data, OK = () => new Response('{"success": true}', { status: 200, headers: { 'content-type': 'application/json' } });
+  const text = String(d.content || '').toUpperCase(), amt = Math.floor(+d.transferAmount || 0);
+  if (d.transferType !== 'in' || amt <= 0 || d.id == null) return OK(); /* không phải tiền vào: bỏ qua */
+  const parsed = parseDonContent(text);
+  if (!parsed) return OK(); /* không có chữ SEVQR GZ: không phải tiền ủng hộ */
+  const L = env.LOBBY.get(env.LOBBY.idFromName('main')), id = 's' + String(d.id).slice(0, 30);
+  if (await L.donHas(id)) return OK(); /* SePay gửi lại: đã ghi rồi */
+  const U = env.USERS.get(env.USERS.idFromName('main'));
+  const quota = Math.max(0, +env.DONATE_AUTO_QUOTA || DONATE_AUTO_QUOTA_DEFAULT);
+  const used = await L.donAutoCount(monthStartVN());
+  if (used >= quota) { /* hết lượt auto: xếp vào hàng chờ duyệt tay, không mất tiền */
+    await L.donClaimAdd({ uid: parsed.uid, name: '', amt, ref: parsed.ref || '', msg: '', hide: parsed.hide });
+    donCache = null; return OK();
+  }
+  let u = null;
+  if (parsed.uid) u = await U.addSup(parsed.uid, amt);
+  await L.donAdd({ id, at: Date.now(), amt, uid: u ? u.id : 0, name: u ? u.name : '', hide: parsed.hide, ref: parsed.ref, src: 'auto' });
+  donCache = null; return OK();
+}
 
 export default {
   async fetch(req, env) {
@@ -195,6 +223,78 @@ export default {
       if (!okOrigin(origin) || !origin) return json({ ok: false }, 403);
       const inbox = env.INBOX.get(env.INBOX.idFromName('main'));
       return json(await inbox.err(await req.text(), req.headers.get('CF-Connecting-IP') || '', req.headers.get('User-Agent') || ''), 200, cors(origin));
+    }
+    // ---------- ☕ ủng hộ qua quét mã QR (patch -102) ----------
+    if (p[0] === 'sepay' && p[1] === 'hook' && req.method === 'POST') return sepayHook(req, env); /* SePay báo có chuyển khoản (máy chủ gọi máy chủ, không cần CORS) */
+    if (p[0] === 'donate') {
+      const H = cors(origin); if (!okOrigin(origin)) return json({ ok: false }, 403, H);
+      const L = env.LOBBY.get(env.LOBBY.idFromName('main')), U = env.USERS.get(env.USERS.idFromName('main'));
+      const quota = Math.max(0, +env.DONATE_AUTO_QUOTA || DONATE_AUTO_QUOTA_DEFAULT);
+      if (p[1] === 'info') { /* GET: quỹ tháng + tường cảm ơn + chỗ chuyển khoản; ?ref=6 số → hộp đang mở hỏi đã nhận chưa */
+        const uid = Math.max(0, +url.searchParams.get('u') || 0), after = +url.searchParams.get('after') || 0;
+        const ref = (url.searchParams.get('ref') || '').replace(/\D/g, '').slice(0, 6);
+        if (ref.length === 6) { try { const paid = await L.donRef(ref); return json({ ok: true, paid, ...(paid ? await L.donInfo(monthStartVN()) : {}) }, 200, H); } catch (e) { return json({ ok: false }, 200, H); } }
+        if (!uid && donCache && Date.now() - donCache.at < 30000) return json(donCache.v, 200, H);
+        let r; try { r = await L.donInfo(monthStartVN(), uid, after); } catch (e) { return json({ ok: false, on: false, msg: 'Máy chủ bận – thử lại sau nha' }, 200, H); }
+        const used = await L.donAutoCount(monthStartVN());
+        const v = { ok: true, on: !!(env.DONATE_ACC && env.DONATE_BANK), acc: env.DONATE_ACC || '', bank: env.DONATE_BANK || '', goal: +env.DONATE_GOAL || DONATE_GOAL_DEFAULT, auto: used < quota, quotaLeft: Math.max(0, quota - used), ...r };
+        if (!uid) { delete v.mine; donCache = { at: Date.now(), v }; }
+        return json(v, 200, H);
+      }
+      if (p[1] === 'msg' && req.method === 'POST') { /* 💌 lời nhắn, gắn theo mã R…Z của hộp ủng hộ */
+        const now = Date.now(), k = ip || 'x', hits = (donMsgRate.get(k) || []).filter(t => now - t < 600e3);
+        if (hits.length >= 8) return json({ ok: false, msg: 'Gửi chậm lại chút nha' }, 200, H); hits.push(now); donMsgRate.set(k, hits); if (donMsgRate.size > 5000) donMsgRate.clear();
+        const d = await body(), ref = String(d.ref || '').replace(/\D/g, ''), msg = clean(String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200)).text;
+        if (ref.length !== 6) return json({ ok: false, msg: 'Mã không hợp lệ' }, 200, H);
+        try { const r = await L.donMsg(ref, msg); donCache = null; return json({ ok: true, paid: r.paid, msg }, 200, H); } catch (e) { return json({ ok: false, msg: 'Máy chủ bận – thử lại sau nha' }, 200, H); }
+      }
+      if (p[1] === 'reply' && req.method === 'POST') { /* 💌 chủ web / Quản trị trả lời lời nhắn */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới trả lời' }, 200, H);
+        const d = await body(), text = clean(String(d.text || '').trim().slice(0, 300)).text;
+        const r = await L.donReply(String(d.id || ''), text);
+        if (!r) return json({ ok: false, msg: 'Không tìm thấy khoản ủng hộ' }, 200, H);
+        await U.auditLog({ id: me.id, name: me.name }, 'donate', r.uid, null, 'trả lời lời nhắn ủng hộ');
+        donCache = null; return json({ ok: true }, 200, H);
+      }
+      if (p[1] === 'claim' && req.method === 'POST') { /* 🙋 gửi yêu cầu duyệt tay sau khi chuyển khoản */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Đăng nhập trước nha' }, 200, H);
+        const d = await body(), amt = Math.floor(+d.amount || 0), ref = String(d.ref || '').replace(/\D/g, '').slice(0, 6);
+        if (!(amt >= 1000 && amt <= 50000000)) return json({ ok: false, msg: 'Số tiền từ 1.000đ đến 50.000.000đ' }, 200, H);
+        if (ref.length !== 6) return json({ ok: false, msg: 'Mã ref phải có 6 số (trong nội dung chuyển khoản)' }, 200, H);
+        const msg = clean(String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200)).text;
+        const r = await L.donClaimAdd({ uid: me.id, name: me.name, amt, ref, msg, hide: !!d.hide });
+        return json({ ok: true, claimId: r.id, dup: r.dup }, 200, H);
+      }
+      if (p[1] === 'admin' && req.method === 'GET') { /* 🧾 trang Quản trị: yêu cầu chờ + khoản đã nhận + quota */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem' }, 200, H);
+        const used = await L.donAutoCount(monthStartVN());
+        const info = await L.donInfo(monthStartVN());
+        return json({ ok: true, month: info.got, goal: +env.DONATE_GOAL || DONATE_GOAL_DEFAULT, auto: used < quota, quotaLeft: Math.max(0, quota - used), quota, on: !!(env.DONATE_ACC && env.DONATE_BANK), hook: !!(env.SEPAY_KEY || env.SEPAY_HMAC), ...(await L.donClaims()), list: await L.donList() }, 200, H);
+      }
+      if (p[1] === 'claim-decide' && req.method === 'POST') { /* ✅/❌ Quản trị duyệt yêu cầu ủng hộ */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới duyệt' }, 200, H);
+        const d = await body(), c = await L.donClaimDecide(+d.id || 0, d.approve === true, me.name);
+        if (!c) return json({ ok: false, msg: 'Không tìm thấy yêu cầu chờ duyệt' }, 200, H);
+        if (d.approve === true) {
+          const u = await U.addSup(c.uid, c.amt);
+          await L.donAdd({ id: 'c' + c.id, at: Date.now(), amt: c.amt, uid: u ? u.id : 0, name: u ? u.name : c.name, hide: !!c.hide, ref: c.ref, msg: c.msg, src: 'claim' });
+          await U.auditLog({ id: me.id, name: me.name }, 'donate', c.uid, c.name, 'duyệt ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + c.ref + ')');
+        } else {
+          await U.auditLog({ id: me.id, name: me.name }, 'donate', c.uid, c.name, 'từ chối yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + c.ref + ')');
+        }
+        donCache = null; return json({ ok: true }, 200, H);
+      }
+      return json({ ok: false }, 404, H);
     }
     if (p[0] === 'admin') {
       if (p[1] === 'list' && req.method === 'POST') {

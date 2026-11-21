@@ -43,7 +43,7 @@ function homeAnchor() {
 }
 
 // 💌 Góp ý / ☕ Ủng hộ: thêm link vào chân trang của game (dùng shared/ui/feedback.js)
-import('./feedback.js?v=34').then(() => {
+import('./feedback.js?v=35').then(() => {
   const a = homeAnchor();
   const box = document.createElement('p'); box.className = 'gumballz-fbline';
   box.style.cssText = 'text-align:center;font-size:13px;margin:6px 0 0;opacity:.9';

@@ -147,6 +147,7 @@ export class Users extends DurableObject {
     try { this.sql.exec('ALTER TABLE users ADD COLUMN admin INTEGER DEFAULT 0'); } catch (e) {} // cột quản trị (bản 11/2026)
     try { this.sql.exec('ALTER TABLE users ADD COLUMN role INTEGER DEFAULT 0'); } catch (e) {} // 🎭 phân quyền (patch -93): 0 người chơi, 1 Mod, 2 Quản trị; admin = 1 tương đương role ≥ 1 (giữ song song để tương thích)
     try { this.sql.exec('ALTER TABLE users ADD COLUMN supporter INTEGER DEFAULT 0'); } catch (e) {} // 💎 người ủng hộ đặc biệt (patch -95): 0/1, độc lập với role – chỉ Quản trị cấp tay (vd. sau khi ủng hộ qua VietQR)
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN supamt INTEGER DEFAULT 0'); } catch (e) {} // ☕ tổng tiền đã ủng hộ (patch -102): cộng dồn qua SePay/duyệt tay; supporter = 1 khi supamt ≥ 1 (bậc 1 = bất kỳ số tiền nào)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actorId INTEGER, actorName TEXT, action TEXT, targetId INTEGER, targetName TEXT, detail TEXT)`); // 📜 nhật ký quản trị (patch -93)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT)`); // 👑 chủ web hiện tại (patch -94): k='owner', v=id tài khoản chủ web
     this.sql.exec(`INSERT OR IGNORE INTO meta (k, v) VALUES ('owner', '1')`); // mặc định: tài khoản đầu tiên = chủ web
@@ -161,6 +162,13 @@ export class Users extends DurableObject {
   }
   pub(u) { return u && { id: u.id, username: u.username || null, name: u.name, google: !!u.google, banned: !!u.banned, admin: this.roleOf(u) >= 1, role: this.roleOf(u), owner: this.isOwnerId(u.id) ? 1 : 0, supporter: u.supporter ? 1 : 0 }; } // 👑 owner: 1 khi là chủ web hiện tại (patch -94) · 💎 supporter: 1 khi là người ủng hộ đặc biệt (patch -95)
   one(q, ...a) { const r = this.sql.exec(q, ...a).toArray(); return r[0] || null; }
+  async addSup(uid, amt) { /* ☕ cộng tiền ủng hộ vào tài khoản (patch -102): SePay/duyệt tay gọi; amt âm = trừ (khi xoá khoản nhầm) */
+    const u = this.one('SELECT id, name, supamt FROM users WHERE id = ? AND banned = 0', +uid); if (!u) return null;
+    const total = Math.max(0, (u.supamt || 0) + Math.floor(+amt || 0));
+    this.sql.exec('UPDATE users SET supamt = ?, supporter = ? WHERE id = ?', total, total >= 1 ? 1 : 0, u.id);
+    if (this.lbCache) this.lbCache.clear();
+    return { id: u.id, name: u.name, supamt: total, supporter: total >= 1 ? 1 : 0 };
+  }
   async session(uid) {
     const tok = rand(32), now = Date.now();
     this.sql.exec('DELETE FROM sessions WHERE exp < ?', now);
