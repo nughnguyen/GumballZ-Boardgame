@@ -11,8 +11,8 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 
 /* thanh trên + tab dưới: xem shared/css/topbar.css (component topbar.js) */
 
-/* ===== hero: 1 cột (tiêu đề + vào phòng) — gọn để game hot lọt vào tầm nhìn đầu trang; giải thế cờ nằm trong "Thử thách hôm nay" ở cuối trang ===== */
-.hero{display:block;margin:6px 0 12px}
+/* ===== hero: 2 cột (trái: tiêu đề + vào phòng · phải: thử thách hôm nay) — gọn để game hot lọt vào tầm nhìn đầu trang ===== */
+.hero{display:grid;grid-template-columns:1fr minmax(0,460px);gap:12px;align-items:center;margin:6px 0 12px}
 .playzone{margin:0;background:none;border:0;border-radius:0;box-shadow:none;padding:0;display:flex;flex-direction:column;justify-content:center}
 .hero-kicker{margin:0 0 4px;font:800 13px/1.4 Nunito,sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--p1)}
 .hero-title{margin:0 0 6px;font:800 clamp(30px,3.8vw,46px)/1.05 var(--font-display);color:var(--ink);letter-spacing:.2px}
@@ -145,10 +145,7 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
 .soon{border:2px dashed var(--ink);background:var(--y2);color:var(--muted);display:grid;place-items:center;text-align:center;min-height:150px;box-shadow:none}
 .soon:hover{transform:none;box-shadow:none}
 
-/* ===== thử thách hôm nay + đang hot ===== */
-.daily-hot{display:grid;grid-template-columns:1fr;gap:16px;align-items:stretch;margin:6px 0 10px}
-.daily-hot>*{min-width:0}
-.daily-hot .daily{margin-top:0;max-width:none}
+/* ===== đang hot ===== */
 .hot{margin:0;display:flex;flex-direction:column}
 .hot h2{font:400 22px/1 var(--font-display);margin:0 0 4px;background:var(--p1);border:2px solid var(--ink);border-radius:12px;padding:7px 14px;box-shadow:var(--sh-sm);transform:rotate(-1deg);display:inline-block;align-self:flex-start}
 /* ===== carousel game hot (kiểu scroll carousel trên CodePen: thẻ số + ảnh + tên, kéo ngang) ===== */
@@ -202,7 +199,6 @@ main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px 16p
   .psel{margin-left:auto}
   .hero{grid-template-columns:1fr;gap:12px;margin:4px 0 12px}
   .play-cards{grid-template-columns:1fr 1fr}
-  .daily-hot{grid-template-columns:1fr}
   .hot-carousel{margin:10px -16px 0}
   .hot-row{padding:6px 16px 12px}
   .hot-card{flex:0 0 calc((100% - 14px)/2)}
