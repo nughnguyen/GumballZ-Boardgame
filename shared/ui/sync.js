@@ -9,9 +9,10 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=28';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=88';
-import { snapshot, adoptServer } from './wallet.js?v=3'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
+import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=89';
+import { snapshot, adoptServer } from './wallet.js?v=4'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
+import { readParts, writeParts } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar', LOGIN = 'gumballz-login';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };
@@ -39,7 +40,7 @@ export async function syncNow() {
     ls.set(META, JSON.stringify(m));
     let av = null; try { av = JSON.parse(ls.get(AV)); } catch (e) {}
     const TT = 'gumballz-title', TTT = 'gumballz-title-t';
-    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace ? cleanAvatar(av) : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot() }; /* nhân vật: gửi đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên) · danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian */
+    const body = { op: m.pend.op, add: m.pend.add, ach: m.replace ? {} : s.ach, days: m.replace ? [] : s.days, streak: m.replace ? 0 : num(s.streak), best: m.replace ? 0 : num(s.best), night: m.replace ? 0 : (s.night ? 1 : 0), first: m.replace ? 0 : num(s.first), lastT: m.replace ? 0 : lastT(s), av: !m.replace ? cleanAvatar(av) : null, title: ls.get(TT) || '', titleT: num(ls.get(TTT)), wal: snapshot(), parts: readParts() }; /* nhân vật: gửi đủ nhân vật 3D (kind/skin/hair/hat/outfit/màu/giới tính/khung/màu tên) · danh hiệu tự chọn (kèm thời gian chọn để máy khác mới hơn thì thắng) · ví xu: máy chủ giữ bản mới nhất theo thời gian · linh kiện trúng rương: máy chủ gộp (hợp nhất 2 danh sách, chỉ nhận id đã biết) */
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 10000);
     let r; try { r = await (await fetch(API() + '/auth/profile', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body), signal: ctl.signal })).json(); } finally { clearTimeout(to); }
     if (!r || !r.ok || !r.prof) return; /* lỗi mạng / hết phiên: giữ gói đang gửi dở, lần sau gửi lại */
@@ -47,6 +48,7 @@ export async function syncNow() {
     saveServerSnapshot(r.prof); /* tổng máy chủ (mốc cũ + đã xác minh + ván local đã nhận) để hiện riêng với số trên máy này */
     try { if (r.prof.dl && typeof r.prof.dl === 'object') { const dl = r.prof.dl; ls.set(LOGIN, JSON.stringify({ last: typeof dl.last === 'string' ? dl.last : '', streak: num(dl.streak), total: num(dl.total) })); } } catch (e) {} /* 🎁 điểm danh: máy chủ là chuẩn — hồ sơ trả về mang chuỗi điểm danh, ghi đè bản local */
     try { adoptServer(r.prof.wal); } catch (e) {} /* 💰 ví xu: máy chủ trả bản mới nhất — máy này nhận nếu mới hơn bản trên máy */
+    try { if (Array.isArray(r.prof.parts)) { const merged = [...new Set([...readParts(), ...r.prof.parts.filter(x => typeof x === 'string')])]; writeParts(merged); } } catch (e) {} /* 🧸 linh kiện trúng rương: máy chủ gộp danh sách 2 máy (mở khoá chỉ thêm chứ không bớt) — máy khác mở rương thì máy này cũng thấy */
     // gộp về máy: tổng của máy chủ + những ván vừa chơi trong lúc đang gửi
     const P = r.prof, now = load(), out = { ...now, g: {} };
     const games = new Set([...Object.keys(P.g || {}), ...Object.keys(now.g)]);
@@ -79,5 +81,6 @@ auth.onChange(user => { if (user) syncSoon(500); });
 addEventListener('gumballz-stats', () => syncSoon(3000));
 addEventListener('gumballz-wallet', () => syncSoon(1500)); /* 💰 ví đổi (thắng/thua/mua đồ/mở rương/điểm danh) → đẩy lên máy chủ ngay, thay vì đợi lần sync stats sau (tới 10 phút) — đóng cửa sổ "tiêu hết xu → xóa dữ liệu trước khi sync → lấy lại số dư cũ". An toàn vòng lặp: adoptServer chỉ phát event khi nó NHẬN ví mới hơn; lần sync sau thấy at bằng nhau thì không nhận nữa, không phát event. */
 addEventListener('gumballz-avatar', e => { if (!e.detail || !e.detail.fromSync) syncSoon(2500); });
+addEventListener('gumballz-parts', () => syncSoon(1500)); /* 🧸 trúng linh kiện rương → đẩy danh sách đã mở lên tài khoản ngay để qua máy khác vẫn còn */
 addEventListener('gumballz-title', () => syncSoon(800)); /* đổi danh hiệu trưng ra → đẩy lên tài khoản */
 autoSync();

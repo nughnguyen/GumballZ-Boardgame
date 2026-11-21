@@ -2,7 +2,7 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
 import { auth } from '../net/api.js?v=28';
 import { promptBox, formBox } from './dialog.js?v=8';
-import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=48';
+import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=49';
 
 const CSS = `.ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
 .ac-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ac-btn .v{color:#2f9e5b}.ac-bdg{background:#ff4d6a;color:#fff;border-radius:999px;padding:1px 6px;font:800 11px/1.3 Nunito,sans-serif}.ac-bdg:empty{display:none}

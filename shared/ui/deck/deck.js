@@ -2,7 +2,7 @@
 // Mỗi mặt lá được sinh MỘT lần thành <symbol> trong 1 sprite ẩn, mọi lá trên màn hình chỉ là <use href="#…">
 // → 52+ lá trên điện thoại vẫn nhẹ. Lá nhỏ (< 50px) tự đổi sang kiểu "compact" (chỉ số to + chất to) bằng container query.
 //
-import { owns, equipBack, equippedBack } from '../wallet.js?v=3'; /* 🛍️ lưng bài mua bằng xu / mở rương — kiểm tra sở hữu trong ví */
+import { owns, equipBack, equippedBack } from '../wallet.js?v=4'; /* 🛍️ lưng bài mua bằng xu / mở rương — kiểm tra sở hữu trong ví */
 // API chính (xem cuối file): cardHTML, backHTML, faceSVG, backSVG, setBack/getBack/BACKS, setFourColor/getFourColor,
 // faceDataURI/backDataURI (SVG độc lập cho <img>/canvas), normRank/normSuit, rankLabel, SUIT_CHAR.
 

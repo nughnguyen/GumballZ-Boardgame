@@ -278,7 +278,7 @@ export class Lobby extends DurableObject {
     const send = o => { try { ws.send(JSON.stringify(o)); } catch (e) {} };
     if (m.t === 'hello') {
       let who = null, name = cleanName(m.name) || 'Khách', v = 0, admin = 0, av = null;
-      if (m.token) { const us = this.env.USERS.get(this.env.USERS.idFromName('main')); const u = await us.whoami(String(m.token)); if (u && !u.banned) { who = 'u:' + u.id; name = u.name; v = u.admin && u.id === 1 ? 2 : u.admin ? 3 : 1; /* v = 2: chủ web, 3: Mod – chat Sảnh hiện huy hiệu */ admin = u.admin ? 1 : 0; try { av = await us.avOf(u.id); } catch (x) {} } }
+      if (m.token) { const us = this.env.USERS.get(this.env.USERS.idFromName('main')); const u = await us.whoami(String(m.token)); if (u && !u.banned) { who = 'u:' + u.id; name = u.name; const role = u.role != null ? +u.role : (u.admin ? 2 : 0); v = role === 2 && u.id === 1 ? 2 : role >= 1 ? 3 : 1; /* v = 2: chủ web, 3: Mod – chat Sảnh hiện huy hiệu */ admin = role >= 1 ? 1 : 0; try { av = await us.avOf(u.id); } catch (x) {} } }
       if (!who) { const g = String(m.guest || '').replace(/[^a-z0-9]/g, '').slice(0, 24); who = a.g0 || (g.length >= 8 ? 'g:' + g : 'g:' + a.ipk); } /* một kết nối chỉ có MỘT mã khách: không đổi mã liên tục để lách chống spam / lệnh cấm */
       if (name.includes('*')) name = 'Khách';
       const chs = (Array.isArray(m.chs) ? m.chs : ['all']).filter(c => CHANNELS.has(c)).slice(0, 3);
@@ -349,8 +349,9 @@ export class Lobby extends DurableObject {
     }
     if (m.t === 'mod' && a.admin) { // công cụ quản trị ngay trong chat
       const row = this.sql.exec('SELECT * FROM chat WHERE id = ?', +m.id || 0).toArray()[0]; if (!row) return;
-      if (m.op === 'hide') this.hide(row.id);
-      else if (m.op === 'ban') { await this.admin('ban', { who: row.who, hours: Math.max(1, Math.min(87600, +m.hours || 24)), reason: String(m.reason || '').slice(0, 200) }); this.hide(row.id); }
+      const by = a.who && a.who.startsWith('u:') ? { id: +a.who.slice(2), name: a.name } : { id: 0, name: 'ADMIN_KEY' };
+      if (m.op === 'hide') { this.hide(row.id); await this.auditMod(by, 'hide', row.who, 'ẩn tin #' + row.id + ' của ' + row.name); }
+      else if (m.op === 'ban') { await this.admin('ban', { who: row.who, hours: Math.max(1, Math.min(87600, +m.hours || 24)), reason: String(m.reason || '').slice(0, 200), by }); this.hide(row.id); }
       send({ t: 'ok', msg: m.op === 'ban' ? '⛔ Đã cấm chat ' + row.name : '🙈 Đã ẩn tin' });
       return;
     }
@@ -399,10 +400,18 @@ export class Lobby extends DurableObject {
   async ntWords() { return this.sql.exec("SELECT w FROM nt WHERE st = 'ok'").toArray().map(r => r.w); }
   async ntList() { return this.sql.exec('SELECT w, st, n, yes, no, ts, why FROM nt ORDER BY ts DESC LIMIT 300').toArray(); }
   async ntDel(w) { this.sql.exec('DELETE FROM nt WHERE w = ?', w); }
+  async auditMod(by, action, who, detail) { // 📜 ghi hành động cấm/ẩn/bỏ qua vào nhật ký quản trị (Users DO)
+    try {
+      const us = this.env.USERS.get(this.env.USERS.idFromName('main'));
+      let tid = null, tname = who || null;
+      if (who && String(who).startsWith('u:')) { tid = +String(who).slice(2) || null; const r = this.sql.exec('SELECT name FROM chat WHERE who = ? ORDER BY id DESC LIMIT 1', who).toArray()[0]; if (r) tname = r.name; }
+      await us.auditLog(by || { id: 0, name: 'ADMIN_KEY' }, action, tid, tname, detail);
+    } catch (e) {}
+  }
   async admin(op, d = {}) {
     if (op === 'reports') return { reports: this.sql.exec('SELECT * FROM reports WHERE done = 0 ORDER BY id DESC LIMIT 200').toArray(), bans: this.sql.exec('SELECT * FROM bans WHERE until > ? ORDER BY ts DESC', now()).toArray() };
-    if (op === 'hide') { this.hide(+d.msg); this.sql.exec('UPDATE reports SET done = 1 WHERE msg = ?', +d.msg); return { ok: true }; }
-    if (op === 'dismiss') { this.sql.exec('UPDATE reports SET done = 1 WHERE id = ?', +d.id); return { ok: true }; }
+    if (op === 'hide') { this.hide(+d.msg); const rep = this.sql.exec('SELECT target, tname FROM reports WHERE msg = ?', +d.msg).toArray()[0]; this.sql.exec('UPDATE reports SET done = 1 WHERE msg = ?', +d.msg); await this.auditMod(d.by, 'hide', rep ? rep.target : null, 'ẩn tin #' + d.msg + (rep && rep.tname ? ' của ' + rep.tname : '')); return { ok: true }; }
+    if (op === 'dismiss') { const rep = this.sql.exec('SELECT target, tname FROM reports WHERE id = ?', +d.id).toArray()[0]; this.sql.exec('UPDATE reports SET done = 1 WHERE id = ?', +d.id); await this.auditMod(d.by, 'dismiss', rep ? rep.target : null, 'bỏ qua báo cáo #' + d.id + (rep && rep.tname ? ' (' + rep.tname + ')' : '')); return { ok: true }; }
     if (op === 'ban') {
       const hours = Math.max(1, Math.min(24 * 3650, +d.hours || 24)), who = String(d.who || '');
       if (!/^(u|g|ip):/.test(who)) return { ok: false };
@@ -414,9 +423,10 @@ export class Lobby extends DurableObject {
       this.sql.exec('UPDATE chat SET hidden = 1 WHERE who = ? AND ts > ?', who, now() - 3600e3);
       this.sql.exec('UPDATE reports SET done = 1 WHERE target = ?', who);
       for (const w of this.ctx.getWebSockets()) try { w.send(JSON.stringify({ t: 'reload' })); } catch (e) {}
+      await this.auditMod(d.by, 'ban', who, 'cấm chat ' + hours + ' giờ' + (d.reason ? ': ' + String(d.reason).slice(0, 100) : ''));
       return { ok: true };
     }
-    if (op === 'unban') { this.sql.exec('DELETE FROM bans WHERE who = ?', String(d.who || '')); return { ok: true }; }
+    if (op === 'unban') { this.sql.exec('DELETE FROM bans WHERE who = ?', String(d.who || '')); await this.auditMod(d.by, 'unban', String(d.who || ''), 'gỡ cấm chat'); return { ok: true }; }
     if (op === 'stats') return { online: this.ctx.getWebSockets().length, rooms: this.rooms().length };
     return { ok: false };
   }

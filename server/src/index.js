@@ -144,7 +144,7 @@ export default {
       if (!okOrigin(origin)) return json({ ok: false }, 403); const H = cors(origin);
       if (p[1] === 'id' && req.method === 'POST') { const tok = bearer(); const me = tok && env.ADMIN_KEY ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || me.banned) return json({ ok: false }, 200, H); return json({ ok: true, p: await makeIdPass(env, me.id) }, 200, H); } /* 🪪 vé tài khoản */
       if (p[1] === 'check') { const u = new URL(req.url); return json({ ok: await checkPass(env, u.searchParams.get('p'), +u.searchParams.get('uid') || 0) }, 200, H); }
-      if (p[1] === 'pass' && req.method === 'POST') { const tok = bearer(); const me = tok ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || !me.admin || me.id !== 1 /* tài khoản đầu tiên = chủ web */ || me.banned || !env.ADMIN_KEY) return json({ ok: false }, 200, H); return json({ ok: true, pass: await makePass(env, me.id) }, 200, H); }
+      if (p[1] === 'pass' && req.method === 'POST') { const tok = bearer(); const me = tok ? await env.USERS.get(env.USERS.idFromName('main')).whoami(tok) : null; if (!me || (me.role != null ? +me.role : (me.admin ? 2 : 0)) !== 2 || me.id !== 1 /* tài khoản đầu tiên = chủ web */ || me.banned || !env.ADMIN_KEY) return json({ ok: false }, 200, H); return json({ ok: true, pass: await makePass(env, me.id) }, 200, H); }
       return json({ ok: false }, 404, H);
     }
     if (p[0] === 'noitu') { /* 🔗 Nối từ: kho từ cộng đồng (từ cả bàn bỏ phiếu nhận, đã duyệt là có thật) */
@@ -210,16 +210,21 @@ export default {
           if (!(await UG.adminGuard(ip, null))) return json({ ok: false, msg: 'Sai nhiều lần quá – khoá 1 giờ' }, 429, H);
           if (!eqTime(String(key || '').trim(), want)) { await UG.adminGuard(ip, false); return json({ ok: false, msg: 'Sai mật khẩu' }, 401, H); }
         }
+        const role = adminUser ? (adminUser.role != null ? +adminUser.role : (adminUser.admin ? 2 : 0)) : 2; /* 🎭 vào bằng ADMIN_KEY = toàn quyền (role 2) */
+        const by = adminUser ? { id: adminUser.id, name: adminUser.name } : { id: 0, name: 'ADMIN_KEY' }; /* 📜 ai làm gì – ghi vào nhật ký */
         if (op) { // báo cáo, cấm chat, tài khoản
           const L = env.LOBBY.get(env.LOBBY.idFromName('main')), U = env.USERS.get(env.USERS.idFromName('main'));
+          if (op === 'audit') { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem nhật ký' }, 403, H); return json({ ok: true, ...(await U.auditList(d.off, d.lim)) }, 200, H); }
           if (op === 'users') return json({ ok: true, users: await U.adminFind(d.q) }, 200, H);
           if (op === 'user') return json(await U.adminSet(d.id, d.patch || {}, adminUser ? adminUser.id : null), 200, H);
           if (op === 'stats') return json({ ok: true, ...(await L.admin('stats')), ...(await U.stats()) }, 200, H);
           if (op === 'usage') return json({ ok: true, ...(await L.status(env.PLAN, true)) }, 200, H);
-          if (op === 'cf') return json(await cfUsage(env), 200, H); /* số thật từ Cloudflare */
-          if (op === 'nt') { const L2 = env.LOBBY.get(env.LOBBY.idFromName('main')), w = ntNorm(d.w); if (w && d.set) await L2.ntSet(w, d.set === 'ok' ? 'ok' : 'bad', 'duyệt tay'); if (w && d.del) await L2.ntDel(w); return json({ ok: true, chk: null, list: await L2.ntList() }, 200, H); } /* 🔗 kho từ Nối từ (duyệt tay; KHÔNG kiểm bằng AI – chưa đặt key) */
+          if (op === 'cf') { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem số Cloudflare' }, 403, H); return json(await cfUsage(env), 200, H); } /* số thật từ Cloudflare */
+          if (op === 'nt') { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới duyệt kho từ' }, 403, H); const L2 = env.LOBBY.get(env.LOBBY.idFromName('main')), w = ntNorm(d.w); if (w && d.set) await L2.ntSet(w, d.set === 'ok' ? 'ok' : 'bad', 'duyệt tay'); if (w && d.del) await L2.ntDel(w); return json({ ok: true, chk: null, list: await L2.ntList() }, 200, H); } /* 🔗 kho từ Nối từ (duyệt tay; KHÔNG kiểm bằng AI – chưa đặt key) */
+          d.by = by; /* 📜 cấm/ẩn/bỏ qua báo cáo đều ghi nhật ký ở Lobby DO */
           return json({ ok: true, ...(await L.admin(op, d)) }, 200, H);
         }
+        if (del || (d.errs && d.errDel)) { if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xoá góp ý / lỗi' }, 403, H); } /* Mod chỉ được xem góp ý + lỗi, không xoá */
         const inbox = env.INBOX.get(env.INBOX.idFromName('main'));
         if (d.errs) { if (d.errDel) await inbox.errRemove(d.errDel); return json({ ok: true, errs: await inbox.errs() }, 200, H); }
         if (del) await inbox.remove(del);

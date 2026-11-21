@@ -2,12 +2,12 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=48'
-import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=88';
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=49'
+import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=89';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
-import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=3'; /* 💰 Ví xu */
+import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=4'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim } from '../js/avatar-rewards.js';
+import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js';
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
@@ -119,7 +119,7 @@ function picker(a, st, tab, name, sub = 'pre') {
         if (k === 'hair' && cur.kind && cur.kind !== 'human') return `<div class="lk-sec"><b>${LBL[k]}</b><p class="pf-note" style="margin:0;text-align:left">Chỉ nhân vật kiểu Người mới có tóc – chọn ở mục 🧑 Dáng.</p></div>`;
         const btn = o => {
           if (!Array.isArray(o)) return `<button type="button" class="lk-sw" data-k="${k}" data-v="${o}" aria-pressed="${String(cur[k]).toLowerCase() === o.toLowerCase()}" style="background:${o}" aria-label="${o}"></button>`;
-          const l = charLock(k, o[0]), lk = l && !isOpen(l, st); if (l === 'admin' && lk) return ''; /* đồ riêng của chủ web: người khác không thấy luôn */
+          const l = charLock(k, o[0]), lk = l && !isOpen(l, st) && !hasGachaPart(k, o[0]); if (l === 'admin' && lk) return ''; /* đồ riêng của chủ web: người khác không thấy luôn */
           return `<button type="button" class="lk-chip${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lockDesc(l))}"` : `data-k="${k}" data-v="${o[0]}"`} aria-pressed="${cur[k] === o[0]}">${lk ? '🔒 ' : ''}${esc(o[1])}</button>`; };
         const byV = Object.fromEntries(list.map(o => [Array.isArray(o) ? o[0] : o, o]));
         const rows = GROUPS[k] ? GROUPS[k].map(([lbl, vs]) => { const h = vs.map(v => byV[v] ? btn(byV[v]) : '').join(''); return h ? `<div class="lk-sub">${lbl}</div><div class="lk-row">${h}</div>` : ''; }).join('') : `<div class="lk-row">${list.map(btn).join('')}</div>`;
@@ -166,7 +166,8 @@ export function openCharSetup() {
   const cur = avatar();
   let sex = cur.sex === 'nu' ? 'nu' : 'nam';
   let base = PRESETS.find(p => p.name === SETUP_BASE[sex]) || PRESETS[0];
-  let skin = base.skin, color = base.color;
+  let skin = base.skin, color = base.color, picked = false;
+  const lvNow = level(totals()).lv; /* cấp hiện tại (tài khoản mới: cấp 1) — mẫu có món khoá theo cấp thì hiện 🔒 */
   const ov = document.createElement('div'); ov.className = 'pf-ov'; ov.id = 'cs-ov';
   const key = e => { if (e.key === 'Escape') close(); };
   const close = () => { ov.remove(); removeEventListener('keydown', key, true); };
@@ -174,8 +175,9 @@ export function openCharSetup() {
     const char = { ...pickChar(base), skin, color };
     ov.innerHTML = `<div class="pf-box" role="dialog" aria-modal="true" aria-label="Tạo nhân vật"><button class="pf-x" aria-label="Đóng">✕</button>
       <h2 style="margin:0 36px 4px 0;font:800 22px/1.2 'Baloo 2',Nunito,sans-serif">🧸 Tạo nhân vật của bạn</h2>
-      <p style="margin:0;color:#8B7E9E">Chọn giới tính và màu nhân vật — xong là nhân vật này theo tài khoản của bạn sang mọi máy.</p>
+      <p style="margin:0;color:#8B7E9E">Chọn mẫu nhân vật, giới tính và màu — xong là nhân vật này theo tài khoản của bạn sang mọi máy.</p>
       <div style="display:grid;place-items:center;padding:12px 0 4px">${avatarHTML(96, { ch: char, c: 0 })}</div>
+      <div class="lk-sec"><b>Mẫu nhân vật</b><div class="lk-grid lk-pre">${PUB.map(p => { const pi = PRESETS.indexOf(p), need = presetMinLevel(p), locked = need > lvNow; return `<button type="button" class="lk-card${locked ? ' lock' : ''}" ${locked ? `data-prelock="${need}"` : `data-pre="${pi}"`} aria-pressed="${base === p}">${avatarHTML(54, { ch: cleanChar(p), c: 0 })}<span>${locked ? '🔒 ' : ''}${esc(p.name)}</span>${locked ? `<small>🔒 Cấp ${need} mới mở</small>` : ''}</button>`; }).join('')}</div></div>
       <div class="lk-sec"><b>Giới tính</b><div class="lk-row">
         <button type="button" data-sex="nam" aria-pressed="${sex === 'nam'}" style="flex:1;min-height:48px;border:2px solid #241A38;border-radius:12px;background:${sex === 'nam' ? '#FACD33' : '#FFFDF9'};font:800 16px 'Baloo 2',Nunito,sans-serif;color:#241A38;cursor:pointer;box-shadow:3px 3px 0 #241A38">🧑 Nam</button>
         <button type="button" data-sex="nu" aria-pressed="${sex === 'nu'}" style="flex:1;min-height:48px;border:2px solid #241A38;border-radius:12px;background:${sex === 'nu' ? '#FACD33' : '#FFFDF9'};font:800 16px 'Baloo 2',Nunito,sans-serif;color:#241A38;cursor:pointer;box-shadow:3px 3px 0 #241A38">👩 Nữ</button>
@@ -188,7 +190,9 @@ export function openCharSetup() {
   ov.addEventListener('click', e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.sex) { sex = b.dataset.sex; base = PRESETS.find(p => p.name === SETUP_BASE[sex]) || PRESETS[0]; skin = base.skin; color = base.color; return draw(); }
+    if (b.dataset.sex) { sex = b.dataset.sex; if (!picked) { base = PRESETS.find(p => p.name === SETUP_BASE[sex]) || PRESETS[0]; skin = base.skin; color = base.color; } return draw(); }
+    if (b.dataset.pre != null) { base = PRESETS[+b.dataset.pre]; skin = base.skin; color = base.color; picked = true; return draw(); }
+    if (b.dataset.prelock) { import('./dialog.js?v=8').then(m => m.toast('🔒 Mẫu này có linh kiện cấp ' + b.dataset.prelock + ' mới mở — chơi thêm để mở khoá', 2800)).catch(() => {}); return; }
     if (b.dataset.skin) { skin = b.dataset.skin; return draw(); }
     if (b.dataset.color) { color = b.dataset.color; return draw(); }
     if (b.dataset.a === 'save') { setAv({ ...pickChar(base), skin, color, sex, e: 'ch' }); close(); import('./dialog.js?v=8').then(m => m.toast('Đã lưu nhân vật ✨', 2200)).catch(() => {}); return; }

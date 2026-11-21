@@ -3,6 +3,7 @@
 // Số dư lưu trên máy này (localStorage 'gumballz-wallet'); ai đăng nhập thì sync.js đẩy lên tài khoản
 // (máy chủ giữ bản mới nhất theo thời gian, xem server/src/users.js P.wal).
 // Module này thuần logic + localStorage, KHÔNG import gì khác (để stats.js/sync.js/deck.js đều dùng được).
+import { readParts, grantGachaPart } from '../js/avatar-rewards.js'; /* 🧸 linh kiện nhân vật trúng rương: mở sớm hơn cấp (xem shared/js/avatar-rewards.js) */
 const KEY = 'gumballz-wallet';
 export const START_XU = 100; /* số xu tài khoản mới nhận lúc mở ví lần đầu */
 export const WIN_XU = 10, PLAY_XU = 2; /* thắng / chơi 1 ván */
@@ -120,33 +121,40 @@ export const widOf = (kind, id) => (kind === 'frame' ? 'frame:' : kind === 'colo
    thêm hạng động kiểu Nitro (tên động / khung động / banner động) với tỉ lệ CỰC HIẾM:
    mỗi món động <1% (mỗi nhóm 1% chia đều cho các món trong nhóm), tổng hạng động 3%.
    Giải tiền XU giữ nguyên +50/+100/+200 (tổng 35%).
-   Kỳ vọng xu mỗi rương: tiền mặt 0,15×50+0,12×100+0,08×200 = 35,5 xu; hoàn trùng tối đa
-   (đã có hết đồ trang trí: 65% × 20 xu) = 13 xu → EV xu tối đa 48,5 xu < giá 100 xu.
-   Người mới (chưa trùng món nào): EV xu = 35,5 xu. Rương luôn là hố đốt xu, không lãi xu. */
+   Linh kiện nhân vật (2026-11-21): 9% — trúng món đang khoá theo cấp thì MỞ SỚM hơn cấp (món cấp
+   giữa 6% + món cấp cao 3%); trúng món đã mở (đủ cấp hoặc đã trúng rương) → hoàn 20 xu như đồ trùng.
+   Kỳ vọng xu mỗi rương: tiền mặt 0,14×50+0,12×100+0,08×200 = 35,0 xu; hoàn trùng tối đa
+   (đã có hết đồ trang trí + linh kiện rương: 57% × 20 + 9% × 20) = 13,2 xu → EV xu tối đa 48,2 xu < giá 100 xu.
+   Người mới (chưa trùng món nào): EV xu = 35,0 xu. Rương luôn là hố đốt xu, không lãi xu. */
 export const CHEST_TABLE = [
-  { w: 32, kind: 'frame', pool: ['bongbong', 'saobang', 'keongot'], label: 'Khung avatar trong rương' },
-  { w: 16, kind: 'color', pool: ['song', 'daquang'], label: 'Màu tên trong rương' },
-  { w: 10, kind: 'back', pool: ['timbiec', 'vangchanh'], label: 'Mặt sau lá bài trong rương' },
+  { w: 28, kind: 'frame', pool: ['bongbong', 'saobang', 'keongot'], label: 'Khung avatar trong rương' },
+  { w: 14, kind: 'color', pool: ['song', 'daquang'], label: 'Màu tên trong rương' },
+  { w: 8, kind: 'back', pool: ['timbiec', 'vangchanh'], label: 'Mặt sau lá bài trong rương' },
   { w: 4, kind: 'frame', pool: ['hoanggia'], label: 'Khung Hoàng Gia (hiếm)' },
+  { w: 6, kind: 'part', pool: ['hat:cowboy', 'outfit:jersey', 'acc:backpack', 'outfit:aodai'], label: 'Linh kiện nhân vật (mở sớm hơn cấp)' },
+  { w: 3, kind: 'part', pool: ['hat:crown', 'outfit:mecha', 'kind:frog', 'acc:foxtails', 'horns:devil'], label: 'Linh kiện nhân vật hiếm', rare: true },
   { w: 1, kind: 'color', pool: ['cauvongchay', 'vanglaplanh', 'timxanhchay'], label: 'Tên động kiểu Nitro (CỰC HIẾM)', rare: true },
   { w: 1, kind: 'frame', pool: ['cauvongxoay', 'luachay', 'vangxoay'], label: 'Khung động kiểu Nitro (CỰC HIẾM)', rare: true },
   { w: 1, kind: 'banner', pool: ['bncauvong', 'bnvangchay'], label: 'Banner động kiểu Nitro (CỰC HIẾM)', rare: true },
-  { w: 15, kind: 'xu', amount: 50, label: '🪙 +50 xu' },
+  { w: 14, kind: 'xu', amount: 50, label: '🪙 +50 xu' },
   { w: 12, kind: 'xu', amount: 100, label: '🪙 +100 xu' },
   { w: 8, kind: 'xu', amount: 200, label: '🪙 +200 xu' },
 ];
 export function rollChest(rng = Math.random) {
   const total = CHEST_TABLE.reduce((n, e) => n + e.w, 0); let r = rng() * total;
-  for (const e of CHEST_TABLE) { r -= e.w; if (r < 0) { if (e.kind === 'xu') return { kind: 'xu', amount: e.amount, label: e.label }; const id = e.pool[Math.floor(rng() * e.pool.length)]; return { kind: e.kind, id, wid: widOf(e.kind, id), label: e.label }; } }
+  for (const e of CHEST_TABLE) { r -= e.w; if (r < 0) { if (e.kind === 'xu') return { kind: 'xu', amount: e.amount, label: e.label }; const id = e.pool[Math.floor(rng() * e.pool.length)]; if (e.kind === 'part') return { kind: 'part', id, label: e.label }; return { kind: e.kind, id, wid: widOf(e.kind, id), label: e.label }; } }
   return { kind: 'xu', amount: 50, label: 'Hoàn 50 xu' };
 }
-/* mở 1 rương: trừ 100 xu, quay, trao đồ (trùng đồ trang trí đã có → hoàn 20 xu). Trả kết quả để trang shop hiện. */
-export function openChest(rng = Math.random) {
+/* mở 1 rương: trừ 100 xu, quay, trao đồ (trùng đồ trang trí đã có → hoàn 20 xu). Trả kết quả để trang shop hiện.
+   isOpenPart (không bắt buộc): shop truyền hàm kiểm tra "món đã mở chưa" theo cấp + rương — trúng món đã mở thì
+   hoàn 20 xu; không truyền thì chỉ kiểm tra rương (trúng món đã trúng rương thì hoàn). */
+export function openChest(rng = Math.random, isOpenPart) {
   const w = loadWallet(); if (w.xu < CHEST_PRICE) return { ok: false, reason: 'Không đủ xu (cần 100 xu).' };
   const roll = rollChest(rng); w.xu -= CHEST_PRICE; w.chest++;
   let dup = false;
   if (roll.kind === 'xu') w.xu += roll.amount;
   else if (roll.kind === 'item') w.inv[roll.id] = num(w.inv[roll.id]) + 1;
+  else if (roll.kind === 'part') { const already = typeof isOpenPart === 'function' ? isOpenPart(roll.id) : readParts().includes(roll.id); if (already) { dup = true; w.xu += DUP_REFUND; } else grantGachaPart(roll.id); }
   else if (w.own.includes(roll.wid)) { dup = true; w.xu += DUP_REFUND; }
   else w.own.push(roll.wid);
   saveWallet(w);

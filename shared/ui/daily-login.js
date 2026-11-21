@@ -149,12 +149,12 @@ async function toast(msg) { try { const d = await import('./dialog.js?v=8'); d.t
 /* nhận local (khách, hoặc máy chủ cũ chưa hỗ trợ): cộng xu + ghi chuỗi vào localStorage */
 async function claimLocal() {
   const r = readLocal(), nx = nextOf(r), today = dayVN();
-  try { const w = await import('./wallet.js?v=3'); w.addXu(nx.xu); } catch (e) {}
+  try { const w = await import('./wallet.js?v=4'); w.addXu(nx.xu); } catch (e) {}
   writeLocal({ last: today, streak: nx.streak, total: r.total + 1 });
   toast('Nhận +' + nx.xu + ' xu! Chuỗi ' + nx.streak + ' ngày 🔥');
   refreshDot();
   render({ last: today, streak: nx.streak, total: r.total + 1, claimed: true, day: nx.day, nextDay: nx.day, nextXu: nx.xu, mode: auth.user() ? 'old-server' : 'guest' });
-  try { const s = await import('./sync.js?v=46'); s.syncSoon(800); } catch (e) {}
+  try { const s = await import('./sync.js?v=47'); s.syncSoon(800); } catch (e) {}
 }
 async function doClaim() {
   const btn = document.getElementById('lg-claim'); if (!btn || btn.disabled) return;
@@ -162,7 +162,7 @@ async function doClaim() {
   const today = dayVN();
   if (auth.user()) {
     try {
-      const w = await import('./wallet.js?v=3');
+      const w = await import('./wallet.js?v=4');
       const r = await apiClaim({ wal: w.snapshot() });
       if (r && r.__oldServer) { await claimLocal(); return; } /* máy chủ cũ (404) → nhận local tạm */
       if (r && r.ok) {
@@ -171,7 +171,7 @@ async function doClaim() {
         toast('Nhận +' + r.xu + ' xu! Chuỗi ' + r.streak + ' ngày 🔥');
         refreshDot();
         render({ last: today, streak: r.streak, total: r.total, claimed: true, day: r.day, nextDay: r.day, nextXu: r.xu, mode: 'server' });
-        try { const s = await import('./sync.js?v=46'); s.syncSoon(800); } catch (e) {} /* đồng bộ để mở khóa thành tích dl-7 / dl-30 nếu đủ */
+        try { const s = await import('./sync.js?v=47'); s.syncSoon(800); } catch (e) {} /* đồng bộ để mở khóa thành tích dl-7 / dl-30 nếu đủ */
         return;
       }
       if (r && r.already) { /* đã nhận rồi (tab khác nhận trước / bấm 2 lần) */

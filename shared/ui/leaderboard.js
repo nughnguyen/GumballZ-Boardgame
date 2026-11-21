@@ -1,10 +1,10 @@
 // 🏆 Bảng xếp hạng toàn server GumballZ: lọc theo Tất cả game hoặc từng game, xếp theo Điểm XP / Ván thắng / Chuỗi thắng.
 // Bấm vào bất kỳ người chơi nào trên bảng để mở hồ sơ công khai của họ (trong hồ sơ có nút kết bạn / nhắn tin).
 import { auth, leaderboard } from '../net/api.js?v=28';
-import { GAME_NAMES } from './stats.js?v=88';
-import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, modBadge, ownName } from './profile.js?v=48';
+import { GAME_NAMES } from './stats.js?v=89';
+import { AVATARS, avatarHTML, safeAv, nameStyle, nameClass, ownerBadge, modBadge, ownName } from './profile.js?v=49';
 import { openLogin } from './account.js?v=50';
-import { syncNow } from './sync.js?v=46';
+import { syncNow } from './sync.js?v=47';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
 import { ensureSkCSS, skRanks, skPodium } from './skeleton.js?v=1'; /* 💀 skeleton loading: bục top 3 + hàng xếp hạng tới khi máy chủ trả dữ liệu */

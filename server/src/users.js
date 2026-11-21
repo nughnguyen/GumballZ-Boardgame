@@ -4,6 +4,7 @@ import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
 import { statOf, titlesOf, pickTitle, levelOf, gameXp } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
 import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
+import { isKnownPart } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS */
 
 const te = new TextEncoder();
 const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -144,11 +145,18 @@ export class Users extends DurableObject {
     this.sql.exec(`CREATE INDEX IF NOT EXISTS dms_pair ON dms (fromId, toId, ts)`);
     this.sql.exec(`CREATE INDEX IF NOT EXISTS dms_to ON dms (toId, seen)`);
     try { this.sql.exec('ALTER TABLE users ADD COLUMN admin INTEGER DEFAULT 0'); } catch (e) {} // cột quản trị (bản 11/2026)
+    try { this.sql.exec('ALTER TABLE users ADD COLUMN role INTEGER DEFAULT 0'); } catch (e) {} // 🎭 phân quyền (patch -93): 0 người chơi, 1 Mod, 2 Quản trị; admin = 1 tương đương role ≥ 1 (giữ song song để tương thích)
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS audit (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, actorId INTEGER, actorName TEXT, action TEXT, targetId INTEGER, targetName TEXT, detail TEXT)`); // 📜 nhật ký quản trị (patch -93)
     try { this.sql.exec("ALTER TABLE users ADD COLUMN mute TEXT DEFAULT '{\"c\":0,\"v\":0}'"); } catch (e) {} // 🔇 lệnh cấm theo tài khoản (20/11/2026): {c: cấm chat tới, v: cấm mở phiếu tới}
     try { this.sql.exec('ALTER TABLE users ADD COLUMN prof TEXT'); this.sql.exec('ALTER TABLE users ADD COLUMN profOp TEXT'); } catch (e) {} // hồ sơ đồng bộ theo tài khoản (số ván, thành tích, avatar)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS vgames (k TEXT PRIMARY KEY, ts INTEGER)`); // 🛡️ chống gian lận: khoá các ván máy chủ đã ghi (chống ghi trùng khi phòng ngủ rồi thức dậy phát lại view cuối)
   }
-  pub(u) { return u && { id: u.id, username: u.username || null, name: u.name, google: !!u.google, banned: !!u.banned, admin: !!u.admin }; }
+  roleOf(u) { // 🎭 0 người chơi, 1 Mod, 2 Quản trị; tài khoản admin=1 cũ (chưa có role) → 2
+    if (!u) return 0;
+    if (u.role != null && u.role !== '') return Math.max(0, Math.min(2, +u.role || 0));
+    return u.admin ? 2 : 0;
+  }
+  pub(u) { return u && { id: u.id, username: u.username || null, name: u.name, google: !!u.google, banned: !!u.banned, admin: this.roleOf(u) >= 1, role: this.roleOf(u) }; }
   one(q, ...a) { const r = this.sql.exec(q, ...a).toArray(); return r[0] || null; }
   async session(uid) {
     const tok = rand(32), now = Date.now();
@@ -178,6 +186,7 @@ export class Users extends DurableObject {
     await this.fail(ip); // tính cả đăng ký để chống tạo hàng loạt
     const salt = rand(16), pw = await hashPw(password, salt);
     this.sql.exec('INSERT INTO users (username, name, pw, salt, created) VALUES (?,?,?,?,?)', username, nm, pw, salt, Date.now());
+    this.admIdx = null; // tài khoản mới phải hiện ngay ở tab Tài khoản của panel quản trị
     const u = this.one('SELECT * FROM users WHERE username = ?', username);
     return { ok: true, token: await this.session(u.id), user: this.pub(u), new: true }; /* tài khoản mới tạo → web mở bước chọn nhân vật */
   }
@@ -198,6 +207,7 @@ export class Users extends DurableObject {
     if (!u) {
       const nm = cleanName(p.given_name || p.name || 'Người chơi') || 'Người chơi';
       this.sql.exec('INSERT INTO users (name, google, email, created) VALUES (?,?,?,?)', nm.includes('*') ? 'Người chơi' : nm, p.sub, '', Date.now()); // không lưu email
+      this.admIdx = null; // tài khoản mới phải hiện ngay ở tab Tài khoản của panel quản trị
       u = this.one('SELECT * FROM users WHERE google = ?', p.sub);
       isNew = true;
     }
@@ -263,6 +273,14 @@ export class Users extends DurableObject {
     { const nav = cleanAvatar(d.av), curT = num(P.av && P.av.t, 4e12);
       const navOk = avatarUsable(nav), curOk = avatarUsable(P.av);
       if (nav && (nav.t > curT || (nav.t === curT && navOk && !curOk)) && (navOk || !curOk)) { P.av = nav; changed = true; } }
+    /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): chỉ GỘP (hợp nhất) chứ không thay thế — mở khoá chỉ thêm
+       chứ không bớt, nên 2 máy mở rương khác nhau thì cả 2 món đều còn. Chỉ nhận id trong LOCKED_PARTS
+       (id lạ / id không khoá theo cấp bị loại). Cấp mở linh kiện thì máy chủ tự suy ra từ XP, không cần gửi. */
+    if (Array.isArray(d.parts)) {
+      const cur = Array.isArray(P.parts) ? P.parts.filter(x => typeof x === 'string' && isKnownPart(x)) : [];
+      const merged = [...new Set([...cur, ...d.parts.filter(x => typeof x === 'string' && isKnownPart(x))])].slice(0, 40);
+      if (merged.length !== cur.length) { P.parts = merged; changed = true; }
+    }
     const op = d && typeof d.op === 'string' ? d.op.slice(0, 40) : '';
     if (op && op !== row.profOp && !(Array.isArray(P.ops) && P.ops.includes(op)) && JSON.stringify(d).length < 40000) {
       const add = d.add && typeof d.add === 'object' ? d.add : {};
@@ -409,7 +427,9 @@ export class Users extends DurableObject {
     want = String(want || '').trim();
     if (!(await this.adminGuard(ip, null))) return { ok: false, msg: 'Sai nhiều lần quá – khoá 1 giờ' };
     if (!want || !eqTime(String(key || '').trim(), want)) { await this.adminGuard(ip, false); return { ok: false, msg: 'Sai mật khẩu quản trị' }; }
-    this.sql.exec('UPDATE users SET admin = 1 WHERE id = ?', u.id);
+    this.sql.exec('UPDATE users SET admin = 1, role = 2 WHERE id = ?', u.id);
+    this.admIdx = null;
+    await this.auditLog({ id: u.id, name: u.name }, 'claim-admin', u.id, u.name, 'kích hoạt quyền Quản trị bằng ADMIN_KEY');
     return { ok: true, user: this.pub(this.one('SELECT * FROM users WHERE id = ?', u.id)) };
   }
   // chống dò mật khẩu quản trị: tối đa 5 lần sai / giờ / IP và 30 lần sai / giờ toàn máy chủ (lưu bền, IP đã băm)
@@ -428,12 +448,12 @@ export class Users extends DurableObject {
   async adminFind(q, opt = {}) {
     const fold = x => String(x == null ? '' : x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
     if (!this.admIdx || Date.now() - this.admIdx.at > 20e3 || opt.fresh) {
-      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, prof, mute FROM users').toArray(), list = [];
+      const rows = this.sql.exec('SELECT id, username, name, google IS NOT NULL AS g, created, banned, admin, role, prof, mute FROM users').toArray(), list = [];
       for (const r of rows) {
         let P = null; try { P = JSON.parse(r.prof || 'null'); } catch (e) {}
         const st = statOf(P), lv = levelOf(st.p, st.w, st.xp); let last = 0; if (P && P.g) for (const v of Object.values(P.g)) last = Math.max(last, +(v && v.last) || 0);
         let mu = { c: 0, v: 0 }; try { const m = JSON.parse(r.mute || 'null'); if (m && typeof m === 'object') { mu.c = +m.c || 0; mu.v = +m.v || 0; } } catch (e) {}
-        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: !!r.admin, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
+        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: (r.role != null ? +r.role : (r.admin ? 2 : 0)) >= 1, role: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
           av: P && P.av && typeof P.av.e === 'string' ? String(P.av.e).slice(0, 8) : '', _u: fold(r.username), _n: fold(r.name) });
       }
       this.admIdx = { at: Date.now(), list };
@@ -447,15 +467,37 @@ export class Users extends DurableObject {
     const off = Math.max(0, Math.floor(+opt.off || 0)), lim = Math.max(1, Math.min(100, Math.floor(+opt.lim || 40)));
     const count = k => all.reduce((n, u) => n + (k(u) ? 1 : 0), 0);
     return { users: res.slice(off, off + lim).map(({ _u, _n, ...u }) => u), matched: res.length, total: all.length,
-      counts: { admin: count(u => u.admin), banned: count(u => u.banned), google: count(u => u.g), active: count(u => now - u.last < W), new: count(u => now - u.created < W) } };
+      counts: { admin: count(u => u.role === 2), mod: count(u => u.role === 1), banned: count(u => u.banned), google: count(u => u.g), active: count(u => now - u.last < W), new: count(u => now - u.created < W) } };
   }
   async adminSet(id, patch, adminUid = null) {
     const uid = +id;
+    const target = this.one('SELECT * FROM users WHERE id = ?', uid);
+    if (!target) return { ok: false, msg: 'Không thấy tài khoản này' };
+    // 🎭 chỉ Quản trị (role 2) mới đổi quyền / đặt lại mật khẩu; Mod chỉ được cấm/mở khoá/mute
+    let callerRole = 2; // gọi nội bộ không qua /admin/list (mặc định đủ quyền)
+    let caller = null;
+    if (adminUid != null) {
+      caller = this.one('SELECT * FROM users WHERE id = ?', +adminUid);
+      callerRole = this.roleOf(caller);
+      if (callerRole < 1 || (caller && caller.banned)) return { ok: false, msg: 'Không có quyền quản trị' };
+    }
+    const wantsRole = 'role' in patch || 'admin' in patch;
+    if (wantsRole && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi quyền' };
+    if ('password' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới đặt lại mật khẩu' };
+    if (uid === 1 && adminUid != null && +adminUid !== 1) {
+      if (wantsRole) return { ok: false, msg: 'Chỉ chủ web mới đổi quyền của chủ web' };
+      if ('banned' in patch && patch.banned) return { ok: false, msg: 'Không thể khoá tài khoản chủ web' };
+    }
     if (adminUid && uid === +adminUid) {
       if ('banned' in patch && patch.banned) return { ok: false, msg: 'Không thể tự khoá tài khoản của chính mình' };
-      if ('admin' in patch && !patch.admin) return { ok: false, msg: 'Không thể tự gỡ quyền quản trị của chính mình' };
+      const newRole = 'role' in patch ? Math.max(0, Math.min(2, +patch.role || 0)) : ('admin' in patch ? (patch.admin ? 2 : 0) : this.roleOf(target));
+      if (newRole < this.roleOf(target)) return { ok: false, msg: 'Không thể tự hạ quyền của chính mình' };
     }
-    if ('admin' in patch) this.sql.exec('UPDATE users SET admin = ? WHERE id = ?', patch.admin ? 1 : 0, uid);
+    const oldRole = this.roleOf(target);
+    if (wantsRole) {
+      const nr = 'role' in patch ? Math.max(0, Math.min(2, +patch.role || 0)) : (patch.admin ? 2 : 0);
+      this.sql.exec('UPDATE users SET role = ?, admin = ? WHERE id = ?', nr, nr >= 1 ? 1 : 0, uid);
+    }
     if ('banned' in patch) { this.sql.exec('UPDATE users SET banned = ? WHERE id = ?', patch.banned ? 1 : 0, uid); if (patch.banned) this.sql.exec('DELETE FROM sessions WHERE uid = ?', uid); }
     if (patch.password) { const salt = rand(16); this.sql.exec('UPDATE users SET pw = ?, salt = ? WHERE id = ? AND username IS NOT NULL', await hashPw(String(patch.password), salt), salt, uid); }
     if ('mute' in patch && patch.mute && typeof patch.mute === 'object') { /* 🔇 cấm chat (c) / cấm mở phiếu (v) theo tài khoản, theo giờ – 0 = gỡ */
@@ -464,7 +506,36 @@ export class Users extends DurableObject {
       for (const k of ['c', 'v']) { const h = +patch.mute[k]; if (Number.isFinite(h) && h !== 0) m[k] = now + h * 3600e3; else if (h === 0) m[k] = 0; }
       this.sql.exec('UPDATE users SET mute = ? WHERE id = ?', JSON.stringify(m), uid);
     }
-    this.admIdx = null; return { ok: true };
+    this.admIdx = null;
+    // 📜 ghi nhật ký quản trị (không ghi mật khẩu mới)
+    const actor = caller || { id: 0, name: 'ADMIN_KEY' };
+    const tName = target.name || target.username || ('#' + uid);
+    if (wantsRole) {
+      const nr = 'role' in patch ? Math.max(0, Math.min(2, +patch.role || 0)) : (patch.admin ? 2 : 0);
+      if (nr !== oldRole) await this.auditLog(actor, 'role', uid, tName, nr === 2 ? 'cấp quyền Quản trị' : nr === 1 ? 'cấp quyền Mod' : 'thu hồi quyền quản trị');
+    }
+    if ('banned' in patch) await this.auditLog(actor, patch.banned ? 'ban-account' : 'unban-account', uid, tName, patch.banned ? 'khoá tài khoản' : 'mở khoá tài khoản');
+    if (patch.password) await this.auditLog(actor, 'reset-password', uid, tName, 'đặt lại mật khẩu');
+    if ('mute' in patch && patch.mute && typeof patch.mute === 'object') {
+      const h = +patch.mute.c || 0;
+      await this.auditLog(actor, h ? 'mute' : 'unmute', uid, tName, h ? `cấm chat ${h} giờ` : 'gỡ cấm chat');
+    }
+    return { ok: true };
+  }
+  // 📜 nhật ký quản trị (patch -93): ghi mọi hành động quản trị; xem ở tab Nhật ký (chỉ role 2)
+  async auditLog(actor, action, targetId, targetName, detail) {
+    try {
+      this.sql.exec('INSERT INTO audit (ts, actorId, actorName, action, targetId, targetName, detail) VALUES (?,?,?,?,?,?,?)',
+        Date.now(), actor ? +actor.id || 0 : 0, String((actor && actor.name) || 'ADMIN_KEY').slice(0, 60), String(action || '').slice(0, 30),
+        targetId != null ? +targetId : null, targetName != null ? String(targetName).slice(0, 60) : null, detail != null ? String(detail).slice(0, 200) : null);
+    } catch (e) {}
+    return { ok: true };
+  }
+  async auditList(off = 0, lim = 50) {
+    const o = Math.max(0, Math.floor(+off || 0)), l = Math.max(1, Math.min(100, Math.floor(+lim || 50)));
+    const rows = this.sql.exec('SELECT * FROM audit ORDER BY id DESC LIMIT ? OFFSET ?', l, o).toArray();
+    const total = this.one('SELECT COUNT(*) AS n FROM audit').n;
+    return { rows, total, off: o };
   }
   async stats() { return { users: this.one('SELECT COUNT(*) AS n FROM users').n, sessions: this.one('SELECT COUNT(*) AS n FROM sessions WHERE exp > ?', Date.now()).n }; }
 
@@ -582,7 +653,7 @@ export class Users extends DurableObject {
     return { mc: +m.c || 0, mv: +m.v || 0, blk };
   }
   /* 💬 được nhắn riêng: đã là bạn bè, hoặc một bên là chủ web (chủ web nhắn được cho mọi tài khoản) */
-  isOwnerId(id) { if (+id !== OWNER_ID) return false; const u = this.one('SELECT admin FROM users WHERE id = ?', OWNER_ID); return !!(u && u.admin); }
+  isOwnerId(id) { if (+id !== OWNER_ID) return false; const u = this.one('SELECT role, admin FROM users WHERE id = ?', OWNER_ID); return !!(u && this.roleOf(u) === 2); }
   dmOk(a0, b0) { if (this.isOwnerId(a0) || this.isOwnerId(b0)) return true; const a = Math.min(a0, b0), b = Math.max(a0, b0); const fr = this.one('SELECT status FROM friends WHERE a = ? AND b = ?', a, b); return !!(fr && fr.status === 'acc'); }
   async dmList(token, withId, afterId = 0) {
     const me = await this.whoami(token); if (!me || me.banned) return { ok: false, msg: 'Hết phiên đăng nhập' };

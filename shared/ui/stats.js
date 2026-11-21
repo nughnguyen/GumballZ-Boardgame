@@ -2,7 +2,8 @@
 // Mỗi net.js bọc handlers: this.h = watch(GAME, handlers, () => this.id) → tự đếm ván đã chơi / thắng khi ván kết thúc.
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
 import { questWin } from '../js/daily.js?v=3'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
-import { earnGame } from './wallet.js?v=3'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
+import { earnGame } from './wallet.js?v=4'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
+import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
 import { gameXp } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 const KEY = 'gumballz-stats';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -1297,7 +1298,7 @@ export function record(game, won, extra = [], info = {}) {
   save(s);
   let xuEarned = 0; try { xuEarned = earnGame(won); } catch (e) {} /* 💰 ví xu chung toàn web */
   try { dispatchEvent(new CustomEvent('gumballz-stats', { detail: { game, won, fresh } })); } catch (e) {}
-  const up = level(t); const msgs = []; if (up.lv > before) msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`);
+  const up = level(t); const msgs = []; if (up.lv > before) { msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`); for (const p of LOCKED_PARTS.filter(x => x.lv > before && x.lv <= up.lv)) msgs.push(`🔓 Mở khóa ${itemLabel(p.k, p.v)}`); } /* 🧸 linh kiện mở theo cấp: cấp suy ra từ XP nên không cần lưu riêng — đủ cấp là mở, kể cả khi lên nhiều cấp cùng lúc */
   if (xuEarned > 0) msgs.push(`🪙 +${xuEarned} xu vào ví`);
   if (fresh.length) setTimeout(() => import('./achpop.js?v=1').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
   if (msgs.length) import('./dialog.js?v=8').then(m => msgs.forEach((x, i) => setTimeout(() => m.toast(x, 3600), 1800 + i * 3800))).catch(() => {});
@@ -1400,7 +1401,7 @@ export function watch(game, handlers, getId) {
 }
 // ☁️ có đăng nhập thì nạp phần đồng bộ hồ sơ theo tài khoản (khách không nạp gì thêm)
 const hasAuth = () => { try { return !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) { return false; } };
-let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=46').catch(() => { syncOn = false; }); };
+let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=47').catch(() => { syncOn = false; }); };
 try { startSync(); addEventListener('gumballz-auth', startSync); } catch (e) {}
 // 📸 nút "Khoe kết quả" sau ván thắng (shared/ui/brag.js)
 try { if (typeof document !== 'undefined') import('./brag.js?v=35').catch(() => {}); } catch (e) {}

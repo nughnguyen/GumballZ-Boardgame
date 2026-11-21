@@ -1,8 +1,9 @@
 // 🛍️ Cửa hàng — mua khung avatar, màu tên, banner hồ sơ, lưng bài và mở rương Gacha bằng xu ảo.
 // Tiền ảo, không nạp, không rút, không tiền thật. Mọi giá và tỉ lệ rơi lấy từ shared/ui/wallet.js.
-import { loadWallet, balance, fmt, spend, grantCosmetic, owns, widOf, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=3';
-import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=48';
-import { FRAMES, NAME_COLORS, BANNERS } from '../../shared/js/avatar-rewards.js';
+import { loadWallet, balance, fmt, spend, grantCosmetic, owns, widOf, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=4';
+import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=49';
+import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js';
+import { totals } from '../../shared/ui/stats.js?v=89'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
 import { toast } from '../../shared/ui/dialog.js?v=8';
 
@@ -18,6 +19,7 @@ const describeRoll = r => {
   if (r.kind === 'color') return `✒️ ${colorName(r.id)} (màu tên)`;
   if (r.kind === 'back') return `🃏 Lưng bài ${backName(r.id)}`;
   if (r.kind === 'banner') return `🎏 ${bannerName(r.id)} (banner hồ sơ)`;
+  if (r.kind === 'part') { const [k, v] = String(r.id || '').split(':'); return `🧸 ${itemLabel(k, v)} (linh kiện nhân vật)`; }
   return r.label || '';
 };
 
@@ -169,12 +171,13 @@ $('#btn-chest').addEventListener('click', () => {
   clearTimeout(restTimer);
   chestBusy = true; /* khoá nút cho tới lúc hiện kết quả — draw() cũng tôn trọng cờ này */
   /* Quay + trừ xu + trao đồ NGAY (qua openChest — đường cấp phát hiện có) để chống
-     bấm đúp; chỉ phần HIỆN kết quả là chờ animation mở hộp xong. */
-  const r = openChest();
+     bấm đúp; chỉ phần HIỆN kết quả là chờ animation mở hộp xong.
+     Truyền hàm kiểm tra linh kiện đã mở chưa (theo cấp + rương) để trúng món đã mở thì hoàn xu. */
+  const r = openChest(undefined, id => { try { const t = totals(); return partOpen(id, t.xp, readParts()); } catch (e) { return false; } });
   draw(); /* cập nhật số dư + số rương đã mở ngay */
   if (!r.ok) { res.textContent = '😿 ' + (r.reason || 'Không mở được rương.'); res.className = 'chest-result bad'; chestBusy = false; btn.disabled = false; return; }
   const reveal = () => {
-    res.textContent = `🎉 ${describeRoll(r)}${r.dup ? ` (trùng đồ đã có — hoàn ${DUP_REFUND} xu)` : ''}!`;
+    res.textContent = `🎉 ${describeRoll(r)}${r.dup ? ` (trùng đồ đã có — hoàn ${DUP_REFUND} xu)` : r.kind === 'part' ? ' — đã mở, vào Hồ sơ để mặc' : ''}!`;
     res.className = 'chest-result good pop';
     burstConfetti();
     chestBusy = false;
