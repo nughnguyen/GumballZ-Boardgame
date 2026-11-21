@@ -34,11 +34,22 @@
 .pf-fr.fr-anim>.pf-cb{position:relative;z-index:1}
 @keyframes fr-glow{0%,100%{box-shadow:0 0 0 2px #ff6a1f,0 0 10px 2px #ff9a1f88}50%{box-shadow:0 0 0 3px #ffd23d,0 0 18px 6px #ff6a1f66}}
 .pf-fr.fr-glow{animation:fr-glow 1.8s ease-in-out infinite}
+/* ✨ 3 khung động mới (patch -123): Vương Miện / Rồng Bay Phụng Múa / Vua Trò Chơi — chỉ mở rương (cực hiếm).
+   Trang trí bằng ::before/::after, kích thước theo %/cqw của khung nên co giãn theo mọi cỡ avatar (54px Hồ sơ → nhỏ ở chat/xếp hạng). */
+.pf-fr.fr-vuongmien,.pf-fr.fr-longphung,.pf-fr.fr-vuatrichoi{container-type:size}
+@keyframes fr-crown-bob{0%,100%{transform:translateX(-50%) translateY(0) rotate(-5deg);filter:drop-shadow(0 0 2px #ffd84a)}50%{transform:translateX(-50%) translateY(-16%) rotate(5deg);filter:drop-shadow(0 0 6px #ffd84a)}}
+.pf-fr.fr-vuongmien::after{content:"👑";position:absolute;left:50%;top:-13%;z-index:2;line-height:1;pointer-events:none;font-size:13px;font-size:36cqw;animation:fr-crown-bob 2.8s ease-in-out infinite}
+@keyframes fr-orbit{to{transform:rotate(1turn)}}
+.pf-fr.fr-orbit{position:relative}
+.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after{position:absolute;inset:-13%;z-index:2;display:flex;justify-content:center;align-items:flex-start;line-height:1;pointer-events:none;font-size:11px;font-size:27cqw;animation:fr-orbit 4s linear infinite}
+.pf-fr.fr-orbit::before{content:"🐉"}
+.pf-fr.fr-orbit::after{content:"🦅";animation-direction:reverse}
+.pf-fr.fr-vuatrichoi::after{content:"👑 VUA TRÒ CHƠI";position:absolute;left:50%;bottom:-7%;transform:translateX(-50%);z-index:2;white-space:nowrap;line-height:1.4;pointer-events:none;font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:9px;font-size:19cqw;letter-spacing:.02em;color:#ffd84a;text-shadow:0 1px 0 #7a1f1f;background:linear-gradient(90deg,#8a1d1d,#d4202f,#ff5a60,#d4202f,#8a1d1d);background-size:200% auto;padding:.2em .55em;border-radius:999px;box-shadow:0 0 0 1.5px #241A38,0 2px 6px #241A3866;animation:nc-slide 3s linear infinite}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
 .lk-bn{display:block;width:100%;height:22px;border-radius:6px;background-size:200% auto}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
-@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim{animation:none}}
+@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
 .pf-box{width:min(520px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:#FFFDF9;color:#241A38;border:2px solid #241A38;border-radius:26px;padding:20px 18px 18px;box-shadow:4px 4px 0 #241A38;font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative;animation:pf-p .24s cubic-bezier(.2,1.2,.4,1)}
 .pf-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:2px solid #241A38;background:#FFFDF9;font-size:17px;cursor:pointer;color:#241A38;z-index:2;box-shadow:3px 3px 0 #241A38}

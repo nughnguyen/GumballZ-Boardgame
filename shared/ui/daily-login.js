@@ -149,7 +149,7 @@ async function toast(msg) { try { const d = await import('./dialog.js?v=8'); d.t
 /* nhận local (khách, hoặc máy chủ cũ chưa hỗ trợ): cộng xu + ghi chuỗi vào localStorage */
 async function claimLocal() {
   const r = readLocal(), nx = nextOf(r), today = dayVN();
-  try { const w = await import('./wallet.js?v=6'); w.addXu(nx.xu); } catch (e) {}
+  try { const w = await import('./wallet.js?v=7'); w.addXu(nx.xu); } catch (e) {}
   writeLocal({ last: today, streak: nx.streak, total: r.total + 1 });
   toast('Nhận +' + nx.xu + ' xu! Chuỗi ' + nx.streak + ' ngày 🔥');
   refreshDot();
@@ -162,7 +162,7 @@ async function doClaim() {
   const today = dayVN();
   if (auth.user()) {
     try {
-      const w = await import('./wallet.js?v=6');
+      const w = await import('./wallet.js?v=7');
       const r = await apiClaim({ wal: w.snapshot() });
       if (r && r.__oldServer) { await claimLocal(); return; } /* máy chủ cũ (404) → nhận local tạm */
       if (r && r.ok) {

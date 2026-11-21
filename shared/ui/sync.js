@@ -10,9 +10,9 @@
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=29';
 import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=91';
-import { snapshot, adoptServer, resetWallet } from './wallet.js?v=6'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
+import { snapshot, adoptServer, resetWallet } from './wallet.js?v=7'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
-import { readParts, writeParts } from '../js/avatar-rewards.js'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
+import { readParts, writeParts } from '../js/avatar-rewards.js?v=1'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar', LOGIN = 'gumballz-login';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };

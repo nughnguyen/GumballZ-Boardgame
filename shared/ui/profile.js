@@ -2,12 +2,12 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=54'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=55'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=91';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
-import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=6'; /* 💰 Ví xu */
+import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js';
+import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel } from '../js/avatar-rewards.js?v=1';
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
@@ -71,8 +71,9 @@ export function avatarHTML(size = 40, a = avatar()) {
     body = `<img alt="" data-cb="${esc(js)}" data-sz="${in_}"${u ? ' data-ok="1"' : ''}${mine ? ' data-mine="1"' : ''} src="${u || BLANK}">`; cls = ' pf-cb';
   }
   const inner = `<span class="pf-av${cls}" style="width:${in_}px;height:${in_}px;font-size:${Math.round(in_ * .56)}px;background:${ch ? (ring ? '#fffaf3' : 'transparent') : bg}${ring ? ';box-shadow:0 0 0 1.5px #fff' : ''}">${body}</span>`; /* nhân vật 3D: nền trong suốt */
-  const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy */
-  return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
+  const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy, orbit = rồng/phụng bay vòng (::before/::after); khung động nào cũng thêm class fr-<id> để CSS vẽ trang trí riêng */
+  const faCls = fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : fa ? ` fr-${fa}` : '';
+  return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}</span>` : inner;
 }
 /* 🎖️ huy hiệu 4 bậc (patch -95) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
 export const ownerBadge = on => on ? '<span class="bdg bdg-own" title="Người làm ra GumballZ Boardgame"><i>👑</i><span class="t">CHỦ SẢNH</span><b aria-hidden="true">✦</b></span>' : '';
@@ -91,7 +92,7 @@ export function profileCss() {
   import('./badges.js?v=4').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=5', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=5'; }
+  try { l.href = new URL('../css/avatar.css?v=6', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=6'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

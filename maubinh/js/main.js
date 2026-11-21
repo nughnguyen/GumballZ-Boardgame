@@ -11,7 +11,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=8';
-import { balance, spend, addXu } from '../../shared/ui/wallet.js?v=6';
+import { balance, spend, addXu } from '../../shared/ui/wallet.js?v=7';
 
 const NET = makeNet({
   game: 'maubinh', min: MIN_PLAYERS, max: MAX_PLAYERS, maxSeats: MAX_PLAYERS + 6,

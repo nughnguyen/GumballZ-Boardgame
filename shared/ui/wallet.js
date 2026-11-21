@@ -3,7 +3,7 @@
 // Số dư lưu trên máy này (localStorage 'gumballz-wallet'); ai đăng nhập thì sync.js đẩy lên tài khoản
 // (máy chủ giữ bản mới nhất theo thời gian, xem server/src/users.js P.wal).
 // Module này thuần logic + localStorage, KHÔNG import gì khác (để stats.js/sync.js/deck.js đều dùng được).
-import { readParts, grantGachaPart } from '../js/avatar-rewards.js'; /* 🧸 linh kiện nhân vật trúng rương: mở sớm hơn cấp (xem shared/js/avatar-rewards.js) */
+import { readParts, grantGachaPart } from '../js/avatar-rewards.js?v=1'; /* 🧸 linh kiện nhân vật trúng rương: mở sớm hơn cấp (xem shared/js/avatar-rewards.js) */
 const KEY = 'gumballz-wallet';
 export const START_XU = 100; /* số xu tài khoản mới nhận lúc mở ví lần đầu */
 export const WIN_XU = 10, PLAY_XU = 2; /* thắng / chơi 1 ván */
@@ -74,10 +74,14 @@ export const COSMETICS = {
     { id: 'rungthong', name: 'Khung Rừng Thông', price: 150, shop: true },
     { id: 'camvang', name: 'Khung Cam Vàng', price: 150, shop: true },
     { id: 'timsen', name: 'Khung Tím Sen', price: 200, shop: true },
-    /* ✨ khung động kiểu Nitro: chỉ mở ra từ rương (cực hiếm), anim: 'spin' = viền xoay, 'glow' = phát sáng */
+    /* ✨ khung động kiểu Nitro: chỉ mở ra từ rương (cực hiếm), anim: 'spin' = viền xoay, 'glow' = phát sáng, 'orbit' = rồng/phụng bay vòng */
     { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', price: 0, chest: true, rare: true, anim: 'spin' },
     { id: 'luachay', name: 'Khung Lửa Cháy', price: 0, chest: true, rare: true, anim: 'glow' },
     { id: 'vangxoay', name: 'Khung Vàng Xoay', price: 0, chest: true, rare: true, anim: 'spin' },
+    /* ✨ thêm 2026-11-21 (patch -123): 3 khung động chủ đề mới — chỉ mở ra từ rương (cực hiếm) */
+    { id: 'vuongmien', name: 'Khung Vương Miện', price: 0, chest: true, rare: true, anim: 'spin' },
+    { id: 'longphung', name: 'Khung Rồng Bay Phụng Múa', price: 0, chest: true, rare: true, anim: 'orbit' },
+    { id: 'vuatrichoi', name: 'Khung Vua Trò Chơi', price: 0, chest: true, rare: true, anim: 'spin' },
   ],
   colors: [
     { id: 'ngoc', name: 'Xanh Ngọc', price: 150, shop: true },
@@ -136,7 +140,7 @@ export const CHEST_TABLE = [
   { w: 6, kind: 'part', pool: ['hat:cowboy', 'outfit:jersey', 'acc:backpack', 'outfit:aodai'], label: 'Linh kiện nhân vật (mở sớm hơn cấp)' },
   { w: 3, kind: 'part', pool: ['hat:crown', 'outfit:mecha', 'kind:frog', 'acc:foxtails', 'horns:devil'], label: 'Linh kiện nhân vật hiếm', rare: true },
   { w: 1, kind: 'color', pool: ['cauvongchay', 'vanglaplanh', 'timxanhchay'], label: 'Tên động kiểu Nitro (CỰC HIẾM)', rare: true },
-  { w: 1, kind: 'frame', pool: ['cauvongxoay', 'luachay', 'vangxoay'], label: 'Khung động kiểu Nitro (CỰC HIẾM)', rare: true },
+  { w: 1, kind: 'frame', pool: ['cauvongxoay', 'luachay', 'vangxoay', 'vuongmien', 'longphung', 'vuatrichoi'], label: 'Khung động kiểu Nitro (CỰC HIẾM)', rare: true },
   { w: 1, kind: 'banner', pool: ['bncauvong', 'bnvangchay'], label: 'Banner động kiểu Nitro (CỰC HIẾM)', rare: true },
   { w: 14, kind: 'xu', amount: 50, label: '🪙 +50 xu' },
   { w: 12, kind: 'xu', amount: 100, label: '🪙 +100 xu' },

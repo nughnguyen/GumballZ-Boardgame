@@ -2,7 +2,7 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=30'; mountAccount(element)
 import { auth } from '../net/api.js?v=29';
 import { promptBox, formBox } from './dialog.js?v=8';
-import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=54';
+import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=55';
 
 const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */
 .ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid #ecdfd0;background:#FFFDF9;color:#4A3E5C;font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}

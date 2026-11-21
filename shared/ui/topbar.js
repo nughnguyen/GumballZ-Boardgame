@@ -17,7 +17,6 @@
   var page = parts[0] === 'sanh' ? 'sanh' : parts[0] === 'shop' ? 'shop' : (parts.length === 0 ? 'home' : 'game'); /* patch -112: trang game (vd. /typhu/) là 'game', không phải 'home' — trước đây nhầm thành home nên href './'/'sanh/' trỏ sai */
   var isHome = page === 'home';
 
-  var MARK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" class="mark" aria-hidden="true"><rect x="4" y="4" width="56" height="56" rx="16" fill="#FACD33" stroke="#241A38" stroke-width="3"/><circle cx="32" cy="35" r="16" fill="#FF5A60" stroke="#241A38" stroke-width="3"/><path d="M22 24 Q25 21 29 20.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="25.5" cy="31" r="2.6" fill="#241A38"/><circle cx="38.5" cy="31" r="2.6" fill="#241A38"/><path d="M25 38 Q32 44.5 39 38" fill="none" stroke="#241A38" stroke-width="3" stroke-linecap="round"/><path d="M14 18 Q18 12 25 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="48" cy="15" r="4.5" fill="#B9A6FF" stroke="#241A38" stroke-width="2.5"/><circle cx="49" cy="49" r="3.5" fill="#2EC5B6" stroke="#241A38" stroke-width="2.5"/></svg>';
   var GEAR = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.900 2.900l-.1-.1a1.700 1.700 0 0 0-1.800-.300 1.700 1.700 0 0 0-1 1.500V21a2 2 0 1 1-4 0v-.100a1.700 1.700 0 0 0-1.100-1.500 1.700 1.700 0 0 0-1.800.300l-.100.100a2 2 0 1 1-2.900-2.900l.100-.100a1.700 1.700 0 0 0 .300-1.800 1.700 1.700 0 0 0-1.500-1H3a2 2 0 1 1 0-4h.100a1.700 1.700 0 0 0 1.500-1.100 1.700 1.700 0 0 0-.300-1.800l-.100-.100a2 2 0 1 1 2.900-2.900l.100.100a1.700 1.700 0 0 0 1.800.300H9a1.700 1.700 0 0 0 1-1.500V3a2 2 0 1 1 4 0v.100a1.700 1.700 0 0 0 1 1.500 1.700 1.700 0 0 0 1.800-.300l-.100-.100a2 2 0 1 1 2.900 2.900l.100.100a1.700 1.700 0 0 0-.300 1.800V9a1.700 1.700 0 0 0 1.500 1H21a2 2 0 1 1 0 4h-.100a1.700 1.700 0 0 0-1.500 1z"/></svg>';
 
   function navA(href, label, cur) { return '<a href="' + href + '"' + (cur ? ' class="active" aria-current="page"' : '') + '>' + label + '</a>'; }
@@ -27,7 +26,7 @@
 
   var header =
     '<header class="nav' + (page === 'game' ? ' game' : '') + '" id="nav"><div class="nav-in">' + /* patch -112: class "game" để CSS xếp lại topbar trên trang game (cao ~72px, không ô tìm kiếm, menu giữa hơi lệch trái) */
-    '<a class="brand" href="' + homeHref + '" aria-label="GumballZ Boardgame – trang chủ">' + MARK + '<span class="wm">GumballZ<small>Boardgame</small></span></a>' +
+    '<a class="brand" href="' + homeHref + '" aria-label="GumballZ Boardgame – trang chủ"><span class="wm"><span class="actual-text">&nbsp;GUMBALLZ&nbsp;</span><span aria-hidden="true" class="hover-text">&nbsp;GUMBALLZ&nbsp;</span><span aria-hidden="true" class="auto-text">&nbsp;GUMBALLZ&nbsp;</span><small>Boardgame</small></span></a>' + /* patch -124: logo chữ kiểu Uiverse quick-chicken-50 (2 lớp tràn khi hover + sweep RGB tự động), icon MARK đã bỏ */
     '<form class="nav-search" id="nav-search" role="search"><input id="gq-top" type="search" placeholder="🔎 Tìm game…" aria-label="Tìm game theo tên" autocomplete="off"></form>' +
     '<nav class="links" aria-label="Điều hướng">' +
     navA(homeHref, 'Trang chủ', page === 'home') +
@@ -70,13 +69,13 @@
   import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */
   import('./account.js?v=52').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
-  import('./profile.js?v=54').then(function (m) {
+  import('./profile.js?v=55').then(function (m) {
     m.profileCss();
     var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
     var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
   }).catch(function () {});
   // pill xu: hiện số dư, cập nhật khi ví đổi
-  import('./wallet.js?v=6').then(function (w) {
+  import('./wallet.js?v=7').then(function (w) {
     var x = document.getElementById('btn-xu');
     var dx = function () { if (x) x.querySelector('b').textContent = w.fmt(w.balance()); };
     dx();
@@ -98,7 +97,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=54').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=55').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;

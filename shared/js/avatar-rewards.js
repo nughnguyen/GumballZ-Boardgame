@@ -88,6 +88,10 @@ export const FRAMES = [
   { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', chest: true, anim: 'spin' },
   { id: 'luachay', name: 'Khung Lửa Cháy', chest: true, anim: 'glow' },
   { id: 'vangxoay', name: 'Khung Vàng Xoay', chest: true, anim: 'spin' },
+  /* ✨ thêm 2026-11-21 (patch -123): 3 khung động chủ đề mới — chỉ mở ra từ rương (cực hiếm) */
+  { id: 'vuongmien', name: 'Khung Vương Miện', chest: true, anim: 'spin' },
+  { id: 'longphung', name: 'Khung Rồng Bay Phụng Múa', chest: true, anim: 'orbit' },
+  { id: 'vuatrichoi', name: 'Khung Vua Trò Chơi', chest: true, anim: 'spin' },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -99,6 +103,8 @@ export const FRAME_RING = {
   bongbong: 'radial-gradient(circle at 30% 30%,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 60%,#fff 0 1.5px,transparent 2.5px),linear-gradient(135deg,#7fd8ff,#3d8bff,#b9a8ff)', saobang: 'linear-gradient(135deg,#1b1440,#4b3aa0,#ff9a3d)', keongot: 'conic-gradient(#ff9ecf,#ffb23d,#ffe066,#ff9ecf)', hoanggia: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3,#e0a612,#ffd84a)',
   anhdao: 'linear-gradient(135deg,#ffb7c5,#ff5fa2,#ffd6ea)', saoxanh: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 70% 65%,#fff 0 1.2px,transparent 1.8px),linear-gradient(135deg,#0b3d66,#2ec5b6,#7fd8ff)', bienxanh: 'linear-gradient(135deg,#1f5fd6,#2ec5b6,#7fd8ff)', hoanghon: 'linear-gradient(135deg,#ff9a3d,#ff4d6a,#b06bff)', mattrang: 'radial-gradient(circle at 68% 28%,#fff 0 6px,transparent 7px),linear-gradient(135deg,#e8ebf2,#9aa0b2,#ffffff)', rungthong: 'linear-gradient(135deg,#14532d,#2a9d5c,#a7f3d0)', camvang: 'linear-gradient(135deg,#ff9a3d,#ffd84a,#ff6a1f)', timsen: 'conic-gradient(#e9d5ff,#b06bff,#ff5fa2,#e9d5ff)',
   cauvongxoay: 'conic-gradient(#ff4d6a,#ffb23d,#ffe066,#2fc76f,#3d8bff,#8a5cff,#ff4d6a)', luachay: 'conic-gradient(#ff3d3d,#ff9a1f,#ffd23d,#ff6a1f,#ff3d3d)', vangxoay: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)',
+  /* ✨ -123: vàng kim + đỏ hoàng gia (vương miện), đỏ + vàng + teal (rồng/phụng), vàng + đỏ hoàng gia (vua trò chơi) */
+  vuongmien: 'conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#d4202f,#ffd84a,#fff2b3)', longphung: 'conic-gradient(#ff3d3d,#ffb23d,#ffd84a,#2ec5b6,#ff5fa2,#ff3d3d)', vuatrichoi: 'conic-gradient(#ffd84a,#d4202f,#b8780a,#ff9a3d,#ffd84a,#d4202f,#ffd84a)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [
