@@ -6,7 +6,7 @@ import { S } from './fx.js?v=9';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=52';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=87';
+import { watch } from '../../shared/ui/stats.js?v=88';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 // Câu chọc riêng của BANG! (bảng thả emoji – shared/ui/react.js), mỗi câu ≤ 24 ký tự
 export const BANG_PHRASES = ['Né đi cưng!', 'Bang bang 🔫', 'Uống Beer đi', 'Trật rồi nha!', 'Sếp ơi cứu!', 'Tui là Phó mà 😭', 'Gà quá!'];

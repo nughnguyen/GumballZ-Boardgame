@@ -40,6 +40,26 @@ const VN = 7 * 3600e3; /* giờ VN để chốt "ngày chơi" — khớp giờ m
 const vnDay = ts => new Date(ts + VN).toISOString().slice(0, 10);
 const vnHour = ts => new Date(ts + VN).getUTCHours();
 const dayAfter = x => { const dt = new Date(x + 'T12:00:00Z'); dt.setUTCDate(dt.getUTCDate() + 1); return dt.toISOString().slice(0, 10); };
+
+/* 💰 Chống reset ví — quy tắc nhận ví gửi lên: chỉ nhận khi at mới hơn BẮT BUỘC (>).
+   Ví mới chưa có giao dịch nào có at = 0 → KHÔNG BAO GIỜ đè được ví đã lưu, kể cả ví đã lưu là 0 xu
+   (xài hết xu → xóa dữ liệu → đăng nhập lại → client gửi blank 100@0 → máy chủ giữ nguyên số dư cũ).
+   100 xu khởi đầu chỉ có ở client (blank() lúc mở ví lần đầu) — máy chủ không bao giờ tự cấp xu. */
+export function walletAccepts(storedAt, incomingAt) {
+  const n = v => Math.min(4e12, Math.max(0, Math.floor(+v || 0)));
+  return n(incomingAt) > n(storedAt);
+}
+
+/* 🎁 Điểm danh hằng ngày — bảng thưởng chu kỳ 7 ngày, tăng dần (giờ VN).
+   Ngày trong chu kỳ = ((chuỗi - 1) % 7) + 1; nhận xong ngày 7 thì hôm sau quay lại ngày 1.
+   Bỏ 1 ngày → chuỗi về 1. Máy chủ tự kiểm: 1 ngày chỉ nhận 1 lần. */
+export const LOGIN_REWARDS = [20, 30, 40, 50, 60, 80, 100];
+export function loginDayResult(prev, today, yesterday) {
+  const last = prev && typeof prev.last === 'string' ? prev.last : '';
+  const streak = last === yesterday ? Math.max(1, Math.floor(+prev.streak || 0)) + 1 : 1;
+  const day = ((streak - 1) % 7) + 1;
+  return { streak, day, xu: LOGIN_REWARDS[day - 1] };
+}
 function migrateProf(P) {
   if (P.v && typeof P.v === 'object' && P.legacy && typeof P.legacy === 'object') return false;
   let lp = 0, lw = 0;
@@ -226,8 +246,9 @@ export class Users extends DurableObject {
     if (migrateProf(P)) changed = true; /* lần đầu sau bản chống gian lận: chốt mốc legacy + xét lại thành tích từ tổng gộp */
     if (typeof d.title === 'string' && /^[a-z0-9-]{0,24}$/.test(d.title) && num(d.titleT, 4e12) >= num(P.titleT, 4e12)) { P.title = d.title; P.titleT = num(d.titleT, 4e12); changed = true; } /* danh hiệu tự chọn; có còn đạt hay không thì lúc hiện mới xét */
     /* 💰 Ví xu (tiền ảo, không tiền thật): máy chủ chỉ giữ bản mới nhất theo thời gian (ai mới hơn thì thắng),
-       không cộng dồn — trình duyệt tự cộng/trừ rồi gửi cả ví lên. Chỉ nhận các id đồ đã biết, số xu tối đa 10 triệu. */
-    if (d.wal && typeof d.wal === 'object' && num(d.wal.at, 4e12) > num(P.wal && P.wal.at, 4e12)) {
+       không cộng dồn — trình duyệt tự cộng/trừ rồi gửi cả ví lên. Chỉ nhận các id đồ đã biết, số xu tối đa 10 triệu.
+       walletAccepts: at mới hơn BẮT BUỘC — ví blank at = 0 không bao giờ đè ví đã lưu (kể cả ví 0 xu). */
+    if (d.wal && typeof d.wal === 'object' && walletAccepts(P.wal && P.wal.at, d.wal.at)) {
       const w = d.wal, inv = {};
       if (w.inv && typeof w.inv === 'object') for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) inv[k] = Math.min(999, num(w.inv[k]));
       const own = Array.isArray(w.own) ? [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back|banner):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
@@ -277,6 +298,44 @@ export class Users extends DurableObject {
     { const snap = {}; for (const [g, v] of Object.entries((P.v && P.v.g) || {})) snap[g] = { p: Math.max(0, Math.floor(+v.p || 0)), w: Math.max(0, Math.floor(+v.w || 0)) }; P.syncV = snap; changed = true; }
     if (changed) this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(P), me.id);
     return { ok: true, prof: P };
+  }
+  // 🎁 Điểm danh hằng ngày: nhận xu 1 lần/ngày (giờ VN), chuỗi tăng dần, chu kỳ 7 ngày (20/30/40/50/60/80/100).
+  // Máy chủ là chuẩn: lưu P.dl = { last: 'YYYY-MM-DD', streak, total }. Khách không có tài khoản thì client
+  // tự lưu localStorage (xóa dữ liệu sẽ mất chuỗi — ghi rõ trong giao diện).
+  // d = { check?: true, wal?: snapshot ví client } — wal gửi kèm để gộp TRƯỚC khi cộng thưởng: lấy bản mới
+  // hơn trong 2 bản (máy chủ / client) làm nền rồi mới cộng, để không mất xu kiếm được ở máy khác chưa kịp
+  // đồng bộ, cũng không mất xu mua đồ ở máy này chưa kịp đồng bộ. Ví chưa từng có trên máy chủ (P.wal chưa
+  // có) thì nhận luôn bản client gửi lên làm nền (tài khoản mới: 100 xu khởi đầu) — chỉ khi chưa có ví nào,
+  // không bao giờ đè ví đã lưu. Đóng dấu ví mới = max(giờ, nền.at + 1) để client adoptServer() nhận được.
+  async claimLogin(token, d = {}) {
+    const me = await this.whoami(token); if (!me) return { ok: false, msg: 'Hết phiên đăng nhập' };
+    const row = this.one('SELECT prof FROM users WHERE id = ?', me.id);
+    let P = null; try { P = JSON.parse(row.prof || 'null'); } catch (e) {}
+    P = P && typeof P === 'object' ? P : {}; P.g = P.g || {}; P.ach = P.ach || {}; P.days = P.days || [];
+    const num = (v, max = 1e6) => Math.min(max, Math.max(0, Math.floor(+v || 0)));
+    if (migrateProf(P)) { /* lần đầu: chốt mốc legacy — lưu cùng lúc với điểm danh bên dưới */ }
+    const dl = P.dl && typeof P.dl === 'object' ? P.dl : { last: '', streak: 0, total: 0 };
+    const today = vnDay(Date.now()), yest = vnDay(Date.now() - 864e5);
+    const next = loginDayResult(dl, today, yest); /* chuỗi/ngày/xu NẾU nhận hôm nay */
+    const state = () => ({ claimed: dl.last === today, day: dl.last === today ? ((num(dl.streak) - 1) % 7) + 1 : next.day, streak: num(dl.streak), total: num(dl.total), nextDay: next.day, nextXu: next.xu, last: dl.last || '', wal: P.wal || null });
+    if (d.check) return { ok: true, ...state() };
+    if (dl.last === today) return { ok: false, already: true, msg: 'Hôm nay đã nhận rồi nha', ...state() };
+    /* gộp ví client gửi lên (cùng luật như profile, + nhận bản đầu tiên khi máy chủ chưa có ví) */
+    if (d.wal && typeof d.wal === 'object') {
+      const w = d.wal;
+      if (!P.wal || walletAccepts(P.wal.at, w.at)) {
+        const inv = {};
+        if (w.inv && typeof w.inv === 'object') for (const k of ['bt-trap', 'bt-radar', 'bt-nuke', 'dbl-xu']) inv[k] = Math.min(999, num(w.inv[k]));
+        const own = Array.isArray(w.own) ? [...new Set(w.own.filter(x => typeof x === 'string' && /^(frame|color|back|banner):[a-z]{2,14}$/.test(x)))].slice(0, 200) : [];
+        const eq = {}; if (w.eq && typeof w.eq.back === 'string' && /^[a-z]{2,14}$/.test(w.eq.back)) eq.back = w.eq.back;
+        P.wal = { xu: Math.min(10000000, num(w.xu)), inv, own, eq, dbl: Math.min(99, num(w.dbl)), chest: Math.min(100000, num(w.chest)), at: num(w.at, 4e12) };
+      }
+    }
+    P.dl = { last: today, streak: next.streak, total: num(dl.total) + 1 };
+    const base = P.wal && typeof P.wal === 'object' ? P.wal : { xu: 0, inv: {}, own: [], eq: {}, dbl: 0, chest: 0, at: 0 };
+    P.wal = { ...base, xu: Math.min(10000000, num(base.xu) + next.xu), at: Math.max(Date.now(), num(base.at, 4e12) + 1) };
+    this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(P), me.id);
+    return { ok: true, day: next.day, streak: next.streak, total: P.dl.total, xu: next.xu, wal: P.wal };
   }
   // 🛡️ Ghi kết quả ván do MÁY CHỦ giữ (chỉ SrvRoom gọi qua RPC giữa các Durable Object — không có đường HTTP nào gọi thẳng).
   // d = { game, room, key, durMs, n, players: [{ uid, won }] }; won: true/false/null (null = hoà / game không có thắng thua).

@@ -80,6 +80,7 @@ export default {
       else if (p[1] === 'logout') r = await U.logout(bearer());
       else if (p[1] === 'rename') r = await U.rename(bearer(), d.name);
       else if (p[1] === 'profile') r = await U.profile(bearer(), d);
+      else if (p[1] === 'claim-login') r = await U.claimLogin(bearer(), d); /* 🎁 điểm danh hằng ngày */
       else if (p[1] === 'password') r = await U.changePassword(bearer(), d.old, d.new);
       else if (p[1] === 'claim-admin') r = await U.claimAdmin(bearer(), d.key, env.ADMIN_KEY, ip);
       else return json({ ok: false }, 404, H);

@@ -9,7 +9,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=50';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=12';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=8';
-import { recordEvent } from '../../shared/ui/stats.js?v=87';
+import { recordEvent } from '../../shared/ui/stats.js?v=88';
 
 const CELL = 34; /* px 1 ô ở zoom 1× (kể cả ô nhãn trục) */
 const SIZE = 30;

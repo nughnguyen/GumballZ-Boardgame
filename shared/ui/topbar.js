@@ -38,7 +38,7 @@
     '<button type="button" data-donate>Ủng hộ</button>' +
     '<i class="nav-ind" aria-hidden="true"></i>' +
     '</nav>' +
-    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="profbtn" id="btn-prof" type="button" aria-label="Hồ sơ và thành tích" title="Hồ sơ & thành tích"></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><span id="acct"></span></div>' +
+    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="loginbtn" id="btn-login" type="button" aria-label="Điểm danh hằng ngày — nhận xu" title="Điểm danh hằng ngày">🎁<i class="lg-dot" id="lg-dot" hidden></i></button><button class="profbtn" id="btn-prof" type="button" aria-label="Hồ sơ và thành tích" title="Hồ sơ & thành tích"></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><span id="acct"></span></div>' +
     '</div></header>';
 
   var tabHome = isHome
@@ -70,7 +70,7 @@
   import('./account.js?v=50').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: avatar + cấp ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
   import('./profile.js?v=48').then(function (m) {
-    return import('./stats.js?v=87').then(function (st) {
+    return import('./stats.js?v=88').then(function (st) {
       m.profileCss();
       var b = document.getElementById('btn-prof');
       var d = function () { b.innerHTML = m.avatarHTML(42) + '<span class="lv">' + st.level().lv + '</span>'; };
@@ -89,6 +89,8 @@
     dx();
     addEventListener('gumballz-wallet', dx);
   }).catch(function () {});
+  // điểm danh hằng ngày: nút 🎁 (module tự chèn CSS + modal, tự mở 1 lần/ngày ở trang chủ)
+  import('./daily-login.js?v=1').then(function (m) { m.mountDailyLogin(document.getElementById('btn-login')); }).catch(function () {});
   // cài đặt
   var setBtn = document.getElementById('btn-set');
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=47').then(function (m) { m.openSettings(); }).catch(function () {}); };

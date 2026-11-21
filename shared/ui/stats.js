@@ -99,7 +99,7 @@ const OVER = {
 
 export function load() { let s = null; try { s = JSON.parse(ls.get(KEY)); } catch (e) {} s = s && typeof s === 'object' ? s : {}; s.g = s.g || {}; s.ach = s.ach || {}; s.days = s.days || []; s.streak = s.streak || 0; s.best = s.best || 0; s.ev = s.ev || {}; s.dd = s.dd || { d: '', n: 0, k: [], w: [] }; s.ls = s.ls || 0; s.marks = s.marks || {}; s.cnt = s.cnt || {}; return s; }
 const save = s => ls.set(KEY, JSON.stringify(s));
-export function totals(s = load()) { let p = 0, w = 0, xp = 0, kinds = 0, top = 0; for (const g in s.g) { p += s.g[g].p || 0; w += s.g[g].w || 0; xp += gameXp(g, s.g[g].p || 0, Math.min(s.g[g].p || 0, s.g[g].w || 0)); if (s.g[g].p) kinds++; top = Math.max(top, s.g[g].w || 0); } return { p, w, xp, kinds, top, days: s.days.length, streak: s.streak, best: s.best, night: !!s.night, g: s.g || {}, ev: s.ev || {}, dd: s.dd || { n: 0, k: [], w: [] }, ls: s.ls || 0, marks: s.marks || {} }; }
+export function totals(s = load()) { let p = 0, w = 0, xp = 0, kinds = 0, top = 0; for (const g in s.g) { p += s.g[g].p || 0; w += s.g[g].w || 0; xp += gameXp(g, s.g[g].p || 0, Math.min(s.g[g].p || 0, s.g[g].w || 0)); if (s.g[g].p) kinds++; top = Math.max(top, s.g[g].w || 0); } let dl = null; try { dl = JSON.parse(ls.get('gumballz-login')); } catch (e) {} return { p, w, xp, kinds, top, days: s.days.length, streak: s.streak, best: s.best, night: !!s.night, g: s.g || {}, ev: s.ev || {}, dd: s.dd || { n: 0, k: [], w: [] }, ls: s.ls || 0, marks: s.marks || {}, dlStreak: Math.max(0, Math.floor(+((dl || {}).streak) || 0)), dlTotal: Math.max(0, Math.floor(+((dl || {}).total) || 0)) }; } /* 🎁 điểm danh: chuỗi + tổng ngày điểm danh (localStorage 'gumballz-login', máy chủ ghi đè khi đồng bộ) để xét thành tích dl-7 / dl-30 */
 /* ---- ☁️ Hồ sơ máy chủ: tổng gộp (mốc cũ + đã xác minh + ván local đã đồng bộ), sync.js tải về từ /auth/profile ----
    P.g = mốc cũ (legacy, đóng băng) + ván đã xác minh + ván local do client gửi (từ bản nới lỏng 18/11/2026:
    đấu máy/chơi đơn được tính lại vào máy chủ, có giới hạn tốc độ) — dùng cho hồ sơ/bảng xếp hạng; P.v = riêng phần đã xác minh.
@@ -603,6 +603,8 @@ const SPECIAL = [
   { id: 'xiecthu-big15', icon: '🎪', name: 'Đêm diễn để đời', desc: 'Ghi 15 điểm trở lên trong một đêm', ok: () => false, soon: true },
   { id: 'xiecthu-star', icon: '🌟', name: 'Ngôi sao sân khấu', desc: 'Thuê thú giá 9 đầu tiên', ok: () => false, soon: true },
   { id: 'xiecthu-worm', icon: '🐛', name: 'Đuổi sâu khỏi gánh', desc: 'Mời ra cả 2 Sâu khỏi gánh', ok: () => false, soon: true },
+  { id: 'dl-7', icon: '🎁', name: 'Chăm chỉ điểm danh', desc: 'Điểm danh 7 ngày liên tiếp', ok: t => (t.dlStreak || 0) >= 7, of: t => [t.dlStreak || 0, 7] },
+  { id: 'dl-30', icon: '📅', name: 'Gắn bó 30 ngày', desc: 'Điểm danh tổng cộng 30 ngày', ok: t => (t.dlTotal || 0) >= 30, of: t => [t.dlTotal || 0, 30] },
 ];
 for (const a of SPECIAL) ACHS.push(a);
 const ACH_BY_ID = new Map(ACHS.map(a => [a.id, a]));
@@ -1398,7 +1400,7 @@ export function watch(game, handlers, getId) {
 }
 // ☁️ có đăng nhập thì nạp phần đồng bộ hồ sơ theo tài khoản (khách không nạp gì thêm)
 const hasAuth = () => { try { return !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) { return false; } };
-let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=45').catch(() => { syncOn = false; }); };
+let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=46').catch(() => { syncOn = false; }); };
 try { startSync(); addEventListener('gumballz-auth', startSync); } catch (e) {}
 // 📸 nút "Khoe kết quả" sau ván thắng (shared/ui/brag.js)
 try { if (typeof document !== 'undefined') import('./brag.js?v=35').catch(() => {}); } catch (e) {}
