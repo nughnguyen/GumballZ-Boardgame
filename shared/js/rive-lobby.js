@@ -18,13 +18,25 @@
   var st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
   try { window.rive.RuntimeLoader.setWasmUrl('../shared/js/rive/rive.wasm'); } catch (e) { wrap.remove(); return; }
   var fitCover = (window.rive.Fit && window.rive.Fit.Cover) || 'cover';
+  /* v6: runtime Rive KHÔNG đọc option `fit:` ở top-level — Rive chỉ đọc
+     `params.layout` (mặc định = Fit.Contain) nên `fit: 'cover'` bị bỏ qua,
+     mount render dạng Contain để lại 2 viền trong suốt 2 bên (xem
+     rive-tiles.js). Phải truyền Layout với Fit.Cover thì artboard mới lấp
+     kín khung. */
+  var layoutCover = null;
+  try {
+    if (window.rive.Layout && window.rive.Fit && window.rive.Fit.Cover) {
+      layoutCover = new window.rive.Layout({ fit: window.rive.Fit.Cover, alignment: (window.rive.Alignment && window.rive.Alignment.Center) || 'center' });
+    }
+  } catch (e) { layoutCover = null; }
   var inst;
   try {
     inst = new window.rive.Rive({
-      src: '../shared/rive/' + cv.getAttribute('data-riv') + '.riv?v=3', /* ?v=3: bản full-board — tránh trình duyệt giữ cache file cũ */
+      src: '../shared/rive/' + cv.getAttribute('data-riv') + '.riv?v=4', /* ?v=4: bản full-board — tránh trình duyệt giữ cache file cũ */
       canvas: cv,
       autoplay: true,
       fit: fitCover,
+      layout: layoutCover,
       onLoad: function () { cv._rivLoaded = true; wrap.classList.add('has-riv'); },
       onLoadError: function () { wrap.remove(); }
     });

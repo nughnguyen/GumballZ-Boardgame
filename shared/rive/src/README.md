@@ -84,6 +84,19 @@ là neo 0×0 cho các lá `.uc`) và bang (`.art` phủ cả thẻ) cần overri
 - Runtime của site: `@rive-app/canvas 2.51.0` (`shared/js/rive/rive.js`),
   phải gọi `rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm')`
   TRƯỚC instance đầu tiên.
+- **BẮT BUỘC truyền `layout: new rive.Layout({ fit: rive.Fit.Cover,
+  alignment: rive.Alignment.Center })` trong mỗi `new rive.Rive(...)`.**
+  Runtime CHỈ đọc `params.layout`, KHÔNG đọc option `fit:` ở top-level
+  (mặc định Layout mới = Fit.Contain). Vì vậy `fit: 'cover'` bao lâu nay
+  bị bỏ qua, mount nào cũng render dạng Contain: artboard 400×200 co vừa
+  khung thẻ 214×104 (tỉ lệ 2,058:1) để lại 2 viền trong suốt 3px 2 bên,
+  màu header thẻ lộ ra thành 2 viền dọc có màu — chính là lỗi anh Hưng
+  báo 2026-11-21 (đã đo: `fit: Cover` và `fit: Contain` cho kết quả Y
+  HỆT NHAU; `layout: Cover` → mép alpha 255 từ x=0; `layout: Contain`
+  → 3px trong suốt — đúng vết lỗi). Giữ `fit: fitCover` kèm theo cũng
+  được (vô hại) nhưng `layout` mới là thứ có tác dụng. Áp dụng ở
+  `shared/js/rive-tiles.js` (tile + hot) và `shared/js/rive-lobby.js`
+  từ v6 (2026-11-21).
 
 ## Kiến trúc file .riv (v2) — bắt buộc
 
@@ -223,6 +236,95 @@ file open (oneshot, `onStop` hiện kết quả, `setTimeout` 2600ms dự phòng
 
 Bảng màu site: mực `#241A38`, đỏ `#FF5A60`, vàng `#FACD33`,
 ngọc `#2EC5B6`, tím `#B9A6FF`, kem `#FFF8EE`.
+
+## Kiểm chứng (đã làm — v6: full-bleed + bỏ fade + sửa mount Fit.Cover, 2026-11-21)
+
+- **Nguyên nhân gốc của 2 viền dọc có màu (đo 2026-11-21): KHÔNG phải do
+  nền .riv.** Nền cũ đã đúng 400×200, đo ở 800×400 mép kín hết
+  (alpha 255). Vết lỗi ở mount: runtime Rive KHÔNG đọc option `fit:`
+  top-level, chỉ đọc `params.layout` (mặc định = Fit.Contain) → artboard
+  co vừa khung thẻ 214×104 để lại 2 viền trong suốt 3px 2 bên. Chứng minh
+  bằng probe page (canvas bắt đầu `display:none` rồi hiện lúc load —
+  y hệt mount thẻ thật): `fit: Cover` và `fit: Contain` cho kết quả Y
+  HỆT NHAU (3px trong suốt); `layout: Cover` → mép alpha 255 từ x=0.
+- **Đổi trong `build.mjs`:** (1) `bg()` tràn ra ngoài artboard 2 đơn vị
+  mỗi phía (404×204, tâm 200,100) — phòng thủ thêm để mép luôn kín tuyệt
+  đối ở tỉ lệ lẻ; (2) `fadeEnds()` thành no-op (giữ chữ ký, 88 chỗ gọi
+  không đổi) — trạng thái cuối vòng giữ nguyên rồi cắt cứng bắt đầu lại;
+  (3) `hopFrames().opF` thành luôn = 1 và bỏ khối dịch về ô đầu lúc tàng
+  hình — quân nhảy GIỮ NGUYÊN ở ô cuối tới hết vòng rồi cắt cứng về ô
+  đầu (áp dụng cho typhu, cangua, covua, ranvathang); (4) camel: `opF`
+  luôn = 1, `yDX`/`vDX` giữ +40/+30 tới frame 239 rồi nhảy về 0 ở 240
+  (trước đây lạc đà mờ dần 225–237 rồi trượt ngược về vạch xuất phát
+  lúc tàng hình — đúng kiểu "biến mất mờ rồi xuất hiện lại" anh Hưng
+  bảo bỏ). Các key opacity RIÊNG của part (hiệu ứng gameplay: lá bị
+  chặt mờ đi, tia chớp, tay chỉ...) KHÔNG đụng tới.
+- **Đổi trong mount (`shared/js/rive-tiles.js`, `shared/js/rive-lobby.js`):**
+  thêm `layout: new window.rive.Layout({ fit: window.rive.Fit.Cover,
+  alignment: window.rive.Alignment.Center })` vào cả 3 chỗ `new
+  window.rive.Rive(...)` (tile, hot, lobby); `fit: fitCover` giữ nguyên
+  kèm theo (vô hại).
+- **Build lại toàn bộ 92 file:** 2 lần build liên tiếp cho ra md5 Y HỆT
+  nhau (lần này KHÔNG drift — domi/vetruyentin/nonogram ổn định), không
+  file nào phải khôi phục từ git. Lần build 2 (sửa hopFrames + camel)
+  chỉ đổi đúng 5 file: typhu, cangua, covua, ranvathang, camel. Nền
+  tràn + bỏ fade làm file NHỎ ĐI ở các scene có fadeEnds (vd domi
+  8407→5901 B, vetruyentin 6128→4919 B, nonogram 6327→5688 B);
+  typhu/cangua giữ nguyên kích thước (32548 B / 55181 B — 2 scene này
+  không dùng fadeEnds, chỉ đổi giá trị nền).
+- **Kiểm chứng từng file một** (Playwright headless shell + server 8128,
+  trang probe `rive-v6-verify.html`, 92/92 `loaded: true`, 0 lỗi JS):
+  pixel đổi (mẫu dày: mỗi byte thứ 16, 80.000 điểm, 2 ảnh cách nhau
+  0,8s — số này gấp ~16 lần mẫu 5000 điểm của các batch trước nên KHÔNG
+  so trực tiếp với số batch cũ): typhu 1021, camel 5196, cangua 1345,
+  cotuong 2222, uno 12697, tienlen 16729, catte 11717, bacao 6698, xidach
+  3966, poker 6879, solitaire 8806, bang 2423, scribble 2793, meono
+  3681, tamquoc 5942, masoi 1817, thathaythach 5113, baitan 10633, loto
+  1085, covua 1159, tala 8813, cholon 4199, tusac 8960, bantau 1082,
+  oanquan 1259, caro 3060, tictactoe 2213, memory 2789, covay 1156,
+  cothu 2791, ranvathang 1569, sam 6499, daochinh 3565, xiecthu 4368,
+  cuuho 2708, khaihoang 1290, xuyenviet 2330, noitu 5070, baucua 4461,
+  giandiep 3820, codam 2002, lieng 4875, maubinh 4846, xito 6372, colat
+  1608, domino 4631, connect4 1903, matthu 910, avalon 3580, spyfall
+  1675, sudoku 3551, wordle 3273, domi 718, s2048 2171, matchu 4567,
+  loveletter 2559, sushigo 3652, lay6 2283, saboteur 1164, skull 4712,
+  hanabi 784, chan 4114, totom 1077, carcassonne 595, azul 2173,
+  splendor 1571, conhay 1199, backgammon 1546, rummikub 5360, quoridor
+  1275, blokus 3024, scrabble 2549, mastermind 2488, ailatrieuphu 6643,
+  haithat1gia 3723, doanhdong 364, wavelength 3793, resistance 1777,
+  vetruyentin 1748, tetris 6207, ransanmoi 3056, xepkeo 3085, banbong
+  3125, nonogram 903, ghephinh 4035, nhen 8432, bida8 731, dapenalty
+  1014, phitieu 1711, keobuabao 3871, dovui 3216, hoisanquai 10391.
+  Mép artboard: **cả 92 file alpha 255 ở mọi điểm mép đo** (trước/sau/
+  trên/dưới). Tỉ lệ sáng cuối vòng / giữa vòng (endRatio, đo bằng scrub
+  tới cuối vòng −0,05s so với giữa vòng): **cả 92 file trong [0,87;
+  1,12]** — trạng thái cuối đầy đủ độ sáng, không còn fade (với fade cũ
+  tỉ lệ này sẽ ~0,25). 6 file chuyển động yếu nhất đã xem ảnh cuối +
+  giữa vòng bằng mắt, đều chuyển động thật và scene nguyên vẹn:
+  doanhdong 364 (chỉ có 1 ngôi sao vàng bật lên cuối vòng — scene vốn
+  tĩnh), carcassonne 595, domi 718, bida8 731, hanabi 784, nonogram 903.
+  Sửa hopFrames + camel làm covua tăng 603→1159 (mã không còn biến mất
+  0,23s cuối vòng) và camel giảm 9224→5196 (số cũ gồm cả phần mờ dần —
+  nay chỉ còn chuyển động đua thật).
+- **Kiểm chứng trang chủ thật (mount đã sửa):** 93 tile (92 game + 1
+  chờ), 92/92 canvas `.has-riv`; đo mép ở đúng kích thước thẻ 214×104:
+  typhu/camel/cangua/cotuong/uno/wordle/hoisanquai/dovui đều **alpha 255
+  ở x=0,1,2 cả 2 bên** (trước sửa: alpha 0 ở x=0,1,2). Hot 7/7 mount.
+  Banner sảnh typhu + cangua (rive-lobby.js đã sửa): 800×400, mép
+  alpha 255, `.has-riv`. Đã xem ảnh trang chủ bằng mắt: animation lấp
+  kín header thẻ tới tận mép, không còn viền dọc màu. Chỉ còn 4 lỗi
+  `ERR_TUNNEL_CONNECTION_FAILED` (sandbox chặn fetch tới Worker live —
+  nhiễu đã biết, không phải lỗi JS của trang).
+- **Trang probe tạm đã xóa sau khi xong:** `rive-edge-probe.html`,
+  `rive-fit-probe.html`, `rive-v6-verify.html` (script kiểm chứng còn
+  ở `/tmp/pwtest/v6-verify-pw.mjs`, `/tmp/pwtest/v6-home-pw.mjs`).
+- **Còn tồn tại (ghi chú cho đợt sau, KHÔNG sửa trong v6):** nhiều scene
+  vẫn có key opacity RIÊNG kết thúc `[D, 0]` (vd các dòng fade `[D-12,
+  1], [D, 0]` viết tay trong timeline của part) — đó là hiệu ứng của
+  từng scene (lá bài/đốm sáng xuất hiện rồi tắt), không phải fade toàn
+  cảnh; endRatio toàn cục đã chứng minh scene không còn mờ dần ở cuối
+  vòng. Nếu anh Hưng vẫn thấy một tile cụ thể "biến mất" ở cuối vòng
+  thì mới sửa riêng scene đó.
 
 ## Kiểm chứng (đã làm — batch 12 — ĐỢT CUỐI, 2026-11-21)
 

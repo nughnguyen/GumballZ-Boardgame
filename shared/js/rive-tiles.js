@@ -27,6 +27,19 @@
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') return;
   try { window.rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm'); } catch (e) { return; }
   var fitCover = (window.rive.Fit && window.rive.Fit.Cover) || 'cover';
+  /* v6: runtime Rive KHÔNG đọc option `fit:` ở top-level của constructor —
+     Rive chỉ đọc `params.layout` (mặc định Layout mới = Fit.Contain). Vì
+     vậy `fit: 'cover'` bao lâu nay bị bỏ qua, mount nào cũng render dạng
+     Contain → artboard 400×200 co vừa khung 214×104 (tỉ lệ 2,058:1) để lại
+     2 viền trong suốt 3px 2 bên (màu header lộ ra). Phải truyền Layout với
+     Fit.Cover thì artboard mới lấp kín khung (đã đo: layout Cover → mép
+     alpha 255 từ x=0; layout Contain → 3px trong suốt — đúng vết lỗi). */
+  var layoutCover = null;
+  try {
+    if (window.rive.Layout && window.rive.Fit && window.rive.Fit.Cover) {
+      layoutCover = new window.rive.Layout({ fit: window.rive.Fit.Cover, alignment: (window.rive.Alignment && window.rive.Alignment.Center) || 'center' });
+    }
+  } catch (e) { layoutCover = null; }
   var io = null;
   if ('IntersectionObserver' in window) {
     io = new IntersectionObserver(function (entries) {
@@ -50,10 +63,11 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=3', /* ?v=3: bản full-board typhu/cangua + khổ rộng v5 — tránh trình duyệt giữ cache file cũ */
+        src: 'shared/rive/' + g + '.riv?v=4', /* ?v=4: bản full-board typhu/cangua + khổ rộng v5 — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
+        layout: layoutCover,
         onLoad: function () { cv._rivLoaded = true; tile.classList.add('has-riv'); },
         onLoadError: function () { cv.remove(); }
       });
@@ -83,10 +97,11 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=3', /* ?v=3: file full-board mới (typhu/cangua) — lúc push, thẻ game cũng dùng ?v=3 để trình duyệt tải file mới */
+        src: 'shared/rive/' + g + '.riv?v=4', /* ?v=4: file full-board mới (typhu/cangua) — lúc push, thẻ game cũng dùng ?v=3 để trình duyệt tải file mới */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
+        layout: layoutCover,
         onLoad: function () { cv._rivLoaded = true; card.classList.add('has-riv'); },
         onLoadError: function () { try { if (inst) inst.cleanup(); } catch (e) {} cv.remove(); }
       });

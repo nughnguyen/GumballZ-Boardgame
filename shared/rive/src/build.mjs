@@ -1,5 +1,14 @@
 // Build 92 file .riv — KHỔ RỘNG v5 (2026-11-21) + batch 2/3/4/5/6/7/8/9/10/11/12
 // + typhu/cangua làm lại FULL BÀN (2026-11-21).
+// v6 (2026-11-21): (1) nền mọi scene tràn ra ngoài artboard 2 đơn vị mỗi
+// phía (bg() 404×204) để mép artboard luôn kín tuyệt đối; (2) BỎ fadeEnds
+// (hàm thành no-op) — trạng thái cuối vòng giữ nguyên rồi bắt đầu lại ngay.
+// NGUYÊN NHÂN GỐC của viền dọc 2 bên (đo 2026-11-21): KHÔNG phải do nền
+// .riv — nền cũ đã đúng 400×200, đo ở 800×400 mép kín hết (alpha 255).
+// Vết lỗi ở mount: runtime Rive KHÔNG đọc option `fit:` top-level, Rive
+// chỉ đọc `params.layout` (mặc định = Fit.Contain) → artboard co vừa khung
+// 214×104 để lại 2 viền trong suốt 3px. Sửa ở rive-tiles.js + rive-lobby.js
+// (truyền Layout Fit.Cover); phần này chỉ là nền tràn phòng thủ thêm.
 // QUY TẮC THIẾT KẾ (anh Hưng đặt 2026-11-21 ~01:47): MỖI FILE .riv CHỈ LẤY
 // PHẦN CHƠI THẬT của game đó — một lát cắt nhỏ cho người xem biết lúc chơi
 // game như thế nào. KHÔNG làm "cảnh mini" trang trí.
@@ -130,10 +139,12 @@ function dedupe(frames) {
 }
 
 // Quân nhảy TỪNG Ô dọc đường đi stops=[[x,y],...], hopF frame mỗi ô
-// (nhảy + nghỉ), arcH = độ cao vòng cung. Cuối vòng: mờ dần -> dịch về ô
-// đầu (lúc đang tàng hình) -> hiện dần. Trả về {dxF, dyF, shXF, shYF,
+// (nhảy + nghỉ), arcH = độ cao vòng cung. Trả về {dxF, dyF, shXF, shYF,
 // shSXF, opF, squashF} — dxF/dyF là ĐỘ LỆCH so với stops[0] (dùng shift),
 // bóng dùng tọa độ TUYỆT ĐỐI (shYF cộng thêm offY).
+// v6 (2026-11-21): KHÔNG còn mờ cuối vòng — quân GIỮ NGUYÊN ở ô cuối tới
+// hết vòng (opF luôn = 1, không dịch về ô đầu nữa), vòng lặp cắt cứng về
+// ô đầu. Trước đây: mờ dần -> dịch về ô đầu lúc tàng hình -> hiện dần.
 function hopFrames(stops, hopF, arcH, D, offY = 8) {
   const n = stops.length - 1; // số cú nhảy
   const hopEnd = n * hopF;
@@ -149,15 +160,15 @@ function hopFrames(stops, hopF, arcH, D, offY = 8) {
     shSXF.push([s, 1], [m, 0.7], [e, 1]);
     squashF.push([e - 2, 1], [e, 0.8], [e + 3, 1]);
   }
-  // Dịch về ô đầu trong lúc tàng hình (fadeStart+6 -> +9), mờ dần 3f.
-  const teleA = hopEnd + 6, teleB = hopEnd + 9;
+  // v6: giữ nguyên ở ô cuối tới hết vòng (không dịch về ô đầu nữa) —
+  // vòng lặp cắt cứng về ô đầu ở frame 0.
   const [xL, yL] = stops[stops.length - 1];
-  dxF.push([teleA, xL - x0], [teleB, 0], [D, 0]);
-  dyF.push([teleA, yL - y0], [teleB, 0], [D, 0]);
-  shXF.push([teleA, xL], [teleB, x0], [D, x0]);
-  shYF.push([teleA, yL + offY], [teleB, y0 + offY], [D, y0 + offY]);
-  shSXF.push([teleA, 1], [teleB, 1], [D, 1]);
-  const opF = [[0, 1], [hopEnd, 1], [hopEnd + 3, 0], [D - 3, 0], [D, 1]];
+  dxF.push([D, xL - x0]);
+  dyF.push([D, yL - y0]);
+  shXF.push([D, xL]);
+  shYF.push([D, yL + offY]);
+  shSXF.push([D, 1]);
+  const opF = [[0, 1], [D, 1]];
   return { dxF: dedupe(dxF), dyF: dedupe(dyF), shXF: dedupe(shXF), shYF: dedupe(shYF), shSXF: dedupe(shSXF), opF, squashF: dedupe(squashF) };
 }
 
@@ -187,8 +198,13 @@ function strideKeys(steps, amp, phase = 0) {
 
 // Nền full-bleed: PHẢI add CUỐI CÙNG trong mỗi cảnh (thêm sau = vẽ sau =
 // ở dưới cùng). color = màu nền chính của cảnh.
+// v6 (2026-11-21): tràn ra ngoài artboard 2 đơn vị mỗi phía (-2..402 ×
+// -2..202) để mép artboard luôn kín tuyệt đối — runtime render ở tỉ lệ lẻ
+// (khung thẻ 214×104) có thể để lại viền trong suốt nếu nền vừa đúng
+// 400×200. Phần tràn ra ngoài artboard không bao giờ hiện (nằm ngoài vùng
+// artboard mà layout hiển thị).
 function bg(riv, root, color) {
-  return rect(riv, root, { name: 'BG', x: 200, y: 100, w: 400, h: 200, color });
+  return rect(riv, root, { name: 'BG', x: 200, y: 100, w: 404, h: 204, color });
 }
 
 // Chất bài (shape-only, thư viện không có text): trả về các part.
@@ -271,8 +287,11 @@ function faceUp(riv, anim, c, D) {
 
 // Mờ vào đầu vòng + mờ ra cuối vòng (che cú nhảy reset của vòng lặp).
 // parts: mọi part cần mờ. D = tổng frame.
+// v6 (anh Hưng yêu cầu 2026-11-21): BỎ fade mờ cuối vòng — trạng thái cuối
+// giữ nguyên rồi vòng lặp bắt đầu lại ngay (cắt cứng). Hàm giữ nguyên chữ
+// ký để 88 chỗ gọi không phải sửa; các part giữ key opacity riêng của nó.
 function fadeEnds(riv, anim, parts, D) {
-  for (const p of parts) keys(riv, anim, p.id, OPACITY, [[0, 0], [6, 1], [D - 12, 1], [D, 0]], 'linear');
+  // no-op: không ghi key opacity nào nữa.
 }
 
 // Xu vàng (vòng trong đậm hơn) + chồng 2 xu.
@@ -589,14 +608,16 @@ function makeCamel(riv, root, o) {
   // Cờ phất (animation được gắn sau khi tạo — makeFlag(null) bỏ qua keys).
   const wave = [[0, 0], [60, 0.12], [120, 0], [180, -0.12], [240, 0]];
   for (const cell of flag.cells) keys(riv, an, cell.id, ROT, wave);
-  const opF = [[0, 1], [222, 1], [225, 0], [237, 0], [240, 1]];
+  // v6: lạc đà GIỮ NGUYÊN ở đích tới hết vòng rồi cắt cứng về vạch xuất
+  // phát (không mờ dần rồi hiện lại nữa).
+  const opF = [[0, 1], [240, 1]];
   // Vàng bước ở [0,30],[60,90],[120,150],[180,210]; tím bước ở
   // [30,60],[90,120],[150,180],[210,240] — xen kẽ theo lượt; mỗi bước +10.
   const ySteps = [[0, 30], [60, 90], [120, 150], [180, 210]];
   const vSteps = [[30, 60], [90, 120], [150, 180], [210, 240]];
-  const yDX = [[0, 0], [30, 10], [60, 10], [90, 20], [120, 20], [150, 30], [180, 30], [210, 40], [228, 40], [234, 0], [240, 0]];
+  const yDX = [[0, 0], [30, 10], [60, 10], [90, 20], [120, 20], [150, 30], [180, 30], [210, 40], [228, 40], [239, 40], [240, 0]];
   const yDY = [[0, 0], [15, -3], [30, 0], [75, -3], [90, 0], [135, -3], [150, 0], [195, -3], [210, 0], [240, 0]];
-  const vDX = [[0, 0], [30, 0], [60, 10], [90, 10], [120, 20], [150, 20], [180, 30], [210, 30], [228, 30], [234, 0], [240, 0]];
+  const vDX = [[0, 0], [30, 0], [60, 10], [90, 10], [120, 20], [150, 20], [180, 30], [210, 30], [228, 30], [239, 30], [240, 0]];
   const vDY = [[0, 0], [45, -3], [60, 0], [105, -3], [120, 0], [165, -3], [180, 0], [225, -3], [240, 0]];
   shift(riv, an, yellow.all, yDX, yDY);
   shift(riv, an, violet.all, vDX, vDY);
@@ -1308,7 +1329,8 @@ function makeCamel(riv, root, o) {
   }
   bg(riv, root, SAND);
   const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
-  // Mã nhảy chữ L đi + về (4 cú nhảy × 40f), mờ dần về ô đầu.
+  // Mã nhảy chữ L đi + về (4 cú nhảy × 40f); v6: mã giữ nguyên ở ô cuối
+  // tới hết vòng rồi cắt cứng về ô đầu (không mờ dần nữa).
   const hop = hopFrames(stops, 40, 14, D, 10);
   const knight = [kEye, kMuzzle, kEar, kHead, kMane, kBody, kBase];
   shift(riv, an, knight, hop.dxF, hop.dyF);
