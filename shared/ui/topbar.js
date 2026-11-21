@@ -69,7 +69,7 @@
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./account.js?v=50').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
   // hồ sơ: avatar + cấp ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
-  import('./profile.js?v=52').then(function (m) {
+  import('./profile.js?v=53').then(function (m) {
     return import('./stats.js?v=89').then(function (st) {
       m.profileCss();
       var b = document.getElementById('btn-prof');
@@ -105,7 +105,7 @@
     tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
     var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=52').then(function (m) { m.openProfile(); }).catch(function () {}); };
+    if (bm) bm.onclick = function () { import('./profile.js?v=53').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;

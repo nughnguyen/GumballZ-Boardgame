@@ -2,7 +2,7 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=52'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=53'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch } from './stats.js?v=89';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=5';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=5'; /* 💰 Ví xu */
@@ -91,7 +91,7 @@ export function profileCss() {
   import('./badges.js?v=1').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=3', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=3'; }
+  try { l.href = new URL('../css/avatar.css?v=4', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=4'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -237,7 +237,7 @@ function achGames(s, srvA = null) {
   const byGame = {};
   for (const x of ACHS) { if (!isSpecial(x) || !s.ach[x.id]) continue; const g = spGame(x.id); if (!g) continue; (byGame[g] = byGame[g] || []).push(x); }
   const keys = Object.keys(byGame).sort((a, b) => ((s.g[b] || {}).p || 0) - ((s.g[a] || {}).p || 0));
-  return `<div class="pf-achg">${keys.map(g => `<details open><summary>${esc(GAME_NAMES[g])} <small>${byGame[g].length}</small></summary><div class="pf-ach">${byGame[g].map(x => achCard(x, true, null, srvA ? srvA.has(x.id) : null)).join('')}</div></details>`).join('')}</div>`;
+  return `<div class="pf-achg">${keys.map(g => `<details><summary>${esc(GAME_NAMES[g])} <small>${byGame[g].length}</small></summary><div class="pf-ach">${byGame[g].map(x => achCard(x, true, null, srvA ? srvA.has(x.id) : null)).join('')}</div></details>`).join('')}</div>`;
 }
 /* thành tựu ẩn tới khi mở được – chỉ đếm số còn bí mật (mẫu tính 1 cái mỗi mẫu, thành tựu 'sắp có' không tính) */
 function achSecret(s) {
@@ -248,6 +248,10 @@ function achSecret(s) {
     if (!s.ach[x.id] && !x.soon) n++;
   }
   return n + (TPL5.length - tplDone.size);
+}
+/* 🕒 Trận gần đây (patch -100): 3 game MỚI CHƠI NHẤT — xếp theo last (lần chơi gần nhất) giảm dần, chỉ tính game đã chơi (p>0); game p=0 (dù last>0) và last=0 đều không tính */
+export function recentGames(gObj, n = 3) {
+  return Object.entries(gObj || {}).filter(([, v]) => v && v.p).sort((x, y) => (y[1].last || 0) - (x[1].last || 0)).slice(0, n);
 }
 export function openProfile() {
   profileCss(); document.getElementById('pf-ov')?.remove();
@@ -270,7 +274,7 @@ export function openProfile() {
     const flags = readAuthFlags(); /* { admin, owner, id, created } của tài khoản đang đăng nhập trên máy này */
     let hasAcc = false; try { hasAcc = !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) {}
     const achN = Object.keys(s.ach || {}).length, pct = lv.to ? Math.round((lv.xp - lv.from) / (lv.to - lv.from) * 100) : 100;
-    const games = Object.entries(srvT ? srvT.g : s.g).filter(([, v]) => v.p).sort((x, y) => y[1].p - x[1].p);
+    const games = recentGames(srvT ? srvT.g : s.g); /* 🕒 3 game mới chơi nhất (patch -100) — trước đây xếp theo số ván chơi nhiều nhất */
     const st = { ...statOf(s, srv || {}), admin: flags.owner /* khoá 'admin' = đồ riêng chủ web */ };
     const ust = statsFromTotals(t, { created: (srv && srv.created) || 0, rank: (srv && srv.rank) || 0, admin: flags.owner }); /* khoá og/top10 dùng ngày lập tài khoản + hạng BXH thật */
     const tts = titlesOf(st), look = { ...a, ...(cleanLook({ ...a, ch: a.ch }, st) || {}) }, cur = pickTitle(tts, ls.get('gumballz-title')), locked = ALL_TITLES.filter(x => !tts.some(y => y.id === x.id) && !(x.id.startsWith('top') && !hasAcc));
@@ -288,16 +292,15 @@ export function openProfile() {
       <p class="pf-note" style="margin:6px 0 0;text-align:left">${srvT ? `✅ Số máy chủ đã công nhận${verT ? ` (trong đó ${verT.p} ván đã xác minh)` : ''} · trên máy này: ${t.p} ván, ${t.w} thắng.` : 'Số trên máy này – đăng nhập để đồng bộ lên máy chủ.'}</p>
       <button type="button" data-a="rank" style="width:100%;border:2px solid #241A38;border-radius:12px;padding:10px 14px;margin-bottom:4px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;color:#241A38;background:#FACD33;cursor:pointer;box-shadow:3px 3px 0 #241A38">🏆 Xem Bảng xếp hạng toàn server ▶</button>
       <h3>🎖️ Danh hiệu <small>${tts.length} đã đạt</small></h3>
-      <div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div>
+      <div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}</div>
+      ${locked.length ? `<details style="margin:8px 0 0"><summary style="cursor:pointer;font-weight:800;color:#8B7E9E;padding:4px 0">🔒 ${locked.length} danh hiệu chưa đạt — chạm để xem</summary><div class="pf-tts" style="margin-top:6px">${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div></details>` : ''}
       <p class="pf-note" style="margin:8px 0 0;text-align:left">${tts.length ? 'Chạm vào danh hiệu để xem cách nhận (trên máy tính thì rê chuột vào); danh hiệu đã đạt thì bấm “Trưng danh hiệu này” trong bảng để trưng cạnh tên bạn.' : 'Chơi và thắng thêm để mở danh hiệu — chạm vào danh hiệu chưa đạt để xem cách nhận.'} Thắng ${GAME_WINS} ván ở một game còn có danh hiệu riêng của game đó.${hasAcc ? '' : ' Đăng nhập thì người khác mới thấy danh hiệu của bạn.'}</p>
       <h3>🏅 Thành tích <small>${achN} đã mở${srvT ? ` · ${verN} đã kiểm chứng` : ''}</small></h3>
       <div class="pf-ach">${TPL5.map(tp => { const gs = Object.keys(GAME_NAMES).filter(g => s.ach[`${tp.id}-${g}`]); return gs.length ? achCard({ ...tp, desc: `${tp.desc} ở một game · đạt ở ${gs.length} game: ${gs.slice(0, 4).map(g => GAME_NAMES[g]).join(', ')}${gs.length > 4 ? '…' : ''}` }, true, null, srvA ? gs.some(g => srvA.has(`${tp.id}-${g}`)) : null) : ''; }).join('')}${ACHS.filter(x => !isTpl(x) && !isSpecial(x) && s.ach[x.id]).map(x => achCard(x, true, null, srvA ? srvA.has(x.id) : null)).join('')}</div>
       <p class="pf-note" style="margin:8px 0 0;text-align:left">🔒 Còn ${achSecret(s)} thành tích bí mật – chơi tiếp rồi sẽ lộ ra 👀${srvT ? ' Thành tích “✅ đã kiểm chứng” là máy chủ đã thấy tận mắt (ván online do máy chủ giữ); “💻 chỉ ở máy này” là chưa đồng bộ lên máy chủ (đấu máy / chơi đơn sẽ lên sau khi đồng bộ).' : ''}</p>
       ${achGames(s, srvA)}
-      <h3>🕒 Trận gần đây <small>game chơi nhiều nhất</small></h3>
+      <h3>🕒 Trận gần đây <small>mới chơi nhất</small></h3>
       ${games.length ? `<div class="pf-recent">${games.slice(0, 3).map(([g, v]) => `<div class="pf-rc"><span class="pf-rc-n">${esc(GAME_NAMES[g] || g)}</span><small>${v.p} ván · ${v.w || 0} thắng</small><a class="pf-rc-go" href="${gameURL(g)}">Chơi</a></div>`).join('')}</div>` : '<div class="pf-empty">Chưa có ván nào. Chơi xong một ván là có số liệu ở đây liền nha 🎲</div>'}
-      <h3>🎮 Theo từng game</h3>
-      ${games.length ? `<div class="pf-g">${games.map(([g, v]) => `<div>${esc(GAME_NAMES[g] || g)}</div><span>${v.p} ván</span><em>${v.w || 0} thắng</em>`).join('')}</div>` : '<div class="pf-empty">Chưa có ván nào. Chơi xong một ván là có số liệu ở đây liền nha 🎲</div>'}
       <p class="pf-note">Mỗi ván +10 điểm, thắng +20 điểm nữa. ${hasAcc ? 'Hồ sơ đã gắn với tài khoản – đăng nhập ở máy khác là thấy lại.' : 'Hồ sơ lưu trên máy này – đổi máy hoặc xoá dữ liệu trình duyệt là mất. Đăng nhập để giữ lại nha.'}</p></div>`;
     if (keepY) ov.querySelector('.pf-box').scrollTop = keepY;
     bindInfo(); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */

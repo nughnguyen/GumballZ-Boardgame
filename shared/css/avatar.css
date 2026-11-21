@@ -70,7 +70,6 @@
 .pf-a i{font-style:normal;font-size:20px;flex:none;width:26px;text-align:center}.pf-a b{display:block;font:800 12.5px/1.2 Nunito,sans-serif}.pf-a small{display:none}
 .pf-a.no{background:#f6efe6;border-style:dashed}.pf-a.no i{filter:grayscale(1);opacity:.4}.pf-a.no b{color:#8B7E9E}
 .pf-a.yes{border-color:#FFE3A3;background:linear-gradient(135deg,#FFFDF9,#fff6dc)}
-.pf-g{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;align-items:center;font-weight:800}.pf-g span{color:#8B7E9E;font-size:13px;text-align:right}.pf-g em{font-style:normal;color:#2e8b57;font-size:13px;text-align:right}
 .pf-empty{background:#FFFDF9;border:1.5px dashed #e6d8c8;border-radius:16px;padding:16px;text-align:center;color:#8B7E9E}
 .pf-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0}.pf-pick button{aspect-ratio:1;border-radius:50%;border:3px solid transparent;font-size:26px;cursor:pointer;background:#FFFDF9;box-shadow:0 0 0 1.5px #f0e2d2}
 .pf-pick button[aria-pressed=true]{border-color:#B9A6FF}.pf-col{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}.pf-col button{width:38px;height:38px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px #e6d8c8;cursor:pointer}.pf-col button[aria-pressed=true]{box-shadow:0 0 0 3px #B9A6FF}
