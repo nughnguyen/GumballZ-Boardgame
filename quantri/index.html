@@ -10,41 +10,30 @@
 <link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--ink:#4A3E5C;--muted:#8B7E9E;--bg:#FFF8EE;--line:#E9DCC6}*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:600 15px/1.5 Nunito,system-ui,sans-serif}
-main{max-width:860px;margin:0 auto;padding:16px 16px 48px}
-.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.back{display:inline-flex;align-items:center;min-height:42px;padding:6px 16px;border-radius:999px;background:var(--card);border:1.5px solid var(--line);color:var(--ink);text-decoration:none;font-weight:800}
-h1{font:400 clamp(24px,6vw,36px) var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif);margin:0;flex:1;text-align:center;white-space:nowrap}@media(max-width:560px){h1{order:-1;flex-basis:100%}.top{justify-content:space-between}}
-.card{background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:16px;margin:14px 0;box-shadow:3px 3px 0 var(--sh-soft-sm)}
-input,button,select{font:inherit;padding:9px 12px;border-radius:12px;border:1.5px solid #E9DCC6}
-button{background:var(--ink);color:var(--on-ink);border:0;cursor:pointer;font-weight:800}button.sm{padding:5px 11px;font-size:13px;border-radius:999px}button.red{background:#e0384a}button.gray{background:var(--muted);color:var(--on-accent)}
-.tabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0;scrollbar-width:none}.tabs button{flex:none;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:999px}.tabs button.on{background:var(--ink);color:var(--on-ink)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.stat{background:var(--card);border-radius:16px;padding:12px;text-align:center;box-shadow:0 8px 20px -16px var(--sh-soft)}.stat b{display:block;font:800 30px "Baloo 2",Nunito}.stat small{color:var(--muted)}
-.it{background:var(--card);border-radius:16px;padding:12px 14px;margin:10px 0;box-shadow:0 2px 10px #0001}.meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tag{padding:2px 8px;border-radius:999px;background:#eee;font-weight:800;color:var(--on-accent)}.bug{background:#ffd9dc}.idea{background:#dff5e6}.adm{background:#e6e0ff}
-.msg{white-space:pre-wrap;margin:6px 0;word-break:break-word}.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.r{margin-left:auto}
-.muted{color:var(--muted)}
-.cfl{display:inline-flex;align-items:center;min-height:38px;padding:6px 14px;border-radius:999px;background:#f6821f;color:var(--on-accent);text-decoration:none;font-weight:800;font-size:13.5px}.cfl:nth-child(n+2){background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
-.use h2{margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.bar{height:14px;border-radius:999px;background:var(--line);overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;border-radius:999px;background:#2fc76f;transition:width .4s}
-.bar.warn i{background:#f5a524}.bar.full i{background:#e0384a}.alert{border-radius:14px;padding:10px 14px;margin:8px 0;font-weight:800}.alert.warn{background:#fff1d6;color:#8a5a00}.alert.full{background:#ffd9dc;color:#a01828}
-.days{display:flex;gap:6px;align-items:flex-end;height:70px;margin-top:10px}.days div{flex:1;text-align:center;font-size:11px;color:var(--muted)}.days span{display:block;background:#C9BDF3;border-radius:6px 6px 0 0;margin:0 auto 2px;width:70%;min-height:2px}.hrs{display:flex;gap:2px;align-items:flex-end;height:86px;margin-top:4px}.hrs div{flex:1;min-width:0;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap}.hrs span{display:block;background:#ffb27a;border-radius:4px 4px 0 0;margin:0 auto 2px;width:82%;min-height:2px}.hrs .now span{background:#ff7a45}.hrs em{font-style:normal;display:block;height:13px}.chart-h{font-weight:800;font-size:13.5px;margin-top:14px}.chart-h small{font-weight:700;color:var(--muted)}#st{min-height:22px;color:#c0263b;font-weight:700}
-.cfu{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}.cfu h3{margin:0 0 6px;font:400 16px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}.cfr{margin:8px 0 2px}.cfr span{display:inline-block;margin-right:12px;font-size:13.5px}.cfr>b{display:block}.cfcost{margin:4px 0 8px;font-size:15px}.cfu code{background:var(--bg);padding:1px 5px;border-radius:5px}
-</style>
-<link rel="stylesheet" href="../shared/ui/shell.css?v=21">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=22">
+<link rel="stylesheet" href="../shared/css/quantri.css?v=1">
 </head>
 <body>
-<main>
-  <div class="top"><a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a><h1>🛠️ Quản trị GumballZ</h1><span id="acct"></span></div>
-  <div id="gate" class="card" hidden></div>
-  <div id="panel" hidden>
-    <div class="card use" id="use"><p class="muted">Đang tải hạn mức…</p></div>
-    <div class="stats" id="stats"></div>
-    <div class="tabs" id="tabs"><button data-t="rp" class="on">🚩 Báo cáo chat</button><button data-t="fb">💌 Góp ý</button><button data-t="er">🐞 Lỗi web</button><button data-t="lg">📶 Lag</button><button data-t="bn">⛔ Đang cấm</button><button data-t="us">👤 Tài khoản</button><button data-t="dn">☕ Ủng hộ</button><button data-t="au">📜 Nhật ký</button></div>
-    <p id="st"></p><div id="l"></div>
+<div class="qd">
+  <aside class="qd-side">
+    <a class="qd-brand" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="34" height="34"><span><b>GumballZ</b><small>🛠️ Quản trị</small></span></a>
+    <nav id="tabs" class="qd-nav" aria-label="Mục quản trị" hidden><button data-t="ov" class="on">📊 Tổng quan</button><button data-t="us">👤 Tài khoản</button><button data-t="rp">🚩 Báo cáo chat</button><button data-t="fb">💌 Góp ý</button><button data-t="er">🐞 Lỗi web</button><button data-t="lg">📶 Lag</button><button data-t="bn">⛔ Đang cấm</button><button data-t="dn">☕ Ủng hộ</button><button data-t="au">📜 Nhật ký</button></nav>
+    <div class="qd-side-foot"><a href="../">← Về trang chủ</a><a href="../sanh/">💬 Sảnh</a></div>
+  </aside>
+  <div class="qd-main">
+    <header class="qd-head"><h1 id="qd-title">📊 Tổng quan</h1><span id="acct"></span></header>
+    <main>
+      <div id="gate" class="card" hidden></div>
+      <div id="panel" hidden>
+        <div id="ov">
+          <div class="stats" id="stats"></div>
+          <div class="card use" id="use"><p class="muted">Đang tải hạn mức…</p></div>
+        </div>
+        <p id="st"></p><div id="l"></div>
+      </div>
+    </main>
   </div>
-</main>
+</div>
 <script type="module">
 import { auth, API } from '../shared/net/api.js?v=29';
 import { mountAccount, openLogin } from '../shared/ui/account.js?v=53';
@@ -64,15 +53,16 @@ const GRANT_GROUPS = [['frame', 'frames', '🖼️ Khung avatar'], ['color', 'co
 /* 🎁 món thành tích (patch -131): khung/màu tên mở bằng thành tích — máy chủ đã nhận (GRANT_ITEMS), trừ 2 món Chủ web (lock 'admin') */
 const grantAchOpts = [['frame', FRAMES, '🖼️ Khung thành tích'], ['color', NAME_COLORS, '🎨 Màu tên thành tích']].map(([kind, list, label]) => `<optgroup label="${label}">` + list.filter(x => x && x.id && x.lock && x.lock !== 'admin').map(x => `<option value="${widOf(kind, x.id)}">${esc(x.name)} · thành tích</option>`).join('') + '</optgroup>').join('');
 const grantOpts = GRANT_GROUPS.map(([kind, key, label]) => `<optgroup label="${label}">` + (COSMETICS[key] || []).filter(x => x && x.id).map(x => `<option value="${widOf(kind, x.id)}">${esc(x.name)}${x.chest ? ' · chỉ mở rương' : ''}${x.rare ? ' · hiếm' : ''}</option>`).join('') + '</optgroup>').join('') + grantAchOpts;
-let tab = 'rp';
+let tab = 'ov';
+const TITLES = { ov: '📊 Tổng quan', rp: '🚩 Báo cáo chat', fb: '💌 Góp ý', er: '🐞 Lỗi web', lg: '📶 Lag', bn: '⛔ Đang cấm', us: '👤 Tài khoản', dn: '☕ Ủng hộ', au: '📜 Nhật ký' };
 async function api(body) {
   try { const r = await fetch(API() + '/admin/list', { method: 'POST', headers: { 'content-type': 'application/json', Authorization: 'Bearer ' + auth.token() }, body: JSON.stringify(body || {}) }); return await r.json(); }
   catch (e) { return { ok: false, msg: 'Không kết nối được máy chủ' }; }
 }
 async function gate() {
   const u = auth.user();
-  if (u && u.admin) { $('#gate').hidden = true; $('#panel').hidden = false; window.__role = u.role != null ? +u.role : 2; /* 🎭 tài khoản cũ chưa có role → mặc định Quản trị */ document.querySelector('#tabs [data-t="au"]').hidden = window.__role !== 2; document.querySelector('#tabs [data-t="dn"]').hidden = window.__role !== 2; go(tab); stats(); usage(); clearInterval(window.__useT); window.__useT = setInterval(usage, 60000); return; }
-  $('#panel').hidden = true; $('#gate').hidden = false;
+  if (u && u.admin) { $('#gate').hidden = true; $('#panel').hidden = false; $('#tabs').hidden = false; window.__role = u.role != null ? +u.role : 2; /* 🎭 tài khoản cũ chưa có role → mặc định Quản trị */ document.querySelector('#tabs [data-t="au"]').hidden = window.__role !== 2; document.querySelector('#tabs [data-t="dn"]').hidden = window.__role !== 2; go(tab); stats(); usage(); clearInterval(window.__useT); window.__useT = setInterval(usage, 60000); return; }
+  $('#panel').hidden = true; $('#gate').hidden = false; $('#tabs').hidden = true;
   if (!u) { $('#gate').innerHTML = '<h2 style="margin-top:0">Đăng nhập trước nha</h2><p>Trang này chỉ dành cho quản trị viên GumballZ Boardgame. Đăng nhập (Google hoặc tên đăng nhập) bằng tài khoản quản trị.</p><button id="g-login">👤 Đăng nhập</button>'; $('#g-login').onclick = () => openLogin(); return; }
   $('#gate').innerHTML = `<h2 style="margin-top:0">Kích hoạt quyền quản trị</h2><p>Bạn đang đăng nhập là <b>${esc(u.name)}</b>. Nhập mật khẩu quản trị (<code>ADMIN_KEY</code> đặt trên Cloudflare) <b>một lần</b> để cấp quyền cho tài khoản này. Lần sau chỉ cần đăng nhập là vào được.</p>
     <form id="g-f" style="display:flex;gap:8px;flex-wrap:wrap"><input id="g-k" type="password" placeholder="Mật khẩu quản trị" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:200px"><button>Kích hoạt</button></form><p id="g-e" style="color:#c0263b;font-weight:700"></p>`;
@@ -83,7 +73,14 @@ auth.onChange(() => gate()); auth.refresh().then(() => gate());
 async function stats() {
   const s = await api({ op: 'stats' }); if (!s.ok) return;
   const on = await fetch(API() + '/presence').then(r => r.json()).catch(() => ({}));
-  $('#stats').innerHTML = [[on.n ?? '–', '🟢 Đang online'], [s.online, '💬 Đang ở sảnh/web'], [s.rooms, '🚪 Phòng công khai'], [s.users, '🧑 Tài khoản']].map(([n, t]) => `<div class="stat"><b>${n}</b><small>${t}</small></div>`).join('');
+  /* Gộp cả 2 thẻ ủng hộ vào cùng 1 lần gán innerHTML — để gọi stats() nhiều lần
+     (gate() chạy lại mỗi lần auth đổi) cũng không nhân đôi thẻ như kiểu append. */
+  let h = [[on.n ?? '–', '🟢 Đang online'], [s.online, '💬 Đang ở sảnh/web'], [s.rooms, '🚪 Phòng công khai'], [s.users, '🧑 Tài khoản'], [s.sessions ?? '–', '🔐 Phiên đăng nhập']].map(([n, t]) => `<div class="stat"><b>${n}</b><small>${t}</small></div>`).join('');
+  if (window.__role === 2) { /* ☕ thẻ ủng hộ tháng + chờ duyệt: số thật từ /donate/admin */
+    const dd = await donApi('/donate/admin');
+    if (dd.ok) { const vnd = n => (+n || 0).toLocaleString('vi-VN') + 'đ'; h += `<div class="stat"><b>${vnd(dd.month)}</b><small>☕ Ủng hộ tháng này</small></div><div class="stat"><b>${(dd.pend || []).length}</b><small>⏳ Chờ duyệt ủng hộ</small></div>`; }
+  }
+  $('#stats').innerHTML = h;
 }
 // 📊 Hạn mức Cloudflare (ước tính, cập nhật mỗi phút)
 const CF_DASH = 'https://dash.cloudflare.com/?to=/:account';
@@ -174,6 +171,10 @@ function donTab(dd) { /* 🧾 quỹ tháng + yêu cầu chờ duyệt + khoản 
 }
 async function go(t) {
   tab = t; document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  const qt = document.getElementById('qd-title'); if (qt) qt.textContent = TITLES[t] || '🛠️ Quản trị';
+  const ov = document.getElementById('ov');
+  if (t === 'ov') { if (ov) ov.hidden = false; $('#st').textContent = ''; $('#l').innerHTML = ''; return; }
+  if (ov) ov.hidden = true;
   $('#st').textContent = ''; $('#l').innerHTML = '<p class="muted">Đang tải…</p>';
   if (t === 'dn') { const dd = await donApi('/donate/admin'); if (t !== tab) return; if (!dd.ok) { $('#st').textContent = dd.msg || 'Lỗi'; $('#l').innerHTML = ''; return; } return donTab(dd); }
   const d = await api(t === 'er' || t === 'lg' ? { errs: true } : t === 'fb' ? {} : t === 'us' ? { op: 'users', q: $('#uq')?.value || '' } : t === 'au' ? { op: 'audit', off: window.__auOff || 0 } : { op: 'reports' });
@@ -189,7 +190,7 @@ async function go(t) {
   if (t === 'au') { const rows = d.rows || [], total = d.total || 0, off = d.off || 0;
     $('#l').innerHTML = (rows.length ? `<p class="muted">Mới nhất trước · tổng ${total} hành động · chỉ ghi từ lúc tính năng lên (dữ liệu cũ không có log là bình thường).</p>` : '') + rows.map(r => `<div class="it"><div class="meta"><b>${esc(AU[r.action] || r.action)}</b><span>${dt(r.ts)}</span><span class="r">bởi ${esc(r.actorName || '—')}</span></div><div class="msg">${esc(r.detail || '')}</div>${r.targetName ? `<div class="meta">với ${esc(r.targetName)}${r.targetId ? ' (id ' + uid6(r.targetId) + ')' : ''}</div>` : ''}</div>`).join('') || '<p class="muted">Chưa có hành động quản trị nào được ghi.</p>';
     if (off + rows.length < total) { $('#l').innerHTML += `<p style="text-align:center"><button class="sm" id="au-more">Xem thêm (${total - off - rows.length} nữa)</button></p>`; $('#au-more').onclick = () => { window.__auOff = off + rows.length; go('au'); }; } return; }
-  if (t === 'us') { const q = $('#uq')?.value || ''; const ownerId = (d.users && d.users.ownerId) || 1; /* 👑 chủ sảnh hiện tại do máy chủ báo (patch -94) */ const meId = (auth.user() || {}).id, isOwner = meId === ownerId; const ownerRow = ((d.users && d.users.users) || []).find(u => u.id === ownerId); $('#l').innerHTML = (isOwner ? `<div class="card" style="margin:0 0 12px"><h2 style="margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)">👑 Nhượng quyền chủ sảnh</h2><p class="muted" style="margin:0 0 8px">Chủ sảnh hiện tại: <b>${esc(ownerRow ? ownerRow.name : 'id ' + uid6(ownerId))}</b>. Nhượng xong, tài khoản này còn quyền Quản trị, tài khoản nhận thành chủ sảnh (tự lên Quản trị). Điểm/ví/nhân vật của 2 tài khoản không đổi chỗ.</p><form id="tf" style="display:flex;gap:8px"><input id="tq" placeholder="Tìm tên đăng nhập / tên / id người nhận" style="flex:1"><button>Tìm</button></form><div id="tl"></div></div>` : '') + `<form id="uf" style="display:flex;gap:8px"><input id="uq" placeholder="Tìm tên đăng nhập / tên / id" style="flex:1" value="${esc(q)}"><button>Tìm</button></form>` + ((d.users && d.users.users) || []).map(u => `<div class="it"><div class="meta"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${uid6(u.id)}</span><span>${dt(u.created)}</span>${tierBadges({ owner: u.id === ownerId, role: u.role, supporter: u.supporter })}${u.banned ? '<span class="tag bug">bị khoá</span>' : ''}${u.mute && u.mute.c > Date.now() ? `<span class="tag bug">🔇 cấm chat tới ${new Date(u.mute.c).toLocaleString('vi-VN')}</span>` : ''}<span class="r"></span></div><div class="acts"><button class="sm ${u.banned ? '' : 'red'}" data-ub="${u.id}" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Mở khoá' : 'Khoá tài khoản'}</button>${u.username && window.__role === 2 ? `<button class="sm gray" data-pw="${u.id}">Đặt lại mật khẩu</button>` : ''}<button class="sm gray" data-mute="${u.id}" data-k="c">🔇 Cấm chat</button>${window.__role === 2 && u.id !== ownerId && u.id !== (auth.user() || {}).id ? (u.role === 2 ? `<button class="sm gray" data-role="${u.id}" data-v="0">Thu hồi quyền</button>` : u.role === 1 ? `<button class="sm gray" data-role="${u.id}" data-v="2">Lên Quản trị</button><button class="sm gray" data-role="${u.id}" data-v="0">Thu hồi Mod</button>` : `<button class="sm gray" data-role="${u.id}" data-v="1">Cấp Mod</button><button class="sm gray" data-role="${u.id}" data-v="2">Cấp Quản trị</button>`) : ''}${window.__role === 2 ? (u.supporter ? `<button class="sm gray" data-sup="${u.id}" data-v="0">💎 Thu hồi Nhà Tài Trợ</button>` : u.banned ? '' : `<button class="sm gray" data-sup="${u.id}" data-v="1">💎 Nhà Tài Trợ</button>`) : ''}${window.__role === 2 && !u.banned ? `<span style="display:inline-flex;gap:4px;align-items:center"><select data-grant-sel="${u.id}" aria-label="Chọn vật phẩm để cấp" style="max-width:190px">${grantOpts}</select><button class="sm" data-grant="${u.id}">🎁 Cấp vật phẩm</button></span>` : ''}</div></div>`).join(''); $('#uf').onsubmit = e => { e.preventDefault(); go('us'); };
+  if (t === 'us') { const q = $('#uq')?.value || ''; const ownerId = (d.users && d.users.ownerId) || 1; /* 👑 chủ sảnh hiện tại do máy chủ báo (patch -94) */ const meId = (auth.user() || {}).id, isOwner = meId === ownerId; const ownerRow = ((d.users && d.users.users) || []).find(u => u.id === ownerId); const rows = (d.users && d.users.users) || []; $('#l').innerHTML = (isOwner ? `<div class="card" style="margin:0 0 12px"><h2 style="margin:0 0 4px;font:400 18px var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)">👑 Nhượng quyền chủ sảnh</h2><p class="muted" style="margin:0 0 8px">Chủ sảnh hiện tại: <b>${esc(ownerRow ? ownerRow.name : 'id ' + uid6(ownerId))}</b>. Nhượng xong, tài khoản này còn quyền Quản trị, tài khoản nhận thành chủ sảnh (tự lên Quản trị). Điểm/ví/nhân vật của 2 tài khoản không đổi chỗ.</p><form id="tf" style="display:flex;gap:8px"><input id="tq" placeholder="Tìm tên đăng nhập / tên / id người nhận" style="flex:1"><button>Tìm</button></form><div id="tl"></div></div>` : '') + `<form id="uf" style="display:flex;gap:8px"><input id="uq" placeholder="Tìm tên đăng nhập / tên / id" style="flex:1" value="${esc(q)}"><button>Tìm</button></form>` + (rows.length ? `<div class="qd-twrap"><table class="qd-t"><thead><tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th>Hành động</th></tr></thead><tbody>` + rows.map(u => `<tr><td><div class="qd-u"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${uid6(u.id)}</span><span>${dt(u.created)}</span></div></td><td>${tierBadges({ owner: u.id === ownerId, role: u.role, supporter: u.supporter }) || '<span class="muted">Thành viên</span>'}</td><td>${u.banned ? '<span class="tag bug">bị khoá</span>' : ''}${u.mute && u.mute.c > Date.now() ? `<span class="tag bug">🔇 cấm chat tới ${new Date(u.mute.c).toLocaleString('vi-VN')}</span>` : ''}${!u.banned && !(u.mute && u.mute.c > Date.now()) ? '<span class="muted">Bình thường</span>' : ''}</td><td><div class="acts"><button class="sm ${u.banned ? '' : 'red'}" data-ub="${u.id}" data-v="${u.banned ? 0 : 1}">${u.banned ? 'Mở khoá' : 'Khoá tài khoản'}</button>${u.username && window.__role === 2 ? `<button class="sm gray" data-pw="${u.id}">Đặt lại mật khẩu</button>` : ''}<button class="sm gray" data-mute="${u.id}" data-k="c">🔇 Cấm chat</button>${window.__role === 2 && u.id !== ownerId && u.id !== (auth.user() || {}).id ? (u.role === 2 ? `<button class="sm gray" data-role="${u.id}" data-v="0">Thu hồi quyền</button>` : u.role === 1 ? `<button class="sm gray" data-role="${u.id}" data-v="2">Lên Quản trị</button><button class="sm gray" data-role="${u.id}" data-v="0">Thu hồi Mod</button>` : `<button class="sm gray" data-role="${u.id}" data-v="1">Cấp Mod</button><button class="sm gray" data-role="${u.id}" data-v="2">Cấp Quản trị</button>`) : ''}${window.__role === 2 ? (u.supporter ? `<button class="sm gray" data-sup="${u.id}" data-v="0">💎 Thu hồi Nhà Tài Trợ</button>` : u.banned ? '' : `<button class="sm gray" data-sup="${u.id}" data-v="1">💎 Nhà Tài Trợ</button>`) : ''}${window.__role === 2 && !u.banned ? `<span style="display:inline-flex;gap:4px;align-items:center"><select data-grant-sel="${u.id}" aria-label="Chọn vật phẩm để cấp" style="max-width:190px">${grantOpts}</select><button class="sm" data-grant="${u.id}">🎁 Cấp vật phẩm</button></span>` : ''}</div></td></tr>`).join('') + `</tbody></table></div>` : '<p class="muted">Không thấy tài khoản nào.</p>'); $('#uf').onsubmit = e => { e.preventDefault(); go('us'); };
     const tf = $('#tf'); if (tf) tf.onsubmit = async e => { e.preventDefault(); const r = await api({ op: 'users', q: $('#tq').value || '' }); const list = (r.users && r.users.users) || []; $('#tl').innerHTML = list.length ? list.map(u => `<div class="it"><div class="meta"><b>${esc(u.name)}</b><span>@${esc(u.username || '(Google)')}</span><span>id ${uid6(u.id)}</span>${u.id === ownerId ? '<span class="tag adm">👑 chủ sảnh hiện tại</span>' : u.banned ? '<span class="tag bug">đang bị khoá</span>' : ''}</div>${u.id === ownerId || u.banned ? '' : `<div class="acts"><button class="sm" data-transfer="${u.id}" data-name="${esc(u.name)}">👑 Nhượng quyền cho người này</button></div>`}</div>`).join('') : '<p class="muted">Không thấy tài khoản nào.</p>'; }; }
 }
 $('#tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.t === 'au') window.__auOff = 0; go(b.dataset.t); };
@@ -216,12 +217,12 @@ $('#l').onclick = async e => {
     if (h == null) return; await api({ op: 'user', id: b.dataset.mute, patch: { mute: { c: +h } } }); return go('us'); }
   if (b.dataset.ub) { if (!(await confirmBox(b.dataset.v === '1' ? 'Tài khoản này sẽ bị khoá và đăng xuất khỏi mọi máy.' : 'Tài khoản này sẽ đăng nhập lại được.', { title: b.dataset.v === '1' ? 'Khoá tài khoản?' : 'Mở khoá tài khoản?', ok: b.dataset.v === '1' ? 'Khoá' : 'Mở khoá', danger: b.dataset.v === '1' }))) return; await api({ op: 'user', id: b.dataset.ub, patch: { banned: b.dataset.v === '1' } }); return go('us'); }
   if (b.dataset.role) { const v = +b.dataset.v, label = v === 2 ? 'Người này sẽ có toàn quyền quản trị: cấp quyền, đặt lại mật khẩu, xem nhật ký.' : v === 1 ? 'Người này sẽ làm Mod: xem báo cáo, cấm chat/khoá tài khoản, nhưng không cấp quyền hay đặt lại mật khẩu.' : 'Người này sẽ không vào được trang Quản trị nữa.'; if (!(await confirmBox(label, { title: v === 2 ? 'Cấp quyền Quản trị?' : v === 1 ? 'Cấp quyền Mod?' : 'Thu hồi quyền?', ok: v ? 'Cấp quyền' : 'Thu hồi', danger: v === 0 }))) return; await api({ op: 'user', id: b.dataset.role, patch: { role: v } }); return go('us'); }
-  if (b.dataset.sup) { const v = +b.dataset.v, name = b.closest('.it')?.querySelector('.meta b')?.textContent || ('id ' + b.dataset.sup); if (!(await confirmBox(v === 1 ? name + ' sẽ mang huy hiệu 💎 Nhà Tài Trợ ở mọi nơi (chat, bảng xếp hạng, hồ sơ, bạn bè). Chỉ Quản trị mới cấp/thu hồi được.' : 'Thu hồi huy hiệu 💎 Nhà Tài Trợ của ' + name + '?', { title: v === 1 ? '💎 Cấp huy hiệu Nhà Tài Trợ?' : '💎 Thu hồi huy hiệu Nhà Tài Trợ?', ok: v === 1 ? 'Cấp danh hiệu' : 'Thu hồi', danger: v === 0 }))) return; const r = await api({ op: 'user', id: b.dataset.sup, patch: { supporter: v } }); if (r.ok) return go('us'); await alertBox(r.msg || 'Không đổi được huy hiệu.', { title: 'Chưa đổi được' }); }
+  if (b.dataset.sup) { const v = +b.dataset.v, name = b.closest('tr, .it')?.querySelector('.qd-u b, .meta b')?.textContent || ('id ' + b.dataset.sup); if (!(await confirmBox(v === 1 ? name + ' sẽ mang huy hiệu 💎 Nhà Tài Trợ ở mọi nơi (chat, bảng xếp hạng, hồ sơ, bạn bè). Chỉ Quản trị mới cấp/thu hồi được.' : 'Thu hồi huy hiệu 💎 Nhà Tài Trợ của ' + name + '?', { title: v === 1 ? '💎 Cấp huy hiệu Nhà Tài Trợ?' : '💎 Thu hồi huy hiệu Nhà Tài Trợ?', ok: v === 1 ? 'Cấp danh hiệu' : 'Thu hồi', danger: v === 0 }))) return; const r = await api({ op: 'user', id: b.dataset.sup, patch: { supporter: v } }); if (r.ok) return go('us'); await alertBox(r.msg || 'Không đổi được huy hiệu.', { title: 'Chưa đổi được' }); }
   if (b.dataset.grant) { /* 🎁 cấp vật phẩm thủ công (patch -127): chỉ Quản trị (role 2) mới thấy nút; hỏi xác nhận trước khi cấp */
     const uid = +b.dataset.grant, sel = document.querySelector(`[data-grant-sel="${uid}"]`), wid = sel && sel.value;
     if (!wid) return;
     const itemName = (sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].textContent) || wid;
-    const uname = b.closest('.it')?.querySelector('.meta b')?.textContent || ('id ' + uid);
+    const uname = b.closest('tr, .it')?.querySelector('.qd-u b, .meta b')?.textContent || ('id ' + uid);
     if (!(await confirmBox(`Cấp ${itemName} cho ${uname}? Món sẽ vào ví của họ sau lần đồng bộ tiếp theo (đăng nhập lại hoặc chơi 1 ván).`, { title: '🎁 Cấp vật phẩm?', ok: 'Cấp vật phẩm' }))) return;
     const r = await api({ op: 'user', id: uid, patch: { grant: wid } });
     if (r.ok) { await alertBox(`Đã cấp ${r.name || itemName} cho ${uname}.`, { title: '✅ Đã cấp vật phẩm' }); return go('us'); }
