@@ -38,7 +38,7 @@
     '<button type="button" data-donate>Ủng hộ</button>' +
     '<i class="nav-ind" aria-hidden="true"></i>' +
     '</nav>' +
-    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="loginbtn" id="btn-login" type="button" aria-label="Điểm danh hằng ngày — nhận xu" title="Điểm danh hằng ngày">🎁<i class="lg-dot" id="lg-dot" hidden></i></button><button class="profbtn" id="btn-prof" type="button" aria-label="Hồ sơ và thành tích" title="Hồ sơ & thành tích"></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><span id="acct"></span></div>' +
+    '<div class="acct"><a class="xupill" id="btn-xu" href="' + shopHref + '" aria-label="Ví xu — mở Cửa hàng"><b>100</b><span class="xu-t"> xu</span></a><button class="loginbtn" id="btn-login" type="button" aria-label="Điểm danh hằng ngày — nhận xu" title="Điểm danh hằng ngày">🎁<i class="lg-dot" id="lg-dot" hidden></i></button><button class="setbtn" id="btn-set" type="button" aria-label="Cài đặt" title="Cài đặt">' + GEAR + '</button><span id="acct"></span></div>' +
     '</div></header>';
 
   var tabHome = isHome
@@ -68,15 +68,9 @@
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
   import('./account.js?v=51').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
-  // hồ sơ: avatar ở #btn-prof, mở modal ở cả 3 nút (#btn-prof, #btn-prof-nav, #btn-prof-m)
+  // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
   import('./profile.js?v=54').then(function (m) {
     m.profileCss();
-    var b = document.getElementById('btn-prof');
-    var d = function () { b.innerHTML = m.avatarHTML(42); };
-    d();
-    addEventListener('gumballz-avatar', d);
-    addEventListener('gumballz-stats', d);
-    b.onclick = function () { m.openProfile(); };
     var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
     var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
   }).catch(function () {});

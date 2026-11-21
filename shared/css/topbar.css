@@ -30,11 +30,8 @@ header.nav .links a.active,header.nav .links a[aria-current="page"],header.nav .
 .acct{position:static;margin-left:auto;display:flex;gap:6px;align-items:center;flex:none}
 .setbtn{width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:var(--sh-sm);transition:transform .3s}
 .setbtn:hover{transform:rotate(45deg)}
-.profbtn{border:0;background:none;padding:0;cursor:pointer;border-radius:50%;display:grid;position:relative;transition:transform .2s}
 .xupill{display:inline-flex;align-items:center;gap:4px;min-height:42px;padding:0 12px;border-radius:999px;border:2px solid var(--ink);background:var(--y1);color:var(--ink);font:800 14px Nunito,sans-serif;text-decoration:none;box-shadow:var(--sh-sm);white-space:nowrap}.xupill b{font:400 16px/1 var(--font-display,"Baloo 2",Nunito,sans-serif)}
 @media (max-width:480px){.xupill{padding:0 9px}.xupill .xu-t{display:none}}
-.profbtn:hover{transform:scale(1.08)}
-
 /* ===== tab dưới (điện thoại / máy tính bảng) – mục đang chọn đỏ + vạch đỏ trên cùng ===== */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;background:var(--card);border-top:2px solid var(--ink);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
 .tabbar button,.tabbar a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:0;color:var(--ink);font-size:20px;text-decoration:none;cursor:pointer;min-height:52px;padding:6px 2px;border-radius:12px;box-shadow:inset 0 3px 0 transparent}
