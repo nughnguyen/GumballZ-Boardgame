@@ -5,7 +5,7 @@
 // Ảnh QR cũ shared/img/donate-qr.png chỉ còn là dự phòng khi img.vietqr.io không tải được. DONATE_ACC/DONATE_BANK chỉ còn dùng cho SePay tự báo về (xác nhận tự động), không ảnh hưởng mã QR.
 import { auth, API } from '../net/api.js?v=29';
 import { TIERS, tierOf, tierInfo } from '../donor.js?v=1'; /* 🏅 bậc ủng hộ (patch -102) */
-import { uid6 } from './badges.js?v=3'; /* 🆔 id tài khoản hiển thị 6 chữ số trong nội dung chuyển khoản (patch -108) */
+import { uid6 } from './badges.js?v=4'; /* 🆔 id tài khoản hiển thị 6 chữ số trong nội dung chuyển khoản (patch -108) */
 
 const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const vnd = n => (Math.round(+n || 0)).toLocaleString('vi-VN') + 'đ';
