@@ -84,12 +84,12 @@ h1 span{color:var(--ink)}
   </div>
 </main>
 <script type="module">
-import { mountLobby, GAME_INFO, openMatchmaking } from '../shared/ui/lobby.js?v=58';
+import { mountLobby, GAME_INFO, openMatchmaking } from '../shared/ui/lobby.js?v=59';
 import { mountOnline } from '../shared/net/presence.js?v=26';
 mountOnline(document.getElementById('online'));
 const g = new URLSearchParams(location.search).get('game');
 const L = mountLobby(document.getElementById('lobby'), {});
-import('../shared/ui/worldchat.js?v=2').then(m => m.mountWorldChat());
+import('../shared/ui/worldchat.js?v=3').then(m => m.mountWorldChat());
 if (g) setTimeout(() => document.querySelector(`.lb-gf button[data-g="${CSS.escape(g)}"]`)?.click(), 0);
 /* panel Tạo phòng mới: chọn game → tạo phòng công khai (?public=1&autohost=1) hoặc tìm trận nhanh cho game đó */
 const cpGame = document.getElementById('cp-game');

@@ -59,7 +59,7 @@ export function mountWorldChat() {
     if (!drag) return; const moved = drag.moved; drag = null;
     if (moved) { ls.set('gumballz-worldchat-y', parseFloat(tab.style.top)); return; }
     u.unread = 0; badge.textContent = ''; peek.hidden = true;
-    import('./lobby.js?v=58').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
+    import('./lobby.js?v=59').then(m => m.openLobby(null, { tab: 'chat' })).catch(() => {});
   };
   tab.addEventListener('pointerup', up); tab.addEventListener('pointercancel', () => { drag = null; });
   // WebSocket nghe tin kênh 'all' để hiện chấm đỏ + bong bóng (chỉ khi hộp Sảnh đang đóng)
@@ -71,6 +71,7 @@ export function mountWorldChat() {
     ws.onopen = () => { wait = 1000; try { ws.send(JSON.stringify(helloMsg())); } catch (e) {} };
     ws.onmessage = ev => {
       let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m.t === 'reset' && m.ch === 'all') { u.unread = 0; badge.textContent = ''; peek.hidden = true; return; } // kênh thế giới reset 0:00: xóa chấm đỏ + bong bóng
       if (m.t !== 'msg' || !m.m || m.m.ch !== 'all' || overlayOpen()) return;
       u.unread++; badge.textContent = u.unread > 9 ? '9+' : u.unread;
       peek.textContent = ''; const i = document.createElement('i'); i.textContent = (m.m.name || 'Ai đó') + ': '; peek.append(i, m.m.text); peek.hidden = false;

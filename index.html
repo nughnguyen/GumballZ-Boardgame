@@ -583,7 +583,7 @@ function fitTitles(){document.querySelectorAll('#games-grid .tile .info h2').for
 addEventListener('load',fitTitles);addEventListener('resize',()=>{clearTimeout(fitTitles.t);fitTitles.t=setTimeout(fitTitles,120)});document.fonts&&document.fonts.ready.then(fitTitles);
 </script>
 <script type="module" src="shared/ui/feedback.js?v=34"></script>
-<script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=2').then(m => m.mountWorldChat());</script>
+<script type="module">import { mountOnline } from "./shared/net/presence.js?v=26"; mountOnline(document.getElementById("online")); const fo = document.getElementById("foot-online"); const drawFo = () => { const n = window.__gumballzOnline; if (n != null && fo) fo.innerHTML = `🟢 <b>${n}</b> đang online`; }; drawFo(); addEventListener('gumballz-online', drawFo); try { if (localStorage.getItem("gumballz-hide-online") === "1") document.getElementById("online").style.display = "none"; } catch (e) {} import('./shared/ui/worldchat.js?v=3').then(m => m.mountWorldChat());</script>
 <script type="module">
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 const json = k => { try { return JSON.parse(ls.get(k)); } catch (e) { return null; } };
@@ -602,7 +602,7 @@ import { mountDaily } from './shared/js/daily.js?v=1'; mountDaily(document.getEl
 // ô game ra khỏi màn hình thì dừng hoạt ảnh (cuộn nhẹ hơn, đỡ tốn pin)
 if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('asleep', !e.isIntersecting)), { rootMargin: '120px' }); $$('.tile').forEach(t => io.observe(t)); }
 // thanh trên đổ bóng khi cuộn
-$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=58').then(m => m.openMatchmaking()));
+$$('[data-match]').forEach(b => b.onclick = () => import('./shared/ui/lobby.js?v=59').then(m => m.openMatchmaking()));
 // ▶ Vào lại ván: game nào còn phiên dở (gumballz-session-<game>, xem shared/net/room.js) thì hiện nút
 const FRESH = 3 * 3600e3; let resumeGame = null;
 tiles.forEach(tile => {
@@ -657,7 +657,7 @@ import('./shared/net/api.js?v=28').then(({ API }) => {
     $('#rooms-list').innerHTML = list.slice(0, 8).map(r => { const t = tileOf(r.game); return `<a class="room-card" href="${r.game}/?room=${r.code}"><img src="shared/img/icons/${r.game}.svg" alt="" onerror="this.remove()"><span><b>${esc(t.querySelector('h2').textContent)}</b><small>Mã ${r.code} · ${r.n} người trong phòng</small></span><em>Vào</em></a>`; }).join('');
     const em = $('#rooms-empty'); em.hidden = !!list.length && list.length <= 8;
     em.innerHTML = list.length > 8 ? `<a href="sanh/">Xem cả ${list.length} phòng ở Sảnh chung ▶</a>` : 'Chưa có phòng công khai nào đang mở 🥲 Bấm <a href="#" data-mm>⚡ Tìm trận nhanh</a> hoặc chọn game rồi tạo phòng nha.';
-    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=58').then(m => m.openMatchmaking()); };
+    const mm = em.querySelector('[data-mm]'); if (mm) mm.onclick = e => { e.preventDefault(); import('./shared/ui/lobby.js?v=59').then(m => m.openMatchmaking()); };
   }
   loadRooms(); setInterval(loadRooms, 30000); document.addEventListener('visibilitychange', loadRooms);
   const inp = $('#code-in'), msg = $('#code-msg'), btn = $('#codebox button');

@@ -226,6 +226,7 @@ export class Lobby extends DurableObject {
     }
     const lv = this.liveNow(), m = JSON.stringify({ t: 'online', n: n0, rooms: lv.rooms, players: lv.players, games: lv.games });
     for (const ws of this.ctx.getWebSockets()) try { ws.send(m); } catch (e) {}
+    if (this.resetWorldIfNewDay()) this.broadcastWorldReset(); // qua 0:00 giờ VN: xóa kênh thế giới + báo cho client đang mở (báo thức này chạy tối đa ~15 giây/lần khi có người online, nên reset diễn ra trong ~15 giây sau 0:00; lúc không có ai online thì lần mở chat / gửi tin sau đó tự xóa nhờ hist/insert)
   }
   async fetch(req) {
     await this.m.tick('req');
@@ -242,7 +243,22 @@ export class Lobby extends DurableObject {
     this.ctx.acceptWebSocket(srv); srv.serializeAttachment({ ipk, who: null, name: 'Khách', v: 0, chs: ['all'] }); this.bumpOnline();
     return new Response(null, { status: 101, webSocket: cli });
   }
-  hist(ch) { return this.sql.exec('SELECT id, ch, ts, who, name, v, text, kind, game, code, av FROM chat WHERE ch = ? AND hidden = 0 ORDER BY id DESC LIMIT ?', ch, HIST).toArray().reverse().map(pubMsg); }
+  // ---------- kênh thế giới ('all') reset 0:00 giờ VN (UTC+7, VN không có giờ DST nên cộng cố định) ----------
+  vnDay(ts) { return Math.floor((ts + 7 * 3600e3) / 864e5); } // số ngày theo giờ VN
+  resetWorldIfNewDay() { // đã qua 0:00 giờ VN kể từ lần ghi dấu → xóa hết tin kênh 'all', ghi dấu ngày mới; trả về true nếu vừa reset
+    const d = this.vnDay(now());
+    const r = this.sql.exec("SELECT v FROM stat WHERE k = 'world-day'").toArray()[0];
+    if (!r) { this.sql.exec("INSERT INTO stat (k, v) VALUES ('world-day', ?)", d); return false; } // lần đầu chạy tính năng: chỉ ghi dấu hôm nay, không xóa
+    if (r.v === d) return false;
+    this.sql.exec("DELETE FROM chat WHERE ch = 'all'");
+    this.sql.exec("UPDATE stat SET v = ? WHERE k = 'world-day'", d);
+    return true;
+  }
+  broadcastWorldReset() { // báo cho mọi kết nối đang nghe kênh 'all' để khung chat đang mở tự xóa
+    const m = JSON.stringify({ t: 'reset', ch: 'all' });
+    for (const w of this.ctx.getWebSockets()) { const x = w.deserializeAttachment() || {}; if (x.chs && x.chs.includes('all')) try { w.send(m); } catch (e) {} }
+  }
+  hist(ch) { if (ch === 'all') this.resetWorldIfNewDay(); return this.sql.exec('SELECT id, ch, ts, who, name, v, text, kind, game, code, av FROM chat WHERE ch = ? AND hidden = 0 ORDER BY id DESC LIMIT ?', ch, HIST).toArray().reverse().map(pubMsg); }
   banned(who, ipk) {
     const r = this.sql.exec('SELECT who, until, reason FROM bans WHERE (who = ? OR who = ?) AND until > ?', who || '-', 'ip:' + ipk, now()).toArray();
     return r[0] || null;
@@ -291,6 +307,7 @@ export class Lobby extends DurableObject {
       let text = String(m.text || '').slice(0, MSG_MAX); const c = clean(text); text = c.text;
       if (!text.trim()) return;
       this.last.set(a.who, now()); if (!a.v) this.last.set('ip:' + a.ipk, now()); if (this.last.size > 20000) this.last.clear();
+      if (ch === 'all') this.resetWorldIfNewDay(); // tin gửi sau 0:00 giờ VN phải bắt đầu ngày mới, không để alarm xóa ngay sau đó
       this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text, av) VALUES (?,?,?,?,?,?,?,?)', ch, now(), a.who, a.ipk, a.name, a.v, text, a.av ? JSON.stringify(a.av) : '');
       const id = this.sql.exec('SELECT last_insert_rowid() AS id').one().id;
       if (id % 200 === 0) this.sql.exec('DELETE FROM chat WHERE id IN (SELECT id FROM chat c WHERE (SELECT COUNT(*) FROM chat c2 WHERE c2.ch = c.ch AND c2.id > c.id) > 500)');
@@ -310,6 +327,7 @@ export class Lobby extends DurableObject {
       this.last.set(a.who, now()); if (!a.v) this.last.set('ip:' + a.ipk, now()); if (this.last.size > 20000) this.last.clear();
       this.inviteLast.set(rk, now()); if (this.inviteLast.size > 5000) this.inviteLast.clear();
       const text = `Mời chơi ${game} — phòng ${code} đang chờ người!`;
+      this.resetWorldIfNewDay(); // lời mời gửi sau 0:00 giờ VN phải bắt đầu ngày mới
       this.sql.exec('INSERT INTO chat (ch, ts, who, ipk, name, v, text, kind, game, code, av) VALUES (?,?,?,?,?,?,?,?,?,?,?)', 'all', now(), a.who, a.ipk, a.name, a.v, text, 'invite', game, code, a.av ? JSON.stringify(a.av) : '');
       const id = this.sql.exec('SELECT last_insert_rowid() AS id').one().id;
       const msg = JSON.stringify({ t: 'msg', m: pubMsg({ id, ch: 'all', ts: now(), who: a.who, name: a.name, v: a.v, text, kind: 'invite', game, code, av: a.av ? JSON.stringify(a.av) : '' }) });

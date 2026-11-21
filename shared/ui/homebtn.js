@@ -85,11 +85,11 @@ try {
   const mm = document.createElement('button'); mm.type = 'button'; mm.className = 'gumballz-mmbtn';
   mm.innerHTML = '⚡ Tìm trận nhanh';
   mm.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB98A;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  mm.onclick = () => import('./lobby.js?v=58').then(m => m.openMatchmaking(GAME));
+  mm.onclick = () => import('./lobby.js?v=59').then(m => m.openMatchmaking(GAME));
   const b = document.createElement('button'); b.type = 'button'; b.className = 'gumballz-lobbybtn';
   b.innerHTML = '🌐 Phòng & chat';
   b.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:48px;border:3px solid #4A3E5C;border-radius:999px;cursor:pointer;font:400 15px var(--font-display,"Bungee","Baloo 2",Nunito,system-ui,sans-serif);color:#4A3E5C;background:#FFB9CF;box-shadow:3px 3px 0 rgba(74,62,92,.13);padding:0 12px';
-  b.onclick = () => import('./lobby.js?v=58').then(m => m.openLobby(GAME));
+  b.onclick = () => import('./lobby.js?v=59').then(m => m.openLobby(GAME));
   row.append(mm, b);
   if (a.mode === 'footer') a.el.before(row);
   else a.el.append(row);
@@ -158,7 +158,7 @@ function worldInviteBtn() {
       const h = window.__gumballzHost; if (!h || h.dead || !h.pub) return;
       const c = (document.querySelector('#room-code, #lobby-code').textContent || '').trim();
       b.dataset.busy = '1'; b.disabled = true; b.textContent = '📣 Đang mời…';
-      const r = await import('./worldchat.js?v=2').then(m => m.sendWorldInvite({ game: h.game, code: c, k: h.pubK })).catch(() => null);
+      const r = await import('./worldchat.js?v=3').then(m => m.sendWorldInvite({ game: h.game, code: c, k: h.pubK })).catch(() => null);
       b.dataset.busy = '';
       if (r && r.ok) {
         try { localStorage.setItem('gumballz-invite-' + h.game + '-' + c, String(Date.now())); } catch (e) {}

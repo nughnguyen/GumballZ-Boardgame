@@ -293,6 +293,7 @@ export function mountLobby(el, { game = null, autoMatch = /[?&]match=1/.test(loc
       else if (m.t === 'hist') { msgs[m.ch] = m.msgs; chatReady = true; if (m.ch === ch) drawMsgs(); }
       else if (m.t === 'msg') { const l = msgs[m.m.ch] = msgs[m.m.ch] || []; l.push(m.m); if (l.length > 120) l.shift(); if (m.m.ch === ch && grp !== 'friends' && !(grp === 'game' && !selGame)) { chatReady = true; const box = $('.lb-msgs'); const near = box.scrollHeight - box.scrollTop - box.clientHeight < 120; if (l.length === 1 || box.querySelector('.sk')) drawMsgs(); else { box.insertAdjacentHTML('beforeend', msgHTML(m.m)); if (near) scrollEnd(); } } }
       else if (m.t === 'del') { for (const k in msgs) msgs[k] = msgs[k].filter(x => x.id !== m.id); el.querySelector(`.lb-m[data-id="${m.id}"]`)?.remove(); }
+      else if (m.t === 'reset' && m.ch === 'all') { msgs['all'] = []; if (ch === 'all') drawMsgs(); } // kênh thế giới reset 0:00 giờ VN: xóa khung chat đang mở
       else if (m.t === 'err') err(m.msg);
       else if (m.t === 'ok') err(m.msg);
       else if (m.t === 'banned') err('⛔ Bạn đang bị cấm chat' + (m.reason ? ': ' + m.reason : ''));
