@@ -63,7 +63,7 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=5', /* ?v=5 (-116): tile uno/bang/xiecthu mới — tránh trình duyệt giữ cache file cũ */
+        src: 'shared/rive/' + g + '.riv?v=6', /* ?v=6 (-117): tile xiecthu phóng to — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
@@ -97,7 +97,7 @@
     var inst;
     try {
       inst = new window.rive.Rive({
-        src: 'shared/rive/' + g + '.riv?v=5', /* ?v=5 (-116): tile uno/bang/xiecthu mới — tránh trình duyệt giữ cache file cũ */
+        src: 'shared/rive/' + g + '.riv?v=6', /* ?v=6 (-117): tile xiecthu phóng to — tránh trình duyệt giữ cache file cũ */
         canvas: cv,
         autoplay: true,
         fit: fitCover,
