@@ -8,6 +8,7 @@ import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 import { ensureBadgesCSS, tierBadges, attachBadgeTilt, uid6 } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142) — hồ sơ công khai (patch -98); uid6: id hiển thị 6 số (patch -108) */
+import { initBanners } from './banner-render.js?v=1'; /* 🎏 rồng canvas banner ở modal thành viên (patch -151) */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -63,6 +64,7 @@ export function openMember(key) {
       ${acts ? `<div class="mb-acts">${acts}</div>` : ''}`);
     if (keepY) ov.querySelector('.pf-box').scrollTop = keepY;
     attachBadgeTilt(ov.querySelector('.mb-tags')); /* 🎖️ nghiêng 3D + vệt sáng theo con trỏ ở khu vực huy hiệu (patch -142) */
+    try { initBanners(ov); } catch (e) {} /* 🎏 đăng ký canvas rồng banner (patch -151) */
     ov.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || 'ℹ️', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
   };
   const loadRel = async () => {

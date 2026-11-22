@@ -69,6 +69,9 @@
 .lk-bn-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .lk-bcard .b42-bw{width:100%}
 .lk-bcard.lock .b42-bw{filter:grayscale(1);opacity:.5}
+/* 🎏 canvas rồng lấp đầy banner (mẫu không có rule này vì thẻ mẫu rộng ~300px = cỡ mặc định của canvas;
+   thẻ banner web rộng 220px, đầu Hồ sơ ~480px nên phải ép 100% để fit() đo đúng chiều rộng) */
+.b42-bn canvas.b42-dr{inset:0;width:100%;height:100%}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
 @media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}.pf-fr .dov{display:none}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
