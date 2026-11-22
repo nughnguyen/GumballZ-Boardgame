@@ -15,4 +15,20 @@ export function tierOf(amt) {
   for (const x of TIERS) if (a >= x.min) t = x.t;
   return t;
 }
+/* Patch -163: bậc theo mốc TUỲ CHỈNH (Quản trị sửa ở trang Quản trị, lưu ở máy chủ).
+   mins = mảng 5 số nguyên tăng dần (mốc tối thiểu từng bậc, bậc 1 có thể là 1).
+   mins không hợp lệ (không phải mảng 5 số) → dùng mốc mặc định. */
+export function tierOfWith(amt, mins) {
+  if (amt === true) return 1;
+  const m = Array.isArray(mins) && mins.length === 5 && mins.every(x => Number.isInteger(x) && x >= 1) ? mins : TIERS.map(x => x.min);
+  const a = +amt || 0; let t = 0;
+  for (let i = 0; i < 5; i++) if (a >= m[i]) t = i + 1;
+  return t;
+}
+/* Gộp mốc tuỳ chỉnh vào danh sách bậc để hiển thị (icon/tên/ghi chú giữ nguyên, chỉ đổi min).
+   Trả null khi mins không hợp lệ để bên gọi fallback về TIERS tĩnh. */
+export function mergeTierMins(mins) {
+  if (!Array.isArray(mins) || mins.length !== 5 || !mins.every(x => Number.isInteger(x) && x >= 1)) return null;
+  return TIERS.map((x, i) => ({ ...x, min: mins[i] }));
+}
 export const tierInfo = t => TIERS[Math.max(0, Math.min(TIERS.length, t === true ? 1 : +t || 0)) - 1] || null;

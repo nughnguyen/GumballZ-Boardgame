@@ -233,11 +233,13 @@ export default {
       if (p[1] === 'info') { /* GET: quỹ tháng + tường cảm ơn + chỗ chuyển khoản; ?ref=6 số → hộp đang mở hỏi đã nhận chưa */
         const uid = Math.max(0, +url.searchParams.get('u') || 0), after = +url.searchParams.get('after') || 0;
         const ref = (url.searchParams.get('ref') || '').replace(/\D/g, '').slice(0, 6);
-        if (ref.length === 6) { try { const paid = await L.donRef(ref); return json({ ok: true, paid, ...(paid ? await L.donInfo(monthStartVN()) : {}) }, 200, H); } catch (e) { return json({ ok: false }, 200, H); } }
+        let cfg; try { cfg = await L.donCfg(); } catch (e) { cfg = { goal: DONATE_GOAL_DEFAULT, mins: [1, 50000, 100000, 200000, 500000] }; } /* 🎯 mục tiêu + mốc bậc tuỳ chỉnh (patch -163); lỗi đọc thì dùng mặc định */
+        const tiers = cfg.mins.map((min, i) => ({ t: i + 1, min }));
+        if (ref.length === 6) { try { const paid = await L.donRef(ref); return json({ ok: true, paid, goal: cfg.goal, tiers, ...(paid ? await L.donInfo(monthStartVN(), 0, 0, cfg.mins) : {}) }, 200, H); } catch (e) { return json({ ok: false }, 200, H); } }
         if (!uid && donCache && Date.now() - donCache.at < 30000) return json(donCache.v, 200, H);
-        let r; try { r = await L.donInfo(monthStartVN(), uid, after); } catch (e) { return json({ ok: false, on: false, msg: 'Máy chủ bận – thử lại sau nha' }, 200, H); }
+        let r; try { r = await L.donInfo(monthStartVN(), uid, after, cfg.mins); } catch (e) { return json({ ok: false, on: false, msg: 'Máy chủ bận – thử lại sau nha' }, 200, H); }
         const used = await L.donAutoCount(monthStartVN());
-        const v = { ok: true, on: !!(env.DONATE_ACC && env.DONATE_BANK), acc: env.DONATE_ACC || '', bank: env.DONATE_BANK || '', goal: +env.DONATE_GOAL || DONATE_GOAL_DEFAULT, auto: used < quota, quotaLeft: Math.max(0, quota - used), ...r };
+        const v = { ok: true, on: !!(env.DONATE_ACC && env.DONATE_BANK), acc: env.DONATE_ACC || '', bank: env.DONATE_BANK || '', goal: cfg.goal, tiers, auto: used < quota, quotaLeft: Math.max(0, quota - used), ...r };
         if (!uid) { delete v.mine; donCache = { at: Date.now(), v }; }
         return json(v, 200, H);
       }
@@ -279,8 +281,9 @@ export default {
         const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
         if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xem' }, 200, H);
         const used = await L.donAutoCount(monthStartVN());
-        const info = await L.donInfo(monthStartVN());
-        return json({ ok: true, month: info.got, goal: +env.DONATE_GOAL || DONATE_GOAL_DEFAULT, auto: used < quota, quotaLeft: Math.max(0, quota - used), quota, on: !!(env.DONATE_ACC && env.DONATE_BANK), hook: !!(env.SEPAY_KEY || env.SEPAY_HMAC), ...(await L.donClaims()), list: await L.donList() }, 200, H);
+        const cfg = await L.donCfg();
+        const info = await L.donInfo(monthStartVN(), 0, 0, cfg.mins);
+        return json({ ok: true, month: info.got, goal: cfg.goal, tiers: cfg.mins.map((min, i) => ({ t: i + 1, min })), auto: used < quota, quotaLeft: Math.max(0, quota - used), quota, on: !!(env.DONATE_ACC && env.DONATE_BANK), hook: !!(env.SEPAY_KEY || env.SEPAY_HMAC), ...(await L.donClaims()), list: await L.donList() }, 200, H);
       }
       if (p[1] === 'claim-decide' && req.method === 'POST') { /* ✅/❌ Quản trị duyệt yêu cầu ủng hộ */
         const me = bearer() ? await U.whoami(bearer()) : null;
@@ -297,6 +300,29 @@ export default {
           await U.auditLog({ id: me.id, name: me.name }, 'donate', c.uid, c.name, 'từ chối yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + c.ref + ')');
         }
         donCache = null; return json({ ok: true }, 200, H);
+      }
+      if (p[1] === 'claim-delete' && req.method === 'POST') { /* 🗑️ Quản trị xoá yêu cầu ủng hộ (patch -163) */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xoá' }, 200, H);
+        const d = await body(), c = await L.donClaimDel(+d.id || 0);
+        if (!c) return json({ ok: false, msg: 'Không tìm thấy yêu cầu ủng hộ' }, 200, H);
+        /* chỉ xoá bản ghi yêu cầu trong donclaim – tiền đã cộng vào quỹ (bảng don) và huy hiệu KHÔNG đổi (xem donClaimDel) */
+        await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', c.uid, c.name, 'xoá yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + (c.ref || '—') + ', ' + (c.st === 'ok' ? 'đã duyệt' : c.st === 'no' ? 'đã từ chối' : 'chờ duyệt') + ') – tiền quỹ + huy hiệu giữ nguyên');
+        return json({ ok: true }, 200, H);
+      }
+      if (p[1] === 'config' && req.method === 'POST') { /* 🎯 Quản trị đổi mốc quỹ: mục tiêu + 5 mốc bậc (patch -163) */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới đổi mốc quỹ' }, 200, H);
+        const d = await body();
+        const goal = +d.goal, mins = Array.isArray(d.mins) ? d.mins.map(x => +x) : [];
+        const r = await L.donCfgSet(goal, mins);
+        if (!r.ok) return json({ ok: false, msg: r.msg }, 200, H);
+        await U.auditLog({ id: me.id, name: me.name }, 'donate', 0, null, 'đổi mốc quỹ: mục tiêu ' + goal.toLocaleString('vi-VN') + 'đ; bậc ' + mins.map((m, i) => (i + 1) + ':' + m.toLocaleString('vi-VN') + 'đ').join(' · ') + ' – hạng tính theo mốc mới từ lúc lưu');
+        donCache = null; return json({ ok: true, goal: r.goal, tiers: r.mins.map((min, i) => ({ t: i + 1, min })) }, 200, H);
       }
       return json({ ok: false }, 404, H);
     }

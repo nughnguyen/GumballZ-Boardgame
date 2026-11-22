@@ -8,7 +8,8 @@
 //   R<ref>Z là mã của lần mở hộp (hộp tự báo đã nhận), chỉ "SEVQR GZ" = ủng hộ ẩn danh.
 // Provider-pluggable: verifyWebhook(provider, ...) – SePay implement đầy đủ; Casso/PayOS chỉ có interface
 //   (cần định dạng webhook + cách ký của từng hãng mới implement được – xem cuối file).
-import { tierOf } from '../../shared/donor.js';
+import { tierOfWith } from '../../shared/donor.js';
+export const DONATE_TIER_MINS_DEFAULT = [1, 50000, 100000, 200000, 500000]; /* mốc tối thiểu 5 bậc ủng hộ (patch -102) – Quản trị sửa được từ -163 */
 
 export const DONATE_GOAL_DEFAULT = 300000;
 export const DONATE_AUTO_QUOTA_DEFAULT = 100; /* lượt auto-verify / tháng, hết thì chuyển duyệt tay */
@@ -64,6 +65,7 @@ export function donTables(sql) {
   sql.exec(`CREATE TABLE IF NOT EXISTS don (id TEXT PRIMARY KEY, at INTEGER, amt INTEGER, uid INTEGER, name TEXT, hide INTEGER DEFAULT 0, ref TEXT, msg TEXT, src TEXT DEFAULT 'auto', reply TEXT, rat INTEGER)`);
   sql.exec(`CREATE TABLE IF NOT EXISTS donmsg (ref TEXT PRIMARY KEY, msg TEXT, at INTEGER)`);
   sql.exec(`CREATE TABLE IF NOT EXISTS donclaim (id INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, name TEXT, amt INTEGER, ref TEXT, msg TEXT, hide INTEGER DEFAULT 0, at INTEGER, st TEXT DEFAULT 'pend', decided INTEGER, byName TEXT)`);
+  sql.exec(`CREATE TABLE IF NOT EXISTS doncfg (k TEXT PRIMARY KEY, v TEXT)`); /* 🎯 cấu hình quỹ (patch -163): k='goal' (mục tiêu quỹ), k='mins' (JSON 5 mốc tối thiểu các bậc) – lưu trong Lobby DO nên bền qua restart/redeploy, không dùng env var */
   try { sql.exec(`ALTER TABLE don ADD COLUMN src TEXT DEFAULT 'auto'`); } catch (e) {}
   try { sql.exec(`ALTER TABLE don ADD COLUMN reply TEXT`); } catch (e) {}
   try { sql.exec(`ALTER TABLE don ADD COLUMN rat INTEGER`); } catch (e) {}
@@ -79,9 +81,9 @@ export function donAdd(sql, d) {
   return { dup: false };
 }
 
-export function donInfo(sql, since = 0, uid = 0, after = 0) {
+export function donInfo(sql, since = 0, uid = 0, after = 0, mins) {
   const got = sql.exec('SELECT COALESCE(SUM(amt),0) AS s, COUNT(*) AS n FROM don WHERE at >= ?', since).one();
-  const wall = sql.exec('SELECT uid, MAX(name) AS name, MAX(at) AS at, SUM(amt) AS s FROM don WHERE hide = 0 AND uid > 0 GROUP BY uid ORDER BY s DESC, at DESC LIMIT 40').toArray().map(r => ({ name: r.name, at: r.at, t: tierOf(r.s) })); /* xếp theo bậc ủng hộ, chỉ lộ số bậc */
+  const wall = sql.exec('SELECT uid, MAX(name) AS name, MAX(at) AS at, SUM(amt) AS s FROM don WHERE hide = 0 AND uid > 0 GROUP BY uid ORDER BY s DESC, at DESC LIMIT 40').toArray().map(r => ({ name: r.name, at: r.at, t: tierOfWith(r.s, mins) })); /* xếp theo bậc ủng hộ, chỉ lộ số bậc – bậc tính theo mốc tuỳ chỉnh (patch -163), không có mốc thì dùng mốc mặc định */
   const anon = sql.exec('SELECT COUNT(*) AS n FROM don WHERE hide = 1 OR uid = 0').one().n;
   const mine = uid ? sql.exec('SELECT COALESCE(SUM(amt),0) AS s FROM don WHERE uid = ? AND at > ?', uid, after).one().s : 0;
   /* 💌 lời nhắn gần đây (người giấu tên / khách hiện "Ẩn danh") + lời cảm ơn của chủ web */
@@ -126,6 +128,47 @@ export function donClaimDecide(sql, id, ok, byName) {
   if (!c || c.st !== 'pend') return null;
   sql.exec('UPDATE donclaim SET st = ?, decided = ?, byName = ? WHERE id = ?', ok ? 'ok' : 'no', Date.now(), String(byName || '').slice(0, 30), +id);
   return c;
+}
+
+/* ---------- xoá yêu cầu ủng hộ (patch -163) ----------
+   Xoá CHỈ bản ghi yêu cầu trong donclaim — KHÔNG trừ tiền khỏi quỹ, KHÔNG gỡ hạng ủng hộ:
+   tiền thật nằm ở bảng `don` riêng (ghi khi SePay báo về / khi duyệt), huy hiệu tính từ tổng
+   tiền trong `don` nên cả hai đều giữ nguyên dù claim đã duyệt có bị xoá đi chăng nữa.
+   Trả về dòng claim vừa xoá (để ghi audit), hoặc null khi không tìm thấy. */
+export function donClaimDel(sql, id) {
+  const c = sql.exec('SELECT * FROM donclaim WHERE id = ?', +id).toArray()[0];
+  if (!c) return null;
+  sql.exec('DELETE FROM donclaim WHERE id = ?', +id);
+  return c;
+}
+
+/* ---------- cấu hình quỹ: mục tiêu + mốc 5 bậc (patch -163) ----------
+   Lưu trong bảng doncfg của Lobby DO (bền qua restart/redeploy, giống cách lưu owner ở Users DO).
+   Chưa lưu lần nào → mục tiêu = DONATE_GOAL_DEFAULT (300.000đ), mốc = mốc mặc định.
+   Hạng đã đạt trước đó tính theo mốc MỚI từ lúc lưu (bậc tính lại từ tổng tiền mỗi lần đọc). */
+export function validateDonCfg(goal, mins) {
+  if (!Number.isInteger(goal) || goal <= 0) return 'Mục tiêu quỹ phải là số nguyên lớn hơn 0.';
+  if (!Array.isArray(mins) || mins.length !== 5) return 'Cần đúng 5 mốc bậc.';
+  for (let i = 0; i < 5; i++) {
+    if (!Number.isInteger(mins[i]) || mins[i] < 1) return 'Mốc bậc ' + (i + 1) + ' phải là số nguyên từ 1 trở lên.';
+    if (i > 0 && mins[i] <= mins[i - 1]) return '5 mốc phải tăng dần: mốc bậc ' + (i + 1) + ' phải lớn hơn mốc bậc ' + i + '.';
+  }
+  return null;
+}
+export function donCfgGet(sql) {
+  const g = sql.exec("SELECT v FROM doncfg WHERE k = 'goal'").toArray()[0];
+  const m = sql.exec("SELECT v FROM doncfg WHERE k = 'mins'").toArray()[0];
+  let mins = DONATE_TIER_MINS_DEFAULT;
+  if (m) { try { const p = JSON.parse(m.v); if (Array.isArray(p) && p.length === 5 && p.every(x => Number.isInteger(x) && x >= 1)) mins = p; } catch (e) {} }
+  const goal = g && Number.isInteger(+g.v) && +g.v > 0 ? +g.v : DONATE_GOAL_DEFAULT;
+  return { goal, mins: [...mins] };
+}
+export function donCfgSet(sql, goal, mins) {
+  const err = validateDonCfg(goal, mins);
+  if (err) return { ok: false, msg: err };
+  sql.exec("INSERT INTO doncfg (k, v) VALUES ('goal', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", String(goal));
+  sql.exec("INSERT INTO doncfg (k, v) VALUES ('mins', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", JSON.stringify(mins));
+  return { ok: true, goal, mins: [...mins] };
 }
 
 /* ---------- thông báo Discord khi có yêu cầu ủng hộ MỚI chờ duyệt (patch -160) ----------

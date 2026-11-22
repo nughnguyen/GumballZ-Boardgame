@@ -4,7 +4,7 @@
 // Mã QR động VietQR: OCB 0388205003 (tài khoản công khai của chủ web, lấy từ mã QR cũ — đổi amount/addInfo là mã đổi theo, không cần secret).
 // Ảnh QR cũ shared/img/donate-qr.png chỉ còn là dự phòng khi img.vietqr.io không tải được. DONATE_ACC/DONATE_BANK chỉ còn dùng cho SePay tự báo về (xác nhận tự động), không ảnh hưởng mã QR.
 import { auth, API } from '../net/api.js?v=29';
-import { TIERS, tierOf, tierInfo } from '../donor.js?v=1'; /* 🏅 bậc ủng hộ (patch -102) */
+import { TIERS, tierOfWith, mergeTierMins, tierInfo } from '../donor.js?v=2'; /* 🏅 bậc ủng hộ (patch -102; mốc tuỳ chỉnh từ máy chủ từ -163) */
 import { uid6 } from './badges.js?v=7'; /* 🆔 id tài khoản hiển thị 6 chữ số trong nội dung chuyển khoản (patch -108) */
 
 const esc = s => String(s ?? '').replace(/[&<>\"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -97,10 +97,12 @@ async function info(uid = 0, after = 0) {
   try { const r = await fetch(API() + '/donate/info' + (uid ? `?u=${uid}&after=${after}` : '')); return await r.json(); } catch (e) { return { ok: false }; }
 }
 const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 60 ? Math.max(1, m) + ' phút trước' : m < 1440 ? Math.round(m / 60) + ' giờ trước' : Math.round(m / 1440) + ' ngày trước'; };
-/* 🏅 thang 5 bậc; đã đăng nhập thì tô các bậc đã đạt + còn bao nhiêu nữa lên bậc kế */
-function ladder(amt, logged) {
-  const t = tierOf(amt), nx = TIERS.find(x => x.t === t + 1);
-  return `<div class="dn-tiers"><h4>🏅 Bậc ủng hộ</h4><div class="dn-tl">${TIERS.map(x => `<div class="${x.t <= t ? 'got' : ''}${x.t === t ? ' now' : ''}" title="${esc(x.name)} – ${esc(x.note)}"><i>${x.icon}</i><b>${esc(x.name)}</b><span>${x.min > 1 ? vnd(x.min) : 'Bất kỳ'}</span></div>`).join('')}</div>
+/* 🏅 thang 5 bậc; đã đăng nhập thì tô các bậc đã đạt + còn bao nhiêu nữa lên bậc kế.
+   tiers = mốc từ máy chủ (/donate/info, patch -163); không có thì dùng TIERS tĩnh. */
+function ladder(amt, logged, tiers) {
+  const T = Array.isArray(tiers) && tiers.length === 5 ? tiers : TIERS;
+  const t = tierOfWith(amt, T.map(x => x.min)), nx = T.find(x => x.t === t + 1);
+  return `<div class="dn-tiers"><h4>🏅 Bậc ủng hộ</h4><div class="dn-tl">${T.map(x => `<div class="${x.t <= t ? 'got' : ''}${x.t === t ? ' now' : ''}" title="${esc(x.name)} – ${esc(x.note)}"><i>${x.icon}</i><b>${esc(x.name)}</b><span>${x.min > 1 ? vnd(x.min) : 'Bất kỳ'}</span></div>`).join('')}</div>
     <p class="dn-next">${!logged ? 'Đăng nhập trước khi chuyển thì bậc mới tự cộng dồn vào tài khoản.' : t ? `Bạn đang ở bậc <b>${esc(tierInfo(t).icon + ' ' + tierInfo(t).name)}</b> (tổng ${vnd(amt)})${nx ? ` – thêm <b>${vnd(nx.min - amt)}</b> để lên ${esc(nx.icon + ' ' + nx.name)}.` : ' – bậc cao nhất rồi, cảm ơn bạn nhiều lắm 👑'}` : 'Bậc cộng dồn theo tổng tiền đã ủng hộ. Huy hiệu hiện cạnh tên ở hồ sơ, bảng xếp hạng, thẻ người chơi.'} Chỉ là lời cảm ơn – không đổi được gì trong game.</p></div>`;
 }
 const msgList = M => M && M.length ? `<div class="dn-msgs"><h4>💌 Lời nhắn gửi chủ web</h4><ul>${M.slice(0, 12).map(m => `<li class="${m.me ? 'me' : ''}"><div class="w"><b>${esc(m.name || 'Ẩn danh')}</b><small>${ago(m.at)}</small></div><p>${esc(m.msg)}</p>${m.reply ? `<div class="rp"><b>👑 Chủ web trả lời:</b><p>${esc(m.reply)}</p></div>` : ''}</li>`).join('')}</ul></div>` : '';
@@ -138,7 +140,7 @@ export async function openDonate() {
     : `<div class="dn-note">Quét mã bằng app ngân hàng / MoMo / ZaloPay. Muốn nhận huy hiệu <b>💎 Nhà Tài Trợ</b> và có tên trên Tường cảm ơn thì <button type="button" data-login>đăng nhập</button> trước rồi mở lại hộp này.</div>`}
     <div class="dn-say"><h4>💌 Gửi lời nhắn cho chủ web <small style="font:700 12px Nunito,sans-serif;color:var(--muted)">(không bắt buộc)</small></h4><textarea maxlength="200" data-msg placeholder="Vd: Game Ma Sói vui quá, làm thêm vai mới nha!" aria-label="Lời nhắn gửi chủ web"></textarea><div class="r"><small data-msgst>Lời nhắn hiện trên Tường cảm ơn khi khoản ủng hộ về (giấu tên thì hiện "Ẩn danh").</small><button type="button" data-sendmsg>Gửi</button></div></div>
     <div data-ok hidden class="dn-ok"></div>
-    ${ladder(I.mine || 0, !!u)}
+    ${ladder(I.mine || 0, !!u, mergeTierMins((I.tiers || []).map(x => x.min)) || TIERS)}
     ${I.wall.length || I.anon ? `<div class="dn-wall"><h4>💛 Cảm ơn mọi người đã ủng hộ</h4><div>${I.wall.map(w => `<span>${esc((tierInfo(w.t || 1) || TIERS[0]).icon)} ${esc(w.name)}</span>`).join('')}${I.anon ? `<span>+ ${I.anon} lượt ẩn danh</span>` : ''}</div></div>` : ''}
     ${msgList(I.msgs)}
     <details class="dn-claim"${I.auto === false ? ' open' : ''}><summary>🙋 Đã chuyển khoản rồi? Gửi yêu cầu duyệt tay</summary>
@@ -203,7 +205,7 @@ export async function openDonate() {
     if (r.got != null) { const pc = Math.min(100, Math.round(r.got / Math.max(1, I.goal) * 100)); bd.querySelector('.dn-fund b').textContent = `${vnd(r.got)} / ${vnd(I.goal)}`; bd.querySelector('.dn-bar i').style.width = pc + '%'; }
     box.scrollIntoView({ block: 'center', behavior: 'smooth' }); burst(box);
     try { navigator.vibrate && navigator.vibrate([30, 40, 60]); } catch (e) {}
-    ls.set('gumballz-don-at', String(Date.now())); if (u) { try { await auth.refresh(); const I2 = await info(u.id); const tl = bd.querySelector('.dn-tiers'); if (I2.ok && tl) tl.outerHTML = ladder(I2.mine || 0, true); } catch (e) {} }
+    ls.set('gumballz-don-at', String(Date.now())); if (u) { try { await auth.refresh(); const I2 = await info(u.id); const tl = bd.querySelector('.dn-tiers'); if (I2.ok && tl) tl.outerHTML = ladder(I2.mine || 0, true, mergeTierMins((I2.tiers || []).map(x => x.min)) || TIERS); } catch (e) {} }
   };
   poll = setTimeout(check, 4000);
 }
