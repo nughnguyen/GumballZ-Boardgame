@@ -134,22 +134,15 @@ export function donClaimDecide(sql, id, ok, byName) {
    Chỉ gửi cho claim MỚI (dup=false); claim trùng không gửi lại để tránh spam. Gửi fire-and-forget:
    lỗi/timeout không chặn response của claim, log lỗi KHÔNG kèm URL. */
 export const DISCORD_QUANTRI_URL = 'https://gumballzgames.vercel.app/quantri/';
-export const DISCORD_BANNER_BASE = 'https://gumballzgames.vercel.app/api/donate-banner';
+export const DISCORD_BANNER_URL = 'https://gumballzgames.vercel.app/shared/img/donate-banner.png';
 export const DISCORD_THUMB_URL = 'https://gumballzgames.vercel.app/shared/img/og.jpg';
-/* Ảnh banner render ĐỘNG theo từng giao dịch (api/donate-banner.js, Vercel OG): URL duy nhất
-   theo từng claim (ref riêng) nên Discord không cache nhầm ảnh đơn khác. Params URL-encode
-   + cắt ngắn (chống lạm dụng); không chứa secret nào. */
-export function discordBannerUrl(c) {
-  const q = (k, v, max) => { const s = String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, max); return s ? k + '=' + encodeURIComponent(s) : ''; };
-  const parts = [
-    q('name', c.name || 'Ẩn danh', 30),
-    q('user', c.username || '', 30),
-    q('amt', Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ', 40),
-    q('ref', String(c.ref || '').replace(/\D/g, '').slice(0, 6), 40),
-    q('code', donTransferCode(+c.uid || 0, c.ref, !!c.hide), 40),
-  ].filter(Boolean);
-  return DISCORD_BANNER_BASE + (parts.length ? '?' + parts.join('&') : '');
-}
+/* Ảnh banner TĨNH (shared/img/donate-banner.png, vẽ sẵn từ đúng mẫu neobrutalism):
+   bản render ĐỘNG theo từng đơn (api/donate-banner.js) đã BỎ vì Vercel không chạy được —
+   bản Edge bị từ chối lúc build ("unsupported modules: @vercel: module"), bản Node của
+   @vercel/og crash lúc gọi (FUNCTION_INVOCATION_FAILED), bản satori + resvg trực tiếp
+   cũng crash lúc gọi (resvg-js là native binding .node, Vercel Serverless Functions
+   không chạy được). Thông tin từng đơn đã có đủ trong các field của embed nên ảnh
+   tĩnh không làm mất thông tin nào. */
 /* uid 6 số như badges.js (patch -108) + nội dung chuyển khoản đúng công thức client (shared/ui/donate.js):
    'SEVQR GZ U<uid6>X R<ref>Z' (giấu tên thì 'A' thay 'U'; ẩn danh uid=0 thì 'SEVQR GZ R<ref>Z'). */
 export const donUid6 = id => String(id ?? '').padStart(6, '0');
@@ -182,7 +175,7 @@ export function discordClaimPayload(c, adminId) {
       description: 'Duyệt / từ chối tại: ' + DISCORD_QUANTRI_URL,
       color: 0xfacd33,
       fields,
-      image: { url: discordBannerUrl(c) },
+      image: { url: DISCORD_BANNER_URL },
       thumbnail: { url: DISCORD_THUMB_URL },
       timestamp: at.toISOString(),
     }],
