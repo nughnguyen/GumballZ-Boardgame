@@ -10,7 +10,9 @@
 import { ImageResponse } from '@vercel/og';
 import { bannerTree, loadFonts, cutParam, OG_W, OG_H } from './donate-banner-tree.js';
 
-export const config = { runtime: 'edge' };
+/* Chạy trên Node runtime (không ép edge): @vercel/og bản edge kẹt ở wasm import khi build
+   trên Vercel (deploy failed 2 lần: dpl_D5MTwf1fSz7TyEbHYVKnj7h1RMMs, dpl_8KgVm2ML2UvLibVKHfdzwG7Xiiip);
+   Node runtime cho phép resvg đọc wasm qua fs nên build được. */
 
 export default async function handler(req) {
   const u = new URL(req.url);
