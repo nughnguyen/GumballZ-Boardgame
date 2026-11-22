@@ -2,7 +2,7 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=60'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=61'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=91';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
@@ -107,7 +107,7 @@ export function profileCss() {
   import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=9', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=9'; }
+  try { l.href = new URL('../css/avatar.css?v=10', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=10'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -308,6 +308,7 @@ function renderProfileInto(ov, isPage) {
   let fCat = 'all', fTheme = 'all', fOwned = false, fSort = 'cui-vip';
   /* 🔍 lọc tab Banner (patch -151): giống tab Khung, trạng thái ĐỘC LẬP với lọc khung */
   let bCat = 'all', bTheme = 'all', bOwned = false, bSort = 'cui-vip';
+  let achOpen = false; /* 🏆 Thành tựu thu gọn mặc định (patch -161): nhấn tiêu đề mới mở, không lưu localStorage */
   const selectTitle = id => { ls.set('gumballz-title', id); ls.set('gumballz-title-t', String(Date.now())); try { dispatchEvent(new CustomEvent('gumballz-title')); } catch (x) {} draw(); };
   /* ✏️ Đổi tên (patch -158, nút trắng trên thẻ ID): đã đăng nhập thì đổi qua server, khách thì đổi tên lưu máy này */
   const renameFlow = async () => {
@@ -400,10 +401,12 @@ function renderProfileInto(ov, isPage) {
       <div class="pf2-strip">${strip}</div>
       ${trackNext}
       </section>
-      <section class="pf2-card pf2-ach"><h3>🏅 Thành tích <small>${achN} đã mở${srvT ? ` · ${verN} đã kiểm chứng` : ''}</small></h3>
+      <section class="pf2-card pf2-ach${achOpen ? ' open' : ''}"><h3><button type="button" class="pf2-achtog" data-a="ach" aria-expanded="${achOpen}" aria-controls="pf2-achlist">🏆 Thành tựu <small>Đã đạt ${achN}/${ACHS.length}${srvT ? ` · ${verN} đã kiểm chứng` : ''}</small><span class="pf2-chev" aria-hidden="true">▾</span></button></h3>
+      <div class="pf2-achbody" id="pf2-achlist"${achOpen ? '' : ' hidden'}>
       <div>${tplRows}${sharedRows}</div>
       <p class="pf-note" style="margin:8px 0 0;text-align:left">🔒 Còn ${achSecret(s)} thành tích bí mật – chơi tiếp rồi sẽ lộ ra 👀${srvT ? ' Thành tích “✅ đã kiểm chứng” là máy chủ đã thấy tận mắt (ván online do máy chủ giữ); “💻 chỉ ở máy này” là chưa đồng bộ lên máy chủ (đấu máy / chơi đơn sẽ lên sau khi đồng bộ).' : ''}</p>
       ${achGames(s, srvA)}
+      </div>
       </section>
       </div>
       </div>
@@ -425,6 +428,7 @@ function renderProfileInto(ov, isPage) {
   ov.addEventListener('click', e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.a === 'ach') { achOpen = !achOpen; draw(); ov.querySelector('[data-a="ach"]')?.focus(); return; } /* 🏆 Thành tựu thu gọn/mở (patch -161) */
     if (b.dataset.a === 'pick') { tab = 'ch'; draw(); ov.querySelector('.pf2-custom')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; } /* bấm avatar → mở tab Nhân vật trong thẻ Tuỳ chỉnh (patch -158) */
     if (b.dataset.a === 'login') { import('./account.js?v=53').then(m => m.openLogin()).catch(() => {}); return; }
     if (b.dataset.a === 'rename') { renameFlow(); return; }

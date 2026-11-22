@@ -9,7 +9,7 @@
 // XP cần để lên cấp L = 50×(L−1)² (cấp 2: 50, cấp 3: 200, cấp 4: 450, cấp 5: 800).
 import { auth, friends, leaderboard } from '../net/api.js?v=29';
 import { GAME_NAMES } from './stats.js?v=91';
-import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, newbieBadge, ownName } from './profile.js?v=60';
+import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, newbieBadge, ownName } from './profile.js?v=61';
 import { openLogin } from './account.js?v=53';
 import { syncNow } from './sync.js?v=49';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
@@ -262,7 +262,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
   };
   const friendAction = async a => {
     const r = selected; if (!r) return;
-    if (a === 'edit') { import('./profile.js?v=60').then(m => m.openProfile()); return; }
+    if (a === 'edit') { import('./profile.js?v=61').then(m => m.openProfile()); return; }
     if (a === 'login') { openLogin(); return; }
     if (a === 'dm') { import('./friends.js?v=37').then(m => m.openFriends(r.id)); return; }
     if (a === 'add' || a === 'accept') {

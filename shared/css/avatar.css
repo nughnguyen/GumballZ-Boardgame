@@ -324,6 +324,11 @@
 .pf2-achtop small{font:800 13px Nunito,sans-serif;color:var(--muted);white-space:nowrap}
 .pf2-achbar{height:10px;border:2px solid var(--ink);border-radius:999px;margin-top:6px;overflow:hidden;background:var(--card)}
 .pf2-achbar i{display:block;height:100%;background:var(--p2)}
+/* 🏆 Thành tựu thu gọn/mở (patch -161): tiêu đề là nút bấm, chevron xoay khi mở */
+.pf2-achtog{display:flex;align-items:center;gap:8px;width:100%;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pf2-achtog .pf2-chev{margin-left:auto;font-size:16px;transition:transform .15s}
+.pf2-ach.open .pf2-chev{transform:rotate(180deg)}
+.pf2-achbody[hidden]{display:none}
 .pf2-below{margin-top:18px}
 .pf2-navbtns{display:flex;gap:10px;margin:10px 0 4px}
 .pf2-navbtns button{flex:1;border:2px solid var(--ink);border-radius:12px;padding:10px 14px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm)}
