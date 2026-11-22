@@ -255,12 +255,6 @@
    Giữ token neobrutalism (var(--ink)/--y1/--p2/--p3/--sh...), chế độ tối tự theo token. */
 /* hộp hồ sơ trên trang riêng rộng hơn để dashboard 5 ô + lưới khung/banner thoáng (640px → 720px) */
 .pf-page .pf-box{max-width:1180px}
-/* hero: thẻ chứa avatar + tên + huy hiệu + thanh cấp/XP, gom thành 1 tầng rõ ràng */
-.pf-hero{background:var(--bg);border:2px solid var(--ink);border-radius:20px;padding:16px;box-shadow:var(--sh-sm);margin-bottom:14px}
-.pf-hero .pf-head{margin-right:0}
-.pf-hero .pf-name{font-size:26px}
-.pf-hero .pf-lv{margin:14px 0 0}
-.pf-hero .pf-bar{height:14px}
 /* dashboard 5 chỉ số thay cho dãy số rời rạc (.pf-nums/.pf-wal cũ không còn vẽ nữa) */
 .pf-dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin:14px 0}
 .pf-dash>div{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px 4px 10px;text-align:center;box-shadow:var(--sh-sm)}
@@ -281,9 +275,36 @@
 .pf-page .lk-stick .lk-tabs::-webkit-scrollbar{display:none}
 .pf-page .lk-subs{position:static}
 @media (max-width:480px){
-  .pf-hero{padding:12px}
-  .pf-hero .pf-name{font-size:23px}
   .pf-dash{gap:6px}
   .pf-dash b{font-size:20px}
   .pf-vip{padding:12px}
+}
+
+/* ---------- Hồ sơ 2 cột kiểu "character sheet" (patch -156): khác hẳn bố cục 1 cột cũ ----------
+   Cột trái dính (avatar lớn + tên + huy hiệu + cấp/XP + 5 số liệu + nút), cột phải là nội dung chính.
+   Grid + sticky chỉ áp dụng trên trang riêng (.pf-page); modal cũ xếp chồng như trước. */
+.pf-page .pf-sheet{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+.pf-page .pf-rail{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
+.pf-idcard{background:#241A38;color:#FFF8EE;border:2px solid var(--ink);border-radius:20px;box-shadow:var(--sh-sm);overflow:hidden}
+.pf-idcard .pf-banner{margin:0;height:76px;border-radius:0}
+.pf-idcard .pf-banner.b42-head{height:auto}
+.pf-idbody{padding:16px 16px 18px;text-align:center}
+.pf-idbody button[data-a="pick"]{border:0;background:none;padding:0;cursor:pointer;position:relative;border-radius:50%}
+.pf-idbody button[data-a="pick"]::after{content:'✏️';position:absolute;right:2px;bottom:2px;font-size:18px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.pf-idbody .pf-name{font:400 32px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:#FFF8EE;margin:12px 0 6px}
+.pf-idbody .bdg-row{justify-content:center}
+.pf-idbody .pf-sub{color:rgba(255,248,238,.78)}
+.pf-idbody .pf-lv{margin:12px 0 0}
+.pf-idbody .pf-lv b{color:#FFF8EE}
+.pf-idbody .pf-bar{background:rgba(255,248,238,.25)}
+.pf-rail .pf-dash{grid-template-columns:1fr 1fr;margin:0}
+.pf-rail .pf-dash .xu{grid-column:1/-1}
+.pf-rail .pf-acts{flex-direction:column;margin:0}
+.pf-rail .pf-acts button{width:100%}
+.pf-main{min-width:0}
+.pf-page .pf-main .lk-stick{margin:0}
+@media (max-width:900px){
+  .pf-page .pf-sheet{grid-template-columns:1fr}
+  .pf-page .pf-rail{position:static}
+  .pf-idbody .pf-name{font-size:28px}
 }
