@@ -2,7 +2,7 @@
 // chứa mọi font trong NAME_FONTS có trường gf (font đã nạp sẵn ở web như Baloo 2 / Bungee thì
 // không có gf nên không nạp lại). Google tự phục vụ subset vietnamese theo unicode-range của
 // trình duyệt. Gọi 1 lần là đủ (kiểm tra theo id); an toàn khi import ở Node (không có document).
-import { NAME_FONTS } from '../js/avatar-rewards.js?v=2';
+import { NAME_FONTS } from '../js/avatar-rewards.js?v=3';
 export function nameFontsURL() {
   const fams = NAME_FONTS.filter(f => f.gf).map(f => 'family=' + f.gf).join('&');
   return fams ? 'https://fonts.googleapis.com/css2?' + fams + '&display=swap' : '';

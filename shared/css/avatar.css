@@ -54,20 +54,12 @@
 .pf-fr.fr-orbit::before{content:"🐉"}
 .pf-fr.fr-orbit::after{content:"🦅";animation-direction:reverse}
 .pf-fr.fr-vuatrichoi::after{content:"👑 VUA TRÒ CHƠI";position:absolute;left:50%;bottom:-7%;transform:translateX(-50%);z-index:2;white-space:nowrap;line-height:1.4;pointer-events:none;font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:9px;font-size:19cqw;letter-spacing:.02em;color:#ffd84a;text-shadow:0 1px 0 #7a1f1f;background:linear-gradient(90deg,#8a1d1d,#d4202f,var(--p1),#d4202f,#8a1d1d);background-size:200% auto;padding:.2em .55em;border-radius:999px;box-shadow:0 0 0 1.5px var(--ink),0 2px 6px var(--sh-soft);animation:nc-slide 3s linear infinite}
-/* 🐉 rồng bay khung avatar (patch -147): SVG rồng từ shared/ui/dragon-frame.js (dragonSVG),
-   bay theo offset-path — số 8 qua mặt avatar (fr-dragon) hoặc tròn quanh mép viền (fr-dragon-edge).
-   Chu kỳ hiện/ẩn 12s: rồng chỉ HIỆN + bay ~3s đầu mỗi chu kỳ, ẩn 9s còn lại (drg-show) để
-   không che mặt avatar liên tục; fade in/out nhẹ vì path số 8 bắt đầu ở tâm (giữa mặt). */
+/* 🐉 rồng bay khung avatar (patch -158): rồng CodePen vẽ bằng canvas (shared/ui/dragon-frame.js),
+   bay theo quỹ đạo số 8 qua mặt avatar (fr-dragon) hoặc tròn quanh mép viền (fr-dragon-edge).
+   Chu kỳ hiện/ẩn 12s do JS điều khiển (chỉ HIỆN + bay ~3s đầu mỗi chu kỳ, ẩn 9s còn lại) để
+   không che mặt avatar liên tục; reduced-motion thì JS vẽ 1 khung tĩnh (canvas vẫn hiện). */
 .pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size}
-.pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;overflow:visible;pointer-events:none;z-index:4;animation:drg-show 12s linear infinite}
-@keyframes drg-show{0%{opacity:0}2%{opacity:1}23%{opacity:1}25%{opacity:0}100%{opacity:0}}
-.pf-fr .drh,.pf-fr .drs{offset-rotate:auto}
-@keyframes drg-fly{from{offset-distance:0%}to{offset-distance:100%}}
-.pf-fr .drw{transform-box:fill-box;transform-origin:100% 90%;animation:drg-flap .55s ease-in-out infinite}
-.pf-fr .drw.far{animation-delay:-.27s;opacity:.75}
-@keyframes drg-flap{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(24deg)}}
-@supports not (offset-path:path('M0 0')){.pf-fr .dov{display:none}}
-.pf-fr.fr-dragon-edge .dov{animation:drg-show 12s linear infinite}
+.pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;pointer-events:none;z-index:4}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
 /* 🎏 đầu Hồ sơ với banner hiệu ứng đầy đủ (patch -151): cao theo tỉ lệ 10/3 của banner, bo tròn theo hộp */
@@ -81,8 +73,14 @@
 /* 🎏 canvas rồng lấp đầy banner (mẫu không có rule này vì thẻ mẫu rộng ~300px = cỡ mặc định của canvas;
    thẻ banner web rộng 220px, đầu Hồ sơ ~480px nên phải ép 100% để fit() đo đúng chiều rộng) */
 .b42-bn canvas.b42-dr{inset:0;width:100%;height:100%}
+/* 🐉 banner Rồng Bay (patch -158): canvas Scene CodePen cao hơn banner thường (tỉ lệ 4/3)
+   để trời + rồng + đồi + đất đều thấy; bấm vào canvas đổi theme, gợi ý ở dưới giữa */
+.b42-bn.b42-cpbn{aspect-ratio:4/3}
+.b42-bn canvas.b42-cp{inset:0;width:100%;height:100%;cursor:pointer}
+.b42-cphint{left:50%;bottom:8%;transform:translateX(-50%);z-index:5;background:rgba(36,26,56,.78);color:#fff8ee;font:800 12px Nunito,sans-serif;padding:4px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.b42-clicked .b42-cphint{display:none}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
-@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}.pf-fr .dov{display:none}}
+@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}}
 /* ✍️ hiệu ứng chữ tên (patch -154): tắt animation tên ở mọi nơi (kể cả animation inline trong style) khi reduced-motion */
 @media (prefers-reduced-motion:reduce){.pf-name,.rk-pnm,.rk-nm span,.lb-n span,.lk-nm{animation:none!important}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
@@ -268,11 +266,7 @@
 .pf-vip{border:2px solid #e0a612;border-radius:20px;padding:14px;background:var(--card);box-shadow:var(--sh);margin:16px 0}
 .pf-vip h3{margin-top:0}
 .pf-vip .pf-note{margin-top:0}
-/* tab đổi đồ dính dưới topbar (58px) khi cuộn trang riêng; tab con (.lk-subs) bỏ dính trên trang
-   (đang sticky top:0 cũ sẽ chui dưới topbar) — trong modal giữ nguyên như cũ */
-.pf-page .lk-stick{position:sticky;top:58px;z-index:5;background:var(--card);margin:0 -18px;padding:6px 18px;border-bottom:2px solid var(--line)}
-.pf-page .lk-stick .lk-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0}
-.pf-page .lk-stick .lk-tabs::-webkit-scrollbar{display:none}
+/* tab con nhân vật (.lk-subs) bỏ dính trên trang riêng (đang sticky top:0 cũ sẽ chui dưới topbar) — trong modal giữ nguyên như cũ */
 .pf-page .lk-subs{position:static}
 @media (max-width:480px){
   .pf-dash{gap:6px}
@@ -280,31 +274,73 @@
   .pf-vip{padding:12px}
 }
 
-/* ---------- Hồ sơ 2 cột kiểu "character sheet" (patch -156): khác hẳn bố cục 1 cột cũ ----------
-   Cột trái dính (avatar lớn + tên + huy hiệu + cấp/XP + 5 số liệu + nút), cột phải là nội dung chính.
-   Grid + sticky chỉ áp dụng trên trang riêng (.pf-page); modal cũ xếp chồng như trước. */
-.pf-page .pf-sheet{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
-.pf-page .pf-rail{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
-.pf-idcard{background:#241A38;color:#FFF8EE;border:2px solid var(--ink);border-radius:20px;box-shadow:var(--sh-sm);overflow:hidden}
-.pf-idcard .pf-banner{margin:0;height:76px;border-radius:0}
-.pf-idcard .pf-banner.b42-head{height:auto}
-.pf-idbody{padding:16px 16px 18px;text-align:center}
-.pf-idbody button[data-a="pick"]{border:0;background:none;padding:0;cursor:pointer;position:relative;border-radius:50%}
-.pf-idbody button[data-a="pick"]::after{content:'✏️';position:absolute;right:2px;bottom:2px;font-size:18px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
-.pf-idbody .pf-name{font:400 32px/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:#FFF8EE;margin:12px 0 6px}
-.pf-idbody .bdg-row{justify-content:center}
-.pf-idbody .pf-sub{color:rgba(255,248,238,.78)}
-.pf-idbody .pf-lv{margin:12px 0 0}
-.pf-idbody .pf-lv b{color:#FFF8EE}
-.pf-idbody .pf-bar{background:rgba(255,248,238,.25)}
-.pf-rail .pf-dash{grid-template-columns:1fr 1fr;margin:0}
-.pf-rail .pf-dash .xu{grid-column:1/-1}
-.pf-rail .pf-acts{flex-direction:column;margin:0}
-.pf-rail .pf-acts button{width:100%}
-.pf-main{min-width:0}
-.pf-page .pf-main .lk-stick{margin:0}
+/* ---------- Hồ sơ theo bảng thiết kế (patch -158): ID trái + 3 thẻ phải ---------- */
+.pf-page .pf-box{max-width:1180px}
+.pf-page .pf-box .pf2-below h3{margin:22px 0 10px}
+.pf2-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
+.pf2-left{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
+.pf2-right{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pf2-id{position:relative;border:2px solid var(--ink);border-radius:20px;box-shadow:var(--sh);overflow:hidden;background:var(--card)}
+.pf2-id .pf-banner{margin:0;height:76px;border-radius:0}
+.pf2-id .pf-banner.b42-head{height:auto}
+.pf2-idbody{padding:0 18px 18px;text-align:center}
+.pf2-idbody .pf-fr{margin:-60px auto 10px}
+.pf2-idbody button[data-a="pick"]{border:0;background:none;padding:0;cursor:pointer;position:relative;border-radius:50%}
+.pf2-idbody button[data-a="pick"]::after{content:'✏️';position:absolute;right:2px;bottom:2px;font-size:18px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.pf2-name{font:800 26px/1.15 'Baloo 2',Nunito,sans-serif;margin-top:2px;overflow-wrap:anywhere}
+.pf2-id .bdg-row{justify-content:center;margin:8px 0 0}
+.pf2-sub{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:6px}
+.pf2-lvtx{font:800 15px 'Baloo 2',Nunito,sans-serif}
+.pf2-xp{margin-top:12px;text-align:left}
+.pf2-xp b{display:block;font-size:13.5px;margin-bottom:6px}
+.pf2-login,.pf2-rename{display:block;width:100%;margin-top:10px;padding:11px 14px;border:2px solid var(--ink);border-radius:12px;font:800 15px 'Baloo 2',Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm)}
+.pf2-login{background:var(--p1);color:#FFF8EE}
+.pf2-rename{background:var(--card);color:var(--ink)}
+.pf2-stats .pf-dash{grid-template-columns:1fr 1fr;margin:0}
+.pf2-stats .pf-dash .xu{grid-column:1/-1}
+.pf2-card{background:var(--card);border:2px solid var(--ink);border-radius:20px;box-shadow:var(--sh-sm);padding:16px 18px 18px}
+.pf2-card>h3{margin:0 0 12px;font-size:19px}
+.pf2-card>h3 small{color:var(--muted)}
+.pf2-next{float:right;font:800 13px Nunito,sans-serif;color:var(--muted)}
+.pf2-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:12px}
+.pf2-tabs::-webkit-scrollbar{display:none}
+.pf2-tabs button{flex:0 0 auto;border:2px solid var(--ink);border-radius:999px;padding:7px 14px;background:var(--card);font:800 14px 'Baloo 2',Nunito,sans-serif;color:var(--ink);cursor:pointer}
+.pf2-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+.pf2-tabbody .lk-grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+.pf2-strip{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-bottom:12px}
+.pf2-lv{text-align:center}
+.pf2-lv .n{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border:2px solid var(--ink);border-radius:50%;background:var(--line);font:800 15px 'Baloo 2',Nunito,sans-serif;color:var(--muted)}
+.pf2-lv.ok .n{background:var(--y1);color:var(--ink);box-shadow:var(--sh-sm)}
+.pf2-lv.nx .n{outline:3px solid var(--p2);outline-offset:2px}
+.pf2-lv small{display:block;margin-top:4px;font-size:10.5px;line-height:1.25;color:var(--muted);overflow-wrap:anywhere}
+.pf2-tracknext{display:flex;flex-direction:column;gap:6px}
+.pf2-tracknext>div:first-child{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pf2-tracknext small{color:var(--muted);white-space:nowrap}
+.pf2-achrow{padding:10px 4px;border-bottom:2px dashed var(--line);cursor:pointer}
+.pf2-achrow:last-child{border-bottom:0}
+.pf2-achtop{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.pf2-achtop span{font-size:14.5px}
+.pf2-achtop span i{font-style:normal;font-size:18px}
+.pf2-achtop small{font:800 13px Nunito,sans-serif;color:var(--muted);white-space:nowrap}
+.pf2-achbar{height:10px;border:2px solid var(--ink);border-radius:999px;margin-top:6px;overflow:hidden;background:var(--card)}
+.pf2-achbar i{display:block;height:100%;background:var(--p2)}
+.pf2-below{margin-top:18px}
+.pf2-navbtns{display:flex;gap:10px;margin:10px 0 4px}
+.pf2-navbtns button{flex:1;border:2px solid var(--ink);border-radius:12px;padding:10px 14px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm)}
+.pf2-navbtns button[data-a="rank"]{background:var(--y1);color:var(--on-accent)}
+.pf2-navbtns button[data-a="shop"]{background:var(--card);color:var(--ink)}
+.pf2-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.pf2-actions button{border:2px solid var(--ink);border-radius:12px;padding:11px 22px;font:800 15px 'Baloo 2',Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-sm)}
+.pf2-reset{background:var(--card);color:var(--ink)}
+.pf2-save{background:var(--y1);color:var(--on-accent)}
 @media (max-width:900px){
-  .pf-page .pf-sheet{grid-template-columns:1fr}
-  .pf-page .pf-rail{position:static}
-  .pf-idbody .pf-name{font-size:28px}
+  .pf2-grid{grid-template-columns:1fr}
+  .pf2-left{position:static}
+  .pf2-strip{grid-template-columns:repeat(3,1fr)}
+  .pf2-navbtns{flex-direction:column}
+}
+@media (max-width:640px){
+  .pf2-tabbody .lk-grid{grid-template-columns:repeat(3,1fr)}
+  .pf2-name{font-size:23px}
+  .pf2-actions button{flex:1}
 }

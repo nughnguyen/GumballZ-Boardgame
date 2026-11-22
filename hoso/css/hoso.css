@@ -1,15 +1,10 @@
 /* 👤 Trang Hồ sơ riêng (patch -150) — vỏ trang, hồ sơ do shared/ui/profile.js vẽ vào #pf-root.
-   Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130). */
+   Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130).
+   Patch -158: bỏ dải hero (bảng thiết kế mới không có hero — lưới hồ sơ bắt đầu ngay dưới topbar). */
 .pf-page-wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-/* dải hero đầu trang nền mực tối + vạch vàng (patch -156): khác hẳn tiêu đề cũ chữ mực trên nền kem */
-.pf-page-hd{text-align:center;margin:6px 0 18px;background:#241A38;color:#FFF8EE;border:2px solid var(--ink);border-radius:20px;padding:20px 18px 18px;box-shadow:var(--sh-sm)}
-.pf-page-hd h1{margin:0;font:400 clamp(28px,6vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:#FFF8EE}
-.pf-page-hd h1::after{content:"";display:block;width:64px;height:6px;background:var(--y1);border-radius:99px;margin:12px auto 0}
-.pf-page-sub{margin:8px auto 0;max-width:560px;color:rgba(255,248,238,.78);font:700 15px/1.5 Nunito,sans-serif}
 #pf-root{min-height:320px}
 .pf-page-foot{margin:22px 0 0;text-align:center;font-weight:800}
 .pf-page-foot a{color:var(--ink)}
 @media (max-width:480px){
   .pf-page-wrap{padding:14px 10px 40px}
-  .pf-page-hd{margin-bottom:12px}
 }

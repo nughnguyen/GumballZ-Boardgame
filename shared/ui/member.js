@@ -1,14 +1,15 @@
 // 👤 Hồ sơ công khai của một thành viên: hình đại diện, cấp độ, danh hiệu, số liệu chơi, thành tích, game chơi nhiều.
 // Mở từ thẻ người chơi (bấm tên/avatar trong phòng), bảng xếp hạng, hộp bạn bè, trang quản trị:
-//   import('…/shared/ui/member.js?v=6').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
+//   import('…/shared/ui/member.js?v=7').then(m => m.openMember(uid))      // uid = số id tài khoản hoặc tên đăng nhập
 // Dữ liệu lấy từ GET /profile/<id> (máy chủ tự tính danh hiệu bằng shared/titles.js). Khách chưa đăng nhập không có hồ sơ công khai.
 import { auth, friends, API } from '../net/api.js?v=29';
-import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=58';
+import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATARS } from './profile.js?v=60';
 import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
 import { ensureBadgesCSS, tierBadges, attachBadgeTilt, uid6 } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142) — hồ sơ công khai (patch -98); uid6: id hiển thị 6 số (patch -108) */
-import { initBanners } from './banner-render.js?v=1'; /* 🎏 rồng canvas banner ở modal thành viên (patch -151) */
+import { initBanners } from './banner-render.js?v=2'; /* 🎏 rồng canvas banner ở modal thành viên (patch -151) */
+import { initFrameDragons } from './dragon-frame.js?v=3'; /* 🐉 rồng canvas khung avatar (patch -158) */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);
@@ -65,6 +66,7 @@ export function openMember(key) {
     if (keepY) ov.querySelector('.pf-box').scrollTop = keepY;
     attachBadgeTilt(ov.querySelector('.mb-tags')); /* 🎖️ nghiêng 3D + vệt sáng theo con trỏ ở khu vực huy hiệu (patch -142) */
     try { initBanners(ov); } catch (e) {} /* 🎏 đăng ký canvas rồng banner (patch -151) */
+    try { initFrameDragons(ov); } catch (e) {} /* 🐉 đăng ký canvas rồng khung avatar (patch -158) */
     ov.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || 'ℹ️', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
   };
   const loadRel = async () => {
@@ -75,7 +77,7 @@ export function openMember(key) {
   ov.addEventListener('click', async e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
     const b = e.target.closest('button[data-a]'); if (!b || busy || !U) return; const a = b.dataset.a;
-    if (a === 'edit') { close(); import('./profile.js?v=58').then(m => m.openProfile()); }
+    if (a === 'edit') { close(); import('./profile.js?v=60').then(m => m.openProfile()); }
     else if (a === 'login') { close(); import('./account.js?v=53').then(m => m.openLogin()); }
     else if (a === 'dm') { close(); import('./friends.js?v=37').then(m => m.openFriends(U.id)); }
     else if (a === 'add' || a === 'accept') {

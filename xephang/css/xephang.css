@@ -1,14 +1,19 @@
 /* 🏆 Trang Bảng xếp hạng riêng (patch -150) — vỏ trang, bảng do shared/ui/leaderboard.js vẽ vào #rk-root.
    Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130). */
 .rk-page-wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-.rk-page-hd{text-align:center;margin:6px 0 18px}
-.rk-page-hd h1{margin:0;font:400 clamp(28px,6vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:var(--ink)}
-.rk-page-sub{margin:8px auto 0;max-width:560px;color:var(--muted);font:700 15px/1.5 Nunito,sans-serif}
+.rk-page-hd{text-align:left;margin:6px 0 18px}
+.rk-page-hd .rk-eyebrow{color:var(--p1);font:800 13px/1.2 Nunito,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin:0 0 4px}
+.rk-page-hd h1{margin:0;font:800 clamp(28px,6vw,40px)/1.15 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.rk-page-sub{margin:8px 0 0;max-width:560px;color:var(--muted);font:700 15px/1.5 Nunito,sans-serif}
 #rk-root{min-height:320px}
 .rk-page-foot{margin:22px 0 0;text-align:center;font-weight:800}
 .rk-page-foot a{color:var(--ink)}
+@media (max-width:720px){
+  /* chừa chỗ cho thanh "Hạng của bạn" cố định (khoảng 68px) + tabbar dưới (~66px) — patch -158 */
+  .rk-page-wrap{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+}
 @media (max-width:480px){
-  .rk-page-wrap{padding:14px 10px 40px}
+  .rk-page-wrap{padding:14px 10px calc(150px + env(safe-area-inset-bottom))}
   .rk-page-hd{margin-bottom:12px}
 }
 

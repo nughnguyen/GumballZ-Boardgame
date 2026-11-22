@@ -5,7 +5,7 @@
 // lên một canvas phủ màn hình, không chặn bấm. Hiệu ứng có khoá (WIN_FX trong avatar-rewards.js) chỉ chạy khi
 // máy này đã mở; chưa mở thì dùng pháo giấy. KHÔNG cần sửa stats.js để nối dây: chỉ cần file này được nạp
 // (xem GHI CHÚ NỐI DÂY ở cuối file).
-import { WIN_FX, isOpen, statsFromTotals, readAuthFlags } from '../js/avatar-rewards.js?v=2';
+import { WIN_FX, isOpen, statsFromTotals, readAuthFlags } from '../js/avatar-rewards.js?v=3';
 import { load, totals } from './stats.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } } };
 const COLORS = ['#ff4d6a', '#ff7a45', '#ffb23d', '#2fc76f', '#3d8bff', '#8a5cff', '#ff5fa2'];

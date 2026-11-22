@@ -4,6 +4,8 @@
 // Rồng canvas: port nguyên hàm dragon() của mẫu (thân 64 đốt, vảy, cánh phượng, 4 chân, đầu chi tiết),
 // chỉ vẽ khi banner trong màn hình (IntersectionObserver), reduced-motion thì vẽ 1 khung tĩnh rồi dừng.
 // Vị trí ngẫu nhiên (sao, mưa, hạt...) được seed theo id banner nên không xáo trộn mỗi lần vẽ lại.
+// Banner "Rồng Bay" (patch -158): Scene CodePen port ở shared/ui/dragon-frame.js (createCpScene).
+import { createCpScene } from './dragon-frame.js?v=3';
 let R = Math.random;
 const r1 = (x, n = 1) => (+x).toFixed(n);
 const j = (a, b) => a + R() * (b - a);
@@ -22,6 +24,19 @@ const regCanvas = new WeakSet(), regVis = new WeakSet();
 export function initBanners(root) {
   if (!root || typeof document === 'undefined' || !ensureObs()) return;
   root.querySelectorAll('canvas.b42-dr').forEach(c => { if (regCanvas.has(c)) return; try { c._d = JSON.parse(c.dataset.d); } catch (e) { return; } regCanvas.add(c); CV.add(c); fit(c); ro.observe(c); io2.observe(c); });
+  /* 🐉 banner Rồng Bay (patch -158): Scene CodePen — bấm canvas đổi theme, theme nhớ theo banner id */
+  root.querySelectorAll('canvas.b42-cp').forEach(c => {
+    if (regCp.has(c)) return; regCp.add(c);
+    try { c._sc = createCpScene(c); } catch (e) { return; }
+    const t0 = cpTheme.get(c.dataset.bid || '');
+    if (t0) { while (c._sc.theme !== t0) c._sc.setTheme(); }
+    CP.add(c); fit(c); ro.observe(c); io2.observe(c);
+    c.addEventListener('click', () => {
+      const sc = c._sc; if (!sc) return;
+      sc.setTheme(); cpTheme.set(c.dataset.bid || '', sc.theme);
+      const bn = c.closest('.b42-bn'); if (bn) bn.classList.add('b42-clicked');
+    });
+  });
   root.querySelectorAll('.lk-bcard, .pf-banner.b42-head').forEach(el => { if (regVis.has(el)) return; regVis.add(el); visIO.observe(el); });
   if (!tickStarted && typeof requestAnimationFrame === 'function') { tickStarted = true; requestAnimationFrame(tick); }
 }
@@ -54,6 +69,7 @@ function bannerInner(f){
  if(f.bolt){let p='';for(let i=0;i<f.bolt[0];i++){let x=j(8,92),d=`M${r1(x)} 0`;const L=j(12,24);for(let k=1;k<=7;k++)d+=`L${r1(x+(k<7?j(-3,3):0))} ${r1(L*k/7)}`;p+=`<path class="b42-bz" d="${d}" style="animation-delay:${r1(-R()*2.4)}s;animation-duration:${r1(j(1.6,3.2))}s"/>`}h+=`<svg class="b42-sv" viewBox="0 0 100 30" preserveAspectRatio="none" style="--bc:${f.bolt[1]};z-index:4">${p}</svg>`}
  (f.fly||[]).forEach(([ch,z,y,T,d,dir])=>h+=`<i class="b42-fs ${dir<0?'b42-r':''}" style="top:${y}%;animation-duration:${T}s;animation-delay:${-d}s"><b style="font-size:${z}em;${ch=='@shu'?'animation:b42-spin .5s linear infinite':dir<0?'':'transform:scaleX(-1)'}">${ch=='@shu'?SHU:ch}</b></i>`);
  if(f.dr)h+=`<canvas class="b42-dr" data-d='${JSON.stringify(f.dr)}'></canvas>`;
+ if(f.cp)h+=`<canvas class="b42-cp" data-cp="1" data-bid="${f.bid||''}"></canvas><span class="b42-cphint"${cpTheme.get(f.bid||'')?' style="display:none"':''}>Bấm để đổi màu rồng 🐉</span>`;
  if(f.kira)for(let i=0;i<f.kira[0];i++){const z=r1(j(.8,2.6));h+=`<i class="b42-kr" style="--c:${f.kira[1]};width:${z}em;height:${z}em;left:${r1(j(0,98))}%;top:${r1(j(0,88))}%;animation-delay:${r1(-R()*2.2)}s"></i>`}
  (f.slash||[]).forEach(([x,y,r,d])=>h+=`<i class="b42-sl2" style="left:${x}%;top:${y}%;--r:${r}deg;animation-delay:${-d}s"></i>`);
  if(f.speed)for(let i=0;i<f.speed;i++)h+=`<i class="b42-spd" style="top:${r1(j(2,98))}%;width:${r1(j(15,40))}em;animation-duration:${r1(j(.35,.8))}s;animation-delay:${r1(-R())}s"></i>`;
@@ -67,10 +83,11 @@ function bannerInner(f){
  if(f.glitch){for(let i=0;i<5;i++)h+=`<i class="b42-gb" style="top:${r1(j(5,90))}%;left:${r1(j(0,50))}%;width:${r1(j(20,50))}%;animation-delay:${r1(-R()*3)}s"></i>`}
  if(f.scan)h+='<i class="b42-sc"></i>';
  if(f.shine)h+='<i class="b42-sh"></i>';
- return `<div class="b42-bw" style="--bc:${f.bc||'transparent,transparent'};--bp:${f.bc?'3px':'0px'}"><div class="b42-bn ${f.flow?'b42-flow':''}" style="--bg2:${f.bg}">${h}</div></div>`}
+ return `<div class="b42-bw" style="--bc:${f.bc||'transparent,transparent'};--bp:${f.bc?'3px':'0px'}"><div class="b42-bn ${f.flow?'b42-flow':''}${f.cp?' b42-cpbn':''}" style="--bg2:${f.bg}">${h}</div></div>`}
 
 /* ===== RỒNG VẼ BẰNG CANVAS: thân thon, vảy, bụng, vây lưng, 4 chân, sừng, bờm, râu ===== */
 const CV=new Set(),RM=(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion:reduce)').matches)||false;
+const CP=new Set(), regCp=new WeakSet(), cpTheme=new Map(); /* banner Rồng Bay: scene đang chạy + theme đã chọn theo banner id (giữ qua lần vẽ lại) */
 const sh=(h,k)=>{const n=parseInt(h.slice(1),16),f=x=>Math.max(0,Math.min(255,Math.round(x*(1+k))));return`rgb(${f(n>>16)},${f(n>>8&255)},${f(n&255)})`};
 function dragon(g,t,[c1,c2,,T,y,A,ph,dir,s,wg]){
  const N=64,L=44*s,st=L/N,D=dir>0?1:-1,PI=Math.PI,u=(t/T+ph)%1,xh=D>0?-8+u*(116+L):108-u*(116+L),base=y*.3,S=A*1.5;
@@ -116,7 +133,8 @@ function dragon(g,t,[c1,c2,,T,y,A,ph,dir,s,wg]){
  g.strokeStyle=c1;g.lineWidth=.16;g.globalAlpha=.9;for(const q of[0,1]){const w=Math.sin(t*3+q*1.3);g.beginPath();g.moveTo(6.2,-.4+q*.2);g.bezierCurveTo(5,1.8+q+w,1,2.8+q,-3,1.8+q+Math.sin(t*3+1+q));g.stroke()}g.globalAlpha=1;
  g.restore()}
 function reg(root){root.querySelectorAll('canvas.b42-dr').forEach(c=>{c._d=JSON.parse(c.dataset.d);CV.add(c);fit(c);ro.observe(c);io2.observe(c)})}
-function fit(c){const w=c.clientWidth||300,d=Math.min(devicePixelRatio||1,2);c.width=Math.round(w*d);c.height=Math.round(w*.3*d);c._k=w*d/100}
+function fit(c){if(c.classList&&c.classList.contains('b42-cp'))return fitCp(c);const w=c.clientWidth||300,d=Math.min(devicePixelRatio||1,2);c.width=Math.round(w*d);c.height=Math.round(w*.3*d);c._k=w*d/100}
+function fitCp(c){const w=c.clientWidth||300,h=c.clientHeight||225,d=Math.min(devicePixelRatio||1,2);c.width=Math.round(w*d);c.height=Math.round(h*d)}
 let ro=null,io2=null,visIO=null,tickStarted=false;
 function ensureObs(){if(ro)return true;if(typeof ResizeObserver==='undefined'||typeof IntersectionObserver==='undefined')return false;ro=new ResizeObserver(es=>es.forEach(e=>fit(e.target)));io2=new IntersectionObserver(es=>es.forEach(e=>e.target._v=e.isIntersecting),{rootMargin:'100px'});visIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('b42-vis',e.isIntersecting)),{rootMargin:'200px'});return true;}
-function tick(ms){CV.forEach(c=>{if(!c.isConnected){CV.delete(c);return}if(!c._v||(RM&&c._done))return;const g=c.getContext('2d');if(!g)return;g.setTransform(c._k,0,0,c._k,0,0);g.clearRect(0,0,100,30);c._d.forEach(d=>dragon(g,RM?3:ms/1000,d));c._done=1});if(typeof requestAnimationFrame==='function')requestAnimationFrame(tick)}
+function tick(ms){CV.forEach(c=>{if(!c.isConnected){CV.delete(c);return}if(!c._v||(RM&&c._done))return;const g=c.getContext('2d');if(!g)return;g.setTransform(c._k,0,0,c._k,0,0);g.clearRect(0,0,100,30);c._d.forEach(d=>dragon(g,RM?3:ms/1000,d));c._done=1});CP.forEach(c=>{if(!c.isConnected){CP.delete(c);return}if(!c._v||(RM&&c._done))return;const sc=c._sc;if(!sc)return;sc.draw(RM?3:ms/1000);c._done=1});if(typeof requestAnimationFrame==='function')requestAnimationFrame(tick)}

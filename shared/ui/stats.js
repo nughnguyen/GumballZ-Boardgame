@@ -3,7 +3,7 @@
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
 import { questWin } from '../js/daily.js?v=3'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
 import { earnGame } from './wallet.js?v=7'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
-import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js?v=2'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
+import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js?v=3'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
 import { gameXp } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — stats phủ mọi game còn lại (net riêng như typhu) */
 const KEY = 'gumballz-stats';

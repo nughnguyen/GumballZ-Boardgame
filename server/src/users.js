@@ -55,7 +55,7 @@ export function walletAccepts(storedAt, incomingAt) {
 /* 🎁 Cấp vật phẩm thủ công (patch -127, chỉ Quản trị role 2 qua /admin/list):
    - Danh sách wid hợp lệ: khung/màu tên/banner lấy từ avatar-rewards.js (cùng nguồn với shop/rương),
      4 lưng bài ghi tay ở đây vì lưng bài chỉ có trong COSMETICS.backs của wallet.js — mà server KHÔNG
-     import được wallet.js (nó import avatar-rewards.js?v=2, wrangler không resolve được) — thêm lưng bài
+     import được wallet.js (nó import avatar-rewards.js?v=3, wrangler không resolve được) — thêm lưng bài
      mới thì thêm id vào cả 2 chỗ (GRANT_BACKS này + COSMETICS.backs trong wallet.js).
    - Món được cấp lưu vào P.granted (danh sách riêng, chỉ thêm không bớt — giống cách gộp linh kiện
      P.parts): KHÔNG sửa thẳng P.wal.own, vì ví client đồng bộ sau (at mới hơn) sẽ ghi đè cả P.wal
