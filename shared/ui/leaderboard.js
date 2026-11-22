@@ -46,7 +46,7 @@ const CSS = `
 .rk-nm{font:800 15px/1.2 Nunito,sans-serif;color:var(--ink);display:flex;align-items:center;gap:6px; flex-wrap:wrap}
 .rk-nm small{font:700 12px Nunito,sans-serif;color:var(--muted)}
 .rk-lv{display:inline-block;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--muted);font:800 11px Nunito,sans-serif}
-.rk-tt{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:999px;background:var(--y2);color:var(--ink);font:800 11px/1.7 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}
+.rk-tt{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:999px;background:var(--y2);color:var(--on-accent);font:800 11px/1.7 Nunito,sans-serif;box-shadow:inset 0 0 0 1px #f0c040;white-space:nowrap}
 .rk-sub{font:700 12px Nunito,sans-serif;color:var(--muted);margin-top:2px}
 .rk-val{text-align:right;flex:none}
 .rk-val b{display:block;font:800 16px/1.1 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
@@ -54,12 +54,28 @@ const CSS = `
 .rk-empty{padding:36px 16px;text-align:center;color:var(--muted);font-weight:700}
 .rk-ft{padding:10px 14px;background:var(--bg);border-top:2px solid var(--ink);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:800}
 .rk-ft b{color:var(--ink)}
-.rk-btn{border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font:400 13px "Baloo 2",Nunito,sans-serif;background:var(--y1);color:var(--ink);cursor:pointer;flex:none;box-shadow:var(--sh-sm)}
+.rk-btn{border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font:400 13px "Baloo 2",Nunito,sans-serif;background:var(--y1);color:var(--on-accent);cursor:pointer;flex:none;box-shadow:var(--sh-sm)}
 /* ---------- trang riêng /xephang/ (patch -150): bảng hiện trực tiếp trên trang, không còn khung modal ----------
    .rk-page là phần tử chứa bảng trên trang: hộp rộng hơn, không giới hạn chiều cao, danh sách cuộn theo trang. */
-.rk-page .rk-box{width:min(720px,100%);max-height:none;overflow:visible;margin:0 auto}
+.rk-page .rk-box{width:min(1180px,100%);max-height:none;overflow:visible;margin:0 auto;scroll-margin-top:70px}
 .rk-page .rk-list{overflow:visible;flex:none}
 .rk-page .rk-hd{display:none} /* trang riêng có H1 của trang, không cần tiêu đề trong hộp nữa */
+/* ---------- thiết kế lại BXH (patch -152): podium + hàng rõ tầng + tab/lọc dính khi cuộn ----------
+   Chỉ áp cho trang riêng (.rk-page); modal cũ giữ nguyên. Giữ token neobrutalism, tối tự theo token. */
+/* tab + lọc dính dưới topbar (58px) khi cuộn — bọc chung 1 khối nên không cần tính chiều cao từng phần */
+.rk-page .rk-stick{position:sticky;top:58px;z-index:5;background:var(--card);border-bottom:2px solid var(--line)}
+/* podium nổi bật hơn: bục cao hơn, avatar to hơn, hạng 1 có vương miện */
+.rk-crown{display:block;font-size:24px;line-height:1}
+.rk-page .rk-pd{min-height:150px;padding:18px 8px 14px}
+.rk-page .rk-p1{min-height:196px}
+.rk-page .rk-pd .rk-av{width:64px;height:64px;font-size:32px}
+.rk-page .rk-pnm{font-size:16px}
+.rk-page .rk-pval{font-size:14px}
+/* hàng xếp hạng rõ tầng hơn: số hạng + avatar + chỉ số to hơn, khoảng cách thoáng hơn */
+.rk-page .rk-row{padding:14px 10px;gap:12px}
+.rk-page .rk-no{width:36px;font-size:20px}
+.rk-page .rk-av{width:44px;height:44px;font-size:24px}
+.rk-page .rk-val b{font-size:18px}
 `;
 
 function injectCss() {
@@ -83,6 +99,18 @@ function avFor(r) {
   return `<span class="rk-av" style="background:linear-gradient(135deg,${c})">${e}</span>`;
 }
 
+/* ---------- cache gọi /leaderboard 30s (patch -152): khớp cache máy chủ, bảng chính + top phụ cùng cần
+   all/xp thì chỉ gọi mạng 1 lần (kể cả khi 2 bên gọi cùng lúc — cache cả promise đang bay) ---------- */
+const lbCache = new Map();
+function lbFetch(game, by) {
+  const k = game + '|' + by, hit = lbCache.get(k);
+  if (hit && Date.now() - hit.at < 30e3) return hit.p;
+  const p = leaderboard(game, by);
+  p.catch(() => { if (lbCache.get(k) && lbCache.get(k).p === p) lbCache.delete(k); }); /* gọi lỗi thì không cache để lần sau gọi lại */
+  lbCache.set(k, { at: Date.now(), p });
+  return p;
+}
+
 /* ---------- bảng xếp hạng (patch -150): vẽ vào một phần tử cho trước ----------
    buildBoard(root, {page, initialGame}): modal cũ (page=false, root = overlay .rk-ov) và trang riêng
    /xephang/ (page=true, root = phần tử trên trang) dùng chung logic lấy dữ liệu + vẽ. */
@@ -93,7 +121,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
 
   root.innerHTML = `<div class="rk-box"${page ? '' : ' role="dialog" aria-modal="true"'} aria-label="Bảng xếp hạng">
     <div class="rk-hd"><div><h2>Bảng xếp hạng</h2><small>Top cao thủ GumballZ · bấm vào người chơi để kết bạn</small></div>${page ? '' : '<button class="rk-x" aria-label="Đóng">✕</button>'}</div>
-    <div class="rk-tabs" role="tablist">
+    <div class="rk-stick"><div class="rk-tabs" role="tablist">
       <button type="button" data-by="xp" aria-pressed="${by === 'xp'}">⭐ Cấp &amp; XP</button>
       <button type="button" data-by="wins" aria-pressed="${by === 'wins'}">🏆 Ván thắng</button>
       <button type="button" data-by="streak" aria-pressed="${by === 'streak'}">🔥 Chuỗi thắng</button>
@@ -101,7 +129,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
     <div class="rk-sel-w"><select class="rk-sel" aria-label="Chọn game">
       <option value="all">Tất cả game</option>
       ${Object.entries(GAME_NAMES).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('')}
-    </select></div>
+    </select></div></div>
     <div class="rk-list">${skPodium()}${skRanks(5)}</div>
     <div class="rk-ft"></div>
   </div>`;
@@ -138,7 +166,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
     } else {
       /* bục top 3 (thứ tự hiển thị: hạng 2 – hạng 1 – hạng 3), các hạng 4+ là danh sách thường */
       const pdVal = r => by === 'streak' ? `${r.best} ván` : by === 'wins' ? `${r.w} thắng` : `${r.xp} XP`;
-      const pd = r => { const isMe = u && r.id === u.id; return `<div class="rk-pd rk-p${r.rank}${isMe ? ' me' : ''}" data-uid="${r.id}" data-uname="${esc(r.username || '')}" data-name="${esc(r.name)}"><span class="rk-pno">#${r.rank}</span>${avFor(r)}<b class="rk-pnm${nameClass(r.av && r.av.n)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</b><span class="rk-pval">${pdVal(r)}</span></div>`; };
+      const pd = r => { const isMe = u && r.id === u.id; return `<div class="rk-pd rk-p${r.rank}${isMe ? ' me' : ''}" data-uid="${r.id}" data-uname="${esc(r.username || '')}" data-name="${esc(r.name)}">${r.rank === 1 ? '<span class="rk-crown" aria-hidden="true">👑</span>' : ''}<span class="rk-pno">#${r.rank}</span>${avFor(r)}<b class="rk-pnm${nameClass(r.av)}" style="${nameStyle(r.av)}">${esc(r.name)}</b><span class="rk-pval">${pdVal(r)}</span></div>`; };
       const top3 = list.slice(0, 3), rest = list.slice(3);
       const podium = top3.length ? `<div class="rk-podium">${[top3[1], top3[0], top3[2]].filter(Boolean).map(pd).join('')}</div>` : '';
       listEl.innerHTML = podium + rest.map(r => {
@@ -149,7 +177,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
           <span class="rk-no">#${r.rank}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span class="${nameClass(r.av && r.av.n)}${ownName(r.owner)}" style="${nameStyle(r.av && r.av.n)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${vipBadge(r.vip)}${devBadge(r.dev)}${newbieBadge(r.lv === 1 && !r.owner && !r.admin && !r.mod)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:var(--p3);color:var(--on-accent)">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span class="${nameClass(r.av)}${ownName(r.owner)}" style="${nameStyle(r.av)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${vipBadge(r.vip)}${devBadge(r.dev)}${newbieBadge(r.lv === 1 && !r.owner && !r.admin && !r.mod)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}<span class="rk-lv">Cấp ${r.lv}</span>${isMe ? '<span class="rk-lv" style="background:var(--p3);color:var(--on-accent)">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-sub">${subVal}</div>
           </div>
           <div class="rk-val"><b>${mainVal}</b><small>${by === 'xp' ? `🔥 chuỗi ${r.best}` : `⭐ ${r.xp} XP`}</small></div>
@@ -171,7 +199,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
   const fetchBoard = async () => {
     const id = ++reqId;
     loading = true; draw();
-    const res = await leaderboard(game, by);
+    const res = await lbFetch(game, by);
     if (id !== reqId) return;
     loading = false; data = res; draw();
   };
@@ -192,6 +220,10 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
   if (auth.user()) syncNow().then(fetchBoard).catch(fetchBoard);
   else fetchBoard();
   const offAuth = auth.onChange(() => { if (!document.body.contains(root)) { offAuth(); return; } if (auth.user()) syncNow().then(fetchBoard).catch(fetchBoard); else fetchBoard(); });
+
+  /* ---------- điều khiển bảng từ bên ngoài (patch -152): các top phụ gọi setBoard để mở bảng chính ----------
+     Ghi lại trên root để mountLeaderboardPage trả về cho trang. */
+  root._rkCtl = { setBoard(g, b) { if (g) game = g; if (b) by = b; if (game !== 'all' && by === 'xp') by = 'wins'; const sel = $('.rk-sel'); if (sel) sel.value = game; fetchBoard(); const box = root.querySelector('.rk-box'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } };
 }
 
 /* patch -150: BXH giờ là trang riêng /xephang/ — không mở modal nữa. Giữ export để code cũ
@@ -202,10 +234,67 @@ export function openLeaderboard(initialGame = 'all') {
   location.href = u.href;
 }
 
-/* Vẽ bảng xếp hạng vào một phần tử trên trang /xephang/ (không phải modal). */
+/* Vẽ bảng xếp hạng vào một phần tử trên trang /xephang/ (không phải modal).
+   Trả về bộ điều khiển { setBoard(game, by) } để các top phụ mở bảng chính (patch -152). */
 export function mountLeaderboardPage(rootEl, initialGame = 'all') {
-  if (!rootEl) return;
+  if (!rootEl) return null;
   injectCss();
   rootEl.classList.add('rk-page');
   buildBoard(rootEl, { page: true, initialGame });
+  return rootEl._rkCtl || null;
+}
+
+/* ---------- các top phụ dưới bảng chính (patch -152): CHỈ dùng trường có sẵn trong payload /leaderboard ----------
+   Mỗi entry có: id, username, name, p (ván), w (thắng), xp, lv, best (chuỗi thắng tốt nhất), rate (tỉ lệ thắng %),
+   av, title, owner/admin/mod/supporter/vip/dev, rank. KHÔNG có:
+   - created (máy chủ xoá trước khi trả) → KHÔNG làm Top người mới;
+   - xu (ví không nằm trong payload) → KHÔNG làm Top giàu xu;
+   - lịch sử hạng → KHÔNG làm Top tăng hạng.
+   4 top làm được: chơi nhiều nhất (p), tỉ lệ thắng (rate, chỉ tính người chơi ≥10 ván để 1 ván 100%
+   không chiếm top), Cờ Tỷ Phú (game=typhu, by=wins), Cờ Tướng (game=cotuong, by=wins). */
+export function subTopLists(allList, typhuList, cotuongList) {
+  const all = Array.isArray(allList) ? allList : [];
+  const byP = [...all].sort((a, b) => (b.p || 0) - (a.p || 0) || (b.w || 0) - (a.w || 0)).slice(0, 5);
+  const byRate = [...all].filter(r => (r.p || 0) >= 10).sort((a, b) => (b.rate || 0) - (a.rate || 0) || (b.w || 0) - (a.w || 0)).slice(0, 5);
+  return {
+    plays: byP,
+    rate: byRate,
+    typhu: (Array.isArray(typhuList) ? typhuList : []).slice(0, 5),
+    cotuong: (Array.isArray(cotuongList) ? cotuongList : []).slice(0, 5),
+  };
+}
+
+/* Vẽ 4 top phụ (top 5 mỗi mục) dưới bảng chính — chỉ dùng ở trang riêng /xephang/, không vào modal.
+   boardCtl = giá trị mountLeaderboardPage trả về (có setBoard) để nút "Xem tất cả" mở bảng chính. */
+export async function mountSubTops(rootEl, boardCtl) {
+  if (!rootEl) return;
+  injectCss();
+  const SUBS = [
+    { key: 'plays', icon: '🎲', name: 'Top chơi nhiều nhất', sub: 'Tính theo số ván đã chơi', val: r => [`${r.p || 0} ván`, `${r.w || 0} thắng`], go: ['all', 'xp'], goLabel: 'Xem bảng XP →' },
+    { key: 'rate', icon: '🎯', name: 'Top tỉ lệ thắng', sub: 'Chỉ tính người chơi ≥ 10 ván', val: r => [`${r.rate || 0}%`, `${r.w || 0}/${r.p || 0} thắng`], go: ['all', 'wins'], goLabel: 'Xem bảng thắng →' },
+    { key: 'typhu', icon: '🏙️', name: 'Top Cờ Tỷ Phú', sub: 'Game hot nhất sảnh', val: r => [`${r.w || 0} thắng`, `Tỉ lệ ${r.rate || 0}% · ${r.p || 0} ván`], go: ['typhu', 'wins'], goLabel: 'Xem BXH Cờ Tỷ Phú →' },
+    { key: 'cotuong', icon: '♟️', name: 'Top Cờ Tướng', sub: 'Cờ truyền thống', val: r => [`${r.w || 0} thắng`, `Tỉ lệ ${r.rate || 0}% · ${r.p || 0} ván`], go: ['cotuong', 'wins'], goLabel: 'Xem BXH Cờ Tướng →' },
+  ];
+  const cardShell = s => `<div class="rk-sub" data-sub="${s.key}"><div class="rk-sub-hd"><span aria-hidden="true">${s.icon}</span><b>${s.name}</b><small>${s.sub}</small></div><div class="rk-sub-body"><div class="rk-sub-empty">Đang tải…</div></div><button type="button" class="rk-sub-more" data-go="${s.key}">${s.goLabel}</button></div>`;
+  rootEl.innerHTML = `<section class="rk-subs" aria-label="Các top khác"><h2 class="rk-subs-h">🏅 Các top khác</h2><p class="rk-subs-sub">Top 5 mỗi mục — bấm vào người chơi để xem hồ sơ, bấm “Xem tất cả” để mở bảng chính.</p><div class="rk-subs-grid">${SUBS.map(cardShell).join('')}</div></section>`;
+  const drawList = (key, list) => {
+    const card = rootEl.querySelector(`.rk-sub[data-sub="${key}"] .rk-sub-body`);
+    if (!card) return;
+    const def = SUBS.find(s => s.key === key);
+    if (!list || !list.length) { card.innerHTML = `<div class="rk-sub-empty">Chưa có ai ở mục này — vào chơi 1 ván là lên top ngay! 🎲</div>`; return; }
+    card.innerHTML = list.map((r, i) => { const [v, sv] = def.val(r); return `<button type="button" class="rk-sub-row" data-uid="${r.id}"><span class="rk-sub-no">#${i + 1}</span>${avFor(r)}<span class="rk-sub-nm">${esc(r.name)}</span><span class="rk-sub-val">${esc(v)}<small>${esc(sv)}</small></span></button>`; }).join('');
+  };
+  rootEl.addEventListener('click', e => {
+    const more = e.target.closest('[data-go]');
+    if (more) { const def = SUBS.find(s => s.key === more.dataset.go); if (def && boardCtl && boardCtl.setBoard) boardCtl.setBoard(def.go[0], def.go[1]); return; }
+    const row = e.target.closest('.rk-sub-row');
+    if (row && +row.dataset.uid) import('./member.js?v=6').then(m => m.openMember(+row.dataset.uid));
+  });
+  try {
+    const [allRes, tyRes, coRes] = await Promise.all([lbFetch('all', 'xp'), lbFetch('typhu', 'wins'), lbFetch('cotuong', 'wins')]);
+    const tops = subTopLists(allRes && allRes.ok ? allRes.list : [], tyRes && tyRes.ok ? tyRes.list : [], coRes && coRes.ok ? coRes.list : []);
+    for (const s of SUBS) drawList(s.key, tops[s.key]);
+  } catch (err) {
+    rootEl.querySelectorAll('.rk-sub-body').forEach(b => { b.innerHTML = `<div class="rk-sub-empty">Không tải được top phụ – thử lại sau nha.</div>`; });
+  }
 }

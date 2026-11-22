@@ -1,6 +1,6 @@
 /* 🏆 Trang Bảng xếp hạng riêng (patch -150) — vỏ trang, bảng do shared/ui/leaderboard.js vẽ vào #rk-root.
    Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130). */
-.rk-page-wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+.rk-page-wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
 .rk-page-hd{text-align:center;margin:6px 0 18px}
 .rk-page-hd h1{margin:0;font:400 clamp(28px,6vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:var(--ink)}
 .rk-page-sub{margin:8px auto 0;max-width:560px;color:var(--muted);font:700 15px/1.5 Nunito,sans-serif}
@@ -10,4 +10,35 @@
 @media (max-width:480px){
   .rk-page-wrap{padding:14px 10px 40px}
   .rk-page-hd{margin-bottom:12px}
+}
+
+/* ---------- các top phụ dưới bảng chính (patch -152): 4 thẻ top 5, 2 cột desktop / 1 cột mobile ----------
+   Dữ liệu từ cùng endpoint /leaderboard (xem subTopLists trong shared/ui/leaderboard.js). */
+.rk-subs{margin:26px auto 10px}
+.rk-subs-h{margin:0 0 4px;font:400 22px/1.2 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.rk-subs-sub{margin:0 0 14px;color:var(--muted);font:700 13.5px/1.5 Nunito,sans-serif}
+.rk-subs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rk-sub{background:var(--card);border:2px solid var(--ink);border-radius:20px;box-shadow:var(--sh-sm);overflow:hidden;display:flex;flex-direction:column}
+.rk-sub-hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:2px solid var(--ink);background:var(--bg)}
+.rk-sub-hd>span{font-size:20px;line-height:1}
+.rk-sub-hd b{flex:1;min-width:0;font:400 16px/1.2 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.rk-sub-hd small{color:var(--muted);font:800 11.5px Nunito,sans-serif;white-space:nowrap}
+.rk-sub-body{flex:1}
+.rk-sub-row{display:flex;align-items:center;gap:10px;width:100%;padding:9px 14px;border:0;border-bottom:2px dashed var(--line);background:none;cursor:pointer;font:600 14px Nunito,sans-serif;color:var(--ink);text-align:left}
+.rk-sub-row:last-child{border-bottom:0}
+.rk-sub-row:hover{background:var(--bg)}
+.rk-sub-no{width:24px;text-align:center;font:800 15px "Baloo 2",Nunito,sans-serif;color:var(--muted);flex:none}
+.rk-sub-row .rk-av{width:32px;height:32px;font-size:18px}
+.rk-sub-nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800}
+.rk-sub-val{flex:none;text-align:right;font:800 13.5px Nunito,sans-serif;color:var(--ink)}
+.rk-sub-val small{display:block;color:var(--muted);font:700 11px Nunito,sans-serif}
+.rk-sub-more{display:block;width:100%;border:0;border-top:2px solid var(--ink);background:var(--y1);color:var(--on-accent);font:400 14px "Baloo 2",Nunito,sans-serif;padding:10px;cursor:pointer}
+.rk-sub-more:hover{filter:brightness(.97)}
+.rk-sub-empty{padding:18px 14px;text-align:center;color:var(--muted);font-weight:700;font-size:13.5px}
+@media (max-width:1023px){
+  .rk-subs-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .rk-subs-grid{grid-template-columns:1fr}
+  .rk-subs-h{font-size:20px}
 }

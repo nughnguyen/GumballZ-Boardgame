@@ -1,6 +1,6 @@
 /* 👤 Trang Hồ sơ riêng (patch -150) — vỏ trang, hồ sơ do shared/ui/profile.js vẽ vào #pf-root.
    Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130). */
-.pf-page-wrap{max-width:680px;margin:0 auto;padding:20px 16px 48px}
+.pf-page-wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
 .pf-page-hd{text-align:center;margin:6px 0 18px}
 .pf-page-hd h1{margin:0;font:400 clamp(28px,6vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:var(--ink)}
 .pf-page-sub{margin:8px auto 0;max-width:560px;color:var(--muted);font:700 15px/1.5 Nunito,sans-serif}
