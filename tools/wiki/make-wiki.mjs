@@ -359,7 +359,7 @@ const html = '<!doctype html>\n<html lang="vi" data-ui-sfx="1">\n<head>\n<meta c
 '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
 '<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">\n' +
 '<style>\n' + CSS + '\n</style>\n' +
-'<link rel="stylesheet" href="../shared/ui/shell.css?v=23">\n<link rel="stylesheet" href="../shared/css/footer.css?v=11">\n<link rel="stylesheet" href="../shared/css/badges.css?v=6">\n' +
+'<link rel="stylesheet" href="../shared/ui/shell.css?v=23">\n<link rel="stylesheet" href="../shared/css/footer.css?v=11">\n<link rel="stylesheet" href="../shared/css/badges.css?v=7">\n' +
 '<script type="application/ld+json">' + JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebPage', name: 'Wiki GumballZ', inLanguage: 'vi', url: 'https://gumballzgames.vercel.app/luat/', description: desc, publisher: { '@type': 'Organization', name: 'GumballZ Boardgame', url: 'https://gumballzgames.vercel.app/' } }) + '</script>\n</head>\n<body>\n' +
 '<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>\n<main>\n' +
 '  <a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>\n' +
@@ -375,7 +375,7 @@ const html = '<!doctype html>\n<html lang="vi" data-ui-sfx="1">\n<head>\n<meta c
   badgeSection + '\n' +
   gachaSection + '\n' +
   defaultRulesSection + '\n' +
-'</main>\n<footer class="gmf"></footer>\n<script src="../shared/ui/footer.js?v=21"></script>\n<script type="module" src="../shared/ui/feedback.js?v=37"></script>\n' +
+'</main>\n<footer class="gmf"></footer>\n<script src="../shared/ui/footer.js?v=21"></script>\n<script type="module" src="../shared/ui/feedback.js?v=37"></script>\n<script type="module">import "../shared/ui/badges.js?v=7";</script>\n' + /* patch -148: nạp badges.js để tooltip khi nhấn huy chương hoạt động trên trang wiki */
 '<script>\n' + PAGE_JS + '\n</script>\n' +
 '<script type="module" async src="../shared/ui/feel.js?v=54"></script>\n</body>\n</html>\n';
 

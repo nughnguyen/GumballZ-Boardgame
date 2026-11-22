@@ -50,7 +50,7 @@
 @keyframes bdg-devtype{0%,100%{transform:translateY(0)}25%{transform:translateY(-.02em)}50%{transform:translateY(.01em) rotate(-3deg)}75%{transform:translateY(-.01em)}}
 
 /* ===== wrapper medal (chỉ huy chương, không chữ — patch -145) ===== */
-.bdg{position:relative;display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap}
+.bdg{position:relative;display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;cursor:pointer}
 .bdg-own{--lc:#FFD35A}
 .bdg-adm{--lc:#E9B6FF}
 .bdg-staff{--lc:#7DFFCF}
@@ -58,6 +58,19 @@
 .bdg-vip{--lc:#9BE8FF}
 .bdg-dev{--lc:#7DFFEF}
 .bdg-new{--lc:#C8FF9A}
+
+/* ===== tooltip khi NHẤN vào huy chương (patch -148) =====
+   Một thẻ dùng chung (#bdg-tip, fixed, do badges.js dựng + định vị gần medal được nhấn):
+   tên bậc (Baloo 2, màu theo bậc qua --lc của medal) + mô tả + cách nhận + nút đóng ✕.
+   Nền kem + viền mực 2px + bóng cứng 4px theo phong cách neobrutalism của web; tối đa 260px,
+   tự co trên mobile. */
+.bdg-tip{position:fixed;z-index:99999;max-width:260px;width:max-content;min-width:180px;background:var(--card,#FFF8EE);color:var(--ink,#241A38);border:2px solid var(--ink,#241A38);border-radius:14px;box-shadow:4px 4px 0 rgba(36,26,56,.9);padding:12px 14px 12px;font:600 14px/1.45 Nunito,system-ui,sans-serif;text-align:left}
+.bdg-tip-t{font:800 17px/1.2 "Baloo 2",Nunito,sans-serif;letter-spacing:.02em;color:var(--ink,#241A38);padding-right:22px}
+.bdg-tip-d{margin-top:4px;color:var(--ink,#241A38)}
+.bdg-tip-h{margin-top:6px;font-size:13px;color:var(--muted,#6B6580)}
+.bdg-tip-x{position:absolute;top:6px;right:6px;width:24px;height:24px;border:2px solid var(--ink,#241A38);border-radius:8px;background:var(--card,#FFF8EE);color:var(--ink,#241A38);font:800 13px/1 Nunito,sans-serif;cursor:pointer;padding:0}
+.bdg-tip-x:active{transform:translate(1px,1px)}
+@media (max-width:480px){.bdg-tip{max-width:min(260px,calc(100vw - 16px))}}
 
 /* ===== nghiêng 3D + vệt sáng theo con trỏ (chỉ gắn ở khu vực huy hiệu Hồ sơ / modal thành viên) ===== */
 .bdg-tilt{--mx:50%;--my:0%;position:relative;transition:transform .2s ease-out;transform-style:preserve-3d}

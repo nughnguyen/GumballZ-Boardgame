@@ -7,7 +7,7 @@ import { profileCss, avatarHTML, safeAv, nameStyle, nameClass, bannerHTML, AVATA
 import { ACHS, GAME_NAMES } from './stats.js?v=91';
 import { GAME_WINS } from '../titles.js?v=4';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu, thành tích để xem cách nhận */
-import { ensureBadgesCSS, tierBadges, attachBadgeTilt, uid6 } from './badges.js?v=6'; /* 🎖️ huân chương 7 bậc (patch -142) — hồ sơ công khai (patch -98); uid6: id hiển thị 6 số (patch -108) */
+import { ensureBadgesCSS, tierBadges, attachBadgeTilt, uid6 } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142) — hồ sơ công khai (patch -98); uid6: id hiển thị 6 số (patch -108) */
 /* hồ sơ công khai (GET /profile/<id hoặc tên đăng nhập>) – gọi thẳng qua API() để không phải đợi shared/net/api.js thêm hàm memberProfile */
 const memberProfile = async key => {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 10000);

@@ -55,11 +55,16 @@ const CSS = `
 .rk-ft{padding:10px 14px;background:var(--bg);border-top:2px solid var(--ink);display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:800}
 .rk-ft b{color:var(--ink)}
 .rk-btn{border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font:400 13px "Baloo 2",Nunito,sans-serif;background:var(--y1);color:var(--ink);cursor:pointer;flex:none;box-shadow:var(--sh-sm)}
+/* ---------- trang riêng /xephang/ (patch -150): bảng hiện trực tiếp trên trang, không còn khung modal ----------
+   .rk-page là phần tử chứa bảng trên trang: hộp rộng hơn, không giới hạn chiều cao, danh sách cuộn theo trang. */
+.rk-page .rk-box{width:min(720px,100%);max-height:none;overflow:visible;margin:0 auto}
+.rk-page .rk-list{overflow:visible;flex:none}
+.rk-page .rk-hd{display:none} /* trang riêng có H1 của trang, không cần tiêu đề trong hộp nữa */
 `;
 
 function injectCss() {
   ensureSkCSS();
-  import('./badges.js?v=6').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 7 bậc (patch -142) */
+  import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 7 bậc (patch -142) */
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);
@@ -78,16 +83,16 @@ function avFor(r) {
   return `<span class="rk-av" style="background:linear-gradient(135deg,${c})">${e}</span>`;
 }
 
-export function openLeaderboard(initialGame = 'all') {
-  injectCss();
-  document.getElementById('rk-ov')?.remove();
+/* ---------- bảng xếp hạng (patch -150): vẽ vào một phần tử cho trước ----------
+   buildBoard(root, {page, initialGame}): modal cũ (page=false, root = overlay .rk-ov) và trang riêng
+   /xephang/ (page=true, root = phần tử trên trang) dùng chung logic lấy dữ liệu + vẽ. */
+function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
   let game = initialGame && (initialGame === 'all' || GAME_NAMES[initialGame]) ? initialGame : 'all';
   let by = game === 'all' ? 'xp' : 'wins';
   let loading = true, data = null;
 
-  const ov = document.createElement('div'); ov.className = 'rk-ov'; ov.id = 'rk-ov';
-  ov.innerHTML = `<div class="rk-box" role="dialog" aria-modal="true" aria-label="Bảng xếp hạng">
-    <div class="rk-hd"><div><h2>Bảng xếp hạng</h2><small>Top cao thủ GumballZ · bấm vào người chơi để kết bạn</small></div><button class="rk-x" aria-label="Đóng">✕</button></div>
+  root.innerHTML = `<div class="rk-box"${page ? '' : ' role="dialog" aria-modal="true"'} aria-label="Bảng xếp hạng">
+    <div class="rk-hd"><div><h2>Bảng xếp hạng</h2><small>Top cao thủ GumballZ · bấm vào người chơi để kết bạn</small></div>${page ? '' : '<button class="rk-x" aria-label="Đóng">✕</button>'}</div>
     <div class="rk-tabs" role="tablist">
       <button type="button" data-by="xp" aria-pressed="${by === 'xp'}">⭐ Cấp &amp; XP</button>
       <button type="button" data-by="wins" aria-pressed="${by === 'wins'}">🏆 Ván thắng</button>
@@ -100,21 +105,20 @@ export function openLeaderboard(initialGame = 'all') {
     <div class="rk-list">${skPodium()}${skRanks(5)}</div>
     <div class="rk-ft"></div>
   </div>`;
-  document.body.append(ov);
 
-  const $ = s => ov.querySelector(s);
+  const $ = s => root.querySelector(s);
   const selEl = $('.rk-sel');
   selEl.addEventListener('change', () => {
     game = selEl.value;
     if (game !== 'all' && by === 'xp') by = 'wins';
     fetchBoard();
   });
-  const close = () => { ov.remove(); removeEventListener('keydown', onKey, true); };
+  const close = () => { if (page) return; root.remove(); removeEventListener('keydown', onKey, true); };
   const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
-  addEventListener('keydown', onKey, true);
+  if (!page) addEventListener('keydown', onKey, true);
 
   const draw = () => {
-    ov.querySelectorAll('.rk-tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.by === by));
+    root.querySelectorAll('.rk-tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.by === by));
     const sel = $('.rk-sel'); if (sel) sel.value = game;
     const listEl = $('.rk-list'), ftEl = $('.rk-ft');
     const u = auth.user();
@@ -160,7 +164,7 @@ export function openLeaderboard(initialGame = 'all') {
     } else {
       ftEl.innerHTML = `<span>Bạn chưa có trận nào ở mục này – vào chơi 1 ván là lên bảng ngay! 🎲</span>`;
     }
-    ov.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || '🏅', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
+    root.querySelectorAll('[data-iname]').forEach(el => attachInfo(el, () => ({ icon: el.dataset.iicon || '🏅', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' }))); /* ℹ️ gắn lại bong bóng thông tin sau mỗi lần vẽ lại */
   };
 
   let reqId = 0;
@@ -172,8 +176,8 @@ export function openLeaderboard(initialGame = 'all') {
     loading = false; data = res; draw();
   };
 
-  ov.addEventListener('click', e => {
-    if (e.target === ov || e.target.closest('.rk-x')) return close();
+  root.addEventListener('click', e => {
+    if (!page && (e.target === root || e.target.closest('.rk-x'))) return close();
     const byBtn = e.target.closest('[data-by]');
     if (byBtn) { by = byBtn.dataset.by; fetchBoard(); return; }
     if (e.target.closest('[data-login]')) { openLogin(); return; }
@@ -187,5 +191,21 @@ export function openLeaderboard(initialGame = 'all') {
 
   if (auth.user()) syncNow().then(fetchBoard).catch(fetchBoard);
   else fetchBoard();
-  const offAuth = auth.onChange(() => { if (!document.body.contains(ov)) { offAuth(); return; } if (auth.user()) syncNow().then(fetchBoard).catch(fetchBoard); else fetchBoard(); });
+  const offAuth = auth.onChange(() => { if (!document.body.contains(root)) { offAuth(); return; } if (auth.user()) syncNow().then(fetchBoard).catch(fetchBoard); else fetchBoard(); });
+}
+
+/* patch -150: BXH giờ là trang riêng /xephang/ — không mở modal nữa. Giữ export để code cũ
+   (topbar/footer/lobby/homebtn) gọi tới vẫn đúng: chuyển trang, giữ ?game= khi mở theo game. */
+export function openLeaderboard(initialGame = 'all') {
+  const u = new URL('../../xephang/', import.meta.url);
+  if (initialGame && initialGame !== 'all' && GAME_NAMES[initialGame]) u.searchParams.set('game', initialGame);
+  location.href = u.href;
+}
+
+/* Vẽ bảng xếp hạng vào một phần tử trên trang /xephang/ (không phải modal). */
+export function mountLeaderboardPage(rootEl, initialGame = 'all') {
+  if (!rootEl) return;
+  injectCss();
+  rootEl.classList.add('rk-page');
+  buildBoard(rootEl, { page: true, initialGame });
 }
