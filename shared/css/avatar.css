@@ -45,11 +45,25 @@
 .pf-fr.fr-orbit::before{content:"🐉"}
 .pf-fr.fr-orbit::after{content:"🦅";animation-direction:reverse}
 .pf-fr.fr-vuatrichoi::after{content:"👑 VUA TRÒ CHƠI";position:absolute;left:50%;bottom:-7%;transform:translateX(-50%);z-index:2;white-space:nowrap;line-height:1.4;pointer-events:none;font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:9px;font-size:19cqw;letter-spacing:.02em;color:#ffd84a;text-shadow:0 1px 0 #7a1f1f;background:linear-gradient(90deg,#8a1d1d,#d4202f,var(--p1),#d4202f,#8a1d1d);background-size:200% auto;padding:.2em .55em;border-radius:999px;box-shadow:0 0 0 1.5px var(--ink),0 2px 6px var(--sh-soft);animation:nc-slide 3s linear infinite}
+/* 🐉 rồng bay khung avatar (patch -147): SVG rồng từ shared/ui/dragon-frame.js (dragonSVG),
+   bay theo offset-path — số 8 qua mặt avatar (fr-dragon) hoặc tròn quanh mép viền (fr-dragon-edge).
+   Chu kỳ hiện/ẩn 12s: rồng chỉ HIỆN + bay ~3s đầu mỗi chu kỳ, ẩn 9s còn lại (drg-show) để
+   không che mặt avatar liên tục; fade in/out nhẹ vì path số 8 bắt đầu ở tâm (giữa mặt). */
+.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size}
+.pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;overflow:visible;pointer-events:none;z-index:4;animation:drg-show 12s linear infinite}
+@keyframes drg-show{0%{opacity:0}2%{opacity:1}23%{opacity:1}25%{opacity:0}100%{opacity:0}}
+.pf-fr .drh,.pf-fr .drs{offset-rotate:auto}
+@keyframes drg-fly{from{offset-distance:0%}to{offset-distance:100%}}
+.pf-fr .drw{transform-box:fill-box;transform-origin:100% 90%;animation:drg-flap .55s ease-in-out infinite}
+.pf-fr .drw.far{animation-delay:-.27s;opacity:.75}
+@keyframes drg-flap{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(24deg)}}
+@supports not (offset-path:path('M0 0')){.pf-fr .dov{display:none}}
+.pf-fr.fr-dragon-edge .dov{animation:drg-show 12s linear infinite}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
 .lk-bn{display:block;width:100%;height:22px;border-radius:6px;background-size:200% auto}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
-@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}}
+@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}.pf-fr .dov{display:none}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
 .pf-box{width:min(520px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:26px;padding:20px 18px 18px;box-shadow:var(--sh);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative;animation:pf-p .24s cubic-bezier(.2,1.2,.4,1)}
 .pf-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-size:17px;cursor:pointer;color:var(--ink);z-index:2;box-shadow:var(--sh-sm)}
@@ -109,3 +123,14 @@
 .pf-note{font-size:12.5px;color:var(--muted);margin:14px 0 0;text-align:center}
 @keyframes pf-f{from{opacity:0}}@keyframes pf-p{from{opacity:0;transform:translateY(10px) scale(.97)}}
 @media (max-width:420px){.pf-nums b{font-size:20px}.pf-ach{grid-template-columns:1fr 1fr}}
+/* 🔍 thanh lọc tab Khung (patch -147): nút nhóm + select chủ đề/sắp xếp + toggle đã-sở-hữu + huy hiệu bậc.
+   Nút/select wrap xuống dòng nhờ flex-wrap (mobile 390px); grid .lk-grid hiện có (minmax 92px) giữ nguyên. */
+.lk-filter{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
+.lk-frow{display:flex;flex-wrap:wrap;gap:6px}
+.lk-fbtn{flex:none;min-height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font:800 12.5px Nunito,sans-serif;cursor:pointer;color:var(--ink)}
+.lk-fbtn[aria-pressed=true]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.lk-fsel{flex:1;min-width:120px;min-height:36px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font:800 13px Nunito,sans-serif;color:var(--ink);padding:0 8px}
+.lk-count{font:700 12px Nunito,sans-serif;color:var(--muted)}
+.lk-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;align-items:center;font-weight:700;color:var(--muted);font-size:11px}
+.lk-tier{border-radius:999px;padding:1px 7px;font-size:10.5px;font-weight:800;color:#fff}
+.lk-tier.cui{background:#5b8c5a}.lk-tier.hiem{background:#3d8bff}.lk-tier.vip{background:linear-gradient(90deg,#b8860b,#e0a612)}

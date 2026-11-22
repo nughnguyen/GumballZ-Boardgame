@@ -45,6 +45,7 @@ export function vipProgress(vip, rank, today = '') {
     return { ...x, wid: VIP_WID(x), streak, left: got ? 0 : Math.max(0, x.days - streak - (todayCounts ? 1 : 0)), got, inTop, todayCounts };
   });
 }
+const gw = (s, g) => (s.g && s.g[g] && +s.g[g].w) || 0;
 export const UNLOCK = {
   p10: { desc: 'Chơi 10 ván', ok: s => s.p >= 10 }, p50: { desc: 'Chơi 50 ván', ok: s => s.p >= 50 }, p200: { desc: 'Chơi 200 ván', ok: s => s.p >= 200 },
   w10: { desc: 'Thắng 10 ván', ok: s => s.w >= 10 }, w50: { desc: 'Thắng 50 ván', ok: s => s.w >= 50 }, w200: { desc: 'Thắng 200 ván', ok: s => s.w >= 200 },
@@ -53,6 +54,11 @@ export const UNLOCK = {
   d7: { desc: 'Chơi vào 7 ngày khác nhau', ok: s => s.days >= 7 }, d30: { desc: 'Chơi vào 30 ngày khác nhau', ok: s => s.days >= 30 },
   night: { desc: 'Chơi xong một ván lúc nửa đêm', ok: s => !!s.night },
   top10: { desc: 'Lọt top 10 bảng xếp hạng (cần đăng nhập)', ok: s => s.rank >= 1 && s.rank <= 10 },
+  /* 🖼️ thêm 2026-11-22 (patch -147): lock mới cho 47 khung avatar */
+  p1: { desc: 'Chơi 1 ván', ok: s => s.p >= 1 }, w1: { desc: 'Thắng 1 ván', ok: s => s.w >= 1 }, d3: { desc: 'Chơi vào 3 ngày khác nhau', ok: s => s.days >= 3 }, p20: { desc: 'Chơi 20 ván', ok: s => s.p >= 20 }, k3: { desc: 'Chơi 3 game khác nhau', ok: s => s.kinds >= 3 }, k5: { desc: 'Chơi 5 game khác nhau', ok: s => s.kinds >= 5 }, w25: { desc: 'Thắng 25 ván', ok: s => s.w >= 25 }, w30: { desc: 'Thắng 30 ván', ok: s => s.w >= 30 }, w60: { desc: 'Thắng 60 ván', ok: s => s.w >= 60 }, w80: { desc: 'Thắng 80 ván', ok: s => s.w >= 80 }, w100: { desc: 'Thắng 100 ván', ok: s => s.w >= 100 }, w300: { desc: 'Thắng 300 ván', ok: s => s.w >= 300 }, w400: { desc: 'Thắng 400 ván', ok: s => s.w >= 400 }, w500: { desc: 'Thắng 500 ván', ok: s => s.w >= 500 }, w700: { desc: 'Thắng 700 ván', ok: s => s.w >= 700 }, w800: { desc: 'Thắng 800 ván', ok: s => s.w >= 800 }, w1000: { desc: 'Thắng 1000 ván', ok: s => s.w >= 1000 }, w1500: { desc: 'Thắng 1500 ván', ok: s => s.w >= 1500 }, s8: { desc: 'Thắng 8 ván liên tiếp', ok: s => s.best >= 8 }, d14: { desc: 'Chơi vào 14 ngày khác nhau', ok: s => s.days >= 14 }, k25: { desc: 'Chơi 25 game khác nhau', ok: s => s.kinds >= 25 }, top5: { desc: 'Top 5 bảng xếp hạng', ok: s => s.rank >= 1 && s.rank <= 5 }, top3: { desc: 'Top 3 bảng xếp hạng', ok: s => s.rank >= 1 && s.rank <= 3 }, event: { desc: 'Chỉ mở trong dịp sự kiện (Quản trị cấp tay)', ok: () => false },
+  w10chess: { desc: 'Thắng 10 ván cờ (Cờ Vua + Cờ Tướng)', ok: s => gw(s, 'covua') + gw(s, 'cotuong') >= 10 },
+  w20card: { desc: 'Thắng 20 ván game bài', ok: s => ['bacao', 'baitan', 'catte', 'chan', 'daochinh', 'hanabi', 'hoisanquai', 'lieng', 'loveletter', 'maubinh', 'memory', 'poker', 'saboteur', 'sam', 'skull', 'solitaire', 'sushigo', 'tala', 'tienlen', 'totom', 'tusac', 'uno', 'xidach', 'xiecthu', 'xito'].reduce((a, g) => a + gw(s, g), 0) >= 20 },
+  w30meono: { desc: 'Thắng 30 ván Mèo Nổ', ok: s => gw(s, 'meono') >= 30 }, w20masoi: { desc: 'Thắng 20 ván Ma Sói', ok: s => gw(s, 'masoi') >= 20 }, w10camel: { desc: 'Thắng 10 ván Đua Lạc Đà', ok: s => gw(s, 'camel') >= 10 }, w5typhu: { desc: 'Thắng 5 ván Cờ Tỷ Phú', ok: s => gw(s, 'typhu') >= 5 },
   /* 🏆 vật phẩm VIP (patch -143): mở bằng chuỗi ngày đứng top BXH — máy chủ là chuẩn (P.vipTop),
      st.vip lấy từ hồ sơ máy chủ qua extra.vip (xem statsFromTotals); không có dữ liệu vip thì chưa mở. */
   vip1: { desc: 'Top 10 liên tục 7 ngày', ok: s => vipStreakOf(s.vip, 'vip1') >= 7 },
@@ -68,6 +74,10 @@ export const OWNER_ID = 1; /* mặc định/fallback: tài khoản đầu tiên 
 export const isOwner = u => !!(u && u.admin && u.owner);
 export const isOpen = (lock, st) => { if (!lock || (st && st.admin)) return true; /* chủ sảnh mở hết */ const u = UNLOCK[lock]; try { return !!(u && st && u.ok(st)); } catch (e) { return false; } };
 export const lockDesc = lock => (UNLOCK[lock] || {}).desc || 'Chơi thêm';
+/* 🖼️ phân loại khung (patch -147): tier 0-2 = Cùi, 3-4 = VIP; cat + theme để lọc/sắp xếp trong Hồ sơ */
+export const tierName = t => t >= 3 ? 'VIP' : t === 2 ? 'Hiếm' : 'Cùi';
+export const CAT_LABEL = { event: '🎉 Sự kiện', theme: '🎨 Chủ đề', task: '🎯 Nhiệm vụ', shop: '🛍️ Cửa hàng', gacha: '🎲 Gacha', vip: '👑 VIP' };
+export const THEMES = ['Cơ Bản', 'Thiên Nhiên', 'Đông Phương', 'Thần Thoại', 'Game', 'Biển', 'Lễ Hội', 'Vũ Trụ', 'Tương Lai'];
 
 /* ---------- nối với hệ thành tựu sẵn có (shared/ui/stats.js) – CHỈ ĐỌC, không sửa stats.js ----------
    totals() của stats.js đã trả { p, w, kinds, days, best, night, ... } nên map thẳng sang st.
@@ -82,13 +92,14 @@ export function statsFromTotals(t = {}, extra = {}) {
     days: +t.days || 0, night: !!t.night, rank: +extra.rank || 0,
     created: +extra.created || 0, admin: !!extra.admin,
     vip: extra.vip && typeof extra.vip === 'object' ? extra.vip : null, /* 🏆 tiến độ VIP (P.vipTop) để xét khoá vip1..vip5 */
+    g: (t.g && typeof t.g === 'object') ? t.g : {},
   };
 }
 export function statsFromLoad(s = {}, extra = {}) {
   let p = 0, w = 0, kinds = 0; const g = s.g || {};
   for (const k in g) { p += g[k].p || 0; w += g[k].w || 0; if (g[k].p) kinds++; }
   return statsFromTotals(
-    { p, w, kinds, days: (s.days || []).length, best: s.best || 0, night: !!s.night },
+    { p, w, kinds, days: (s.days || []).length, best: s.best || 0, night: !!s.night, g: s.g || {} },
     { created: s.first || 0, ...extra },
   );
 }
@@ -99,47 +110,95 @@ export function readAuthFlags() {
 
 /* khung avatar – vòng màu vẽ ở FRAME_RING (kích thước tổng vẫn = size, xem shared/css/avatar.css) */
 export const FRAMES = [
-  { id: '', name: 'Không khung' },
-  { id: 'go', name: 'Gỗ', lock: 'p10' },
-  { id: 'la', name: 'Lá non', lock: 'd7' },
-  { id: 'bac', name: 'Bạc', lock: 'w10' },
-  { id: 'dem', name: 'Đêm sao', lock: 'night' },
-  { id: 'lua', name: 'Lửa', lock: 's5' },
-  { id: 'cauvong', name: 'Cầu vồng', lock: 'k10' },
-  { id: 'vang', name: 'Vàng', lock: 'w50' },
-  { id: 'tim', name: 'Tím huyền bí', lock: 'top10' },
-  { id: 'kimcuong', name: 'Kim cương', lock: 'w200' },
-  { id: 'owner', name: 'Chủ web', lock: 'admin' },
+  { id: '', name: 'Không khung', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'go', name: 'Gỗ', lock: 'p10', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'la', name: 'Lá non', lock: 'd7', tier: 0, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'bac', name: 'Bạc', lock: 'w10', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'dem', name: 'Đêm sao', lock: 'night', tier: 1, cat: 'task', theme: 'Vũ Trụ' },
+  { id: 'lua', name: 'Lửa', lock: 's5', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'cauvong', name: 'Cầu vồng', lock: 'k10', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'vang', name: 'Vàng', lock: 'w50', tier: 2, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'tim', name: 'Tím huyền bí', lock: 'top10', tier: 2, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'kimcuong', name: 'Kim cương', lock: 'w200', tier: 3, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'owner', name: 'Chủ web', lock: 'admin', tier: 4, cat: 'vip', theme: 'Thần Thoại' },
   /* 🛍️ khung bán bằng xu ở Cửa hàng (shop: giá xu) / chỉ mở ra từ rương (chest) — mở khoá bằng ví, xem shared/ui/wallet.js */
-  { id: 'sanho', name: 'Khung San Hô', shop: 150 },
-  { id: 'rungxanh', name: 'Khung Rừng Xanh', shop: 200 },
-  { id: 'bacha', name: 'Khung Bạc Hà', shop: 150 },
-  { id: 'timmong', name: 'Khung Tím Mộng', shop: 250 },
-  { id: 'bongbong', name: 'Khung Bong Bóng', chest: true },
-  { id: 'saobang', name: 'Khung Sao Băng', chest: true },
-  { id: 'keongot', name: 'Khung Mật Ngọt', chest: true },
-  { id: 'hoanggia', name: 'Khung Hoàng Gia', chest: true },
+  { id: 'sanho', name: 'Khung San Hô', shop: 150, tier: 1, cat: 'shop', theme: 'Biển' },
+  { id: 'rungxanh', name: 'Khung Rừng Xanh', shop: 200, tier: 1, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'bacha', name: 'Khung Bạc Hà', shop: 150, tier: 1, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'timmong', name: 'Khung Tím Mộng', shop: 250, tier: 2, cat: 'shop', theme: 'Thần Thoại' },
+  { id: 'bongbong', name: 'Khung Bong Bóng', chest: true, tier: 2, cat: 'gacha', theme: 'Biển' },
+  { id: 'saobang', name: 'Khung Sao Băng', chest: true, tier: 2, cat: 'gacha', theme: 'Vũ Trụ' },
+  { id: 'keongot', name: 'Khung Mật Ngọt', chest: true, tier: 2, cat: 'gacha', theme: 'Thiên Nhiên' },
+  { id: 'hoanggia', name: 'Khung Hoàng Gia', chest: true, tier: 2, cat: 'gacha', theme: 'Thần Thoại' },
   /* 🛍️ thêm 2026-11-21 (kiểu Nitro): khung thường bán bằng xu + khung động chỉ mở rương (cực hiếm) */
-  { id: 'anhdao', name: 'Khung Anh Đào', shop: 200 },
-  { id: 'saoxanh', name: 'Khung Sao Xanh', shop: 200 },
-  { id: 'bienxanh', name: 'Khung Biển Xanh', shop: 150 },
-  { id: 'hoanghon', name: 'Khung Hoàng Hôn', shop: 250 },
-  { id: 'mattrang', name: 'Khung Mặt Trăng', shop: 200 },
-  { id: 'rungthong', name: 'Khung Rừng Thông', shop: 150 },
-  { id: 'camvang', name: 'Khung Cam Vàng', shop: 150 },
-  { id: 'timsen', name: 'Khung Tím Sen', shop: 200 },
-  { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', chest: true, anim: 'spin' },
-  { id: 'luachay', name: 'Khung Lửa Cháy', chest: true, anim: 'glow' },
-  { id: 'vangxoay', name: 'Khung Vàng Xoay', chest: true, anim: 'spin' },
+  { id: 'anhdao', name: 'Khung Anh Đào', shop: 200, tier: 1, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'saoxanh', name: 'Khung Sao Xanh', shop: 200, tier: 1, cat: 'shop', theme: 'Vũ Trụ' },
+  { id: 'bienxanh', name: 'Khung Biển Xanh', shop: 150, tier: 1, cat: 'shop', theme: 'Biển' },
+  { id: 'hoanghon', name: 'Khung Hoàng Hôn', shop: 250, tier: 2, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'mattrang', name: 'Khung Mặt Trăng', shop: 200, tier: 1, cat: 'shop', theme: 'Vũ Trụ' },
+  { id: 'rungthong', name: 'Khung Rừng Thông', shop: 150, tier: 1, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'camvang', name: 'Khung Cam Vàng', shop: 150, tier: 1, cat: 'shop', theme: 'Cơ Bản' },
+  { id: 'timsen', name: 'Khung Tím Sen', shop: 200, tier: 1, cat: 'shop', theme: 'Thiên Nhiên' },
+  { id: 'cauvongxoay', name: 'Khung Cầu Vồng Xoay', chest: true, anim: 'spin', tier: 3, cat: 'gacha', theme: 'Thiên Nhiên' },
+  { id: 'luachay', name: 'Khung Lửa Cháy', chest: true, anim: 'glow', tier: 3, cat: 'gacha', theme: 'Thiên Nhiên' },
+  { id: 'vangxoay', name: 'Khung Vàng Xoay', chest: true, anim: 'spin', tier: 3, cat: 'gacha', theme: 'Cơ Bản' },
   /* ✨ thêm 2026-11-21 (patch -123): 3 khung động chủ đề mới — chỉ mở ra từ rương (cực hiếm) */
-  { id: 'vuongmien', name: 'Khung Vương Miện', chest: true, anim: 'spin' },
-  { id: 'longphung', name: 'Khung Rồng Bay Phụng Múa', chest: true, anim: 'orbit' },
-  { id: 'vuatrichoi', name: 'Khung Vua Trò Chơi', chest: true, anim: 'spin' },
+  { id: 'vuongmien', name: 'Khung Vương Miện', chest: true, anim: 'spin', tier: 3, cat: 'gacha', theme: 'Thần Thoại' },
+  { id: 'longphung', name: 'Khung Rồng Bay Phụng Múa', chest: true, anim: 'dragon', tier: 3, cat: 'gacha', theme: 'Đông Phương', dragon: [['#ff3b1a', '#7a0d0d']] },
+  { id: 'vuatrichoi', name: 'Khung Vua Trò Chơi', chest: true, anim: 'spin', tier: 3, cat: 'gacha', theme: 'Game' },
   /* 🏆 thêm 2026-11-22 (patch -143): khung VIP — chỉ mở bằng chuỗi ngày đứng top BXH (lock vip1/vip3/vip5),
      KHÔNG bán bằng xu, KHÔNG mở ra từ rương, KHÔNG cấp tay được (máy chủ chặn ở nhánh grant). */
-  { id: 'vipsao', name: 'Khung Ngôi Sao', lock: 'vip1' },
-  { id: 'vipvuong', name: 'Khung Vương Giả', lock: 'vip3' },
-  { id: 'viphuyen', name: 'Khung Huyền Thoại', lock: 'vip5', anim: 'spin' },
+  { id: 'vipsao', name: 'Khung Ngôi Sao', lock: 'vip1', tier: 3, cat: 'vip', theme: 'Thần Thoại' },
+  { id: 'vipvuong', name: 'Khung Vương Giả', lock: 'vip3', tier: 4, cat: 'vip', theme: 'Thần Thoại' },
+  { id: 'viphuyen', name: 'Khung Huyền Thoại', lock: 'vip5', anim: 'spin', tier: 4, cat: 'vip', theme: 'Thần Thoại' },
+  /* 🖼️ thêm 2026-11-22 (patch -147): 47 khung mới */
+  { id: 'dacuoi', name: 'Đá cuội', lock: 'd3', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'dong', name: 'Đồng', lock: 'p1', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'kraft', name: 'Giấy kraft', lock: 'w1', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'maytrang', name: 'Mây trắng', lock: 'k3', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'phan', name: 'Hồng phấn', lock: 'p10', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'camdao', name: 'Cam đào', lock: 'p20', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'mongtim', name: 'Mộng Tím', lock: 'k5', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'xanhngoc', name: 'Xanh Ngọc', lock: 'p20', tier: 0, cat: 'task', theme: 'Cơ Bản' },
+  { id: 'vangdong', name: 'Vàng đồng', lock: 'w25', tier: 1, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'luanho', name: 'Lửa Nhỏ', lock: 's5', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'anhdaonhe', name: 'Anh Đào Nhẹ', lock: 'd14', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'songxanh', name: 'Sóng Xanh', lock: 'w30', tier: 1, cat: 'task', theme: 'Biển' },
+  { id: 'traitim', name: 'Trái Tim', lock: 'p50', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'banco', name: 'Bàn Cờ', lock: 'w10chess', tier: 1, cat: 'task', theme: 'Game' },
+  { id: 'baitay', name: 'Bài Tây', lock: 'w20card', tier: 1, cat: 'task', theme: 'Game' },
+  { id: 'banggia', name: 'Băng Giá', lock: 'w60', tier: 2, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'domdom', name: 'Đom Đóm', lock: 'night', tier: 2, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'meono', name: 'Mèo Nổ', lock: 'w30meono', tier: 2, cat: 'task', theme: 'Game' },
+  { id: 'masoi', name: 'Ma Sói', lock: 'w20masoi', tier: 2, cat: 'task', theme: 'Game' },
+  { id: 'lacda', name: 'Đua Lạc Đà', lock: 'w10camel', tier: 2, cat: 'task', theme: 'Game' },
+  { id: 'typhu', name: 'Tỷ Phú', lock: 'w5typhu', tier: 2, cat: 'task', theme: 'Game' },
+  { id: 'anhdaobay', name: 'Anh Đào Bay', lock: 'd30', tier: 2, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'haiduong', name: 'Hải Dương', lock: 'w80', tier: 2, cat: 'task', theme: 'Biển' },
+  { id: 'thansam', name: 'Thần Sấm', lock: 's8', tier: 2, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'neoncyber', name: 'Neon Cyber', shop: 500, tier: 2, cat: 'shop', theme: 'Tương Lai' },
+  { id: 'nhachoi', name: 'Nhạc Hội', lock: 'k25', tier: 2, cat: 'task', theme: 'Lễ Hội' },
+  { id: 'thanhlongbay', name: 'Thanh Long Bay', lock: 'w300', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Đông Phương', dragon: [['#2fbf71', '#1d8f55']] },
+  { id: 'xichlongbay', name: 'Xích Long Bay', lock: 'w400', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Đông Phương', dragon: [['#ff3b1a', '#7a0d0d']] },
+  { id: 'banglongbay', name: 'Băng Long Bay', lock: 'w500', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Đông Phương', dragon: [['#7fd8ff', '#2f7fd0']] },
+  { id: 'phuonghoang', name: 'Phượng Hoàng', lock: 'top10', tier: 3, cat: 'task', theme: 'Đông Phương' },
+  { id: 'thienthan', name: 'Thiên Thần', lock: 'top5', tier: 3, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'vutru', name: 'Vũ Trụ', lock: 'w700', tier: 3, cat: 'task', theme: 'Vũ Trụ' },
+  { id: 'tetviet', name: 'Tết Việt', lock: 'event', tier: 3, cat: 'event', theme: 'Đông Phương' },
+  { id: 'songlong', name: 'Song Long Tranh Châu', lock: 'w1000', anim: 'dragon', tier: 4, cat: 'task', theme: 'Đông Phương', dragon: [['#ffd23c', '#b8860b'], ['#ff5a3a', '#b30f0f']] },
+  { id: 'tamlong', name: 'Tam Long Hội', lock: 'w1500', anim: 'dragon', tier: 4, cat: 'task', theme: 'Đông Phương', dragon: [['#ff4d4d', '#7a0d0d'], ['#ffd23c', '#b8860b'], ['#2ec5b6', '#0b4a3c']] },
+  { id: 'longthienha', name: 'Long Thiên Hà', lock: 'vip5', anim: 'dragon', tier: 4, cat: 'task', theme: 'Vũ Trụ', dragon: [['#7a4dff', '#2a1a7a']] },
+  { id: 'phuonglong', name: 'Phượng Long Hội', lock: 'top3', anim: 'dragon', tier: 4, cat: 'task', theme: 'Đông Phương', dragon: [['#ff7a1a', '#e11d1d']] },
+  { id: 'chusanh', name: 'Chủ Sảnh Tối Thượng', lock: 'admin', anim: 'dragon', tier: 4, cat: 'task', theme: 'Thần Thoại', dragon: [['#ff4d4d', '#7a0d0d'], ['#ffd23c', '#b8860b'], ['#4dc3ff', '#1c5fa8']] },
+  { id: 'thanhlong', name: 'Thanh Long', lock: 'w800', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Đông Phương', dragon: [['#2fbf71', '#1d8f55']] },
+  { id: 'xichlong', name: 'Xích Long', lock: 'w1000', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Đông Phương', dragon: [['#ff3b1a', '#7a0d0d']] },
+  { id: 'banglong', name: 'Băng Long', lock: 'event', anim: 'dragon-edge', tier: 3, cat: 'event', theme: 'Đông Phương', dragon: [['#7fd8ff', '#2f7fd0']] },
+  { id: 'vuonhoa', name: 'Vườn Hoa', lock: 'd30', tier: 1, cat: 'task', theme: 'Thiên Nhiên' },
+  { id: 'halloween', name: 'Halloween', lock: 'event', tier: 2, cat: 'event', theme: 'Lễ Hội' },
+  { id: 'giangsinh', name: 'Giáng Sinh', lock: 'event', tier: 2, cat: 'event', theme: 'Lễ Hội' },
+  { id: 'samset', name: 'Sấm Sét', lock: 'w100', tier: 3, cat: 'task', theme: 'Thần Thoại' },
+  { id: 'ronglua', name: 'Rồng Lửa', lock: 'w300', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Thần Thoại', dragon: [['#ff6a1a', '#7a0d0d']] },
+  { id: 'thienha', name: 'Thiên Hà', lock: 'w500', tier: 4, cat: 'task', theme: 'Vũ Trụ' },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -157,6 +216,8 @@ export const FRAME_RING = {
   vipsao: 'radial-gradient(circle at 30% 25%,#fff 0 1.5px,transparent 2px),radial-gradient(circle at 70% 65%,#fff 0 1.2px,transparent 1.8px),conic-gradient(#fff2b3,#e0a612,#ffd84a,#b8780a,#fff2b3)',
   vipvuong: 'conic-gradient(#b06bff,#ffd84a,#6a35e0,#e0a612,#b06bff,#ffd84a,#6a35e0)',
   viphuyen: 'conic-gradient(#ffd84a,#ff3d5a,#b06bff,#3d8bff,#2ec5b6,#ffd84a,#fff2b3,#ffd84a)',
+  /* 🖼️ -147: ring cho 47 khung mới */
+  dacuoi: 'conic-gradient(#c9c5bd,#8e8a83,#d8d4cc,#77736c,#c9c5bd)', dong: 'conic-gradient(#f2b07a,#b36a2e,#f7c79c,#8a4a1c,#f2b07a)', kraft: 'linear-gradient(135deg,#d8b98a,#b89a6a)', maytrang: 'linear-gradient(135deg,#e6f1ff,#bcd8f5)', phan: 'linear-gradient(135deg,#ffb8d0,#ff8fbf)', camdao: 'conic-gradient(#ffc27a,#ff9a5a,#ffc27a,#ff8a4a,#ffc27a)', mongtim: 'conic-gradient(#c9b3ff,#9a7cf0,#c9b3ff,#8566e0,#c9b3ff)', xanhngoc: 'conic-gradient(#8fe8d8,#2bb8a0,#8fe8d8,#1c9a86,#8fe8d8)', vangdong: 'conic-gradient(#ffe9a0,#d9a21b,#ffe9a0,#b8860b,#ffe9a0)', luanho: 'conic-gradient(#ffe36b,#ff7a1a,#e11d1d,#ff7a1a,#ffe36b)', anhdaonhe: 'conic-gradient(#ffd0e4,#ff8fbf,#fff,#ff6fae,#ffd0e4)', songxanh: 'conic-gradient(#7ff0ff,#1c9fe0,#b6f6ff,#1170c0,#7ff0ff)', traitim: 'conic-gradient(#ff9ab8,#ff4d7a,#ff9ab8,#e0245e,#ff9ab8)', banco: 'repeating-conic-gradient(#222 0 15deg,#f4f4f4 15deg 30deg)', baitay: 'conic-gradient(#e0182d,#222,#e0182d,#222,#e0182d)', banggia: 'conic-gradient(#e6fbff,#7fd8ff,#fff,#4fb4f0,#e6fbff)', domdom: 'conic-gradient(#c8ff7a,#4a8a2a,#c8ff7a,#2a5a1a,#c8ff7a)', meono: 'conic-gradient(#ffd23c,#ff7a1a,#ffd23c,#222,#ffd23c)', masoi: 'conic-gradient(#e8e8ff,#6a6aa8,#e8e8ff,#2a2a58,#e8e8ff)', lacda: 'conic-gradient(#ffe1a0,#d9a050,#ffe1a0,#a8742c,#ffe1a0)', typhu: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', anhdaobay: 'conic-gradient(#ffd0e4,#ff8fbf,#fff,#ff6fae,#ffd0e4)', haiduong: 'conic-gradient(#9ff3ff,#1c9fe0,#0b5fa8,#4fe0ff,#9ff3ff)', thansam: 'conic-gradient(#fff,#ffe600,#7a4dff,#ffe600,#fff)', neoncyber: 'conic-gradient(#00f0ff,#ff2bd6,#00f0ff,#7a2bff,#00f0ff)', nhachoi: 'conic-gradient(#ff4d9a,#9a4dff,#4dc3ff,#4dff88,#ffd23c,#ff4d9a)', thanhlongbay: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', xichlongbay: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', banglongbay: 'conic-gradient(#e8fbff,#4fb4f0,#fff,#2f7fd0,#e8fbff)', phuonghoang: 'conic-gradient(#ffe27a,#ff7a1a,#e11d1d,#ff7a1a,#ffe27a)', thienthan: 'conic-gradient(#fffbe0,#ffd966,#fff,#f2b800,#fffbe0)', vutru: 'conic-gradient(#7a4dff,#4dc3ff,#2a1a7a,#ff4dc3,#7a4dff)', tetviet: 'conic-gradient(#ffd23c,#e11d1d,#ffd23c,#b30f0f,#ffd23c)', songlong: 'conic-gradient(#ffe27a,#ff5a3a,#ffe27a,#e0a020,#ffe27a)', tamlong: 'conic-gradient(#ff4d4d,#ffb84d,#f6ff4d,#4dff88,#4dc3ff,#9a4dff,#ff4de1,#ff4d4d)', longthienha: 'conic-gradient(#7a4dff,#ff4dc3,#4dc3ff,#2a1a7a,#7a4dff)', phuonglong: 'conic-gradient(#fff3a6,#ff7a1a,#e11d1d,#ffd23c,#fff3a6)', chusanh: 'conic-gradient(#ff4d4d,#ffb84d,#f6ff4d,#4dff88,#4dc3ff,#9a4dff,#ff4de1,#ff4d4d)', thanhlong: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', xichlong: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', banglong: 'conic-gradient(#e8fbff,#4fb4f0,#fff,#2f7fd0,#e8fbff)', vuonhoa: 'conic-gradient(#7bd66a,#2e9a3c,#a8e68a,#1f7a34,#7bd66a)', halloween: 'conic-gradient(#ff9a1a,#6a1fa8,#ff9a1a,#2a0a45,#ff9a1a)', giangsinh: 'repeating-conic-gradient(#e0182d 0 12deg,#fff 12deg 24deg)', samset: 'conic-gradient(#fff,#ffe600,#6a4dff,#ffe600,#fff)', ronglua: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', thienha: 'conic-gradient(#7a4dff,#ff4dc3,#4dc3ff,#2a1a7a,#7a4dff)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [
