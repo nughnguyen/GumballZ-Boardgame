@@ -9,7 +9,7 @@
 // XP cần để lên cấp L = 50×(L−1)² (cấp 2: 50, cấp 3: 200, cấp 4: 450, cấp 5: 800).
 import { auth, friends, leaderboard } from '../net/api.js?v=29';
 import { GAME_NAMES } from './stats.js?v=91';
-import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, newbieBadge, ownName } from './profile.js?v=61';
+import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, newbieBadge, ownName } from './profile.js?v=62';
 import { openLogin } from './account.js?v=53';
 import { syncNow } from './sync.js?v=49';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
@@ -262,7 +262,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
   };
   const friendAction = async a => {
     const r = selected; if (!r) return;
-    if (a === 'edit') { import('./profile.js?v=61').then(m => m.openProfile()); return; }
+    if (a === 'edit') { import('./profile.js?v=62').then(m => m.openProfile()); return; }
     if (a === 'login') { openLogin(); return; }
     if (a === 'dm') { import('./friends.js?v=37').then(m => m.openFriends(r.id)); return; }
     if (a === 'add' || a === 'accept') {
@@ -348,7 +348,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
     if (e.target.closest('[data-login]')) { openLogin(); return; }
     if (e.target.closest('[data-retry]')) { fetchBoard(); return; }
     const viewBtn = e.target.closest('[data-view]');
-    if (viewBtn) { const uid = +viewBtn.dataset.view || 0; if (uid) import('./member.js?v=7').then(m => m.openMember(uid)); return; }
+    if (viewBtn) { const uid = +viewBtn.dataset.view || 0; if (uid) import('./member.js?v=8').then(m => m.openMember(uid)); return; }
     const frBtn = e.target.closest('[data-friend]');
     if (frBtn && !frBtn.disabled) { friendAction(frBtn.dataset.friend); return; }
     const row = e.target.closest('.rk-row,.rk-pd');
@@ -356,7 +356,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
       const uid = +row.dataset.uid || 0;
       if (!uid) return;
       if (page) selectPlayer(uid, row);
-      else import('./member.js?v=7').then(m => m.openMember(uid));
+      else import('./member.js?v=8').then(m => m.openMember(uid));
     }
   });
 
@@ -431,7 +431,7 @@ export async function mountSubTops(rootEl, boardCtl) {
     const more = e.target.closest('[data-go]');
     if (more) { const def = SUBS.find(s => s.key === more.dataset.go); if (def && boardCtl && boardCtl.setBoard) boardCtl.setBoard(def.go[0], def.go[1]); return; }
     const row = e.target.closest('.rk-sub-row');
-    if (row && +row.dataset.uid) import('./member.js?v=7').then(m => m.openMember(+row.dataset.uid));
+    if (row && +row.dataset.uid) import('./member.js?v=8').then(m => m.openMember(+row.dataset.uid));
   });
   try {
     const [allRes, tyRes, coRes] = await Promise.all([lbFetch('all', 'xp'), lbFetch('typhu', 'wins'), lbFetch('cotuong', 'wins')]);

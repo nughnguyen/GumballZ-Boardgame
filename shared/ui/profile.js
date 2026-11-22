@@ -2,7 +2,7 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=61'
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=62'
 import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=91';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
@@ -10,7 +10,7 @@ import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=3'; /* 🐉 r�
 import { bannerHTML42, initBanners } from './banner-render.js?v=2'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=3';
-import { medalHTML, attachBadgeTilt } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142) */
+import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {} /* chạy khi profile.js được import (Hồ sơ/BXH/thành viên) để font kịp tải */
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
@@ -107,7 +107,7 @@ export function profileCss() {
   import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=10', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=10'; }
+  try { l.href = new URL('../css/avatar.css?v=11', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=11'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -474,10 +474,124 @@ export function openProfile() {
 }
 
 /* Vẽ hồ sơ vào một phần tử trên trang /hoso/ (không phải modal) — tái dùng nguyên vẹn logic render
-   (kể cả tab Khung -147: bộ lọc/sắp xếp/toggle + rồng dragon-frame.js). */
+   (kể cả tab Khung -147: bộ lọc/sắp xếp/toggle + rồng dragon-frame.js).
+   Có ?id=<uid> thì vẽ hồ sơ công khai của người đó (patch -162), không thì hồ sơ chính chủ. */
 export function mountProfilePage(rootEl) {
   if (!rootEl) return;
+  let id = null;
+  try { id = new URLSearchParams(location.search).get('id'); } catch (e) {}
+  if (id) return mountMemberPage(rootEl, id);
   profileCss();
   rootEl.classList.add('pf-page');
   renderProfileInto(rootEl, true);
+}
+
+/* ---------- hồ sơ công khai của người khác (patch -162): trang riêng /hoso/?id=<uid> ----------
+   CHỈ XEM: hiện banner + avatar + khung + rồng, tên (font/màu/hiệu ứng đang đeo), danh hiệu, huy hiệu,
+   số liệu, thành tích (thu gọn mặc định như -161), Lộ trình thưởng, game chơi nhiều — KHÔNG có tab
+   Tuỳ chỉnh, nút Đổi tên, Đặt lại/Lưu thay đổi, nút Đăng nhập để đồng bộ. GIỮ nút Kết bạn + Nhắn tin.
+   Dữ liệu từ GET /profile/<id> (cùng endpoint modal cũ dùng) — không bịa thêm field: payload không có
+   xu nên không hiện xu; thành tích chỉ biết id đã mở nên mỗi dòng hiện 1/1, không bịa tiến độ. */
+function renderMemberInto(ov, U) {
+  let rel = null /* fr | in | out | none | null (chưa biết) */, busy = false, achOpen = false; /* 🏆 Thành tựu thu gọn mặc định (patch -161) */
+  const me = () => { try { const a = JSON.parse(ls.get('gumballz-auth') || 'null'); return a && a.user ? a.user : null; } catch (e) { return null; } };
+  const av = safeAv(U.av, U.id);
+  const achGot = ACHS.filter(a => (U.ach || []).includes(a.id));
+  const xpNow = U.xp || 0, curLv = xpLevel(xpNow), nextLv = curLv >= 10 ? null : curLv + 1;
+  const lvFrom = 50 * (curLv - 1) * (curLv - 1), lvTo = 50 * curLv * curLv, pct = nextLv ? Math.round((xpNow - lvFrom) / (lvTo - lvFrom) * 100) : 100; /* cấp = floor(sqrt(xp/50))+1; XP cấp L = 50×(L−1)² */
+  const partNm = (k, v) => { const o = (OPTIONS[k] || []).find(x => Array.isArray(x) && x[0] === v); return o ? o[1] : v; };
+  const strip = [2, 3, 4, 5, 6, 7, 8, 9, 10].map(l => { const ok = curLv >= l; return `<div class="pf2-lv${ok ? ' ok' : ''}${l === nextLv ? ' nx' : ''}"><span class="n">${l}</span><small>${esc(LOCKED_PARTS.filter(p => p.lv === l).map(p => partNm(p.k, p.v)).join(' · '))}</small></div>`; }).join('');
+  const tni = TRACK.findIndex(r => xpNow < r.xp), tnx = tni < 0 ? null : TRACK[tni], tprev = tni <= 0 ? 0 : TRACK[tni - 1].xp;
+  const trackNext = tnx ? `<div class="pf2-tracknext"><div><b>Mốc ${tni + 1}: ${esc(partNm(tnx.k, tnx.v))}</b><small>${xpNow} / ${tnx.xp} điểm</small></div><div class="pf-bar"><i style="width:${Math.round((xpNow - tprev) / (tnx.xp - tprev) * 100)}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
+  const titleDesc = t => (t.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[t.game] || t.game}` : t.desc || '');
+  const ttPill = t => `<span class="pf-tt" tabindex="0" role="button" data-iicon="${esc(t.icon)}" data-iname="${esc(t.name)}" data-ihow="${esc(titleDesc(t))}" data-istate="✅ Đã đạt">${esc(t.icon)} ${esc(t.name)}</span>`;
+  const achRow = a => `<div class="pf2-achrow" tabindex="0" role="button" data-iicon="${esc(a.icon)}" data-iname="${esc(a.name)}" data-ihow="${esc(a.desc)}" data-istate="✅ Đã mở"><div class="pf2-achtop"><span><i>${a.icon}</i> <b>${esc(a.name)}</b></span><small>1/1</small></div><div class="pf2-achbar"><i style="width:100%"></i></div></div>`;
+  const draw = () => {
+    const rate = U.p ? Math.round(U.w / U.p * 100) : 0;
+    let acts = '';
+    if (!me()) acts = '<button type="button" class="pri" data-a="login">👤 Đăng nhập để kết bạn</button>';
+    else if (rel === 'fr') acts = '<button type="button" class="dm" data-a="dm">💬 Nhắn tin riêng</button>';
+    else if (rel === 'in') acts = '<button type="button" class="pri" data-a="accept">✓ Đồng ý kết bạn</button>';
+    else if (rel === 'out') acts = '<button type="button" disabled>⏳ Đã gửi lời mời kết bạn</button>';
+    else if (rel === 'none') acts = '<button type="button" class="pri" data-a="add">＋ Kết bạn</button>';
+    ov.innerHTML = `<div class="pf-box" aria-label="Hồ sơ thành viên">
+      <div class="pf2-grid">
+      <div class="pf2-left">
+      <section class="pf2-id pf-idcard">${bannerHTML(av.b)}<div class="pf2-idbody">${avatarHTML(160, av)}<div class="pf2-name${nameClass({ ...av, n: av.n || (U.owner ? 'owner' : '') })}${U.owner ? ' pf-ownnm' : ''}" style="${nameStyle({ ...av, n: av.n || (U.owner ? 'owner' : '') })}">${esc(U.name)}</div>
+      <div class="pf2-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${uid6(U.id)}</div>
+      <div class="bdg-row">${ownerBadge(U.owner, 'mini')}${!U.owner && U.admin ? adminBadge(true, 'mini') : ''}${!U.owner && U.mod ? modBadge(true, 'mini') : ''}${supporterBadge(U.supporter, 'mini')}${vipBadge(U.vip, 'mini')}${devBadge(U.dev, 'mini')}${newbieBadge(U.lv === 1 && !U.owner && !U.admin && !U.mod, 'mini')}</div>
+      <div class="pf2-sub">${U.title ? ttPill({ ...U.title, desc: titleDesc(U.title) }) : ''}<span class="pf2-lvtx">Cấp ${U.lv} · ${esc(U.lvName || '')}</span></div>
+      <div class="pf2-xp"><b>${nextLv ? `${pct}% tới cấp ${nextLv}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
+      </div></section>
+      <section class="pf2-stats"><div class="pf-dash"><div><b>${U.p}</b><small>🎲 Trận đã chơi</small></div><div><b>${U.w}</b><small>🏆 Trận thắng</small></div><div><b>${rate}%</b><small>🎯 Tỉ lệ thắng</small></div><div><b>${U.best || 0}</b><small>🔥 Chuỗi tốt nhất</small></div></div></section>
+      </div>
+      <div class="pf2-right">
+      <section class="pf2-card"><h3>🎖️ Danh hiệu <small>${(U.titles || []).length} đã đạt</small></h3>
+      ${(U.titles || []).length ? `<div class="pf-tts">${U.titles.map(t => ttPill({ ...t, desc: titleDesc(t) })).join('')}</div>` : '<div class="pf-empty">Chưa có danh hiệu nào – chơi thêm vài ván là có liền 🎲</div>'}
+      </section>
+      <section class="pf2-card pf2-track"><h3>Lộ trình thưởng <span class="pf2-next">${nextLv ? `Tiếp theo: cấp ${nextLv}` : 'Đã nhận hết 🎉'}</span></h3>
+      <div class="pf2-strip">${strip}</div>
+      ${trackNext}
+      </section>
+      <section class="pf2-card pf2-ach${achOpen ? ' open' : ''}"><h3><button type="button" class="pf2-achtog" data-a="ach" aria-expanded="${achOpen}" aria-controls="pf2-achlist">🏆 Thành tựu <small>Đã đạt ${achGot.length}/${ACHS.length}</small><span class="pf2-chev" aria-hidden="true">▾</span></button></h3>
+      <div class="pf2-achbody" id="pf2-achlist"${achOpen ? '' : ' hidden'}>
+      <div>${achGot.map(achRow).join('') || '<div class="pf-empty">Chưa mở được thành tích nào.</div>'}</div>
+      </div>
+      </section>
+      <section class="pf2-card"><h3>🎮 Chơi nhiều nhất <small>${U.kinds || 0} game</small></h3>
+      ${(U.games || []).length ? `<div class="pf-g">${U.games.map(g => `<div>${esc(GAME_NAMES[g.g] || g.g)}</div><span>${g.p} ván</span><em>${g.w} thắng</em>`).join('')}</div>` : '<div class="pf-empty">Chưa chơi ván nào khi đã đăng nhập.</div>'}
+      </section>
+      </div>
+      </div>
+      <div class="pf2-below">
+      ${U.rank ? `<div class="mb-rank">🏆 Hạng ${U.rank}${U.total ? ' / ' + U.total : ''} trên bảng xếp hạng toàn máy chủ</div>` : ''}
+      <p class="pf-note" style="margin:6px 0 0;text-align:left">Thành viên từ ${new Date(U.created).toLocaleDateString('vi-VN')}${U.days ? ` · đã chơi ${U.days} ngày` : ''}</p>
+      <div class="pf2-navbtns"><button type="button" data-a="rank">🏆 Xem Bảng xếp hạng toàn server ▶</button></div>
+      ${acts ? `<div class="pf2-macts">${acts}</div>` : ''}
+      </div>
+      </div>`;
+    ov.querySelectorAll('[data-iname]').forEach(el => { attachInfo(el, () => ({ icon: el.dataset.iicon || 'ℹ️', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' })); });
+    attachBadgeTilt(ov.querySelector('.bdg-row'));
+    try { initBanners(ov); } catch (e) {}
+    try { initFrameDragons(ov); } catch (e) {}
+  };
+  const loadRel = async () => {
+    const m = me(); if (!m) return;
+    try {
+      const api = await import('../net/api.js?v=29');
+      const d = await api.friends.list(); if (!d || !d.ok || !ov.isConnected) return;
+      rel = (d.friends || []).some(f => f.id === U.id) ? 'fr' : (d.incoming || []).some(f => f.id === U.id) ? 'in' : (d.outgoing || []).some(f => f.id === U.id) ? 'out' : 'none'; draw();
+    } catch (e) {}
+  };
+  ov.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-a]'); if (!b || busy) return; const a = b.dataset.a;
+    if (a === 'ach') { achOpen = !achOpen; draw(); ov.querySelector('[data-a="ach"]')?.focus(); return; } /* 🏆 Thành tựu thu gọn/mở (patch -161) */
+    if (a === 'login') { import('./account.js?v=53').then(m => m.openLogin()).catch(() => {}); return; }
+    if (a === 'dm') { const f = await import('./friends.js?v=37').catch(() => null); if (f) f.openFriends(U.id); return; }
+    if (a === 'add' || a === 'accept') {
+      busy = true; b.disabled = true;
+      try { const f = await import('./friends.js?v=37'); const api = await import('../net/api.js?v=29'); if (a === 'add') await f.quickAddFriend({ id: U.id, username: U.username, name: U.name }); else await api.friends.act(U.id, 'accept'); await f.refreshUnread(); } catch (err) {}
+      busy = false; await loadRel(); return;
+    }
+    if (a === 'rank') { location.href = rankURL(); return; } /* 🏆 sang trang BXH riêng /xephang/ (patch -150) */
+  });
+  draw(); loadRel();
+}
+
+/* Vẽ hồ sơ công khai của người khác vào trang /hoso/?id=<uid> (patch -162, chỉ xem).
+   Hồ sơ chính chủ (?id= là id của mình) thì về /hoso/ không tham số. */
+export function mountMemberPage(rootEl, key) {
+  if (!rootEl || key == null || key === '') return;
+  profileCss();
+  rootEl.classList.add('pf-page');
+  rootEl.innerHTML = '<div class="pf-box"><div class="mb-load">Đang mở hồ sơ…</div></div>';
+  import('../net/api.js?v=29').then(m => m.memberProfile(key)).then(r => {
+    if (!rootEl.isConnected) return;
+    if (!r || !r.ok || !r.user) { rootEl.innerHTML = `<div class="pf-box"><div class="mb-load">😿 ${esc((r && r.msg) || 'Không mở được hồ sơ này')}</div><p class="pf-note" style="text-align:center"><a href="../xephang/">← Về Bảng xếp hạng</a></p></div>`; return; }
+    const U = r.user; U.ach = Array.isArray(U.ach) ? U.ach : []; U.titles = Array.isArray(U.titles) ? U.titles : []; U.games = Array.isArray(U.games) ? U.games : [];
+    const me = (() => { try { const a = JSON.parse(ls.get('gumballz-auth') || 'null'); return a && a.user ? a.user : null; } catch (e) { return null; } })();
+    if (me && me.id === U.id) { location.replace(new URL('../../hoso/', import.meta.url).href); return; } /* hồ sơ chính chủ → về /hoso/ không ?id= */
+    try { document.title = `Hồ sơ ${U.name} | GumballZ Boardgame`; } catch (e) {}
+    renderMemberInto(rootEl, U);
+  }).catch(() => { if (rootEl.isConnected) rootEl.innerHTML = '<div class="pf-box"><div class="mb-load">😿 Không kết nối được máy chủ – thử lại sau nha</div></div>'; });
 }

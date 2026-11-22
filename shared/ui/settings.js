@@ -83,7 +83,7 @@ export function openSettings() {
   bindVolumeRows(ov); /* hai thanh trượt âm lượng nhạc nền / hiệu ứng (shared/audio/volume.js) */
   $('#st-pub').onchange = e => ls.set('gumballz-pub-default', e.target.checked ? '1' : '0');
   $('#st-online').onchange = e => { ls.set('gumballz-hide-online', e.target.checked ? '0' : '1'); document.querySelectorAll('#online').forEach(el => { el.style.display = e.target.checked ? '' : 'none'; }); };
-  $('#st-prof').onclick = () => { ov.remove(); import('./profile.js?v=61').then(m => m.openProfile()); };
+  $('#st-prof').onclick = () => { ov.remove(); import('./profile.js?v=62').then(m => m.openProfile()); };
   $('#st-clear').onclick = async () => {
     if (!(await confirmBox('Tên, giao diện, luật đã chọn và ván đang chơi dở trên máy này sẽ bị xoá. Tài khoản vẫn còn trên máy chủ, bạn chỉ bị đăng xuất.', { title: '🗑️ Xoá dữ liệu trên máy này?', ok: 'Xoá hết', danger: true }))) return;
     try { Object.keys(localStorage).filter(k => /^(gumballz|bangvn|meono|uno|typhu|sol|tq|masoi|scribble|camel|cangua|poker|tienlen|xidach|catte|bacao|cotuong|tht|tan-|loto|covua|tala|cholon|tusac|bantau|oanquan|caro|tictactoe|memory|covay|cothu|ranvathang)/i.test(k)).forEach(k => localStorage.removeItem(k)); } catch (e) {}
