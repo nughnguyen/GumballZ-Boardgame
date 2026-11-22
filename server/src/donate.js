@@ -194,41 +194,52 @@ export function donTransferCode(uid, ref, hide) {
   if (!uid) return r ? 'SEVQR GZ R' + r + 'Z' : 'SEVQR GZ';
   return 'SEVQR GZ ' + (hide ? 'A' : 'U') + donUid6(uid) + 'X' + (r ? ' R' + r + 'Z' : '');
 }
+/* Embed v3 (patch -168, thiết kế lại theo đúng mẫu user gửi 19:06 ngày 22/11 + dặn 19:08 "ping tôi á"):
+   author = tên người ủng hộ (icon = logo site — avatar nhân vật 3D trong web không có URL ảnh);
+   title là LINK tới /quantri/ nên BỎ hẳn nút link "Mở trang Quản trị"; content tag TRỰC TIẾP
+   admin bằng ID số <@id> (KHÔNG dùng @here); field Nội dung chuyển khoản vẫn MÃ THẬT
+   'SEVQR GZ U<uid6>X R<ref>Z' (SePay khớp giao dịch + modal donate đều dùng đúng công thức này,
+   chữ "GUMBALLZ NGUYENVANA 8F3K" trong mẫu chỉ là chữ mẫu). */
 export function discordClaimPayload(c, adminId) {
   const amt = Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ';
   const name = String(c.name || 'Ẩn danh').slice(0, 30) || 'Ẩn danh';
   const ref = String(c.ref || '').replace(/\D/g, '').slice(0, 6);
   const at = new Date(+c.at || Date.now());
-  const vn = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(at);
+  /* Giờ VN, ngày trước giờ sau như trong mẫu ("22/11/2026 14:32"). */
+  const vnDay = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(at);
+  const vnHour = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(at);
+  const vn = vnDay + ' ' + vnHour;
   const uname = String(c.username || '').trim().slice(0, 30);
   const fields = [
-    { name: '📋 Loại đơn', value: 'Ủng hộ — yêu cầu duyệt' },
-    { name: '👤 Người yêu cầu', value: name, inline: true },
-    { name: '👤 Username', value: uname ? '@' + uname : name, inline: true },
-    { name: '💰 Số tiền', value: amt, inline: true },
-    { name: '🔢 Mã ref', value: ref || '—', inline: true },
-    { name: '📝 Nội dung giao dịch', value: '`' + donTransferCode(+c.uid || 0, ref, !!c.hide) + '`' },
+    { name: 'Người gửi', value: name, inline: true },
+    { name: 'Số tiền', value: amt, inline: true },
+    { name: 'Thời gian', value: vn, inline: true },
+    { name: 'ID người gửi', value: donUid6(+c.uid || 0), inline: true },
+    { name: 'Username', value: uname ? '@' + uname : name, inline: true },
+    { name: 'Nội dung chuyển khoản', value: '`' + donTransferCode(+c.uid || 0, ref, !!c.hide) + '`' },
   ];
   const msg = String(c.msg || '').trim();
-  if (msg) fields.push({ name: '💬 Lời nhắn', value: msg.slice(0, 200) });
-  fields.push({ name: '🕐 Thời gian (giờ VN)', value: vn, inline: true });
+  if (msg) fields.push({ name: 'Lời nhắn', value: msg.slice(0, 200) });
   const out = {
     embeds: [{
-      title: '☕ Có yêu cầu ủng hộ mới cần duyệt',
-      description: 'Duyệt / từ chối tại: ' + DISCORD_QUANTRI_URL,
+      author: { name, icon_url: DISCORD_THUMB_URL },
+      title: 'Đơn ủng hộ đang chờ duyệt',
+      url: DISCORD_QUANTRI_URL,
+      description: 'Có người vừa chuyển khoản. Vào trang admin để duyệt đơn.',
       color: 0xfacd33,
       fields,
-      image: { url: DISCORD_BANNER_URL },
       thumbnail: { url: DISCORD_THUMB_URL },
+      image: { url: DISCORD_BANNER_URL },
+      footer: { text: 'GumballZ · Chờ duyệt' },
       timestamp: at.toISOString(),
     }],
-    components: [{ type: 1, components: [{ type: 2, style: 5, label: '🔍 Mở trang Quản trị', url: DISCORD_QUANTRI_URL }] }],
   };
-  /* Tag admin bằng ID SỐ Discord (<@id> mới ping được — tag bằng tên không có tác dụng).
+  /* Tag admin bằng ID SỐ Discord (<@id> mới ping được — tag bằng tên không có tác dụng,
+     @here cũng KHÔNG dùng theo dặn của user: ping trực tiếp admin.
      ID lấy từ env DONATE_ADMIN_ID; chưa cấu hình thì gửi embed không tag. */
   const id = String(adminId || '').trim();
   if (/^\d{5,25}$/.test(id)) {
-    out.content = '<@' + id + '> ơi, có giao dịch ủng hộ mới cần duyệt nè!';
+    out.content = '<@' + id + '> Có đơn ủng hộ đang chờ bạn duyệt.';
     out.allowed_mentions = { parse: [], users: [id] };
   }
   return out;
