@@ -1,22 +1,30 @@
-// Build 2 file .riv cho hộp quà Gacha ở Cửa hàng (v2 — xem shared/rive/src/README.md).
+// Build 2 file .riv cho rương Gacha ở Cửa hàng (v3 — kiểu Duolingo Sanduk, xem shared/rive/src/README.md).
 // Chạy:
 //   cp shared/rive/src/build-gacha.mjs /tmp/rive-gen/build-gacha.mjs
 //   cd /tmp/rive-gen && node build-gacha.mjs
-// - gacha-box.riv: hộp đóng nảy nhẹ + lắc khẽ + tia lấp lánh (idle, loop 120f = 2s).
-// - gacha-open.riv: hộp rung → nắp bật tung + tia sáng + 5 đồng xu vàng bung ra
-//   (mở 1 lần, oneshot 150f = 2,5s; frame cuối giữ hộp đã mở + xu + tia sáng mờ).
+// - gacha-box.riv: rương gỗ đóng (viền vàng + ô cam + khóa sao vàng), nảy nhẹ + lắc khẽ (idle, loop 120f = 2s).
+// - gacha-open.riv: mở 1 lần theo timeline Duolingo (oneshot 180f = 3s):
+//   f0–17 phồng 104% lấy đà; f28–32 lắc mạnh sang trái ~−8°; f30–60 nắp bật mở (bay lên + xoay + mờ);
+//   f47 ĐỈNH BUNG: 3 đá xanh + 6 xu vàng + tia lấp lánh; f62 về thẳng đứng; f82–92 tia mờ hẳn;
+//   frame cuối: rương mở + đá nằm trên miệng + xu quanh. KHÔNG hào quang, KHÔNG tia dài.
 // Mount: autoplay, KHÔNG truyền tên animation (tên ghi sai key — xem README).
 import { writeFileSync } from 'node:fs';
 import { RiveFile, hex, rgba, PropertyKey } from '@stevysmith/rive-generator';
 
 const OUT = '/home/hatch/workspace/bgvn-hisrepo/shared/rive/';
 const INK = hex('#241A38');
-const RED = hex('#FF5A60');
 const YELLOW = hex('#FACD33');
 const PALE = hex('#FFE9A8');
 const GOLD = hex('#E9A820');
-const CREAM = hex('#FFF8EE');
 const SHADOW = rgba(36, 26, 56, 51);
+const WOOD = hex('#A06B35');
+const WOOD_DARK = hex('#8B5A2B');
+const WOOD_BAND = hex('#6B4423');
+const ORANGE = hex('#F97316');
+const GEM = hex('#A5D8FF');
+const GEM_DEEP = hex('#7DD3FC');
+const GEM_LINE = hex('#38BDF8');
+const PEACH = hex('#FF9E9E');
 const OPACITY = 18; // WorldTransformComponent.opacity (schema Rive)
 const ROT = 15, SX = 16, SY = 17, X = 13, Y = 14;
 
@@ -52,6 +60,24 @@ function poly(riv, parent, { name, cx = 0, cy = 0, points, color, stroke, stroke
   paint(riv, s, color, stroke, strokeW);
   return { id: s, x: cx, y: cy };
 }
+// Hình thoi lấp lánh (tâm cx,cy, bán kính r).
+function sparkle(riv, parent, cx, cy, r = 7) {
+  return poly(riv, parent, { name: 'Spark', cx, cy, points: [[cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy]], color: PALE, stroke: GOLD, strokeW: 1.5 });
+}
+// Viên đá xanh hình thoi (hơi thon, kiểu Duolingo).
+function gem(riv, parent, cx, cy, r, color) {
+  return poly(riv, parent, { name: 'Gem', cx, cy, points: [[cx, cy - r], [cx + r * 0.72, cy], [cx, cy + r], [cx - r * 0.72, cy]], color, stroke: GEM_LINE, strokeW: 2 });
+}
+// Ngôi sao / bánh răng 8 cánh (ổ khóa rương).
+function star(riv, parent, cx, cy, rO, rI, color, stroke, strokeW) {
+  const pts = [];
+  for (let i = 0; i < 16; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 8;
+    const r = i % 2 === 0 ? rO : rI;
+    pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+  }
+  return poly(riv, parent, { name: 'LockStar', cx, cy, points: pts, color, stroke, strokeW });
+}
 function moveGroup(riv, anim, parts, cxF, cyF) {
   for (const p of parts) {
     if (cxF) keys(riv, anim, p.id, X, cxF.map(([f, v]) => [f, p.x + v - 100]));
@@ -60,6 +86,12 @@ function moveGroup(riv, anim, parts, cxF, cyF) {
 }
 function rotGroup(riv, anim, parts, rotF) {
   for (const p of parts) keys(riv, anim, p.id, ROT, rotF);
+}
+function scaleGroup(riv, anim, parts, scF) {
+  for (const p of parts) {
+    keys(riv, anim, p.id, SX, scF);
+    keys(riv, anim, p.id, SY, scF);
+  }
 }
 function save(name, riv) {
   const bytes = riv.export();
@@ -72,112 +104,128 @@ function newFile(name) {
   const root = riv.addNode(ab, { name: 'Root', x: 0, y: 0 });
   return { riv, ab, root };
 }
-// Tia sáng: tam giác dài từ tâm (cx,cy) theo góc deg, dài len, nửa rộng base.
-function ray(riv, parent, cx, cy, deg, len = 85, base = 5) {
-  const a = deg * Math.PI / 180;
-  const dx = Math.cos(a), dy = Math.sin(a);
-  const px = -dy, py = dx; // vuông góc
-  const tip = [cx + dx * len, cy + dy * len];
-  const b1 = [cx + px * base + dx * 6, cy + py * base + dy * 6];
-  const b2 = [cx - px * base + dx * 6, cy - py * base + dy * 6];
-  return poly(riv, parent, { name: 'Ray', cx, cy, points: [tip, b1, b2], color: YELLOW });
-}
-// Hình thoi lấp lánh (tâm cx,cy, bán kính r).
-function sparkle(riv, parent, cx, cy, r = 7) {
-  return poly(riv, parent, { name: 'Spark', cx, cy, points: [[cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy]], color: PALE, stroke: GOLD, strokeW: 1.5 });
+// Vẽ thân + nắp rương gỗ Duolingo (dùng chung 2 file). Trả về các nhóm part.
+// Thứ tự vẽ: bóng → thân → miệng → nắp → khóa → (đá/xu/tia do từng file thêm sau).
+function chest(riv, root) {
+  const shadow = ell(riv, root, { name: 'Shadow', x: 100, y: 170, w: 92, h: 10, color: SHADOW });
+  const bodyTrim = rect(riv, root, { name: 'BodyTrim', x: 100, y: 128, w: 128, h: 72, r: 10, color: YELLOW, stroke: INK, strokeW: 3 });
+  const body = rect(riv, root, { name: 'Body', x: 100, y: 128, w: 120, h: 64, r: 8, color: WOOD, stroke: INK, strokeW: 3 });
+  const grain1 = rect(riv, root, { name: 'Grain1', x: 100, y: 116, w: 112, h: 3, color: WOOD_DARK });
+  const grain2 = rect(riv, root, { name: 'Grain2', x: 100, y: 140, w: 112, h: 3, color: WOOD_DARK });
+  const bodySq = [
+    [38, 112], [38, 144], [162, 112], [162, 144],
+    [48, 162], [76, 162], [124, 162], [152, 162],
+  ].map(([x, y]) => rect(riv, root, { name: 'BodySq', x, y, w: 9, h: 9, r: 2, color: ORANGE, stroke: INK, strokeW: 1.5 }));
+  const mouth = ell(riv, root, { name: 'Mouth', x: 100, y: 96, w: 104, h: 10, color: INK });
+  const lidTrim = rect(riv, root, { name: 'LidTrim', x: 100, y: 88, w: 136, h: 34, r: 8, color: YELLOW, stroke: INK, strokeW: 3 });
+  const lid = rect(riv, root, { name: 'Lid', x: 100, y: 88, w: 128, h: 28, r: 7, color: WOOD_DARK, stroke: INK, strokeW: 3 });
+  const lidBand = rect(riv, root, { name: 'LidBand', x: 100, y: 97, w: 128, h: 6, color: WOOD_BAND });
+  const lidSq = [
+    [48, 71], [76, 71], [124, 71], [152, 71],
+  ].map(([x, y]) => rect(riv, root, { name: 'LidSq', x, y, w: 9, h: 9, r: 2, color: ORANGE, stroke: INK, strokeW: 1.5 }));
+  const lockStar = star(riv, root, 100, 104, 13, 6, YELLOW, INK, 2.5);
+  const lockDot = ell(riv, root, { name: 'LockDot', x: 100, y: 104, w: 9, color: PEACH, stroke: INK, strokeW: 1.5 });
+  const bodyParts = [bodyTrim, body, grain1, grain2, ...bodySq, mouth];
+  const lidParts = [lidTrim, lid, lidBand, ...lidSq, lockStar, lockDot];
+  return { shadow, bodyParts, lidParts, mouth };
 }
 
-// ---- 1. gacha-box: hộp đóng idle — nảy nhẹ + lắc khẽ + tia lấp lánh (120f = 2s, loop) ----
+// ---- 1. gacha-box: rương đóng idle — nảy nhẹ + lắc khẽ + tia lấp lánh (120f = 2s, loop) ----
 {
   const { riv, ab, root } = newFile('gacha-box');
+  const { shadow, bodyParts, lidParts, mouth } = chest(riv, root);
   const sp = sparkle(riv, root, 152, 58, 8);
-  const bowL = ell(riv, root, { name: 'BowL', x: 86, y: 84, w: 18, h: 12, color: RED, stroke: INK, strokeW: 2.5 });
-  const bowR = ell(riv, root, { name: 'BowR', x: 114, y: 84, w: 18, h: 12, color: RED, stroke: INK, strokeW: 2.5 });
-  const knot = ell(riv, root, { name: 'Knot', x: 100, y: 86, w: 11, color: RED, stroke: INK, strokeW: 2.5 });
-  const ribbon = rect(riv, root, { name: 'Ribbon', x: 100, y: 118, w: 12, h: 84, color: RED });
-  const lid = rect(riv, root, { name: 'Lid', x: 100, y: 88, w: 92, h: 22, r: 6, color: YELLOW, stroke: INK, strokeW: 3 });
-  const base = rect(riv, root, { name: 'Base', x: 100, y: 125, w: 80, h: 70, r: 8, color: YELLOW, stroke: INK, strokeW: 3 });
-  const shadow = ell(riv, root, { name: 'Shadow', x: 100, y: 168, w: 70, h: 10, color: SHADOW });
   const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 120, fps: 60, loop: 'loop' });
-  const boxParts = [bowL, bowR, knot, ribbon, lid, base];
-  moveGroup(riv, an, boxParts, null, [[0, 100], [30, 95], [60, 100], [90, 95], [120, 100]]);
-  rotGroup(riv, an, boxParts, [[0, 0], [40, 0], [46, -0.07], [52, 0.06], [58, 0], [120, 0]]);
-  keys(riv, an, shadow.id, SX, [[0, 1], [30, 0.88], [60, 1], [90, 0.88], [120, 1]]);
+  const boxParts = [...bodyParts, ...lidParts];
+  moveGroup(riv, an, boxParts, null, [[0, 100], [30, 96], [60, 100], [90, 96], [120, 100]]);
+  rotGroup(riv, an, boxParts, [[0, 0], [40, 0], [46, -0.05], [52, 0.04], [58, 0], [120, 0]]);
+  keys(riv, an, shadow.id, SX, [[0, 1], [30, 0.9], [60, 1], [90, 0.9], [120, 1]]);
+  keys(riv, an, mouth.id, OPACITY, [[0, 0], [120, 0]], 'linear');
   keys(riv, an, sp.id, OPACITY, [[0, 0], [20, 0], [30, 1], [50, 0], [120, 0]], 'linear');
   keys(riv, an, sp.id, SX, [[0, 0.5], [30, 1.15], [50, 0.5], [120, 0.5]]);
   keys(riv, an, sp.id, SY, [[0, 0.5], [30, 1.15], [50, 0.5], [120, 0.5]]);
   save('gacha-box', riv);
 }
 
-// ---- 2. gacha-open: mở hộp 1 lần (150f = 2,5s, oneshot) ----
-// f0–15 rung mạnh; f15 nắp bay lên + mờ dần; f15–45 tia sáng bung; f15–60 xu bung;
-// f20–40 miệng hộp tối hiện ra; frame cuối: hộp mở + xu + tia mờ + hào quang.
+// ---- 2. gacha-open: mở rương 1 lần kiểu Duolingo (180f = 3s, oneshot) ----
+// f0–17 phồng 104% lấy đà; f28–32 lắc mạnh trái ~−8°; f30–60 nắp bật mở;
+// f47 ĐỈNH BUNG (đá + xu + tia); f62 về thẳng đứng; f82–92 tia mờ hẳn;
+// frame cuối: rương mở + 3 đá xanh trên miệng + 6 xu vàng quanh.
 {
   const { riv, ab, root } = newFile('gacha-open');
-  // Xu (mỗi đồng = 2 shape: ngoài vàng đậm + trong vàng nhạt) — vẽ TRƯỚC = trên cùng.
+  const { shadow, bodyParts, lidParts, mouth } = chest(riv, root);
+  // 3 đá xanh lớn xếp chồng trên miệng rương + 3 đá nhỏ lơ lửng quanh.
+  const gems = [
+    gem(riv, root, 86, 80, 12, GEM),
+    gem(riv, root, 100, 70, 12, GEM),
+    gem(riv, root, 114, 80, 12, GEM),
+    gem(riv, root, 62, 62, 5.5, GEM_DEEP),
+    gem(riv, root, 140, 56, 5.5, GEM_DEEP),
+    gem(riv, root, 150, 96, 5.5, GEM_DEEP),
+  ];
+  // 6 xu vàng (ngoài vàng đậm + trong vàng nhạt).
   const coins = [];
-  const coinTargets = [[52, 58, -1.2], [78, 38, 0.8], [104, 30, -0.6], [132, 42, 1.1], [150, 66, -0.9]];
+  const coinTargets = [[56, 54, -1.1], [78, 36, 0.8], [100, 28, -0.6], [124, 38, 1.0], [146, 60, -0.9], [88, 58, 0.5]];
   for (const [tx, ty] of coinTargets) {
-    const outer = ell(riv, root, { name: 'Coin', x: 100, y: 105, w: 20, color: YELLOW, stroke: INK, strokeW: 2.5 });
-    const inner = ell(riv, root, { name: 'CoinIn', x: 100, y: 105, w: 12, color: PALE });
+    const outer = ell(riv, root, { name: 'Coin', x: 100, y: 100, w: 20, color: YELLOW, stroke: INK, strokeW: 2.5 });
+    const inner = ell(riv, root, { name: 'CoinIn', x: 100, y: 100, w: 12, color: PALE });
     coins.push({ outer, inner, tx, ty });
   }
-  const sp1 = sparkle(riv, root, 55, 50, 7);
-  const sp2 = sparkle(riv, root, 150, 45, 8);
-  const sp3 = sparkle(riv, root, 128, 95, 6);
-  const mouth = ell(riv, root, { name: 'Mouth', x: 100, y: 94, w: 64, h: 14, color: INK });
-  const bowL = ell(riv, root, { name: 'BowL', x: 86, y: 84, w: 18, h: 12, color: RED, stroke: INK, strokeW: 2.5 });
-  const bowR = ell(riv, root, { name: 'BowR', x: 114, y: 84, w: 18, h: 12, color: RED, stroke: INK, strokeW: 2.5 });
-  const knot = ell(riv, root, { name: 'Knot', x: 100, y: 86, w: 11, color: RED, stroke: INK, strokeW: 2.5 });
-  const lidRibbon = rect(riv, root, { name: 'LidRibbon', x: 100, y: 88, w: 12, h: 22, color: RED });
-  const lid = rect(riv, root, { name: 'Lid', x: 100, y: 88, w: 92, h: 22, r: 6, color: YELLOW, stroke: INK, strokeW: 3 });
-  const baseRibbon = rect(riv, root, { name: 'BaseRibbon', x: 100, y: 125, w: 12, h: 70, color: RED });
-  const base = rect(riv, root, { name: 'Base', x: 100, y: 125, w: 80, h: 70, r: 8, color: YELLOW, stroke: INK, strokeW: 3 });
-  const rays = [-160, -130, -110, -90, -70, -50, -20].map(d => ray(riv, root, 100, 105, d, 88, 5));
-  const glow = ell(riv, root, { name: 'Glow', x: 100, y: 105, w: 150, h: 130, color: PALE });
-  const shadow = ell(riv, root, { name: 'Shadow', x: 100, y: 168, w: 70, h: 10, color: SHADOW });
-  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 150, fps: 60, loop: 'oneshot' });
+  // 4 tia lấp lánh hình thoi quanh vụ bung.
+  const sparks = [
+    [sparkle(riv, root, 55, 50, 7), 30],
+    [sparkle(riv, root, 150, 45, 8), 36],
+    [sparkle(riv, root, 128, 95, 6), 42],
+    [sparkle(riv, root, 70, 82, 6), 48],
+  ];
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 180, fps: 60, loop: 'oneshot' });
 
-  // Rung mạnh lúc đầu (cả hộp đóng).
-  const closedParts = [bowL, bowR, knot, lidRibbon, lid, baseRibbon, base];
-  rotGroup(riv, an, closedParts, [[0, 0], [4, -0.1], [8, 0.1], [12, -0.08], [15, 0]]);
-  // Nắp + nơ bay thẳng lên rồi mờ (f15→48). Không xoay — xoay quanh tâm riêng sẽ tách nơ khỏi nắp.
-  const flyY = [[0, 88], [15, 88], [35, 8], [48, 8]];
-  const flyOp = [[0, 1], [28, 1], [48, 0], [150, 0]];
-  for (const p of [bowL, bowR, knot, lidRibbon, lid]) {
+  // Phồng lấy đà + lắc mạnh trái + về thẳng đứng (thân rương).
+  const swell = [[0, 1], [10, 1.04], [17, 1.02], [31, 1.03], [47, 1], [180, 1]];
+  const shakeX = [[0, 100], [28, 97.5], [31, 97.5], [38, 99], [47, 100], [180, 100]];
+  const shakeY = [[0, 100], [10, 102], [17, 100], [180, 100]];
+  const shakeR = [[0, 0], [10, 0], [17, 0], [28, -0.137], [31, -0.153], [38, -0.06], [47, 0.027], [62, 0], [180, 0]];
+  moveGroup(riv, an, bodyParts, shakeX, shakeY);
+  rotGroup(riv, an, bodyParts, shakeR);
+  scaleGroup(riv, an, bodyParts, swell);
+  // Nắp: lắc cùng thân rồi bật mở (bay lên + xoay −0,45 + mờ dần f42→60).
+  const flyY = [[0, 88], [28, 88], [38, 60], [55, 10], [180, 10]];
+  const flyR = [[0, 0], [28, -0.137], [31, -0.153], [38, -0.08], [47, -0.25], [55, -0.45], [180, -0.45]];
+  const flyOp = [[0, 1], [42, 1], [60, 0], [180, 0]];
+  for (const p of lidParts) {
     const dy = p.y - 88;
     keys(riv, an, p.id, Y, flyY.map(([f, v]) => [f, v + dy]));
+    keys(riv, an, p.id, ROT, flyR);
     keys(riv, an, p.id, OPACITY, flyOp, 'linear');
   }
-  // Dải ruy-băng trên thân hộp mờ đi khi mở.
-  keys(riv, an, baseRibbon.id, OPACITY, [[0, 1], [15, 1], [30, 0], [150, 0]], 'linear');
-  // Miệng hộp tối hiện ra khi nắp bay.
-  keys(riv, an, mouth.id, OPACITY, [[0, 0], [20, 0], [40, 1], [150, 1]], 'linear');
-  // Tia sáng bung từ tâm hộp rồi mờ dần, giữ lại mờ mờ ở frame cuối.
-  for (const r of rays) {
-    keys(riv, an, r.id, SX, [[0, 0], [15, 0], [45, 1], [150, 1]]);
-    keys(riv, an, r.id, SY, [[0, 0], [15, 0], [45, 1], [150, 1]]);
-    keys(riv, an, r.id, OPACITY, [[0, 0], [20, 0], [45, 0.85], [90, 0.6], [150, 0.45]], 'linear');
+  scaleGroup(riv, an, lidParts, swell);
+  // Bóng đổ phồng theo rương.
+  keys(riv, an, shadow.id, SX, [[0, 1], [10, 1.06], [17, 1], [180, 1]]);
+  // Miệng hộp tối hiện ra khi nắp bay (đã khuất sau nắp lúc đóng).
+  keys(riv, an, mouth.id, OPACITY, [[0, 0], [35, 0], [55, 1], [180, 1]], 'linear');
+  // Đá xanh hiện dần tới đỉnh bung f47, nằm yên trên miệng tới hết.
+  for (const [i, g] of gems.entries()) {
+    keys(riv, an, g.id, OPACITY, [[0, 0], [30, 0], [47, 1], [180, 1]], 'linear');
+    keys(riv, an, g.id, Y, [[0, g.y + 8], [30, g.y + 8], [47, g.y], [180, g.y]]);
+    keys(riv, an, g.id, SX, [[0, 0.6], [47, 1], [180, 1]]);
+    keys(riv, an, g.id, SY, [[0, 0.6], [47, 1], [180, 1]]);
+    if (i >= 3) keys(riv, an, g.id, ROT, [[0, 0], [47, 0.5], [180, 0.5]]);
   }
-  // Hào quang sau hộp.
-  keys(riv, an, glow.id, OPACITY, [[0, 0], [15, 0], [40, 0.55], [150, 0.55]], 'linear');
-  keys(riv, an, glow.id, SX, [[0, 0.7], [40, 1], [150, 1]]);
-  keys(riv, an, glow.id, SY, [[0, 0.7], [40, 1], [150, 1]]);
-  // Xu bung ra từ trong hộp tới vị trí đích, xoay, rồi đứng yên.
+  // Xu vàng bung theo vòng cung: lên tới đỉnh rồi rơi/nảy nhẹ về vị trí đích.
   for (const c of coins) {
     const rot = coinTargets.find(([tx]) => tx === c.tx)[2];
     for (const p of [c.outer, c.inner]) {
-      keys(riv, an, p.id, X, [[0, 100], [15, 100], [45, c.tx], [70, c.tx], [150, c.tx]]);
-      keys(riv, an, p.id, Y, [[0, 105], [15, 100], [45, c.ty], [70, c.ty + 4], [150, c.ty + 4]]);
-      keys(riv, an, p.id, ROT, [[0, 0], [45, rot], [150, rot]]);
-      keys(riv, an, p.id, OPACITY, [[0, 0], [15, 0], [25, 1], [150, 1]], 'linear');
+      keys(riv, an, p.id, X, [[0, 100], [30, 100], [60, c.tx], [180, c.tx]]);
+      keys(riv, an, p.id, Y, [[0, 100], [30, 100], [45, c.ty - 14], [70, c.ty + 4], [180, c.ty + 4]]);
+      keys(riv, an, p.id, ROT, [[0, 0], [60, rot], [180, rot]]);
+      keys(riv, an, p.id, OPACITY, [[0, 0], [30, 0], [40, 1], [180, 1]], 'linear');
     }
   }
-  // Tia lấp lánh chớp quanh vụ nổ.
-  for (const [sp, f0] of [[sp1, 25], [sp2, 32], [sp3, 40]]) {
-    keys(riv, an, sp.id, OPACITY, [[0, 0], [f0, 0], [f0 + 10, 1], [f0 + 30, 0], [150, 0]], 'linear');
-    keys(riv, an, sp.id, SX, [[0, 0.5], [f0 + 10, 1.2], [f0 + 30, 0.5], [150, 0.5]]);
-    keys(riv, an, sp.id, SY, [[0, 0.5], [f0 + 10, 1.2], [f0 + 30, 0.5], [150, 0.5]]);
+  // Tia lấp lánh chớp quanh vụ bung rồi mờ hẳn trước f92.
+  for (const [sp, f0] of sparks) {
+    keys(riv, an, sp.id, OPACITY, [[0, 0], [f0, 0], [f0 + 10, 1], [f0 + 30, 0], [180, 0]], 'linear');
+    keys(riv, an, sp.id, SX, [[0, 0.5], [f0 + 10, 1.2], [f0 + 30, 0.5], [180, 0.5]]);
+    keys(riv, an, sp.id, SY, [[0, 0.5], [f0 + 10, 1.2], [f0 + 30, 0.5], [180, 0.5]]);
   }
   save('gacha-open', riv);
 }

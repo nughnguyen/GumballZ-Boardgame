@@ -227,8 +227,8 @@ Sau nhiều probe kiểm chứng bằng runtime thật, cấu trúc đúng là:
 | `keobuabao.riv` | 4941 B | Tay kéo (2 ngón chéo) vs tay bao (xòe) trượt vào từ 2 bên, kéo cắt thắng ở 60f, tay bao nghiêng + mờ xuống 0.35, chấm điểm vàng đầu tiên sáng lên + sao vàng (180f = 3s) |
 | `dovui.riv` | 8304 B | Thanh câu hỏi + 4 ô đáp án 2×2, ô C (dưới trái) bật lớp vàng + 4 tia sáng, 5 sao thang sáng dần vàng, sao vàng (180f = 3s) |
 | `hoisanquai.riv` | 10272 B | 3 lá quái lật lên lần lượt (troll xanh, rồng đỏ, yêu tinh tím), rồng giữa bị chém (vết chém trắng + rung + mờ xuống 0.45), lá anh hùng (kiếm vàng) bật lên dưới + sao vàng (180f = 3s) |
-| `gacha-box.riv` | 2268 B | Hộp quà vàng nơ đỏ nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
-| `gacha-open.riv` | 9827 B | Mở hộp 1 lần: rung mạnh → nắp bay lên + mờ, 7 tia sáng + 5 xu vàng bung ra, hào quang (150f = 2,5s, oneshot; frame cuối giữ hộp mở + xu + tia mờ) |
+| `gacha-box.riv` | 7548 B | Rương gỗ Duolingo đóng (viền vàng + ô cam + khóa sao vàng) nảy nhẹ + lắc khẽ + tia lấp lánh (idle Cửa hàng, 120f = 2s, loop) |
+| `gacha-open.riv` | 22605 B | Mở 1 lần kiểu Duolingo: phồng 104% lấy đà → lắc mạnh trái ~−8° → nắp bật mở (bay lên + xoay + mờ), 3 đá xanh + 6 xu vàng + tia lấp lánh bung ra (180f = 3s, oneshot; frame cuối giữ rương mở + đá trên miệng + xu quanh; KHÔNG hào quang, KHÔNG tia dài) |
 
 Nguồn build hộp quà: `src/build-gacha.mjs` (riêng, không đụng `build.mjs`). Mount ở
 `shop/js/shop.js`: idle autoplay lúc tải trang, khi bấm Mua thì `reset()` + `play()`
