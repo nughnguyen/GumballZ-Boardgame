@@ -9,7 +9,7 @@ import { nameTextStyle, nameTextClass, frameAnim, FRAME_RING } from '../js/avata
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {}
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */
-import { ensureBadgesCSS, tierBadges } from './badges.js?v=7'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
+import { ensureBadgesCSS, tierBadges } from './badges.js?v=8'; /* 🎖️ huy hiệu 4 bậc (patch -95): shared/css/badges.css */
 
 const ROOT = new URL('../../', import.meta.url).href;
 export const GAME_INFO = {

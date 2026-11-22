@@ -9,7 +9,7 @@
 // XP cần để lên cấp L = 50×(L−1)² (cấp 2: 50, cấp 3: 200, cấp 4: 450, cấp 5: 800).
 import { auth, friends, leaderboard } from '../net/api.js?v=29';
 import { GAME_NAMES } from './stats.js?v=92';
-import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, newbieBadge, ownName } from './profile.js?v=63';
+import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, ownName } from './profile.js?v=63';
 import { openLogin } from './account.js?v=53';
 import { syncNow } from './sync.js?v=49';
 import { ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
@@ -140,7 +140,7 @@ const CSS = `
 
 function injectCss() {
   ensureSkCSS();
-  import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 7 bậc (patch -142) */
+  import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huân chương 6 bậc (patch -142) */
   if (document.getElementById('rk-css')) return;
   const s = document.createElement('style'); s.id = 'rk-css'; s.textContent = CSS;
   document.head.append(s);
@@ -311,7 +311,7 @@ function buildBoard(root, { page = false, initialGame = 'all' } = {}) {
           <span class="rk-no">#${r.rank}</span>
           ${avFor(r)}
           <div class="rk-inf">
-            <div class="rk-nm"><span class="${nameClass(r.av)}${ownName(r.owner)}" style="${nameStyle(r.av)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${vipBadge(r.vip)}${devBadge(r.dev)}${newbieBadge(r.lv === 1 && !r.owner && !r.admin && !r.mod)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}${isMe ? '<span class="rk-lv" style="background:var(--p3);color:var(--on-accent)">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
+            <div class="rk-nm"><span class="${nameClass(r.av)}${ownName(r.owner)}" style="${nameStyle(r.av)}">${esc(r.name)}</span>${ownerBadge(r.owner)}${!r.owner && r.admin ? adminBadge(true) : ''}${modBadge(r.mod)}${supporterBadge(r.supporter)}${vipBadge(r.vip)}${devBadge(r.dev)}${r.username ? `<small>@${esc(r.username)}</small>` : ''}${isMe ? '<span class="rk-lv" style="background:var(--p3);color:var(--on-accent)">Bạn</span>' : ''}${r.title ? `<span class="rk-tt" tabindex="0" role="button" data-iicon="${esc(r.title.icon)}" data-iname="${esc(r.title.name)}" data-ihow="${esc(titleHow(r.title))}" data-istate="✅ Đã đạt">${esc(r.title.icon)} ${esc(r.title.name)}</span>` : ''}</div>
             <div class="rk-xpbar" title="${r.xp} XP · cấp ${r.lv}"><i style="width:${pct}%"></i></div>
           </div>
           <div class="rk-stats">

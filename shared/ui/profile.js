@@ -10,7 +10,7 @@ import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=3'; /* 🐉 r�
 import { bannerHTML42, initBanners } from './banner-render.js?v=2'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=3';
-import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
+import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=8'; /* 🎖️ huân chương 6 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {} /* chạy khi profile.js được import (Hồ sơ/BXH/thành viên) để font kịp tải */
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
@@ -82,7 +82,7 @@ export function avatarHTML(size = 40, a = avatar()) {
   const dr = (fa === 'dragon' || fa === 'dragon-edge') && a.f ? (FRAMES.find(x => x.id === a.f)?.dragon || []).map(([c1, c2], i, arr) => dragonSVG(c1, c2, 3, fa === 'dragon' ? 'orbit' : 'edge', arr.length > 1 ? i / arr.length : 0)).join('') : ''; /* 🐉 rồng SVG bay vòng số 8 qua avatar (dragon) hoặc tròn mép viền (dragon-edge) – nhiều rồng chia đều phase */
   return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}${dr}</span>` : inner;
 }
-/* 🎖️ huy hiệu huân chương 7 bậc (patch -142) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
+/* 🎖️ huy hiệu huân chương 6 bậc (patch -142) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
 export const ownerBadge = (on, size = 'xs') => on ? medalHTML('owner', size) : '';
 export const ownName = on => on ? ' pf-ownnm' : ''; /* lớp thêm cho tên chủ sảnh: lấp lánh */
 export const adminBadge = (on, size = 'xs') => on ? medalHTML('adm', size) : ''; /* 🛠️ Quản sảnh = role 2, không phải chủ sảnh */
@@ -90,7 +90,6 @@ export const modBadge = (on, size = 'xs') => on ? medalHTML('staff', size) : '';
 export const supporterBadge = (on, size = 'xs') => on ? medalHTML('sup', size) : '';
 export const vipBadge = (on, size = 'xs') => on ? medalHTML('vip', size) : ''; /* 💠 VIP: cờ máy chủ do Quản trị cấp (patch -142) */
 export const devBadge = (on, size = 'xs') => on ? medalHTML('dev', size) : ''; /* 💻 DEV: cờ máy chủ do Quản trị cấp (patch -142) */
-export const newbieBadge = (on, size = 'xs') => on ? medalHTML('newbie', size) : ''; /* 🌱 Người mới: tự động khi cấp 1 (patch -142) */
 /* màu tên đã mở (thuộc tính style) — nhận object look {n, nf, ne} hoặc chuỗi id màu cũ (tương thích ngược) */
 export const nameStyle = av => nameTextStyle(av);
 /* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
@@ -104,7 +103,7 @@ export const bannerHTML = b => {
 };
 /* CSS diện mạo ở shared/css/avatar.css (nạp bằng <link>), gồm cả pill danh hiệu (.pf-tt/.pf-tts) */
 export function profileCss() {
-  import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
+  import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
   try { l.href = new URL('../css/avatar.css?v=12', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=12'; }
@@ -386,7 +385,7 @@ function renderProfileInto(ov, isPage) {
     ov.innerHTML = `<div class="pf-box"${isPage ? '' : ' role="dialog" aria-modal="true"'} aria-label="Hồ sơ của bạn">${isPage ? '' : '<button class="pf-x" aria-label="Đóng">✕</button>'}
       <div class="pf2-grid">
       <div class="pf2-left">
-      <section class="pf2-id pf-idcard">${bannerHTML(look.b)}<div class="pf2-idbody"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(160, look)}</button><div class="pf2-name${nameClass({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter || flags.vip || flags.dev || (lv.lv === 1 && !flags.owner && flags.role === 0) ? `<div class="bdg-row">${ownerBadge(flags.owner, 'mini')}${!flags.owner && flags.role === 2 ? adminBadge(true, 'mini') : ''}${!flags.owner && flags.role === 1 ? modBadge(true, 'mini') : ''}${supporterBadge(flags.supporter, 'mini')}${vipBadge(flags.vip, 'mini')}${devBadge(flags.dev, 'mini')}${newbieBadge(lv.lv === 1 && !flags.owner && flags.role === 0, 'mini')}</div>` : ''}<div class="pf2-sub">${cur ? `<span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span>` : ''}<span class="pf2-lvtx">Cấp ${lv.lv}</span></div>
+      <section class="pf2-id pf-idcard">${bannerHTML(look.b)}<div class="pf2-idbody"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(160, look)}</button><div class="pf2-name${nameClass({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter || flags.vip || flags.dev ? `<div class="bdg-row">${ownerBadge(flags.owner, 'mini')}${!flags.owner && flags.role === 2 ? adminBadge(true, 'mini') : ''}${!flags.owner && flags.role === 1 ? modBadge(true, 'mini') : ''}${supporterBadge(flags.supporter, 'mini')}${vipBadge(flags.vip, 'mini')}${devBadge(flags.dev, 'mini')}</div>` : ''}<div class="pf2-sub">${cur ? `<span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span>` : ''}<span class="pf2-lvtx">Cấp ${lv.lv}</span></div>
       <div class="pf2-xp"><b>${lv.to ? `${pct}% tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
       ${hasAcc ? '' : '<button type="button" class="pf2-login" data-a="login">🔑 Đăng nhập để đồng bộ</button>'}
       <button type="button" class="pf2-rename" data-a="rename">Đổi tên</button></div></section>
@@ -522,7 +521,7 @@ function renderMemberInto(ov, U) {
       <div class="pf2-left">
       <section class="pf2-id pf-idcard">${bannerHTML(av.b)}<div class="pf2-idbody">${avatarHTML(160, av)}<div class="pf2-name${nameClass({ ...av, n: av.n || (U.owner ? 'owner' : '') })}${U.owner ? ' pf-ownnm' : ''}" style="${nameStyle({ ...av, n: av.n || (U.owner ? 'owner' : '') })}">${esc(U.name)}</div>
       <div class="pf2-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${uid6(U.id)}</div>
-      <div class="bdg-row">${ownerBadge(U.owner, 'mini')}${!U.owner && U.admin ? adminBadge(true, 'mini') : ''}${!U.owner && U.mod ? modBadge(true, 'mini') : ''}${supporterBadge(U.supporter, 'mini')}${vipBadge(U.vip, 'mini')}${devBadge(U.dev, 'mini')}${newbieBadge(U.lv === 1 && !U.owner && !U.admin && !U.mod, 'mini')}</div>
+      <div class="bdg-row">${ownerBadge(U.owner, 'mini')}${!U.owner && U.admin ? adminBadge(true, 'mini') : ''}${!U.owner && U.mod ? modBadge(true, 'mini') : ''}${supporterBadge(U.supporter, 'mini')}${vipBadge(U.vip, 'mini')}${devBadge(U.dev, 'mini')}</div>
       <div class="pf2-sub">${U.title ? ttPill({ ...U.title, desc: titleDesc(U.title) }) : ''}<span class="pf2-lvtx">Cấp ${U.lv} · ${esc(U.lvName || '')}</span></div>
       <div class="pf2-xp"><b>${nextLv ? `${pct}% tới cấp ${nextLv}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
       </div></section>

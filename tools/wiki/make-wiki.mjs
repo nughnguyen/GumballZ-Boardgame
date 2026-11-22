@@ -173,16 +173,15 @@ const BADGE_HOW = {
   sup: 'Được Quản trị cấp cờ Nhà Tài Trợ (đã ủng hộ web).',
   vip: 'Được Quản trị cấp cờ VIP.',
   dev: 'Được Quản trị cấp cờ DEV — lập trình viên của web.',
-  newbie: 'Tự động khi mới chơi: cấp 1 (dưới 50 XP) và chưa có bậc nào khác.',
 };
-const BADGE_ORDER = ['owner', 'adm', 'staff', 'sup', 'vip', 'dev', 'newbie'];
+const BADGE_ORDER = ['owner', 'adm', 'staff', 'sup', 'vip', 'dev'];
 const badgeCards = BADGE_ORDER.map(tier => {
   const m = MEDALS[tier];
   return '<div class="bdg-card wk-item" data-name="' + esc(norm('huy hiệu ' + m.label + ' ' + m.title + ' ' + BADGE_HOW[tier])) + '">' +
     '<div class="bdg-show">' + medalHTML(tier, 'mini') + '</div>' +
     '<div><b>' + esc(m.label) + '</b><small>' + esc(m.title) + '</small><small class="how">' + esc(BADGE_HOW[tier]) + '</small></div></div>';
 }).join('');
-const badgeSection = '<section class="wk-sec" id="huy-hieu"><h2>🏅 Huy hiệu <span class="cnt">7 bậc</span></h2>' +
+const badgeSection = '<section class="wk-sec" id="huy-hieu"><h2>🏅 Huy hiệu <span class="cnt">6 bậc</span></h2>' +
   '<p class="sub">Huy hiệu là huân chương hiện cạnh tên người chơi — chỉ hiện huy chương, không kèm chữ (rê chuột vào huy chương để xem tên bậc). Một người có thể mang nhiều huy hiệu cùng lúc.</p>' +
   '<div class="bdg-grid">' + badgeCards + '</div></section>';
 
@@ -348,7 +347,7 @@ apply();})();`;
 /* ---------- ráp trang ---------- */
 const jumpNav = '<nav class="jump" aria-label="Nhảy tới mục"><a href="#wiki-games">🎲 Game</a><a href="#vat-pham">🖼️ Vật phẩm</a><a href="#thanh-tuu">🏆 Thành tựu</a><a href="#danh-hieu">🎖️ Danh hiệu</a><a href="#huy-hieu">🏅 Huy hiệu</a><a href="#gacha">🎁 Gacha &amp; Xu</a><a href="#luat-mac-dinh">⚙️ Luật mặc định</a></nav>';
 const title = 'Wiki GumballZ · ' + games.length + ' game, luật chơi, vật phẩm, thành tựu | GumballZ Boardgame';
-const desc = 'Wiki tổng hợp GumballZ Boardgame: luật chơi ' + games.length + ' game, ' + ACHS.length + ' thành tựu, ' + (ALL_TITLES.length + Object.keys(GAME_TITLES).length) + ' danh hiệu, 7 bậc huy hiệu, vật phẩm, tỉ lệ rương Gacha và cách nhận từng món.';
+const desc = 'Wiki tổng hợp GumballZ Boardgame: luật chơi ' + games.length + ' game, ' + ACHS.length + ' thành tựu, ' + (ALL_TITLES.length + Object.keys(GAME_TITLES).length) + ' danh hiệu, 6 bậc huy hiệu, vật phẩm, tỉ lệ rương Gacha và cách nhận từng món.';
 const html = '<!doctype html>\n<html lang="vi" data-ui-sfx="1">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + esc(title) + '</title>\n' +
 '<link rel="canonical" href="https://gumballzgames.vercel.app/luat/">\n<meta name="description" content="' + esc(desc) + '">\n' +
 '<meta property="og:type" content="website"><meta property="og:url" content="https://gumballzgames.vercel.app/luat/"><meta property="og:site_name" content="GumballZ Boardgame">\n' +
@@ -359,12 +358,12 @@ const html = '<!doctype html>\n<html lang="vi" data-ui-sfx="1">\n<head>\n<meta c
 '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
 '<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">\n' +
 '<style>\n' + CSS + '\n</style>\n' +
-'<link rel="stylesheet" href="../shared/ui/shell.css?v=23">\n<link rel="stylesheet" href="../shared/css/footer.css?v=11">\n<link rel="stylesheet" href="../shared/css/badges.css?v=7">\n' +
+'<link rel="stylesheet" href="../shared/ui/shell.css?v=23">\n<link rel="stylesheet" href="../shared/css/footer.css?v=11">\n<link rel="stylesheet" href="../shared/css/badges.css?v=8">\n' +
 '<script type="application/ld+json">' + JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebPage', name: 'Wiki GumballZ', inLanguage: 'vi', url: 'https://gumballzgames.vercel.app/luat/', description: desc, publisher: { '@type': 'Organization', name: 'GumballZ Boardgame', url: 'https://gumballzgames.vercel.app/' } }) + '</script>\n</head>\n<body>\n' +
 '<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>\n<main>\n' +
 '  <a class="back gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>\n' +
 '  <h1>📖 <span>Wiki</span> GumballZ</h1>\n' +
-'  <p class="sub">Tất cả mọi thứ về GumballZ Boardgame ở một chỗ: ' + games.length + ' game + luật chơi, ' + ACHS.length + ' thành tựu, ' + (ALL_TITLES.length + Object.keys(GAME_TITLES).length) + ' danh hiệu, 7 bậc huy hiệu, vật phẩm, tỉ lệ rương Gacha và cách nhận từng món.</p>\n' +
+'  <p class="sub">Tất cả mọi thứ về GumballZ Boardgame ở một chỗ: ' + games.length + ' game + luật chơi, ' + ACHS.length + ' thành tựu, ' + (ALL_TITLES.length + Object.keys(GAME_TITLES).length) + ' danh hiệu, 6 bậc huy hiệu, vật phẩm, tỉ lệ rương Gacha và cách nhận từng món.</p>\n' +
 '  <input class="wk-search" id="wk-q" type="search" placeholder="🔍 Tìm trong wiki… ví dụ: tỷ phú, khung rồng, chuỗi 10, top 1" aria-label="Tìm trong wiki">\n' +
 '  <p class="wk-count" id="wk-count"></p>\n' +
   jumpNav + '\n' +
@@ -375,7 +374,7 @@ const html = '<!doctype html>\n<html lang="vi" data-ui-sfx="1">\n<head>\n<meta c
   badgeSection + '\n' +
   gachaSection + '\n' +
   defaultRulesSection + '\n' +
-'</main>\n<footer class="gmf"></footer>\n<script src="../shared/ui/footer.js?v=21"></script>\n<script type="module" src="../shared/ui/feedback.js?v=37"></script>\n<script type="module">import "../shared/ui/badges.js?v=7";</script>\n' + /* patch -148: nạp badges.js để tooltip khi nhấn huy chương hoạt động trên trang wiki */
+'</main>\n<footer class="gmf"></footer>\n<script src="../shared/ui/footer.js?v=21"></script>\n<script type="module" src="../shared/ui/feedback.js?v=37"></script>\n<script type="module">import "../shared/ui/badges.js?v=8";</script>\n' + /* patch -148: nạp badges.js để tooltip khi nhấn huy chương hoạt động trên trang wiki */
 '<script>\n' + PAGE_JS + '\n</script>\n' +
 '<script type="module" async src="../shared/ui/feel.js?v=54"></script>\n</body>\n</html>\n';
 

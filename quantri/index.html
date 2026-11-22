@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../shared/ui/shell.css?v=23">
 <link rel="stylesheet" href="../shared/css/quantri.css?v=1">
-<link rel="stylesheet" href="../shared/css/badges.css?v=7"><!-- patch -142: huy hiệu huân chương 7 bậc -->
+<link rel="stylesheet" href="../shared/css/badges.css?v=8"><!-- patch -142: huy hiệu huân chương 6 bậc -->
 </head>
 <body>
 <div class="qd">
@@ -39,7 +39,7 @@
 import { auth, API } from '../shared/net/api.js?v=29';
 import { mountAccount, openLogin } from '../shared/ui/account.js?v=53';
 import { confirmBox, promptBox, alertBox, chooseBox } from '../shared/ui/dialog.js?v=10';
-import { tierBadges, uid6 } from '../shared/ui/badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142); uid6: id hiển thị 6 số (patch -108) — patch -139: KHÔNG import/call ensureBadgesCSS nữa (xem dưới) */
+import { tierBadges, uid6 } from '../shared/ui/badges.js?v=8'; /* 🎖️ huân chương 6 bậc (patch -142); uid6: id hiển thị 6 số (patch -108) — patch -139: KHÔNG import/call ensureBadgesCSS nữa (xem dưới) */
 import { COSMETICS, widOf } from '../shared/ui/wallet.js?v=7'; /* 🎁 danh sách vật phẩm để cấp tay (patch -127) */
 import { TIERS } from '../shared/donor.js?v=2'; /* 🏅 tên + icon 5 bậc ủng hộ (patch -163: mục 🎯 Mốc quỹ) */
 import { FRAMES, NAME_COLORS } from '../shared/js/avatar-rewards.js?v=3'; /* 🎁 món thành tích để cấp tay (patch -131) */

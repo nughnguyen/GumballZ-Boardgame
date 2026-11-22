@@ -1,4 +1,4 @@
-/* 🎖️ Huy hiệu huân chương 7 bậc (patch -142): thay pill bo tròn (-95) bằng medal theo bản phát thảo
+/* 🎖️ Huy hiệu huân chương 6 bậc (patch -142): thay pill bo tròn (-95) bằng medal theo bản phát thảo
    "Huy hiệu Huyền Thoại" của user (~/workspace/user/files/Huy_hi_u_Huy_n_Tho_i.html).
    Mỗi bậc 1 hình dáng riêng, nền tối có cực quang trôi — dùng được cả theme sáng lẫn tối vì medal
    tự mang nền tối của nó. Mọi kích thước tính bằng em: .m mặc định 64px, .m.mini 40px (danh sách
@@ -34,7 +34,6 @@
 .t-dev .core svg{fill:none;stroke:var(--ic);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:bdg-devtype 2.4s ease-in-out infinite}
 .t-sponsor .core svg{animation:bdg-coin 2.6s ease-in-out infinite}
 .t-mod .core svg{animation:bdg-wrench 3s ease-in-out infinite;transform-origin:50% 90%}
-.t-newbie .core svg{animation:bdg-sway 2.6s ease-in-out infinite;transform-origin:50% 90%}
 .t-vip .core svg{animation:bdg-gem 2s ease-in-out infinite}
 @keyframes bdg-spin{to{transform:rotate(360deg)}}
 @keyframes bdg-breathe{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.8;transform:scale(1.08)}}
@@ -44,7 +43,6 @@
 @keyframes bdg-rise{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-.75em) scale(.2)}}
 @keyframes bdg-coin{0%,100%{transform:rotateY(0)}50%{transform:rotateY(360deg)}}
 @keyframes bdg-wrench{0%,55%,100%{transform:rotate(0)}65%{transform:rotate(-30deg)}78%{transform:rotate(20deg)}90%{transform:rotate(-6deg)}}
-@keyframes bdg-sway{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
 @keyframes bdg-gem{0%,100%{transform:scale(1)}50%{transform:scale(1.2) rotate(10deg)}}
 @keyframes bdg-devblink{0%,49%{opacity:1}50%,100%{opacity:0}}
 @keyframes bdg-devtype{0%,100%{transform:translateY(0)}25%{transform:translateY(-.02em)}50%{transform:translateY(.01em) rotate(-3deg)}75%{transform:translateY(-.01em)}}
@@ -57,7 +55,6 @@
 .bdg-sup{--lc:#FFD45C}
 .bdg-vip{--lc:#9BE8FF}
 .bdg-dev{--lc:#7DFFEF}
-.bdg-new{--lc:#C8FF9A}
 
 /* ===== tooltip khi NHẤN vào huy chương (patch -148) =====
    Một thẻ dùng chung (#bdg-tip, fixed, do badges.js dựng + định vị gần medal được nhấn):

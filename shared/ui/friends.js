@@ -3,7 +3,7 @@ import { auth, friends } from '../net/api.js?v=29';
 const amOwner = () => { const u = auth.user(); return !!(u && u.admin && u.owner); }; /* 👑 chủ web nhắn được cho mọi tài khoản (máy chủ kiểm lại) – patch -94: dùng cờ owner của máy chủ, không ghi cứng id 1 */
 import { openLogin } from './account.js?v=53';
 import { confirmBox } from './dialog.js?v=10';
-import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=7'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
+import { ensureBadgesCSS, tierBadges, uid6 } from './badges.js?v=8'; /* 🎖️ huy hiệu 4 bậc (patch -95); uid6: id hiển thị 6 số (patch -108) */
 
 const ROOT = new URL('../../', import.meta.url).href;
 const GAMES = {
