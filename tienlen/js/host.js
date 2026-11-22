@@ -1,6 +1,6 @@
 // 🃏 Lõi chủ phòng Tiến Lên – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, current, VE_HEO, DEFAULT_OPTS, BETS, TURN_TIMES, START_CHIPS } from './engine.js?v=5';
-import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction, LEVELS } from './bot.js?v=7';
 export const NS = 'gumballz-tienlen', PREFIX = 'gumballz-tienlen-', GAME = 'tienlen', SNAP = 'gumballz-hostsnap-' + GAME;
 const BOT_NAMES = ['Kẹo', 'Xôi', 'Gấu Bông', 'Đậu', 'Nấm', 'Sữa'];

@@ -1,7 +1,7 @@
 // 🎖️ Pill danh hiệu (.pf-tt) + vẽ vào danh sách người chơi (phòng chờ #plist / trong ván #players).
 // Dùng chung cho gamekit (77 game) và chat phòng. Icon/tên LUÔN tra từ ALL_TITLES qua titleById,
 // không tin text người khác gửi. Không import gì ngoài titles.js (thuần logic) để node test được.
-import { titleById } from '../titles.js?v=6';
+import { titleById } from '../titles.js?v=7';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 /* 1 pill danh hiệu (đúng 1 cái / người). t có thể là id chuỗi hoặc object { id, icon, name } –
    lúc nào cũng tra lại bằng titleById để icon/tên lấy từ bảng của máy mình. */

@@ -1,6 +1,6 @@
 // Lõi chủ phòng poker – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
 import { createGame, applyAction, viewFor, nextHand, seatPlayers, DEFAULT_OPTS, OPT_CHOICES, MAX_PLAYERS } from './engine.js?v=2';
-import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=1';
 export const NS = 'gumballz-poker', PREFIX = 'gumballz-poker-', GAME = 'poker', SNAP = 'gumballz-hostsnap-' + GAME;
 // Câu chọc kiểu Poker (≤ 24 ký tự)

@@ -10,7 +10,7 @@ import { FbHost, fbConnect, fbEnabled } from './fbrelay.js';
 import { CfHost, cfConnect, cfEnabled, cfClaim } from './cfrelay.js?v=16';
 import { announceRoom, auth, myLevel, API } from './api.js?v=29';
 import { unthrottleTimers } from './bgtimers.js?v=1'; /* ⏱️ hẹn giờ qua Web Worker để chủ phòng chuyển tab không làm bàn giật */
-import { titleById, myTitleId } from '../titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ gửi id, icon/tên tra từ bảng */
+import { titleById, myTitleId } from '../titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ gửi id, icon/tên tra từ bảng */
 /* 👑 vé chủ web (server/src/vip.js): vipCached/vipPass do shared/net/api.js cung cấp (worker client thêm, key 'gumballz-vp').
    🪪 vé tài khoản: idCached/idPass – gửi kèm khi vào phòng để máy chủ áp lệnh cấm / danh sách chặn.
    Nạp động + dự phòng rỗng để room.js vẫn chạy được nếu api.js chưa có các hàm đó. */

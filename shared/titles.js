@@ -6,6 +6,11 @@ export const LEVEL_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi'
 export const XP_K = { poker: 0.25, xidach: 0.25, bacao: 0.25, catte: 0.5 };
 export const gameXp = (k, p, w) => Math.round(((+p || 0) * 10 + (+w || 0) * 20) * (XP_K[k] || 1));
 export function xpOfG(g) { let x = 0; if (g && typeof g === 'object') for (const k of Object.keys(g)) { const v = g[k]; if (v && typeof v === 'object') { const p = Math.max(0, Math.min(99999, +v.p || 0)); x += gameXp(k, p, Math.min(p, Math.max(0, +v.w || 0))); } } return x; }
+/* ✏️ Điều chỉnh XP do Quản trị sửa tay (patch -167): XP hiển thị = XP tính từ số ván từng game + phần
+   chênh lệch này. Chỉ Quản trị mới đổi được (server/src/users.js adminSet, patch {edit:{xp}}); số ván
+   từng game (P.g) KHÔNG bị đụng — tránh việc "sửa XP" phải bịa thêm ván vào 1 game rồi lệch số liệu.
+   xpAdj âm được (sửa XP xuống thấp hơn mức tính từ số ván); tổng XP không bao giờ âm. */
+export const xpAdjOf = P => { const a = Math.floor(+((P && typeof P === 'object' ? P.xpAdj : 0) || 0)); return Math.max(-1e7, Math.min(1e7, a)); };
 export function levelOf(p, w, xp0) { const xp = xp0 != null ? xp0 : p * 10 + w * 20, lv = Math.min(LEVEL_NAMES.length, Math.floor(Math.sqrt(xp / 50)) + 1); return { xp, lv, name: LEVEL_NAMES[lv - 1] }; }
 export const GAME_WINS = 15; /* thắng từng này ván ở một game thì có danh hiệu riêng của game đó */
 export const GAME_TITLES = {
@@ -100,7 +105,7 @@ const n0 = (v, max = 1e7) => Math.min(max, Math.max(0, Math.floor(+v || 0)));
 export function statOf(P, extra = {}) {
   P = P && typeof P === 'object' ? P : {}; const g = P.g && typeof P.g === 'object' ? P.g : {}; let p = 0, w = 0, kinds = 0; const wins = {}, plays = {};
   for (const k of Object.keys(g)) { const v = g[k] || {}, gp = n0(v.p), gw = Math.min(gp, n0(v.w)); p += gp; w += gw; if (gp) { kinds++; plays[k] = gp; } wins[k] = gw; }
-  return { p, w, xp: xpOfG(g), kinds, wins, plays, best: Math.min(w, n0(P.best)), days: Array.isArray(P.days) ? P.days.length : n0(P.days), night: !!P.night, created: n0(extra.created, 4e12), rank: n0(extra.rank) };
+  return { p, w, xp: Math.max(0, xpOfG(g) + xpAdjOf(P)), kinds, wins, plays, best: Math.min(w, n0(P.best)), days: Array.isArray(P.days) ? P.days.length : n0(P.days), night: !!P.night, created: n0(extra.created, 4e12), rank: n0(extra.rank) };
 }
 const gameTitle = g => { const t = GAME_TITLES[g]; return t ? { id: 'g-' + g, icon: t[0], name: t[1], desc: `Thắng ${GAME_WINS} ván ${g}`, game: g } : null; };
 /* mọi danh hiệu đã đạt, xếp theo độ oách */

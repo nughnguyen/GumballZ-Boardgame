@@ -8,11 +8,11 @@
 // Công thức cấp/XP thật: XP = ván chơi × 10 + ván thắng × 20; cấp = floor(sqrt(xp/50)) + 1;
 // XP cần để lên cấp L = 50×(L−1)² (cấp 2: 50, cấp 3: 200, cấp 4: 450, cấp 5: 800).
 import { auth, friends, leaderboard } from '../net/api.js?v=29';
-import { GAME_NAMES } from './stats.js?v=92';
+import { GAME_NAMES } from './stats.js?v=93';
 import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, ownName } from './profile.js?v=63';
 import { openLogin } from './account.js?v=53';
-import { syncNow } from './sync.js?v=49';
-import { ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
+import { syncNow } from './sync.js?v=50';
+import { ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào danh hiệu để xem cách nhận */
 import { ensureSkCSS, skRanks, skPodium } from './skeleton.js?v=1'; /* 💀 skeleton loading: bục top 3 + hàng xếp hạng tới khi máy chủ trả dữ liệu */
 const titleHow = t => { if (!t) return ''; if (t.id && String(t.id).startsWith('g-')) { const g = String(t.id).slice(2); return `Thắng ${GAME_WINS} ván ${GAME_NAMES[g] || g}`; } const f = ALL_TITLES.find(x => x.id === t.id); return f ? f.desc : (t.desc || ''); };

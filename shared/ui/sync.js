@@ -9,7 +9,7 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=29';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=92';
+import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=93';
 import { snapshot, adoptServer, resetWallet } from './wallet.js?v=7'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
 import { readParts, writeParts } from '../js/avatar-rewards.js?v=3'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
@@ -71,8 +71,12 @@ async function runSync(u, tok) {
       if (p > 0) out.g[g] = { p, w, last: Math.max(num(sv.last), m.replace ? 0 : num(lc.last)) };
     }
     out.ach = { ...(P.ach || {}) }; out.days = (P.days || []).slice(-400); out.best = num(P.best); out.night = P.night ? 1 : 0; if (P.first) out.first = num(P.first);
+    out.xpAdj = Math.floor(+P.xpAdj || 0); /* ✏️ XP do Quản trị sửa tay (patch -167): máy chủ là chuẩn — kéo về để totals() hiện đúng */
     out.streak = !m.replace && lastT(now) > num(P.lastT) ? num(now.streak) : num(P.streak);
-    if (!m.replace) { for (const k in now.ach) if (!out.ach[k]) out.ach[k] = now.ach[k]; out.best = Math.max(out.best, num(now.best)); }
+    /* ✏️ admin sửa chuỗi tốt nhất (patch -167): nếu máy chủ sửa best SAU lần đồng bộ trước (bestAt > at)
+       thì nhận số mới, KHÔNG lấy max với số cũ trên máy — không thì số cũ trên máy đẩy ngược lên lại. */
+    const adoptBest = P.bestAt && num(P.bestAt) > num(m.at);
+    if (!m.replace) { for (const k in now.ach) if (!out.ach[k]) out.ach[k] = now.ach[k]; if (!adoptBest) out.best = Math.max(out.best, num(now.best)); }
     const t = totals(out); for (const a of ACHS) if (!out.ach[a.id] && a.ok(t)) out.ach[a.id] = Date.now(); /* tổng mới có thể đủ điều kiện thành tích */
     ls.set(STATS, JSON.stringify(out));
     const base = {}; for (const g in P.g || {}) base[g] = { p: num(P.g[g].p), w: num(P.g[g].w) };

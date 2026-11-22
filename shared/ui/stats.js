@@ -4,7 +4,7 @@
 import { questWin } from '../js/daily.js?v=3'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
 import { earnGame } from './wallet.js?v=7'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
 import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js?v=3'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
-import { gameXp } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
+import { gameXp, xpAdjOf } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ · ✏️ xpAdj: XP do Quản trị sửa tay (patch -167) */
 import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — stats phủ mọi game còn lại (net riêng như typhu) */
 const KEY = 'gumballz-stats';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -101,7 +101,7 @@ const OVER = {
 
 export function load() { let s = null; try { s = JSON.parse(ls.get(KEY)); } catch (e) {} s = s && typeof s === 'object' ? s : {}; s.g = s.g || {}; s.ach = s.ach || {}; /* patch -103: trùng id rs-solo-win (The Resistance + Rắn Săn Mồi) — id của Rắn Săn Mồi đổi thành rsm-solo-win; ai đã mở id cũ bằng Rắn Săn Mồi (có thắng ở ransanmoi) được cấp lại id mới, giữ nguyên thời gian mở; ai mở bằng The Resistance thì giữ nguyên id cũ */ if (s.ach['rs-solo-win'] && (s.g.ransanmoi?.w || 0) > 0 && !s.ach['rsm-solo-win']) s.ach['rsm-solo-win'] = s.ach['rs-solo-win']; s.days = s.days || []; s.streak = s.streak || 0; s.best = s.best || 0; s.ev = s.ev || {}; s.dd = s.dd || { d: '', n: 0, k: [], w: [] }; s.ls = s.ls || 0; s.marks = s.marks || {}; s.cnt = s.cnt || {}; return s; }
 const save = s => ls.set(KEY, JSON.stringify(s));
-export function totals(s = load()) { let p = 0, w = 0, xp = 0, kinds = 0, top = 0; for (const g in s.g) { p += s.g[g].p || 0; w += s.g[g].w || 0; xp += gameXp(g, s.g[g].p || 0, Math.min(s.g[g].p || 0, s.g[g].w || 0)); if (s.g[g].p) kinds++; top = Math.max(top, s.g[g].w || 0); } let dl = null; try { dl = JSON.parse(ls.get('gumballz-login')); } catch (e) {} return { p, w, xp, kinds, top, days: s.days.length, streak: s.streak, best: s.best, night: !!s.night, g: s.g || {}, ev: s.ev || {}, dd: s.dd || { n: 0, k: [], w: [] }, ls: s.ls || 0, marks: s.marks || {}, dlStreak: Math.max(0, Math.floor(+((dl || {}).streak) || 0)), dlTotal: Math.max(0, Math.floor(+((dl || {}).total) || 0)) }; } /* 🎁 điểm danh: chuỗi + tổng ngày điểm danh (localStorage 'gumballz-login', máy chủ ghi đè khi đồng bộ) để xét thành tích dl-7 / dl-30 */
+export function totals(s = load()) { let p = 0, w = 0, xp = 0, kinds = 0, top = 0; for (const g in s.g) { p += s.g[g].p || 0; w += s.g[g].w || 0; xp += gameXp(g, s.g[g].p || 0, Math.min(s.g[g].p || 0, s.g[g].w || 0)); if (s.g[g].p) kinds++; top = Math.max(top, s.g[g].w || 0); } xp = Math.max(0, xp + xpAdjOf(s)); /* ✏️ XP do Quản trị sửa tay (patch -167) — sync.js kéo về từ hồ sơ máy chủ */ let dl = null; try { dl = JSON.parse(ls.get('gumballz-login')); } catch (e) {} return { p, w, xp, kinds, top, days: s.days.length, streak: s.streak, best: s.best, night: !!s.night, g: s.g || {}, ev: s.ev || {}, dd: s.dd || { n: 0, k: [], w: [] }, ls: s.ls || 0, marks: s.marks || {}, dlStreak: Math.max(0, Math.floor(+((dl || {}).streak) || 0)), dlTotal: Math.max(0, Math.floor(+((dl || {}).total) || 0)) }; } /* 🎁 điểm danh: chuỗi + tổng ngày điểm danh (localStorage 'gumballz-login', máy chủ ghi đè khi đồng bộ) để xét thành tích dl-7 / dl-30 */
 /* ---- ☁️ Hồ sơ máy chủ: tổng gộp (mốc cũ + đã xác minh + ván local đã đồng bộ), sync.js tải về từ /auth/profile ----
    P.g = mốc cũ (legacy, đóng băng) + ván đã xác minh + ván local do client gửi (từ bản nới lỏng 18/11/2026:
    đấu máy/chơi đơn được tính lại vào máy chủ, có giới hạn tốc độ) — dùng cho hồ sơ/bảng xếp hạng; P.v = riêng phần đã xác minh.
@@ -113,10 +113,11 @@ export function saveServerSnapshot(P) { try { if (P && typeof P === 'object') ls
 export function loadServer() { let s = null; try { s = JSON.parse(ls.get(SRV_KEY)); } catch (e) {} return s && typeof s === 'object' ? s : null; }
 export function serverTotals(P = loadServer()) {
   if (!P) return null;
-  let p = 0, w = 0, kinds = 0, top = 0; const g = P.g || {};
-  for (const k in g) { const gp = Math.max(0, Math.floor(+g[k].p || 0)), gw = Math.min(gp, Math.max(0, Math.floor(+g[k].w || 0))); p += gp; w += gw; if (gp) kinds++; top = Math.max(top, gw); }
+  let p = 0, w = 0, xp = 0, kinds = 0, top = 0; const g = P.g || {};
+  for (const k in g) { const gp = Math.max(0, Math.floor(+g[k].p || 0)), gw = Math.min(gp, Math.max(0, Math.floor(+g[k].w || 0))); p += gp; w += gw; xp += gameXp(k, gp, gw); if (gp) kinds++; top = Math.max(top, gw); }
+  xp = Math.max(0, xp + xpAdjOf(P)); /* ✏️ XP do Quản trị sửa tay (patch -167) */
   const days = new Set([...(Array.isArray(P.days) ? P.days : []), ...((P.v && Array.isArray(P.v.days)) ? P.v.days : [])]).size;
-  return { p, w, kinds, top, days, best: Math.min(w, Math.max(0, Math.floor(+P.best || 0))), night: !!P.night, g, legacy: P.legacy || null, at: P._at || 0 };
+  return { p, w, xp, kinds, top, days, best: Math.min(w, Math.max(0, Math.floor(+P.best || 0))), night: !!P.night, g, legacy: P.legacy || null, at: P._at || 0 };
 }
 export function verifiedTotals(P = loadServer()) {
   if (!P || !P.v) return null;
@@ -1402,7 +1403,7 @@ export function watch(game, handlers, getId) {
 }
 // ☁️ có đăng nhập thì nạp phần đồng bộ hồ sơ theo tài khoản (khách không nạp gì thêm)
 const hasAuth = () => { try { return !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) { return false; } };
-let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=49').catch(() => { syncOn = false; }); };
+let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=50').catch(() => { syncOn = false; }); };
 try { startSync(); addEventListener('gumballz-auth', startSync); } catch (e) {}
 // 📸 nút "Khoe kết quả" sau ván thắng (shared/ui/brag.js)
 try { if (typeof document !== 'undefined') import('./brag.js?v=36').catch(() => {}); } catch (e) {}

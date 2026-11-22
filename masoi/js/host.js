@@ -1,7 +1,7 @@
 // Lõi chủ phòng Ma Sói – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, lời thoại AI của bot… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
 import { createGame, applyAction, viewFor, actors, timeout, phaseMs, DEFAULT_OPTS, presetRoles, roleList, ROLES, MAX_PLAYERS, MIN_PLAYERS, P, isWolfRole } from './engine.js?v=8';
-import { titleById, myTitleId } from '../../shared/titles.js?v=6'; /* 🎖️ danh hiệu trưng ra (patch -97) */
+import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction, botDayPlan, botWolfLine, botGhostLine, botLastWords } from './bot.js?v=9';
 // Bot chưa có voteReason: bản tương đương, chỉ dùng trường state
 // đã có (dayInfo.accuse, claims, history, opts.voteMode, chat, seen).

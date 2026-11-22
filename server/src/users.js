@@ -2,7 +2,7 @@
 // Không bắt buộc – ai không đăng nhập vẫn chơi như khách.
 import { DurableObject } from 'cloudflare:workers';
 import { cleanName, clean } from './filter.js';
-import { statOf, titlesOf, pickTitle, levelOf, gameXp } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
+import { statOf, titlesOf, pickTitle, levelOf, gameXp, xpOfG, xpAdjOf } from '../../shared/titles.js'; /* danh hiệu: dùng chung công thức với web */
 import { cleanAvatar, avatarUsable } from '../../shared/avatar-sync.js'; /* 🧸 nhân vật: chỉ nhận các trường đã biết */
 import { isKnownPart, FRAMES, NAME_COLORS, BANNERS, VIP_WIDS } from '../../shared/js/avatar-rewards.js'; /* 🧸 linh kiện trúng rương: chỉ nhận id trong LOCKED_PARTS; 🎁 khung/màu/banner để cấp tay (patch -127) */
 import { checkVip } from './vip-unlocks.js'; /* 🏆 chuỗi top BXH mở món VIP (patch -143) */
@@ -83,6 +83,41 @@ export function mergeGranted(P) { // gộp P.granted vào P.wal.own; trả true 
   return true;
 }
 
+/* ✏️ Sửa dữ liệu người dùng (patch -167): đặt lại TỔNG ván/thắng bằng cách phân bổ chênh lệch vào P.g
+   (nguồn sự thật duy nhất của tổng ván/thắng/XP — statOf()/leaderboard()/adminFind() đều cộng từ P.g).
+   - Tăng ván → cộng vào game chơi nhiều nhất (giữ "game chơi nhiều nhất" đúng).
+   - Giảm ván → trừ từ game chơi nhiều nhất trước, không bao giờ để w > p ở từng game.
+   - Tăng thắng → cộng vào game còn dư chỗ (p - w), chơi nhiều nhất trước; giảm thắng → trừ từ game
+     thắng nhiều nhất trước. Game nào về 0 ván thì xoá khỏi P.g cho gọn.
+   - Chưa chơi game nào mà vẫn tăng ván (vd. tài khoản mới): ghi vào 'typhu' (Cờ Tỷ Phú, game cờ đầu
+     của web) và ghi rõ trong nhật ký — tránh bịa 1 game "ảo" không có thật trong danh sách 92 game. */
+function applyTotalsEdit(P, p1, w1) {
+  const g = (P.g && typeof P.g === 'object') ? P.g : (P.g = {});
+  const totals = () => { let p = 0, w = 0; for (const v of Object.values(g)) { const gp = Math.max(0, Math.floor(+v.p || 0)); p += gp; w += Math.min(gp, Math.max(0, Math.floor(+v.w || 0))); } return { p, w }; };
+  const byPlays = () => Object.keys(g).map(k => ({ k, p: Math.max(0, Math.floor(+g[k].p || 0)), w: Math.min(Math.max(0, Math.floor(+g[k].p || 0)), Math.max(0, Math.floor(+g[k].w || 0))) })).sort((a, b) => b.p - a.p || b.w - a.w);
+  const setG = (k, p, w) => { if (p <= 0) delete g[k]; else g[k] = { p, w: Math.min(p, Math.max(0, w)), last: Math.max(0, Math.floor(+((g[k] || {}).last) || 0)) }; };
+  let topGame = null;
+  const dp = p1 - totals().p;
+  if (dp > 0) {
+    const gs = byPlays();
+    topGame = gs.length ? gs[0].k : 'typhu';
+    const cur = g[topGame] || { p: 0, w: 0 };
+    setG(topGame, cur.p + dp, cur.w);
+  } else if (dp < 0) {
+    let rem = -dp;
+    for (const { k, p, w } of byPlays()) { if (rem <= 0) break; const take = Math.min(p, rem); setG(k, p - take, Math.min(w, p - take)); rem -= take; }
+  }
+  let dw = w1 - totals().w;
+  if (dw > 0) {
+    let rem = dw;
+    for (const { k, p, w } of byPlays()) { if (rem <= 0) break; const room = p - w; if (room <= 0) continue; const add = Math.min(room, rem); setG(k, p, w + add); rem -= add; }
+  } else if (dw < 0) {
+    let rem = -dw;
+    for (const { k, p, w } of byPlays().sort((a, b) => b.w - a.w || b.p - a.p)) { if (rem <= 0) break; const take = Math.min(w, rem); setG(k, p, w - take); rem -= take; }
+  }
+  return { game: topGame, dp, dw };
+}
+
 /* 🎁 Điểm danh hằng ngày — bảng thưởng chu kỳ 7 ngày, tăng dần (giờ VN).
    Ngày trong chu kỳ = ((chuỗi - 1) % 7) + 1; nhận xong ngày 7 thì hôm sau quay lại ngày 1.
    Bỏ 1 ngày → chuỗi về 1. Máy chủ tự kiểm: 1 ngày chỉ nhận 1 lần. */
@@ -106,6 +141,7 @@ function vCtx(P) {
   const V = P.v || {}, g = P.g || {};
   let p = 0, w = 0, kinds = 0, top = 0, xp = 0; const wins = {};
   for (const k of Object.keys(g)) { const v = g[k] || {}, gp = Math.max(0, Math.floor(+v.p || 0)), gw = Math.min(gp, Math.max(0, Math.floor(+v.w || 0))); p += gp; w += gw; if (gp) kinds++; top = Math.max(top, gw); wins[k] = gw; xp += gameXp(k, gp, gw); }
+  xp = Math.max(0, xp + xpAdjOf(P)); /* ✏️ XP do Quản trị sửa tay (patch -167): cộng phần chênh lệch */
   const vg = V.g || {}; let vloss = 0; for (const v of Object.values(vg)) vloss += Math.max(0, Math.floor(+v.l || 0));
   const days = new Set([...(Array.isArray(P.days) ? P.days : []), ...(Array.isArray(V.days) ? V.days : [])]).size;
   return { p, w, xp, kinds, top, days, best: Math.min(w, Math.max(0, Math.floor(+P.best || 0))), night: !!P.night, ls: Math.max(0, Math.floor(+V.ls || 0)), vloss,
@@ -351,7 +387,12 @@ export class Users extends DurableObject {
       }
       if (d.ach && typeof d.ach === 'object') for (const k of Object.keys(d.ach).slice(0, 80)) { if (!/^[a-z0-9_-]{1,30}$/i.test(k)) continue; const t = num(d.ach[k], 4e12) || Date.now(); P.ach[k] = P.ach[k] ? Math.min(P.ach[k], t) : t; }
       if (Array.isArray(d.days)) P.days = [...new Set([...P.days, ...d.days.filter(x => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-400)])].sort().slice(-400);
-      { let tw = 0; for (const v of Object.values(P.g)) tw += num(v && v.w); P.best = Math.min(tw, Math.max(num(P.best), num(d.best))); } /* chuỗi thắng không thể dài hơn tổng số ván thắng */
+      { let tw = 0; for (const v of Object.values(P.g)) tw += num(v && v.w);
+        /* ✏️ admin sửa chuỗi tốt nhất (patch -167): số best do máy gửi chỉ nhận khi ván mới nhất của máy đó
+           chơi SAU lần sửa (lastT > bestAt) — không thì đó là số cũ trên máy, nhận vào là mất lần sửa.
+           Máy nhận số mới qua sync.js (bestAt mới hơn lần đồng bộ trước → lấy P.best, không lấy max). */
+        const staleBest = num(P.bestAt, 4e12) > 0 && num(d.lastT, 4e12) <= num(P.bestAt, 4e12);
+        P.best = Math.min(tw, staleBest ? num(P.best) : Math.max(num(P.best), num(d.best))); } /* chuỗi thắng không thể dài hơn tổng số ván thắng */
       if (num(d.lastT, 4e12) >= num(P.lastT, 4e12)) { P.streak = num(d.streak); P.lastT = num(d.lastT, 4e12); }
       if (d.night) P.night = 1;
       const f = num(d.first, 4e12); if (f && (!P.first || f < P.first)) P.first = f;
@@ -502,7 +543,7 @@ export class Users extends DurableObject {
         let P = null; try { P = JSON.parse(r.prof || 'null'); } catch (e) {}
         const st = statOf(P), lv = levelOf(st.p, st.w, st.xp); let last = 0; if (P && P.g) for (const v of Object.values(P.g)) last = Math.max(last, +(v && v.last) || 0);
         let mu = { c: 0, v: 0 }; try { const m = JSON.parse(r.mute || 'null'); if (m && typeof m === 'object') { mu.c = +m.c || 0; mu.v = +m.v || 0; } } catch (e) {}
-        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: (r.role != null ? +r.role : (r.admin ? 2 : 0)) >= 1, role: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), supporter: !!r.supporter, vip: !!r.vip, dev: !!r.dev, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, last, mute: mu,
+        list.push({ id: r.id, username: r.username || null, name: r.name || '', g: !!r.g, created: r.created || 0, banned: !!r.banned, admin: (r.role != null ? +r.role : (r.admin ? 2 : 0)) >= 1, role: r.role != null ? Math.max(0, Math.min(2, +r.role || 0)) : (r.admin ? 2 : 0), supporter: !!r.supporter, vip: !!r.vip, dev: !!r.dev, lv: lv.lv, xp: lv.xp, p: st.p, w: st.w, best: st.best, xu: P && P.wal && typeof P.wal === 'object' ? Math.max(0, Math.floor(+P.wal.xu || 0)) : 0, last, mute: mu,
           av: P && P.av && typeof P.av.e === 'string' ? String(P.av.e).slice(0, 8) : '', _u: fold(r.username), _n: fold(r.name) });
       }
       this.admIdx = { at: Date.now(), list };
@@ -539,6 +580,31 @@ export class Users extends DurableObject {
     if ('vip' in patch && patch.vip && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💠 không cấp VIP cho tài khoản bị khoá (thu hồi thì vẫn được)
     if ('dev' in patch && callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới cấp/thu hồi huy hiệu DEV' }; // 💻 huy hiệu DEV (patch -142): chỉ role 2
     if ('dev' in patch && patch.dev && target.banned) return { ok: false, msg: 'Tài khoản đang bị khoá' }; // 💻 không cấp DEV cho tài khoản bị khoá (thu hồi thì vẫn được)
+    // ✏️ sửa dữ liệu người dùng (patch -167): chỉ Quản trị (role 2); kiểm tra TOÀN BỘ giá trị trước khi sửa gì
+    let editPatch = null, editCur = null;
+    if ('edit' in patch) {
+      if (callerRole < 2) return { ok: false, msg: 'Chỉ Quản trị mới sửa dữ liệu người dùng' };
+      const e = patch.edit;
+      if (!e || typeof e !== 'object' || Array.isArray(e)) return { ok: false, msg: 'Dữ liệu sửa không hợp lệ' };
+      const keys = ['xu', 'xp', 'p', 'w', 'best'].filter(k => k in e);
+      if (!keys.length) return { ok: false, msg: 'Chưa sửa gì' };
+      const isInt = v => typeof v === 'number' && Number.isInteger(v) && v >= 0;
+      for (const k of keys) if (!isInt(e[k])) return { ok: false, msg: 'Giá trị phải là số nguyên từ 0 trở lên' };
+      if ('xu' in e && e.xu > 10000000) return { ok: false, msg: 'Xu tối đa 10.000.000' };
+      if ('xp' in e && e.xp > 10000000) return { ok: false, msg: 'XP tối đa 10.000.000' };
+      if ('p' in e && e.p > 1000000) return { ok: false, msg: 'Số trận tối đa 1.000.000' };
+      if ('w' in e && e.w > 1000000) return { ok: false, msg: 'Số trận thắng tối đa 1.000.000' };
+      if ('best' in e && e.best > 1000000) return { ok: false, msg: 'Chuỗi thắng tối đa 1.000.000' };
+      let curP = null; try { curP = JSON.parse(target.prof || 'null'); } catch (err) {}
+      curP = curP && typeof curP === 'object' ? curP : {};
+      const st0 = statOf(curP);
+      const p1 = 'p' in e ? e.p : st0.p, w1 = 'w' in e ? e.w : st0.w;
+      if (w1 > p1) return { ok: false, msg: 'Số trận thắng không được lớn hơn số trận đã chơi' };
+      const b1 = 'best' in e ? e.best : Math.min(st0.w, Math.max(0, Math.floor(+curP.best || 0)));
+      if (b1 > w1) return { ok: false, msg: 'Chuỗi thắng tốt nhất không được dài hơn tổng số trận thắng' };
+      editPatch = e;
+      editCur = { xu: curP.wal && typeof curP.wal === 'object' ? Math.max(0, Math.floor(+curP.wal.xu || 0)) : 0, xp: st0.xp, p: st0.p, w: st0.w, best: Math.min(st0.w, Math.max(0, Math.floor(+curP.best || 0))) };
+    }
     // 🎁 cấp vật phẩm thủ công (patch -127): chỉ Quản trị (role 2); không cấp cho tài khoản bị khoá; tự cấp cho mình thì được (ghi rõ trong audit); kiểm tra wid + trùng trước khi sửa gì
     let grantWid = null, grantName = null, grantP = null;
     if ('grant' in patch) {
@@ -581,6 +647,25 @@ export class Users extends DurableObject {
       grantP.granted = granted.slice(0, 200);
       this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(grantP), uid);
     }
+    let editDone = null; // ✏️ sửa dữ liệu (patch -167): đọc lại hồ sơ mới nhất rồi áp dụng (thứ tự: ván/thắng → XP → chuỗi → xu)
+    if (editPatch) {
+      let P = null; try { P = JSON.parse((this.one('SELECT prof FROM users WHERE id = ?', uid) || {}).prof || 'null'); } catch (err) {}
+      P = P && typeof P === 'object' ? P : {}; P.g = P.g || {};
+      const e = editPatch, st1 = statOf(P);
+      let topGame = null;
+      if ('p' in e || 'w' in e) { const r = applyTotalsEdit(P, 'p' in e ? e.p : st1.p, 'w' in e ? e.w : st1.w); topGame = r.game; }
+      if ('xp' in e) { const adj = e.xp - xpOfG(P.g); if (adj === 0) delete P.xpAdj; else P.xpAdj = Math.max(-1e7, Math.min(1e7, adj)); } /* XP mục tiêu trừ XP tính từ số ván mới — số ván không bị đụng */
+      if ('best' in e) { P.best = e.best; P.bestAt = Date.now(); } /* mốc sửa để lần đồng bộ sau của máy không đẩy số cũ lên lại (xem profile()) */
+      if ('xu' in e) { /* 💰 ví xu: đóng dấu at mới hơn BẮT BUỘC (theo đúng mergeGranted) để lần đồng bộ sau của máy
+        KHÔNG ghi đè lại giá trị cũ (walletAccepts chỉ nhận ví at mới hơn) và máy nhận ví mới qua adoptServer */
+        const old = (P.wal && typeof P.wal === 'object') ? P.wal : {};
+        P.wal = { xu: e.xu, inv: (old.inv && typeof old.inv === 'object') ? old.inv : {}, own: Array.isArray(old.own) ? old.own : [], eq: (old.eq && typeof old.eq === 'object') ? old.eq : { back: '' }, dbl: Math.max(0, Math.floor(+old.dbl || 0)), chest: Math.max(0, Math.floor(+old.chest || 0)), at: Math.max(Date.now(), Math.floor(+old.at || 0) + 1) };
+      }
+      this.sql.exec('UPDATE users SET prof = ? WHERE id = ?', JSON.stringify(P), uid);
+      if (this.lbCache) this.lbCache.clear(); /* bảng xếp hạng nhớ 30s: xoá để XP/ván/thắng/chuỗi mới hiện ngay */
+      const st2 = statOf(P);
+      editDone = { xu: P.wal ? Math.max(0, Math.floor(+P.wal.xu || 0)) : 0, xp: st2.xp, p: st2.p, w: st2.w, best: Math.min(st2.w, Math.max(0, Math.floor(+P.best || 0))), lv: levelOf(st2.p, st2.w, st2.xp).lv, topGame };
+    }
     if ('mute' in patch && patch.mute && typeof patch.mute === 'object') { /* 🔇 cấm chat (c) / cấm mở phiếu (v) theo tài khoản, theo giờ – 0 = gỡ */
       const now = Date.now(), cur = this.one('SELECT mute FROM users WHERE id = ?', uid); let m = { c: 0, v: 0 };
       try { m = JSON.parse((cur && cur.mute) || 'null') || m; } catch (e) {}
@@ -608,7 +693,19 @@ export class Users extends DurableObject {
       const self = adminUid != null && uid === +adminUid;
       await this.auditLog(actor, 'grant-item', uid, tName, 'cấp ' + grantName + (self ? ' (tự cấp cho chính mình)' : ''));
     }
-    return { ok: true, ...(grantWid ? { granted: grantWid, name: grantName } : {}) };
+    if (editDone) { // ✏️ ghi rõ giá trị cũ → mới từng trường đã sửa (không ghi mật khẩu — ở đây không có mật khẩu)
+      const self = adminUid != null && uid === +adminUid;
+      const parts = [];
+      const fmt = n => (+n || 0).toLocaleString('vi-VN');
+      if ('xu' in editPatch) parts.push(`xu ${fmt(editCur.xu)}→${fmt(editDone.xu)}`);
+      if ('xp' in editPatch) parts.push(`XP ${fmt(editCur.xp)}→${fmt(editDone.xp)}`);
+      if ('p' in editPatch) parts.push(`ván ${fmt(editCur.p)}→${fmt(editDone.p)}`);
+      if ('w' in editPatch) parts.push(`thắng ${fmt(editCur.w)}→${fmt(editDone.w)}`);
+      if ('best' in editPatch) parts.push(`chuỗi ${fmt(editCur.best)}→${fmt(editDone.best)}`);
+      if (editDone.topGame) parts.push(`(ván thêm ghi vào ${editDone.topGame === 'typhu' && !editCur.p ? 'Cờ Tỷ Phú (chưa chơi game nào)' : editDone.topGame})`);
+      await this.auditLog(actor, 'edit-user', uid, tName, 'sửa dữ liệu: ' + parts.join('; ') + (self ? ' (tự sửa)' : ''));
+    }
+    return { ok: true, ...(grantWid ? { granted: grantWid, name: grantName } : {}), ...(editDone ? { edited: editDone } : {}) };
   }
   /* 👑 Nhượng quyền chủ web (patch -94): chủ web hiện tại chuyển 👑 cho tài khoản khác.
      Người cũ giữ role 2 (vẫn là Quản trị, 🛠️); người mới được lên role 2 + thành chủ web.
@@ -817,6 +914,7 @@ export class Users extends DurableObject {
       let p = 0, w = 0, xp = 0;
       if (game === 'all') {
         for (const [k, v] of Object.entries(g)) if (v && typeof v === 'object') { const gp = Math.max(0, Math.min(99999, +v.p || 0)), gw = Math.min(gp, Math.max(0, Math.min(99999, +v.w || 0))); p += gp; w += gw; xp += gameXp(k, gp, gw); }
+        xp = Math.max(0, xp + xpAdjOf(pf)); /* ✏️ XP do Quản trị sửa tay (patch -167) */
       } else {
         const gv = g[game];
         if (gv && typeof gv === 'object') { p = Math.max(0, Math.min(99999, +gv.p || 0)); w = Math.max(0, Math.min(99999, +gv.w || 0)); }
