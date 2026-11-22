@@ -19,6 +19,8 @@ export function cleanAvatar(a) {
   if (typeof a.f === 'string' && /^[a-z0-9]{2,14}$/.test(a.f)) o.f = a.f;
   if (typeof a.n === 'string' && /^[a-z0-9]{2,14}$/.test(a.n)) o.n = a.n;
   if (typeof a.b === 'string' && /^[a-z0-9]{2,14}$/.test(a.b)) o.b = a.b; /* 🎏 banner hồ sơ (2026-11-21) */
+  if (typeof a.nf === 'string' && /^[a-z0-9]{2,14}$/.test(a.nf)) o.nf = a.nf; /* ✍️ font chữ tên (patch -154) */
+  if (typeof a.ne === 'string' && /^[a-z0-9]{2,14}$/.test(a.ne)) o.ne = a.ne; /* ✨ hiệu ứng chữ tên (patch -154) */
   if (a.sex === 'nam' || a.sex === 'nu') o.sex = a.sex;
   for (const k of AVATAR_CH) if (typeof src[k] === 'string' && src[k].length > 0 && src[k].length <= 24) o[k] = src[k];
   return o;

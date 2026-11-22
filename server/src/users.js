@@ -273,7 +273,7 @@ export class Users extends DurableObject {
     if (!P || typeof P !== 'object') return null;
     const av = cleanAvatar(P.av);
     if (!av) return null;
-    return { f: av.f || '', n: av.n || '' };
+    return { f: av.f || '', n: av.n || '', nf: av.nf || '', ne: av.ne || '' }; /* ✍️ font + hiệu ứng chữ tên (patch -154) */
   }
   async logout(token) { if (token) this.sql.exec('DELETE FROM sessions WHERE tok = ?', await sha256(String(token))); return { ok: true }; }
   async rename(token, name) {

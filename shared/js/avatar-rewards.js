@@ -261,6 +261,45 @@ export const NAME_COLORS = [
   { id: 'vipquang', name: 'Màu Cực Quang', lock: 'vip4', anim: 1, css: 'background:linear-gradient(90deg,#2ec5b6,#3d8bff,#b06bff,#ff5fa2,#2ec5b6);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto' },
 ];
 
+/* ✍️ font chữ cho tên hiển thị (patch -154): CHỈ font có subset vietnamese — đã kiểm chứng từng font
+   bằng Google Fonts css2 API (Chrome UA, response có dải unicode-range vietnamese U+0102-0103,
+   U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9) ngày 2026-11-22.
+   Caveat LOẠI (không có subset vietnamese ở mọi weight 400-700). gf = family spec cho css2 URL
+   (nạp động ở shared/ui/name-fonts.js); không có gf = font đã nạp sẵn ở web (Baloo 2 / Bungee).
+   weight = font-weight khi render (font chỉ có 400 thì để 400, khỏi faux-bold).
+   Trộn tự do với màu tên + hiệu ứng chữ. */
+export const NAME_FONTS = [
+  { id: '', name: 'Mặc định', family: "'Baloo 2'" },
+  { id: 'bevnp', name: 'Be Vietnam Pro', family: "'Be Vietnam Pro'", gf: 'Be+Vietnam+Pro:wght@700;800' },
+  { id: 'mont', name: 'Montserrat', lock: 'd3', family: "'Montserrat'", gf: 'Montserrat:wght@700;800' },
+  { id: 'quick', name: 'Quicksand', lock: 'p10', family: "'Quicksand'", gf: 'Quicksand:wght@700' },
+  { id: 'comf', name: 'Comfortaa', lock: 'k5', family: "'Comfortaa'", gf: 'Comfortaa:wght@700' },
+  { id: 'playf', name: 'Playfair Display', lock: 'd7', family: "'Playfair Display'", gf: 'Playfair+Display:wght@700;800' },
+  { id: 'dance', name: 'Dancing Script', lock: 'w10', family: "'Dancing Script'", gf: 'Dancing+Script:wght@700', weight: 700 },
+  { id: 'pacif', name: 'Pacifico', lock: 'night', family: "'Pacifico'", gf: 'Pacifico', weight: 400 },
+  { id: 'lobst', name: 'Lobster', lock: 'w50', family: "'Lobster'", gf: 'Lobster', weight: 400 },
+  { id: 'anton', name: 'Anton', lock: 's5', family: "'Anton'", gf: 'Anton', weight: 400 },
+  { id: 'osw', name: 'Oswald', lock: 'w25', family: "'Oswald'", gf: 'Oswald:wght@600;700' },
+  { id: 'itim', name: 'Itim', lock: 'd14', family: "'Itim'", gf: 'Itim', weight: 400 },
+  { id: 'pathand', name: 'Patrick Hand', lock: 'k10', family: "'Patrick Hand'", gf: 'Patrick+Hand', weight: 400 },
+  { id: 'bungee', name: 'Bungee', lock: 'top10', family: "'Bungee'", weight: 400 },
+];
+
+/* ✨ hiệu ứng chữ cho tên hiển thị (patch -154): css = khai báo inline gộp vào style tên (ghi SAU css màu
+   nên ghi đè được background của màu khi cần, vd. Cầu vồng chạy thay nền màu). 'grad' chỉ thấy rõ khi
+   màu tên là gradient; animation dùng keyframes nc-slide (có sẵn) / nx-bob (avatar.css); reduced-motion
+   tắt hết animation tên ở avatar.css. Trộn tự do với font + màu tên. */
+export const NAME_EFFECTS = [
+  { id: '', name: 'Không hiệu ứng' },
+  { id: 'shadow', name: 'Bóng cứng', lock: 'w1', css: 'filter:drop-shadow(2px 2px 0 rgba(36,26,56,.85))' },
+  { id: 'glow', name: 'Phát sáng', lock: 'p20', css: 'filter:drop-shadow(0 0 6px rgba(255,190,60,.9)) drop-shadow(0 0 2px rgba(255,220,120,.9))' },
+  { id: 'outline', name: 'Viền đậm', lock: 'd3', css: '-webkit-text-stroke:1.2px #241A38;paint-order:stroke fill' },
+  { id: 'neon', name: 'Neon', lock: 'k15', css: 'filter:drop-shadow(0 0 3px rgba(255,255,255,.9)) drop-shadow(0 0 8px rgba(255,95,162,.85)) drop-shadow(0 0 14px rgba(176,107,255,.7))' },
+  { id: 'grad', name: 'Gradient chạy', lock: 'w60', css: 'background-size:200% auto;animation:nc-slide 3s linear infinite' },
+  { id: 'rainbow', name: 'Cầu vồng chạy', lock: 'w100', css: 'background:linear-gradient(90deg,#ff3b30,#ff9500,#ffcc00,#34c759,#0a84ff,#bf5af2,#ff3b30);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nc-slide 3s linear infinite' },
+  { id: 'bob', name: 'Nảy nhẹ', lock: 's8', css: 'display:inline-block;animation:nx-bob 1.8s ease-in-out infinite' },
+];
+
 /* 🎏 banner hồ sơ kiểu Nitro: dải màu trên đầu hộp Hồ sơ (trường b trong nhân vật).
    shop = bán bằng xu; chest = chỉ mở ra từ rương (cực hiếm); anim: 1 = gradient chạy. */
 export const BANNERS = [
@@ -332,6 +371,18 @@ export const BANNERS = [
 /* tiện ích: css + có động không của màu tên / banner / khung theo id (dùng ở hồ sơ, xếp hạng, chat, cửa hàng) */
 export const nameCss = n => { const c = NAME_COLORS.find(x => x.id && x.id === n); return c ? c.css || '' : ''; };
 export const nameAnim = n => { const c = NAME_COLORS.find(x => x.id && x.id === n); return !!(c && c.anim); };
+/* ✍️ font + hiệu ứng chữ (patch -154): css theo id; nameTextStyle gộp màu + font + hiệu ứng TRỘN TỰ DO.
+   av = object look {n, nf, ne} hoặc chuỗi id màu cũ (tương thích ngược: leaderboard.js cũ vẫn truyền
+   r.av.n dạng chuỗi → chỉ màu, không vỡ). Thứ tự gộp: màu trước, font + hiệu ứng sau (hiệu ứng ghi đè
+   background của màu khi cần, vd. Cầu vồng chạy thay nền màu). */
+export const fontCss = id => { const f = NAME_FONTS.find(x => x.id && x.id === id); return f ? `font-family:${f.family},'Baloo 2',sans-serif` + (f.weight ? `;font-weight:${f.weight}` : '') : ''; };
+export const effectCss = id => { const e = NAME_EFFECTS.find(x => x.id && x.id === id); return e ? e.css || '' : ''; };
+export const nameTextStyle = av => {
+  if (typeof av === 'string') return nameCss(av);
+  if (!av || typeof av !== 'object') return '';
+  return [nameCss(av.n), fontCss(av.nf), effectCss(av.ne)].filter(Boolean).join(';');
+};
+export const nameTextClass = av => { const n = typeof av === 'string' ? av : (av && av.n); return nameAnim(n) ? ' nc-anim' : ''; };
 export const bannerCss = b => { const x = BANNERS.find(x => x.id && x.id === b); return x ? x.css || '' : ''; };
 export const bannerAnim = b => { const x = BANNERS.find(x => x.id && x.id === b); return !!(x && x.anim); };
 export const frameAnim = f => { const x = FRAMES.find(x => x.id && x.id === f); return x ? x.anim || '' : ''; };
@@ -423,9 +474,9 @@ export function trackProgress(st) {
 /* ---------- lọc "diện mạo" theo những gì đã mở khoá (Hồ sơ gọi trước khi vẽ; máy chủ không gọi) ---------- */
 export function cleanLook(av, st, parts, ownWids) {
   if (!av || typeof av !== 'object') return null;
-  const fr = FRAMES.find(x => x.id === av.f && x.id), nc = NAME_COLORS.find(x => x.id === av.n && x.id), bn = BANNERS.find(x => x.id === av.b && x.id);
+  const fr = FRAMES.find(x => x.id === av.f && x.id), nc = NAME_COLORS.find(x => x.id === av.n && x.id), bn = BANNERS.find(x => x.id === av.b && x.id), ft = NAME_FONTS.find(x => x.id === av.nf && x.id), ef = NAME_EFFECTS.find(x => x.id === av.ne && x.id);
   const own = Array.isArray(ownWids) ? ownWids : []; /* 🎁 món được cấp tay (patch -131): giữ dù chưa đủ thành tích — file này server cũng import nên chỉ nhận qua tham số, không đọc localStorage */
-  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && (isOpen(fr.lock, st) || own.includes('frame:' + fr.id)) ? fr.id : '', n: nc && (isOpen(nc.lock, st) || own.includes('color:' + nc.id)) ? nc.id : '', b: bn ? bn.id : '' };
+  const out = { e: typeof av.e === 'string' ? av.e.slice(0, 12) : '', c: Math.max(0, Math.min(40, Math.floor(+av.c || 0))), f: fr && (isOpen(fr.lock, st) || own.includes('frame:' + fr.id)) ? fr.id : '', n: nc && (isOpen(nc.lock, st) || own.includes('color:' + nc.id)) ? nc.id : '', b: bn ? bn.id : '', nf: ft && isOpen(ft.lock, st) ? ft.id : '', ne: ef && isOpen(ef.lock, st) ? ef.id : '' }; /* ✍️ font + hiệu ứng chữ (patch -154): chỉ giữ khi đã mở khoá, tài khoản cũ không có nf/ne → '' = mặc định */
   if (av.ch && typeof av.ch === 'object') { const ch = cleanChar(av.ch), base = cleanChar({}); const set = parts || readParts(); for (const k of Object.keys(ch)) { const l = charLock(k, ch[k]); if (l && !isOpen(l, st) && !set.includes(partId(k, ch[k]))) ch[k] = k === 'hat' || k === 'acc' || k === 'horns' ? 'none' : base[k]; } out.ch = ch; }
   return out;
 }

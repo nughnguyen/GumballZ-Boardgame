@@ -9,8 +9,10 @@ import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰
 import { dragonSVG } from './dragon-frame.js?v=1'; /* 🐉 rồng bay khung avatar (patch -147) */
 import { bannerHTML42, initBanners } from './banner-render.js?v=1'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameCss, nameAnim, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=2';
+import { cleanLook, charOpen, charLock, TRACK, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=2';
 import { medalHTML, attachBadgeTilt } from './badges.js?v=7'; /* 🎖️ huân chương 7 bậc (patch -142) */
+import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
+try { ensureNameFonts(); } catch (e) {} /* chạy khi profile.js được import (Hồ sơ/BXH/thành viên) để font kịp tải */
 import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
@@ -36,7 +38,7 @@ export function setAvatarChar(cfg) { setAv({ ...cleanChar(cfg), e: 'ch' }); }
 export function setAvatarLook(patch) { setAv(patch); }
 /* hình của NGƯỜI KHÁC (từ máy chủ): chỉ nhận nhân vật hợp lệ / emoji trong danh sách / khung, màu tên có trong bảng – không chèn chuỗi lạ vào trang */
 export function safeAv(av, seed = 0) {
-  const base = av && typeof av === 'object' ? { c: Math.max(0, +av.c || 0), f: FRAMES.some(x => x.id && x.id === av.f) ? av.f : '', n: NAME_COLORS.some(x => x.id && x.id === av.n) ? av.n : '', b: BANNERS.some(x => x.id && x.id === av.b) ? av.b : '' } : { c: Math.abs(seed) % BG.length };
+  const base = av && typeof av === 'object' ? { c: Math.max(0, +av.c || 0), f: FRAMES.some(x => x.id && x.id === av.f) ? av.f : '', n: NAME_COLORS.some(x => x.id && x.id === av.n) ? av.n : '', b: BANNERS.some(x => x.id && x.id === av.b) ? av.b : '', nf: NAME_FONTS.some(x => x.id && x.id === av.nf) ? av.nf : '', ne: NAME_EFFECTS.some(x => x.id && x.id === av.ne) ? av.ne : '' } : { c: Math.abs(seed) % BG.length }; /* ✍️ font + hiệu ứng chữ (patch -154): chỉ nhận id có trong bảng */
   if (av && av.ch && typeof av.ch === 'object' && av.ch.kind) return { ...base, ch: cleanChar(av.ch) };
   if (av && av.kind) return { ...base, ch: cleanChar(av) }; /* nhân vật phẳng từ máy chủ (đã đồng bộ theo tài khoản) */
   if (av && AVATARS.includes(av.e)) return { ...base, e: av.e };
@@ -89,10 +91,10 @@ export const supporterBadge = (on, size = 'xs') => on ? medalHTML('sup', size) :
 export const vipBadge = (on, size = 'xs') => on ? medalHTML('vip', size) : ''; /* 💠 VIP: cờ máy chủ do Quản trị cấp (patch -142) */
 export const devBadge = (on, size = 'xs') => on ? medalHTML('dev', size) : ''; /* 💻 DEV: cờ máy chủ do Quản trị cấp (patch -142) */
 export const newbieBadge = (on, size = 'xs') => on ? medalHTML('newbie', size) : ''; /* 🌱 Người mới: tự động khi cấp 1 (patch -142) */
-/* màu tên đã mở (thuộc tính style) */
-export const nameStyle = n => nameCss(n);
+/* màu tên đã mở (thuộc tính style) — nhận object look {n, nf, ne} hoặc chuỗi id màu cũ (tương thích ngược) */
+export const nameStyle = av => nameTextStyle(av);
 /* tên động: thêm class nc-anim để gradient chạy (xem shared/css/avatar.css) */
-export const nameClass = n => nameAnim(n) ? ' nc-anim' : '';
+export const nameClass = av => nameTextClass(av);
 /* 🎏 dải banner trên đầu hộp Hồ sơ (trường b) – '' = không banner.
    Banner mới (có spec): hiệu ứng đầy đủ qua banner-render.js; banner cũ (5 banner, chỉ có css): nền CSS tĩnh như trước. */
 export const bannerHTML = b => {
@@ -112,7 +114,7 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 
 function setAv(patch) {
   const a = avatar(), base = a.ch ? { ...a.ch, ...(a.sex ? { sex: a.sex } : {}), e: 'ch' } : { e: a.e, ...(a.sex ? { sex: a.sex } : {}) }; /* giữ giới tính đã chọn khi đổi đồ / đổi mẫu */
-  const n = { ...base, c: +a.c || 0, f: a.f || '', n: a.n || '', b: a.b || '', ...patch, t: Date.now() };
+  const n = { ...base, c: +a.c || 0, f: a.f || '', n: a.n || '', b: a.b || '', nf: a.nf || '', ne: a.ne || '', ...patch, t: Date.now() };
   if (['kind', 'hair', 'hat', 'outfit', 'acc', 'skin', 'hairColor', 'color', 'horns', 'e'].some(k => k in patch)) try { localStorage.setItem('gumballz-dress-n', String(+(localStorage.getItem('gumballz-dress-n') || 0) + 1)); } catch (e) {} /* đếm lần đổi đồ – thành tích Mystique */
   if (AVATARS.includes(n.e)) for (const k of CH_KEYS) delete n[k]; /* đổi sang emoji thì bỏ nhân vật */
   delete n.ch; ls.set('gumballz-avatar', JSON.stringify(n));
@@ -124,7 +126,7 @@ const LBL = { kind: 'Kiểu nhân vật', skin: 'Màu da / lông', hair: 'Kiểu
 const SUBS = [['pre', '✨ Mẫu'], ['body', '🧑 Dáng'], ['hair', '💇 Tóc'], ['hat', '🎩 Nón'], ['outfit', '👕 Đồ'], ['acc', '🎒 Phụ kiện']];
 const SUB_KEYS = { body: ['kind', 'skin', 'horns', 'color'], hair: ['hair', 'hairColor'], hat: ['hat'], outfit: ['outfit'], acc: ['acc'] };
 function picker(a, st, tab, name, sub = 'pre', ff = { cat: 'all', theme: 'all', owned: false, sort: 'cui-vip' }, bf = { cat: 'all', theme: 'all', owned: false, sort: 'cui-vip' }) {
-  const TABS = [['ch', '🧸 Nhân vật'], ['track', '🎁 Lộ trình thưởng'], ['frame', '🖼️ Khung'], ['name', '✍️ Màu tên'], ['banner', '🎏 Banner'], ['fx', '🎉 Khi thắng']];
+  const TABS = [['ch', '🧸 Nhân vật'], ['track', '🎁 Lộ trình thưởng'], ['frame', '🖼️ Khung'], ['name', '✍️ Kiểu chữ'], ['banner', '🎏 Banner'], ['fx', '🎉 Khi thắng']];
   let body = '';
   const bgRow = `<div class="lk-row">${BG.map((c, i) => `<button type="button" class="lk-sw" data-c="${i}" aria-pressed="${i === (+a.c || 0) % BG.length}" style="background:linear-gradient(135deg,${c})" aria-label="Nền ${i + 1}"></button>`).join('')}</div>`;
   if (tab === 'ch') {
@@ -166,7 +168,14 @@ function picker(a, st, tab, name, sub = 'pre', ff = { cat: 'all', theme: 'all', 
       <div class="lk-count">Hiển thị ${list.length} / ${FRAMES.length} khung</div></div>
       <div class="lk-grid">${list.map(x => { const shopLk = x.shop && !owns(widOf('frame', x.id)), chestLk = x.chest && !owns(widOf('frame', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('frame', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); const tierCls = (x.tier || 0) >= 3 ? 'vip' : (x.tier || 0) === 2 ? 'hiem' : 'cui'; return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-f="${x.id}"`} aria-pressed="${(a.f || '') === x.id}">${avatarHTML(54, { ...a, f: x.id })}<span>${lk ? '🔒 ' : ''}${esc(x.name)}</span><small class="lk-meta"><b class="lk-tier ${tierCls}">${tierName(x.tier || 0)}</b> ${CAT_LABEL[x.cat] || ''}${x.theme ? ' · ' + esc(x.theme) : ''}</small>${lk ? `<small>${esc(lkTx)}</small>` : '<small>✅ Đã sở hữu</small>'}</button>`; }).join('')}</div>`;
   }
-  else if (tab === 'name') body = `<div class="lk-grid">${NAME_COLORS.map(x => { const shopLk = x.shop && !owns(widOf('color', x.id)), chestLk = x.chest && !owns(widOf('color', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('color', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-n="${x.id}"`} aria-pressed="${(a.n || '') === x.id}"><span class="lk-nm${x.anim ? ' nc-anim' : ''}" style="${x.css || ''}">${esc(name)}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div>`;
+  else if (tab === 'name') {
+    /* ✍️ kiểu chữ (patch -154): xem trước tổ hợp đang chọn + 3 hàng chọn — Font / Màu / Hiệu ứng, trộn tự do */
+    const prev = `<div class="lk-nameprev"><b>Xem trước:</b><span class="lk-nm${nameTextClass(a)}" style="${nameTextStyle(a)}">${esc(name)}</span></div>`;
+    const fontGrid = `<div class="lk-sec"><b>Font chữ</b><div class="lk-grid">${NAME_FONTS.map(x => { const lk = x.lock && !isOpen(x.lock, st); const lkTx = lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"` : `data-nf="${x.id}"`} aria-pressed="${(a.nf || '') === x.id}"><span class="lk-nm${nameTextClass({ ...a, nf: x.id })}" style="${nameTextStyle({ ...a, nf: x.id })}">GumballZ</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div></div>`;
+    const colorGrid = `<div class="lk-sec"><b>Màu chữ</b><div class="lk-grid">${NAME_COLORS.map(x => { const shopLk = x.shop && !owns(widOf('color', x.id)), chestLk = x.chest && !owns(widOf('color', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('color', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-n="${x.id}"`} aria-pressed="${(a.n || '') === x.id}"><span class="lk-nm${nameTextClass({ ...a, n: x.id })}" style="${nameTextStyle({ ...a, n: x.id })}">${esc(name)}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div></div>`;
+    const effGrid = `<div class="lk-sec"><b>Hiệu ứng chữ</b><div class="lk-grid">${NAME_EFFECTS.map(x => { const lk = x.lock && !isOpen(x.lock, st); const lkTx = lockDesc(x.lock); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"` : `data-ne="${x.id}"`} aria-pressed="${(a.ne || '') === x.id}"><span class="lk-nm${nameTextClass({ ...a, ne: x.id })}" style="${nameTextStyle({ ...a, ne: x.id })}">GumballZ</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lkTx)}</small>` : ''}</button>`; }).join('')}</div></div>`;
+    body = prev + fontGrid + colorGrid + effGrid;
+  }
   else if (tab === 'banner') {
     /* 🔍 lọc banner (patch -151): giống hệt tab Khung -147 — mặc định hiện HẾT banner, sắp Cùi → VIP, toggle đã-sở-hữu TẮT */
     let list = BANNERS.slice();
@@ -181,8 +190,8 @@ function picker(a, st, tab, name, sub = 'pre', ff = { cat: 'all', theme: 'all', 
       <div class="lk-grid lk-bn-grid">${list.map(x => { const shopLk = x.shop && !owns(widOf('banner', x.id)), chestLk = x.chest && !owns(widOf('banner', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('banner', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); const tierCls = (x.tier || 0) >= 3 ? 'vip' : (x.tier || 0) === 2 ? 'hiem' : 'cui'; const art = x.spec ? bannerHTML42(x) : `<span class="lk-bn${x.anim ? ' bn-anim' : ''}" style="background:${x.css || 'transparent'}"></span>`; return `<button type="button" class="lk-card lk-bcard${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-b="${x.id}"`} aria-pressed="${(a.b || '') === x.id}">${art}<span>${lk ? '🔒 ' : ''}${esc(x.name)}</span><small class="lk-meta"><b class="lk-tier ${tierCls}">${tierName(x.tier || 0)}</b> ${CAT_LABEL[x.cat] || ''}${x.theme ? ' · ' + esc(x.theme) : ''}</small>${lk ? `<small>${esc(lkTx)}</small>` : '<small>✅ Đã sở hữu</small>'}</button>`; }).join('')}</div>`;
   }
   else if (tab === 'fx') { const cur = ls.get('gumballz-winfx') || 'giay'; body = `<p class="pf-note" style="margin:0 0 8px;text-align:left">Hiện trên màn hình của bạn mỗi khi thắng ván. Chạm để chọn và xem thử.</p><div class="lk-grid">${WIN_FX.map(x => { const lk = x.lock && !isOpen(x.lock, st); return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lockDesc(x.lock))}"` : `data-fx="${x.id}"`} aria-pressed="${cur === x.id}"><span style="font-size:28px;line-height:1">${x.icon}</span><span>${lk ? '🔒 ' : ''}${esc(x.name)}</span>${lk ? `<small>${esc(lockDesc(x.lock))}</small>` : ''}</button>`; }).join('')}</div>`; }
-  const hint = tab === 'frame' || tab === 'name' || tab === 'banner' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung, màu tên và banner mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Vật phẩm VIP (Khung Ngôi Sao, Màu Hoàng Gia…) chỉ mở bằng chuỗi ngày đứng top BXH — xem tiến độ ở mục 👑 Vật phẩm VIP trong Hồ sơ. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng. Món có ✨ là hạng động kiểu Nitro, chỉ mở ra từ rương với tỉ lệ cực hiếm.</p>' : '';
-  return `<div class="lk-tabs" role="tablist">${TABS.map(([id, t]) => `<button type="button" role="tab" data-tab="${id}" aria-pressed="${tab === id || (id === 'ch' && tab === 'emoji')}">${t}</button>`).join('')}</div>${body}${hint}`;
+  const hint = tab === 'frame' || tab === 'name' || tab === 'banner' ? '<p class="pf-note" style="margin:8px 0 0;text-align:left">Khung, kiểu chữ và banner mở khoá theo thành tích, mua bằng xu ở Cửa hàng, hoặc mở ra từ rương Gacha. Vật phẩm VIP (Khung Ngôi Sao, Màu Hoàng Gia…) chỉ mở bằng chuỗi ngày đứng top BXH — xem tiến độ ở mục 👑 Vật phẩm VIP trong Hồ sơ. Đăng nhập thì người khác thấy ở hồ sơ, bảng xếp hạng và thẻ người chơi trong phòng. Món có ✨ là hạng động kiểu Nitro, chỉ mở ra từ rương với tỉ lệ cực hiếm.</p>' : '';
+  return `<div class="lk-stick"><div class="lk-tabs" role="tablist">${TABS.map(([id, t]) => `<button type="button" role="tab" data-tab="${id}" aria-pressed="${tab === id || (id === 'ch' && tab === 'emoji')}">${t}</button>`).join('')}</div></div>${body}${hint}`;
 }
 
 /* 🎁 popup khi chạm mốc thưởng (stats.js gọi sau mỗi ván) – list = [{ k, v, i }] */
@@ -331,30 +340,30 @@ function renderProfileInto(ov, isPage) {
       if (fresh.length) {
         ls.set('gumballz-vip-seen', JSON.stringify([...new Set([...seen, ...fresh])]));
         const names = fresh.map(id => (VIP_TIERS.find(x => x.id === id) || {}).name || id).join(', ');
-        import('./dialog.js?v=10').then(m => m.toast('🎉 Mở khoá vật phẩm VIP: ' + names + ' — vào tab Khung/Màu tên để mặc thử!', 4200)).catch(() => {});
+        import('./dialog.js?v=10').then(m => m.toast('🎉 Mở khoá vật phẩm VIP: ' + names + ' — vào tab Khung/Kiểu chữ để mặc thử!', 4200)).catch(() => {});
       }
     } catch (e) {}
     const tts = titlesOf(st), look = { ...a, ...(cleanLook({ ...a, ch: a.ch }, st, undefined, loadWallet().own) || {}) }, cur = pickTitle(tts, ls.get('gumballz-title')), locked = ALL_TITLES.filter(x => !tts.some(y => y.id === x.id) && !(x.id.startsWith('top') && !hasAcc));
     curSt = ust;
+    const rate = nt.p ? Math.round(nt.w / nt.p * 100) : 0; /* 🎯 tỉ lệ thắng (patch -152, dashboard chỉ số) */
     const keepY = ov.querySelector('.pf-box') ? ov.querySelector('.pf-box').scrollTop : 0; /* vẽ lại (chọn danh hiệu, đổi hình…) không nhảy về đầu, không chạy lại hiệu ứng mở – trước đây trông như chớp */
     if (ov.querySelector('.pf-box')) ov.classList.add('pf-shown');
     ov.innerHTML = `<div class="pf-box"${isPage ? '' : ' role="dialog" aria-modal="true"'} aria-label="Hồ sơ của bạn">${isPage ? '' : '<button class="pf-x" aria-label="Đóng">✕</button>'}
       ${bannerHTML(look.b)}
-      <div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(72, look)}</button><div style="min-width:0"><div class="pf-name${nameClass(look.n || (flags.owner ? 'owner' : ''))}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle(look.n || (flags.owner ? 'owner' : ''))}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter || flags.vip || flags.dev || (lv.lv === 1 && !flags.owner && flags.role === 0) ? `<div class="bdg-row">${ownerBadge(flags.owner, 'mini')}${!flags.owner && flags.role === 2 ? adminBadge(true, 'mini') : ''}${!flags.owner && flags.role === 1 ? modBadge(true, 'mini') : ''}${supporterBadge(flags.supporter, 'mini')}${vipBadge(flags.vip, 'mini')}${devBadge(flags.dev, 'mini')}${newbieBadge(lv.lv === 1 && !flags.owner && flags.role === 0, 'mini')}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
+      <div class="pf-hero"><div class="pf-head"><button type="button" data-a="pick" aria-label="Đổi hình đại diện">${avatarHTML(96, look)}</button><div style="min-width:0"><div class="pf-name${nameClass({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}${flags.owner ? ' pf-ownnm' : ''}" style="${nameStyle({ ...look, n: look.n || (flags.owner ? 'owner' : '') })}">${esc(name)}</div>${flags.owner || flags.role === 2 || flags.role === 1 || flags.supporter || flags.vip || flags.dev || (lv.lv === 1 && !flags.owner && flags.role === 0) ? `<div class="bdg-row">${ownerBadge(flags.owner, 'mini')}${!flags.owner && flags.role === 2 ? adminBadge(true, 'mini') : ''}${!flags.owner && flags.role === 1 ? modBadge(true, 'mini') : ''}${supporterBadge(flags.supporter, 'mini')}${vipBadge(flags.vip, 'mini')}${devBadge(flags.dev, 'mini')}${newbieBadge(lv.lv === 1 && !flags.owner && flags.role === 0, 'mini')}</div>` : ''}<div class="pf-sub">${hasAcc ? `Cấp ${lv.lv} · ${lv.name}${a.sex === 'nu' ? ' · 👩 Nữ' : a.sex === 'nam' ? ' · 🧑 Nam' : ''}` : 'Khách chưa đăng nhập'}</div>${cur ? `<div style="margin-top:4px"><span class="pf-tt" tabindex="0" data-iicon="${esc(cur.icon)}" data-iname="${esc(cur.name)}" data-ihow="${esc(cur.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[cur.game] || cur.game}` : cur.desc)}" data-istate="✅ Đã đạt · đang trưng">${cur.icon} ${esc(cur.name)}</span></div>` : ''}</div></div>
+      <div class="pf-lv"><b>${lv.to ? `${lv.xp - lv.from} / ${lv.to - lv.from} điểm tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div></div>
       <div class="pf-acts"><button type="button" class="pf-act-y" data-a="pick">Đổi tên và avatar</button><button type="button" class="pf-act-w" data-a="shop">Đến cửa hàng</button></div>
       ${picking ? picker(a, ust, tab, name, sub, { cat: fCat, theme: fTheme, owned: fOwned, sort: fSort }, { cat: bCat, theme: bTheme, owned: bOwned, sort: bSort }) : ''}
-      <div class="pf-lv"><b>${lv.to ? `${lv.xp - lv.from} / ${lv.to - lv.from} điểm tới cấp ${lv.lv + 1}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
-      <div class="pf-wal"><span><b>${fmt(w.xu)}</b> xu</span><small>Thắng +10 xu · chơi +2 xu</small></div>
-      <div class="pf-nums"><div><b>${nt.p}</b><small>Trận đã chơi</small></div><div><b>${nt.w}</b><small>Trận thắng</small></div><div><b>${fmt(w.xu)}</b><small>Xu hiện có</small></div></div>
+      <div class="pf-dash"><div><b>${nt.p}</b><small>🎲 Trận đã chơi</small></div><div><b>${nt.w}</b><small>🏆 Trận thắng</small></div><div><b>${rate}%</b><small>🎯 Tỉ lệ thắng</small></div><div><b>${nt.best || 0}</b><small>🔥 Chuỗi tốt nhất</small></div><div class="xu"><b>${fmt(w.xu)}</b><small>🪙 Xu hiện có</small></div></div>
       <p class="pf-note" style="margin:6px 0 0;text-align:left">${srvT ? `✅ Số máy chủ đã công nhận${verT ? ` (trong đó ${verT.p} ván đã xác minh)` : ''} · trên máy này: ${t.p} ván, ${t.w} thắng.` : 'Số trên máy này – đăng nhập để đồng bộ lên máy chủ.'}</p>
       <button type="button" data-a="rank" style="width:100%;border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:4px;font:800 14.5px 'Baloo 2',Nunito,sans-serif;color:var(--on-accent);background:var(--y1);cursor:pointer;box-shadow:var(--sh-sm)">🏆 Xem Bảng xếp hạng toàn server ▶</button>
-      <h3>👑 Vật phẩm VIP <small>mở bằng top BXH</small></h3>
+      <div class="pf-vip"><h3>👑 Vật phẩm VIP <small>mở bằng top BXH</small></h3>
       <p class="pf-note" style="margin:6px 0 8px;text-align:left">${hasAcc ? `Hạng hiện tại: ${(srv && srv.rank) ? '#' + srv.rank : 'chưa có — chơi 1 ván để lên BXH'}. Giữ hạng top liên tục mỗi ngày để mở khoá — rớt khỏi top hoặc bỏ 1 ngày không đồng bộ là chuỗi về 0. Đồng bộ chạy tự động mỗi khi mở web / chơi xong 1 ván.` : 'Đăng nhập để mở khoá vật phẩm VIP theo top BXH — càng giữ top lâu, món càng hiếm.'}</p>
       <div>${vipRows.map(r => {
         const pct = Math.min(100, Math.round(r.streak / r.days * 100));
-        const status = r.got ? '✅ Đã nhận — vào tab Khung/Màu tên để mặc thử' : r.streak >= r.days ? '✅ Đủ điều kiện — nhận sau lần đồng bộ tới' : `Chuỗi ${r.streak}/${r.days} ngày · còn ${r.left} ngày nữa${r.todayCounts ? ' · đang trong top hôm nay, đồng bộ để +1 ngày' : ''}${!r.inTop && (srv && srv.rank) ? ` · hạng hiện tại #${srv.rank} (cần Top ${r.top})` : ''}`;
+        const status = r.got ? '✅ Đã nhận — vào tab Khung/Kiểu chữ để mặc thử' : r.streak >= r.days ? '✅ Đủ điều kiện — nhận sau lần đồng bộ tới' : `Chuỗi ${r.streak}/${r.days} ngày · còn ${r.left} ngày nữa${r.todayCounts ? ' · đang trong top hôm nay, đồng bộ để +1 ngày' : ''}${!r.inTop && (srv && srv.rank) ? ` · hạng hiện tại #${srv.rank} (cần Top ${r.top})` : ''}`;
         return `<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;margin-bottom:8px;border:2px solid ${r.got ? '#e0a612' : 'var(--ink)'};border-radius:14px;background:var(--card);box-shadow:var(--sh-sm)"><span style="font-size:26px;line-height:1">${r.icon}</span><div style="flex:1;min-width:0"><b>${esc(r.name)}</b> <small>Top ${r.top} liên tục ${r.days} ngày</small><div class="pf-bar"><i style="width:${r.got ? 100 : pct}%"></i></div><small>${esc(status)}</small></div></div>`;
-      }).join('')}</div>
+      }).join('')}</div></div>
       <h3>🎖️ Danh hiệu <small>${tts.length} đã đạt</small></h3>
       <div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}</div>
       ${locked.length ? `<details style="margin:8px 0 0"><summary style="cursor:pointer;font-weight:800;color:var(--muted);padding:4px 0">🔒 ${locked.length} danh hiệu chưa đạt — chạm để xem</summary><div class="pf-tts" style="margin-top:6px">${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div></details>` : ''}
@@ -392,6 +401,8 @@ function renderProfileInto(ov, isPage) {
     if (b.dataset.k) { const a = avatar(); setAv({ ...(a.ch || cleanChar(PUB[0])), [b.dataset.k]: b.dataset.v, e: 'ch' }); return draw(); }
     if (b.dataset.f != null) { setAv({ f: b.dataset.f }); return draw(); }
     if (b.dataset.n != null) { setAv({ n: b.dataset.n }); return draw(); }
+    if (b.dataset.nf != null) { setAv({ nf: b.dataset.nf }); return draw(); } /* ✍️ chọn font chữ tên (patch -154) */
+    if (b.dataset.ne != null) { setAv({ ne: b.dataset.ne }); return draw(); } /* ✨ chọn hiệu ứng chữ tên (patch -154) */
     if (b.dataset.b != null) { setAv({ b: b.dataset.b }); return draw(); }
     if (b.dataset.fx) { ls.set('gumballz-winfx', b.dataset.fx); import('./winfx.js?v=1').then(m => m.playWin(b.dataset.fx, true)).catch(() => {}); return draw(); }
     if (b.dataset.e || b.dataset.c) { setAv({ e: b.dataset.e || avatar().e, ...(b.dataset.c != null ? { c: +b.dataset.c } : {}) }); draw(); }

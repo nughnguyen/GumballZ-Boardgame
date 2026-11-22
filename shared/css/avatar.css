@@ -28,6 +28,15 @@
 /* ✨ đồ Nitro (2026-11-21): tên động gradient chạy, khung động xoay/phát sáng, banner hồ sơ */
 @keyframes nc-slide{to{background-position:200% 0}}
 .nc-anim{animation:nc-slide 2.8s linear infinite}
+/* ✍️ hiệu ứng chữ tên (patch -154): nảy nhẹ dùng keyframes riêng; gradient chạy tái dùng nc-slide.
+   reduced-motion: tắt hết animation tên (kể cả animation inline trong style) ở cuối file. */
+@keyframes nx-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* hộp xem trước tổ hợp kiểu chữ đang chọn ở đầu tab Kiểu chữ (patch -154) */
+.lk-nameprev{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--bg);border:2px solid var(--ink);border-radius:16px;padding:12px 14px;margin:0 0 12px;box-shadow:var(--sh-sm)}
+.lk-nameprev b{font:800 13px Nunito,sans-serif;color:var(--muted)}
+.lk-nameprev .lk-nm{font-size:24px;padding:0}
+/* mẫu chữ trong 3 lưới Font/Màu/Hiệu ứng nhỏ hơn 1 nấc để font rộng (Bungee) không tràn thẻ */
+.lk-sec .lk-nm{font-size:15px}
 @keyframes fr-spin{to{transform:rotate(360deg)}}
 .pf-fr.fr-anim{position:relative;background:none;box-shadow:0 4px 10px -6px var(--sh-soft)}
 .pf-fr.fr-anim::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--ring);animation:fr-spin 3.5s linear infinite}
@@ -74,6 +83,8 @@
 .b42-bn canvas.b42-dr{inset:0;width:100%;height:100%}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
 @media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}.pf-fr .dov{display:none}}
+/* ✍️ hiệu ứng chữ tên (patch -154): tắt animation tên ở mọi nơi (kể cả animation inline trong style) khi reduced-motion */
+@media (prefers-reduced-motion:reduce){.pf-name,.rk-pnm,.rk-nm span,.lb-n span,.lk-nm{animation:none!important}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
 .pf-box{width:min(520px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:26px;padding:20px 18px 18px;box-shadow:var(--sh);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative;animation:pf-p .24s cubic-bezier(.2,1.2,.4,1)}
 .pf-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-size:17px;cursor:pointer;color:var(--ink);z-index:2;box-shadow:var(--sh-sm)}
@@ -239,3 +250,40 @@
 @keyframes b42-sk{0%{opacity:0;transform:rotate(25deg) translateX(0)}4%{opacity:1}18%{opacity:0;transform:rotate(25deg) translateX(40em)}100%{opacity:0}}
 .lk-bcard:not(.b42-vis) .b42-bn *,.pf-banner:not(.b42-vis) .b42-bn *{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){.b42-bn *,.b42-bn *::before,.b42-bn *::after,.b42-bw::before{animation:none!important}}
+
+/* ---------- thiết kế lại Hồ sơ (patch -152): hero + dashboard chỉ số + VIP nổi bật + tab dính ----------
+   Giữ token neobrutalism (var(--ink)/--y1/--p2/--p3/--sh...), chế độ tối tự theo token. */
+/* hộp hồ sơ trên trang riêng rộng hơn để dashboard 5 ô + lưới khung/banner thoáng (640px → 720px) */
+.pf-page .pf-box{max-width:1180px}
+/* hero: thẻ chứa avatar + tên + huy hiệu + thanh cấp/XP, gom thành 1 tầng rõ ràng */
+.pf-hero{background:var(--bg);border:2px solid var(--ink);border-radius:20px;padding:16px;box-shadow:var(--sh-sm);margin-bottom:14px}
+.pf-hero .pf-head{margin-right:0}
+.pf-hero .pf-name{font-size:26px}
+.pf-hero .pf-lv{margin:14px 0 0}
+.pf-hero .pf-bar{height:14px}
+/* dashboard 5 chỉ số thay cho dãy số rời rạc (.pf-nums/.pf-wal cũ không còn vẽ nữa) */
+.pf-dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin:14px 0}
+.pf-dash>div{background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:12px 4px 10px;text-align:center;box-shadow:var(--sh-sm)}
+.pf-dash b{display:block;font:800 24px/1.1 "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.pf-dash small{display:block;margin-top:4px;color:var(--muted);font:800 12px/1.3 Nunito,sans-serif}
+.pf-dash .xu{background:var(--y2)}
+/* nền ô xu vàng nhạt giống cả 2 theme, nên chữ phải mực đậm cố định — var(--ink) ở dark mode là kem sáng, đọc không nổi trên vàng nhạt */
+.pf-dash .xu b{color:#241A38}
+.pf-dash .xu small{color:rgba(36,26,56,.72)}
+/* mục VIP nổi bật: viền vàng + bóng cứng (khác hẳn các mục thường) */
+.pf-vip{border:2px solid #e0a612;border-radius:20px;padding:14px;background:var(--card);box-shadow:var(--sh);margin:16px 0}
+.pf-vip h3{margin-top:0}
+.pf-vip .pf-note{margin-top:0}
+/* tab đổi đồ dính dưới topbar (58px) khi cuộn trang riêng; tab con (.lk-subs) bỏ dính trên trang
+   (đang sticky top:0 cũ sẽ chui dưới topbar) — trong modal giữ nguyên như cũ */
+.pf-page .lk-stick{position:sticky;top:58px;z-index:5;background:var(--card);margin:0 -18px;padding:6px 18px;border-bottom:2px solid var(--line)}
+.pf-page .lk-stick .lk-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0}
+.pf-page .lk-stick .lk-tabs::-webkit-scrollbar{display:none}
+.pf-page .lk-subs{position:static}
+@media (max-width:480px){
+  .pf-hero{padding:12px}
+  .pf-hero .pf-name{font-size:23px}
+  .pf-dash{gap:6px}
+  .pf-dash b{font-size:20px}
+  .pf-vip{padding:12px}
+}

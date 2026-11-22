@@ -49,7 +49,7 @@ export function openMember(key) {
     else if (rel === 'none') acts = '<button type="button" class="pri" data-a="add">＋ Kết bạn</button>';
     ov.innerHTML = frame(`
       ${bannerHTML(U.av && safeAv(U.av, U.id).b)}
-      <div class="pf-head">${avatarHTML(72, safeAv(U.av, U.id))}<div style="min-width:0"><div class="pf-name${nameClass(U.av && U.av.n)}" style="${nameStyle(U.av && U.av.n)}">${esc(U.name)}</div>
+      <div class="pf-head">${avatarHTML(72, safeAv(U.av, U.id))}<div style="min-width:0"><div class="pf-name${nameClass(safeAv(U.av, U.id))}" style="${nameStyle(safeAv(U.av, U.id))}">${esc(U.name)}</div>
         <div class="pf-sub">${U.username ? '@' + esc(U.username) + ' · ' : ''}#${uid6(U.id)}</div>
         <div class="mb-tags"><span class="pf-tt lv">⭐ Cấp ${U.lv} · ${esc(U.lvName)}</span>${titlePill(U.title && { ...U.title, desc: titleDesc(U.title) })}${tierBadges({ owner: !!U.owner, role: U.owner || U.admin ? 2 : U.mod ? 1 : 0, supporter: !!U.supporter, vip: !!U.vip, dev: !!U.dev, xp: U.xp }, 'mini')}</div></div></div>
       <div class="pf-nums"><div><b>${U.p}</b><small>ván đã chơi</small></div><div><b>${U.w}</b><small>ván thắng</small></div><div><b>${U.rate}%</b><small>tỉ lệ thắng</small></div><div><b>${U.best}</b><small>chuỗi thắng</small></div></div>
