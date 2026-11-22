@@ -105,26 +105,28 @@ function newFile(name) {
   return { riv, ab, root };
 }
 // Vẽ thân + nắp rương gỗ Duolingo (dùng chung 2 file). Trả về các nhóm part.
-// Thứ tự vẽ: bóng → thân → miệng → nắp → khóa → (đá/xu/tia do từng file thêm sau).
+// QUY TẮC THỨ TỰ (đã kiểm chứng bằng order-test 2026-11-22: runtime vẽ shape
+// tạo TRƯỚC lên trên — "vẽ sau = ở dưới", như build.mjs vẫn làm bg() sau cùng):
+// tạo theo thứ tự từ trên xuống: khóa → nắp → miệng → thân → bóng.
 function chest(riv, root) {
-  const shadow = ell(riv, root, { name: 'Shadow', x: 100, y: 170, w: 92, h: 10, color: SHADOW });
-  const bodyTrim = rect(riv, root, { name: 'BodyTrim', x: 100, y: 128, w: 128, h: 72, r: 10, color: YELLOW, stroke: INK, strokeW: 3 });
-  const body = rect(riv, root, { name: 'Body', x: 100, y: 128, w: 120, h: 64, r: 8, color: WOOD, stroke: INK, strokeW: 3 });
-  const grain1 = rect(riv, root, { name: 'Grain1', x: 100, y: 116, w: 112, h: 3, color: WOOD_DARK });
-  const grain2 = rect(riv, root, { name: 'Grain2', x: 100, y: 140, w: 112, h: 3, color: WOOD_DARK });
+  const lockDot = ell(riv, root, { name: 'LockDot', x: 100, y: 104, w: 9, color: PEACH, stroke: INK, strokeW: 1.5 });
+  const lockStar = star(riv, root, 100, 104, 13, 6, YELLOW, INK, 2.5);
+  const lidSq = [
+    [48, 71], [76, 71], [124, 71], [152, 71],
+  ].map(([x, y]) => rect(riv, root, { name: 'LidSq', x, y, w: 9, h: 9, r: 2, color: ORANGE, stroke: INK, strokeW: 1.5 }));
+  const lidBand = rect(riv, root, { name: 'LidBand', x: 100, y: 97, w: 128, h: 6, color: WOOD_BAND });
+  const lid = rect(riv, root, { name: 'Lid', x: 100, y: 88, w: 128, h: 28, r: 7, color: WOOD_DARK, stroke: INK, strokeW: 3 });
+  const lidTrim = rect(riv, root, { name: 'LidTrim', x: 100, y: 88, w: 136, h: 34, r: 8, color: YELLOW, stroke: INK, strokeW: 3 });
+  const mouth = ell(riv, root, { name: 'Mouth', x: 100, y: 96, w: 104, h: 10, color: INK });
   const bodySq = [
     [38, 112], [38, 144], [162, 112], [162, 144],
     [48, 162], [76, 162], [124, 162], [152, 162],
   ].map(([x, y]) => rect(riv, root, { name: 'BodySq', x, y, w: 9, h: 9, r: 2, color: ORANGE, stroke: INK, strokeW: 1.5 }));
-  const mouth = ell(riv, root, { name: 'Mouth', x: 100, y: 96, w: 104, h: 10, color: INK });
-  const lidTrim = rect(riv, root, { name: 'LidTrim', x: 100, y: 88, w: 136, h: 34, r: 8, color: YELLOW, stroke: INK, strokeW: 3 });
-  const lid = rect(riv, root, { name: 'Lid', x: 100, y: 88, w: 128, h: 28, r: 7, color: WOOD_DARK, stroke: INK, strokeW: 3 });
-  const lidBand = rect(riv, root, { name: 'LidBand', x: 100, y: 97, w: 128, h: 6, color: WOOD_BAND });
-  const lidSq = [
-    [48, 71], [76, 71], [124, 71], [152, 71],
-  ].map(([x, y]) => rect(riv, root, { name: 'LidSq', x, y, w: 9, h: 9, r: 2, color: ORANGE, stroke: INK, strokeW: 1.5 }));
-  const lockStar = star(riv, root, 100, 104, 13, 6, YELLOW, INK, 2.5);
-  const lockDot = ell(riv, root, { name: 'LockDot', x: 100, y: 104, w: 9, color: PEACH, stroke: INK, strokeW: 1.5 });
+  const grain2 = rect(riv, root, { name: 'Grain2', x: 100, y: 140, w: 112, h: 3, color: WOOD_DARK });
+  const grain1 = rect(riv, root, { name: 'Grain1', x: 100, y: 116, w: 112, h: 3, color: WOOD_DARK });
+  const body = rect(riv, root, { name: 'Body', x: 100, y: 128, w: 120, h: 64, r: 8, color: WOOD, stroke: INK, strokeW: 3 });
+  const bodyTrim = rect(riv, root, { name: 'BodyTrim', x: 100, y: 128, w: 128, h: 72, r: 10, color: YELLOW, stroke: INK, strokeW: 3 });
+  const shadow = ell(riv, root, { name: 'Shadow', x: 100, y: 170, w: 92, h: 10, color: SHADOW });
   const bodyParts = [bodyTrim, body, grain1, grain2, ...bodySq, mouth];
   const lidParts = [lidTrim, lid, lidBand, ...lidSq, lockStar, lockDot];
   return { shadow, bodyParts, lidParts, mouth };
@@ -153,7 +155,7 @@ function chest(riv, root) {
 // frame cuối: rương mở + 3 đá xanh trên miệng + 6 xu vàng quanh.
 {
   const { riv, ab, root } = newFile('gacha-open');
-  const { shadow, bodyParts, lidParts, mouth } = chest(riv, root);
+  // Đá/xu/tia tạo TRƯỚC rương (tạo trước = vẽ trên — xem quy tắc ở chest()).
   // 3 đá xanh lớn xếp chồng trên miệng rương + 3 đá nhỏ lơ lửng quanh.
   const gems = [
     gem(riv, root, 86, 80, 12, GEM),
@@ -178,6 +180,9 @@ function chest(riv, root) {
     [sparkle(riv, root, 128, 95, 6), 42],
     [sparkle(riv, root, 70, 82, 6), 48],
   ];
+  // Rương tạo SAU đá/xu/tia (tạo sau = vẽ dưới) nhưng TRƯỚC animation:
+  // keyed object dùng id-1 nên animation phải đứng sau mọi shape.
+  const { shadow, bodyParts, lidParts, mouth } = chest(riv, root);
   const an = riv.addLinearAnimation(ab, { name: 'loop', duration: 180, fps: 60, loop: 'oneshot' });
 
   // Phồng lấy đà + lắc mạnh trái + về thẳng đứng (thân rương).
