@@ -127,3 +127,85 @@ export function donClaimDecide(sql, id, ok, byName) {
   sql.exec('UPDATE donclaim SET st = ?, decided = ?, byName = ? WHERE id = ?', ok ? 'ok' : 'no', Date.now(), String(byName || '').slice(0, 30), +id);
   return c;
 }
+
+/* ---------- thông báo Discord khi có yêu cầu ủng hộ MỚI chờ duyệt (patch -160) ----------
+   Không dùng bot, không cần hosting thêm: Worker gọi thẳng Discord webhook bằng fetch POST.
+   Webhook URL lấy từ env DONATE_DISCORD_WEBHOOK (đặt làm secret trên Cloudflare, KHÔNG ghi vào repo).
+   Chỉ gửi cho claim MỚI (dup=false); claim trùng không gửi lại để tránh spam. Gửi fire-and-forget:
+   lỗi/timeout không chặn response của claim, log lỗi KHÔNG kèm URL. */
+export const DISCORD_QUANTRI_URL = 'https://gumballzgames.vercel.app/quantri/';
+export const DISCORD_BANNER_BASE = 'https://gumballzgames.vercel.app/api/donate-banner';
+export const DISCORD_THUMB_URL = 'https://gumballzgames.vercel.app/shared/img/og.jpg';
+/* Ảnh banner render ĐỘNG theo từng giao dịch (api/donate-banner.js, Vercel OG): URL duy nhất
+   theo từng claim (ref riêng) nên Discord không cache nhầm ảnh đơn khác. Params URL-encode
+   + cắt ngắn (chống lạm dụng); không chứa secret nào. */
+export function discordBannerUrl(c) {
+  const q = (k, v, max) => { const s = String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, max); return s ? k + '=' + encodeURIComponent(s) : ''; };
+  const parts = [
+    q('name', c.name || 'Ẩn danh', 30),
+    q('user', c.username || '', 30),
+    q('amt', Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ', 40),
+    q('ref', String(c.ref || '').replace(/\D/g, '').slice(0, 6), 40),
+    q('code', donTransferCode(+c.uid || 0, c.ref, !!c.hide), 40),
+  ].filter(Boolean);
+  return DISCORD_BANNER_BASE + (parts.length ? '?' + parts.join('&') : '');
+}
+/* uid 6 số như badges.js (patch -108) + nội dung chuyển khoản đúng công thức client (shared/ui/donate.js):
+   'SEVQR GZ U<uid6>X R<ref>Z' (giấu tên thì 'A' thay 'U'; ẩn danh uid=0 thì 'SEVQR GZ R<ref>Z'). */
+export const donUid6 = id => String(id ?? '').padStart(6, '0');
+export function donTransferCode(uid, ref, hide) {
+  const r = String(ref || '').replace(/\D/g, '').slice(0, 6);
+  if (!uid) return r ? 'SEVQR GZ R' + r + 'Z' : 'SEVQR GZ';
+  return 'SEVQR GZ ' + (hide ? 'A' : 'U') + donUid6(uid) + 'X' + (r ? ' R' + r + 'Z' : '');
+}
+export function discordClaimPayload(c, adminId) {
+  const amt = Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ';
+  const name = String(c.name || 'Ẩn danh').slice(0, 30) || 'Ẩn danh';
+  const ref = String(c.ref || '').replace(/\D/g, '').slice(0, 6);
+  const at = new Date(+c.at || Date.now());
+  const vn = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(at);
+  const uname = String(c.username || '').trim().slice(0, 30);
+  const fields = [
+    { name: '📋 Loại đơn', value: 'Ủng hộ — yêu cầu duyệt' },
+    { name: '👤 Người yêu cầu', value: name, inline: true },
+    { name: '👤 Username', value: uname ? '@' + uname : name, inline: true },
+    { name: '💰 Số tiền', value: amt, inline: true },
+    { name: '🔢 Mã ref', value: ref || '—', inline: true },
+    { name: '📝 Nội dung giao dịch', value: '`' + donTransferCode(+c.uid || 0, ref, !!c.hide) + '`' },
+  ];
+  const msg = String(c.msg || '').trim();
+  if (msg) fields.push({ name: '💬 Lời nhắn', value: msg.slice(0, 200) });
+  fields.push({ name: '🕐 Thời gian (giờ VN)', value: vn, inline: true });
+  const out = {
+    embeds: [{
+      title: '☕ Có yêu cầu ủng hộ mới cần duyệt',
+      description: 'Duyệt / từ chối tại: ' + DISCORD_QUANTRI_URL,
+      color: 0xfacd33,
+      fields,
+      image: { url: discordBannerUrl(c) },
+      thumbnail: { url: DISCORD_THUMB_URL },
+      timestamp: at.toISOString(),
+    }],
+    components: [{ type: 1, components: [{ type: 2, style: 5, label: '🔍 Mở trang Quản trị', url: DISCORD_QUANTRI_URL }] }],
+  };
+  /* Tag admin bằng ID SỐ Discord (<@id> mới ping được — tag bằng tên không có tác dụng).
+     ID lấy từ env DONATE_ADMIN_ID; chưa cấu hình thì gửi embed không tag. */
+  const id = String(adminId || '').trim();
+  if (/^\d{5,25}$/.test(id)) {
+    out.content = '<@' + id + '> ơi, có giao dịch ủng hộ mới cần duyệt nè!';
+    out.allowed_mentions = { parse: [], users: [id] };
+  }
+  return out;
+}
+export async function notifyDiscordClaim(webhookUrl, c, fetchFn = fetch, timeoutMs = 5000, adminId = '') {
+  if (!webhookUrl) return false; /* chưa cấu hình webhook: bỏ qua lặng lẽ */
+  try {
+    const r = await fetchFn(String(webhookUrl), {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(discordClaimPayload(c, adminId)),
+      signal: AbortSignal.timeout(Math.max(100, +timeoutMs || 5000)),
+    });
+    if (!r || !r.ok) { console.error('[donate-discord] webhook trả mã lỗi'); return false; }
+    return true;
+  } catch (e) { console.error('[donate-discord] gửi thông báo thất bại'); return false; } /* KHÔNG log URL */
+}

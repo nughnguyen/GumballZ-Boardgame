@@ -13,7 +13,7 @@ import { cfUsage } from './cfstats.js';
 import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
-import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
+import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
 import { TUT } from '../../shared/tutorials.js';
 import { DurableObject } from 'cloudflare:workers';
 export { Users } from './users.js';
@@ -79,7 +79,7 @@ async function sepayHook(req, env) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
     const p = url.pathname.split('/').filter(Boolean);
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors(origin) });
@@ -267,6 +267,10 @@ export default {
         if (ref.length !== 6) return json({ ok: false, msg: 'Mã ref phải có 6 số (trong nội dung chuyển khoản)' }, 200, H);
         const msg = clean(String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200)).text;
         const r = await L.donClaimAdd({ uid: me.id, name: me.name, amt, ref, msg, hide: !!d.hide });
+        if (!r.dup && env.DONATE_DISCORD_WEBHOOK) { /* patch -160: chỉ claim MỚI chờ duyệt mới báo Discord, fire-and-forget, không chặn response */
+          const p = notifyDiscordClaim(env.DONATE_DISCORD_WEBHOOK, { uid: me.id, username: me.username || '', name: me.name, amt, ref, msg, hide: !!d.hide, at: Date.now() }, fetch, 5000, env.DONATE_ADMIN_ID || '');
+          if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
+        }
         return json({ ok: true, claimId: r.id, dup: r.dup }, 200, H);
       }
       if (p[1] === 'admin' && req.method === 'GET') { /* 🧾 trang Quản trị: yêu cầu chờ + khoản đã nhận + quota */
