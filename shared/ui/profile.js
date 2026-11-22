@@ -2,8 +2,8 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=62'
-import { load, totals, level, ACHS, GAME_NAMES, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=91';
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=63'
+import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=92';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=3'; /* 🐉 rồng bay khung avatar (patch -158: rồng CodePen canvas) */
@@ -107,7 +107,7 @@ export function profileCss() {
   import('./badges.js?v=7').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=11', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=11'; }
+  try { l.href = new URL('../css/avatar.css?v=12', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=12'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -365,8 +365,8 @@ function renderProfileInto(ov, isPage) {
     const xpNow = xpOf(st), curLv = xpLevel(xpNow), nextLv = curLv >= 10 ? null : curLv + 1;
     const partNm = (k, v) => { const o = (OPTIONS[k] || []).find(x => Array.isArray(x) && x[0] === v); return o ? o[1] : v; };
     const strip = [2, 3, 4, 5, 6, 7, 8, 9, 10].map(l => { const ok = curLv >= l || st.admin; return `<div class="pf2-lv${ok ? ' ok' : ''}${l === nextLv ? ' nx' : ''}"><span class="n">${l}</span><small>${esc(LOCKED_PARTS.filter(p => p.lv === l).map(p => partNm(p.k, p.v)).join(' · '))}</small></div>`; }).join('');
-    const tni = TRACK.findIndex(r => xpNow < r.xp), tnx = tni < 0 ? null : TRACK[tni], tprev = tni <= 0 ? 0 : TRACK[tni - 1].xp;
-    const trackNext = tnx ? `<div class="pf2-tracknext"><div><b>Mốc ${tni + 1}: ${esc(KIND[tnx.k] || '')} ${esc(partNm(tnx.k, tnx.v))}</b><small>${xpNow} / ${tnx.xp} điểm</small></div><div class="pf-bar"><i style="width:${Math.round((xpNow - tprev) / (tnx.xp - tprev) * 100)}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
+    const lvNames = nextLv ? LOCKED_PARTS.filter(p => p.lv === nextLv).map(p => partNm(p.k, p.v)).join(' · ') : ''; /* dùng chung pct + lv.to đã tính ở trên (dòng 341) */
+    const trackNext = nextLv ? `<div class="pf2-tracknext"><div><b>Mốc cấp ${nextLv}: ${esc(lvNames)}</b><small>${xpNow} / ${lv.to} điểm</small></div><div class="pf-bar"><i style="width:${pct}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
     /* 🏅 Thành tựu dạng dòng thanh tiến trình (patch -158): cùng tập dữ liệu như trước, chỉ đổi kiểu hiển thị */
     const achRow = r => { const pc = Math.min(100, Math.round(r.x / r.y * 100)); const how = r.desc + ` (${r.x}/${r.y})` + (r.ver === true ? ' · ✅ đã kiểm chứng' : r.ver === false ? ' · 💻 chỉ ở máy này' : ''); return `<div class="pf2-achrow" tabindex="0" role="button" data-iicon="${esc(r.icon)}" data-iname="${esc(r.name)}" data-ihow="${esc(how)}" data-istate="✅ Đã mở"><div class="pf2-achtop"><span><i>${r.icon}</i> <b>${esc(r.name)}</b></span><small>${r.x}/${r.y}</small></div><div class="pf2-achbar"><i style="width:${pc}%"></i></div></div>`; };
     const tplRows = TPL5.map(tp => { const gs = Object.keys(GAME_NAMES).filter(g => s.ach[`${tp.id}-${g}`]); return gs.length ? achRow({ icon: tp.icon, name: tp.name, x: gs.length, y: Object.keys(GAME_NAMES).length, desc: `${tp.desc} ở một game · đạt ở ${gs.length} game: ${gs.slice(0, 4).map(g => GAME_NAMES[g]).join(', ')}${gs.length > 4 ? '…' : ''}`, ver: srvA ? gs.some(g => srvA.has(`${tp.id}-${g}`)) : null }) : ''; }).join('');
@@ -501,8 +501,11 @@ function renderMemberInto(ov, U) {
   const lvFrom = 50 * (curLv - 1) * (curLv - 1), lvTo = 50 * curLv * curLv, pct = nextLv ? Math.round((xpNow - lvFrom) / (lvTo - lvFrom) * 100) : 100; /* cấp = floor(sqrt(xp/50))+1; XP cấp L = 50×(L−1)² */
   const partNm = (k, v) => { const o = (OPTIONS[k] || []).find(x => Array.isArray(x) && x[0] === v); return o ? o[1] : v; };
   const strip = [2, 3, 4, 5, 6, 7, 8, 9, 10].map(l => { const ok = curLv >= l; return `<div class="pf2-lv${ok ? ' ok' : ''}${l === nextLv ? ' nx' : ''}"><span class="n">${l}</span><small>${esc(LOCKED_PARTS.filter(p => p.lv === l).map(p => partNm(p.k, p.v)).join(' · '))}</small></div>`; }).join('');
-  const tni = TRACK.findIndex(r => xpNow < r.xp), tnx = tni < 0 ? null : TRACK[tni], tprev = tni <= 0 ? 0 : TRACK[tni - 1].xp;
-  const trackNext = tnx ? `<div class="pf2-tracknext"><div><b>Mốc ${tni + 1}: ${esc(partNm(tnx.k, tnx.v))}</b><small>${xpNow} / ${tnx.xp} điểm</small></div><div class="pf-bar"><i style="width:${Math.round((xpNow - tprev) / (tnx.xp - tprev) * 100)}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
+  /* 🎁 tiến độ tới cấp tiếp theo (sửa -164): tên mốc + điểm + thanh % phải khớp vòng tròn cấp kế tiếp
+     trong dải trên (cùng LOCKED_PARTS, cùng ngưỡng XP cấp) — bản cũ dùng mốc TRACK (chỉ số mốc 1..47)
+     nên header "Tiếp theo: cấp 3" lại nói "Mốc 5", mâu thuẫn. */
+  const lvNames = nextLv ? LOCKED_PARTS.filter(p => p.lv === nextLv).map(p => partNm(p.k, p.v)).join(' · ') : '';
+  const trackNext = nextLv ? `<div class="pf2-tracknext"><div><b>Mốc cấp ${nextLv}: ${esc(lvNames)}</b><small>${xpNow} / ${lvTo} điểm</small></div><div class="pf-bar"><i style="width:${pct}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
   const titleDesc = t => (t.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[t.game] || t.game}` : t.desc || '');
   const ttPill = t => `<span class="pf-tt" tabindex="0" role="button" data-iicon="${esc(t.icon)}" data-iname="${esc(t.name)}" data-ihow="${esc(titleDesc(t))}" data-istate="✅ Đã đạt">${esc(t.icon)} ${esc(t.name)}</span>`;
   const achRow = a => `<div class="pf2-achrow" tabindex="0" role="button" data-iicon="${esc(a.icon)}" data-iname="${esc(a.name)}" data-ihow="${esc(a.desc)}" data-istate="✅ Đã mở"><div class="pf2-achtop"><span><i>${a.icon}</i> <b>${esc(a.name)}</b></span><small>1/1</small></div><div class="pf2-achbar"><i style="width:100%"></i></div></div>`;
@@ -523,7 +526,10 @@ function renderMemberInto(ov, U) {
       <div class="pf2-sub">${U.title ? ttPill({ ...U.title, desc: titleDesc(U.title) }) : ''}<span class="pf2-lvtx">Cấp ${U.lv} · ${esc(U.lvName || '')}</span></div>
       <div class="pf2-xp"><b>${nextLv ? `${pct}% tới cấp ${nextLv}` : 'Đã đạt cấp cao nhất 👑'}</b><div class="pf-bar"><i style="width:${pct}%"></i></div></div>
       </div></section>
+      ${acts ? `<div class="pf2-macts">${acts}</div>` : ''}
       <section class="pf2-stats"><div class="pf-dash"><div><b>${U.p}</b><small>🎲 Trận đã chơi</small></div><div><b>${U.w}</b><small>🏆 Trận thắng</small></div><div><b>${rate}%</b><small>🎯 Tỉ lệ thắng</small></div><div><b>${U.best || 0}</b><small>🔥 Chuỗi tốt nhất</small></div></div></section>
+      ${U.rank ? `<div class="mb-rank">🏆 Hạng ${U.rank}${U.total ? ' / ' + U.total : ''} trên bảng xếp hạng toàn server</div>` : ''}
+      <p class="pf-note" style="margin:6px 0 0;text-align:left">Thành viên từ ${new Date(U.created).toLocaleDateString('vi-VN')}${U.days ? ` · đã chơi ${U.days} ngày` : ''}</p>
       </div>
       <div class="pf2-right">
       <section class="pf2-card"><h3>🎖️ Danh hiệu <small>${(U.titles || []).length} đã đạt</small></h3>
@@ -539,15 +545,12 @@ function renderMemberInto(ov, U) {
       </div>
       </section>
       <section class="pf2-card"><h3>🎮 Chơi nhiều nhất <small>${U.kinds || 0} game</small></h3>
-      ${(U.games || []).length ? `<div class="pf-g">${U.games.map(g => `<div>${esc(GAME_NAMES[g.g] || g.g)}</div><span>${g.p} ván</span><em>${g.w} thắng</em>`).join('')}</div>` : '<div class="pf-empty">Chưa chơi ván nào khi đã đăng nhập.</div>'}
+      ${(U.games || []).length ? `<div class="pf-g">${U.games.map(g => { const gr = g.p ? Math.round(g.w / g.p * 100) : 0; return `<div class="pf-grow"><span class="pf-gic" aria-hidden="true">${GAME_ICON[g.g] || '🎲'}</span><div class="pf-gmain"><div class="pf-gtop"><b>${esc(GAME_NAMES[g.g] || g.g)}</b><small>${g.p} ván · ${g.w} thắng</small></div><div class="pf-gbar"><i style="width:${gr}%"></i></div></div><span class="pf-grate">${gr}%</span></div>`; }).join('')}</div>` : '<div class="pf-empty">Chưa chơi ván nào khi đã đăng nhập.</div>'}
       </section>
       </div>
       </div>
       <div class="pf2-below">
-      ${U.rank ? `<div class="mb-rank">🏆 Hạng ${U.rank}${U.total ? ' / ' + U.total : ''} trên bảng xếp hạng toàn máy chủ</div>` : ''}
-      <p class="pf-note" style="margin:6px 0 0;text-align:left">Thành viên từ ${new Date(U.created).toLocaleDateString('vi-VN')}${U.days ? ` · đã chơi ${U.days} ngày` : ''}</p>
       <div class="pf2-navbtns"><button type="button" data-a="rank">🏆 Xem Bảng xếp hạng toàn server ▶</button></div>
-      ${acts ? `<div class="pf2-macts">${acts}</div>` : ''}
       </div>
       </div>`;
     ov.querySelectorAll('[data-iname]').forEach(el => { attachInfo(el, () => ({ icon: el.dataset.iicon || 'ℹ️', name: el.dataset.iname, how: el.dataset.ihow, state: el.dataset.istate || '' })); });

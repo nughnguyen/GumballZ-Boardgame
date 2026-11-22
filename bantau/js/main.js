@@ -5,7 +5,7 @@ import { GUIDE_HTML } from './guide.js?v=10';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { toast as tip } from '../../shared/ui/dialog.js?v=10';
-import { recordEvent } from '../../shared/ui/stats.js?v=91';
+import { recordEvent } from '../../shared/ui/stats.js?v=92';
 import { stock, useItem } from '../../shared/ui/wallet.js?v=7'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
 
 let sound = ls.get('bantau-sound') !== '0';
