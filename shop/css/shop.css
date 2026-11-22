@@ -1,7 +1,11 @@
 /* 🛍️ Cửa hàng – theo thiết kế mới 2026-11-20 (kem · mực #241A38 · đỏ #FF5A60 · vàng #FACD33 · ngọc #2EC5B6 · tím #B9A6FF) */
 :root{--ink:#241A38;--bg:#FFF8EE;--card:#FFFDF9;--muted:#8B7E9E;--y1:#FACD33;--y2:#FFE9A8;--p1:#FF5A60;--p2:#2EC5B6;--p3:#B9A6FF;--sky:#B9A6FF;--sh:4px 4px 0 #241A38;--sh-sm:3px 3px 0 #241A38}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:600 16px/1.55 Nunito,sans-serif;margin:0}
+/* patch -149: gamekit.css đặt html,body{height:100%} nên body chỉ cao bằng viewport (800px) —
+   topbar sticky bị giới hạn trong hộp body 800px nên cuộn quá 800px là trôi mất. Đặt lại
+   body{height:auto} để body cao bằng nội dung như trang chủ → sticky dính đúng. Chỉ trang shop
+   cần (gamekit.css dùng chung cho trang game, không sửa ở đó). */
+body{background:var(--bg);color:var(--ink);font:600 16px/1.55 Nunito,sans-serif;margin:0;height:auto}
 .shop-wrap{max-width:960px;margin:0 auto;padding:64px 16px 48px}
 .shop-title h1{font:800 34px/1.15 "Baloo 2",Nunito,sans-serif;margin:8px 0 4px}
 .shop-sub{color:var(--muted);font-weight:800;margin:0 0 16px}
