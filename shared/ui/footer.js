@@ -61,7 +61,7 @@
       '<p>Board game &amp; game bài tiếng Việt — chơi online cùng bạn bè, miễn phí, không cần cài đặt.</p>' +
       '<div class="gmf-chips"><a href="#" data-feedback="">💌 Góp ý / báo lỗi</a><a href="#" data-donate class="donate">☕ Ủng hộ chủ web</a></div>' +
       '<div class="gmf-social">' + soc('facebook', 'https://www.facebook.com/hungnq188.2k5/', 'Facebook', 'Facebook GumballZ', 'NQ', 'Nguyễn Quốc Hưng', '@hungnq188.2k5', SVG_FB, AV_FB) + soc('zalo', 'https://zalo.me/0388205003', 'Zalo', 'Zalo 0388205003', 'GZ', 'GumballZ', '0388205003', SVG_ZALO, AV_ZALO) + soc('discord', 'https://dsc.gg/gumballz', 'Discord', 'Discord GumballZ', 'GZ', 'GumballZ', 'dsc.gg/gumballz', SVG_DISCORD, AV_DISCORD) + soc('telegram', 'https://t.me/+EkTeXM7l96hiNjI1', 'Telegram', 'Telegram GumballZ', 'GZ', 'GumballZ', 't.me/+EkTeXM7l96hiNjI1', SVG_TELEGRAM, AV_TELEGRAM) + '</div></div>' +
-      '<nav aria-label="Khám phá"><h3>Khám phá</h3><a href="' + P + '">Trang chủ</a><a href="' + P + 'sanh/">Sảnh chung</a><a href="#" data-foot-rank>🏆 Xếp hạng</a><a href="' + P + 'luat/">📖 Wiki</a></nav>' +
+      '<nav aria-label="Khám phá"><h3>Khám phá</h3><a href="' + P + '">Trang chủ</a><a href="' + P + 'sanh/">Sảnh chung</a><a href="' + P + 'xephang/">🏆 Xếp hạng</a><a href="' + P + 'luat/">📖 Wiki</a></nav>' +
       '<nav aria-label="Trợ giúp"><h3>Trợ giúp</h3><a href="' + P + 'gioi-thieu/">Giới thiệu</a><a href="' + P + 'credits/">Credits</a><a href="' + P + 'terms/">Điều khoản</a><a href="' + P + 'privacy/">Bảo mật</a></nav>' +
       '</div>' +
       '<div class="gmf-bot"><span>© 2026 GumballZ Boardgame</span>' + (isHome ? '<span id="foot-online">Đang online: —</span>' : '') + '</div>';
@@ -113,18 +113,7 @@
   if (document.body) build();
   else document.addEventListener('DOMContentLoaded', build);
 
-  // 🏆 Xếp hạng trong footer: trước đây mỗi trang có 1 script inline riêng gắn
-  // trực tiếp vào link [data-foot-rank]; giờ gom về 1 chỗ, delegation ở cấp
-  // document nhưng chỉ bắt click trong footer (.gmf) để không chạm link khác.
-  // Trang chủ trước đây dùng data-rank và không có handler (bấm không làm gì)
-  // nên giờ cũng dùng chung data-foot-rank — sửa luôn link chết đó.
-  // import() động phân giải theo URL của chính file này (shared/ui/footer.js)
-  // nên './leaderboard.js' đã đúng ở mọi độ sâu — không cộng tiền tố P.
+  // patch -150: link Xếp hạng trong footer giờ là link thường tới trang riêng /xephang/ —
+  // không còn mở modal nên bỏ delegation mở leaderboard.js.
   import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — trang hướng dẫn chỉ nạp footer.js */
-  document.addEventListener('click', function (e) {
-    var r = e.target && e.target.closest ? e.target.closest('.gmf [data-foot-rank]') : null;
-    if (!r) return;
-    e.preventDefault();
-    import('./leaderboard.js?v=38').then(function (m) { m.openLeaderboard(); }).catch(function () { location.href = P; });
-  });
 })();

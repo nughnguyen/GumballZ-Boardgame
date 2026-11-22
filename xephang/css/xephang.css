@@ -1,0 +1,13 @@
+/* 🏆 Trang Bảng xếp hạng riêng (patch -150) — vỏ trang, bảng do shared/ui/leaderboard.js vẽ vào #rk-root.
+   Neobrutalism theo trang chủ: nền kem, viền mực 2px, bóng cứng, Baloo 2 + Nunito. Tôn trọng chế độ tối (-130). */
+.rk-page-wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+.rk-page-hd{text-align:center;margin:6px 0 18px}
+.rk-page-hd h1{margin:0;font:400 clamp(28px,6vw,40px)/1.15 "Bungee","Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.rk-page-sub{margin:8px auto 0;max-width:560px;color:var(--muted);font:700 15px/1.5 Nunito,sans-serif}
+#rk-root{min-height:320px}
+.rk-page-foot{margin:22px 0 0;text-align:center;font-weight:800}
+.rk-page-foot a{color:var(--ink)}
+@media (max-width:480px){
+  .rk-page-wrap{padding:14px 10px 40px}
+  .rk-page-hd{margin-bottom:12px}
+}

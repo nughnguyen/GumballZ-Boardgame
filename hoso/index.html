@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<!-- patch -130: áp chế độ tối SỚM (trước khi CSS vẽ) để không chớp sáng khi tải trang -->
+<script>try{var t=localStorage.getItem('gumballz-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hồ sơ của bạn | GumballZ Boardgame</title>
+<meta name="description" content="Hồ sơ GumballZ của bạn: nhân vật, lộ trình thưởng, khung avatar, màu tên, banner, hiệu ứng khi thắng, vật phẩm VIP, danh hiệu và thành tích.">
+<link rel="canonical" href="https://gumballzgames.vercel.app/hoso/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hồ sơ của bạn | GumballZ Boardgame">
+<meta property="og:description" content="Nhân vật, khung avatar, màu tên, banner, vật phẩm VIP, danh hiệu và thành tích của bạn.">
+<meta property="og:url" content="https://gumballzgames.vercel.app/hoso/">
+<meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og.jpg?v=8">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=6">
+<link rel="stylesheet" href="../shared/ui/shell.css?v=23">
+<link rel="stylesheet" href="css/hoso.css?v=1">
+<link rel="stylesheet" href="../shared/css/skeleton.css?v=2">
+<link rel="stylesheet" href="../shared/css/topbar.css?v=7">
+<link rel="stylesheet" href="../shared/css/footer.css?v=11">
+<link rel="stylesheet" href="../shared/css/page-trans.css?v=1">
+</head>
+<body>
+
+<div id="topbar"></div>
+<script src="../shared/ui/topbar.js?v=8"></script>
+<main class="pf-page-wrap">
+  <header class="pf-page-hd">
+    <h1>👤 Hồ sơ của bạn</h1>
+    <p class="pf-page-sub">Nhân vật, khung, màu tên, vật phẩm VIP, danh hiệu và thành tích — đăng nhập để đồng bộ sang máy khác.</p>
+  </header>
+  <div id="pf-root"></div>
+  <p class="pf-page-foot"><a href="../">← Về trang chủ</a> · <a href="../xephang/">Bảng xếp hạng</a></p>
+</main>
+<footer class="gmf"></footer>
+<script src="../shared/ui/footer.js?v=21"></script>
+<script type="module" src="js/hoso.js?v=1"></script>
+<script src="../shared/ui/page-trans.js?v=1"></script>
+</body>
+</html>

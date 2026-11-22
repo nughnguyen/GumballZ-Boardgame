@@ -22,7 +22,7 @@
   if (parts.length && parts[parts.length - 1].indexOf('.') !== -1) parts.pop(); // bỏ tên file nếu có
   var depth = parts.length;
   var P = depth === 0 ? './' : '../'.repeat(depth);
-  var page = parts[0] === 'sanh' ? 'sanh' : parts[0] === 'shop' ? 'shop' : (parts.length === 0 ? 'home' : 'game'); /* patch -112: trang game (vd. /typhu/) là 'game', không phải 'home' — trước đây nhầm thành home nên href './'/'sanh/' trỏ sai */
+  var page = parts[0] === 'sanh' ? 'sanh' : parts[0] === 'shop' ? 'shop' : parts[0] === 'xephang' ? 'xephang' : parts[0] === 'hoso' ? 'hoso' : (parts.length === 0 ? 'home' : 'game'); /* patch -112: trang game (vd. /typhu/) là 'game', không phải 'home' — trước đây nhầm thành home nên href './'/'sanh/' trỏ sai */
   var isHome = page === 'home';
 
   var GEAR = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.900 2.900l-.1-.1a1.700 1.700 0 0 0-1.800-.300 1.700 1.700 0 0 0-1 1.500V21a2 2 0 1 1-4 0v-.100a1.700 1.700 0 0 0-1.100-1.500 1.700 1.700 0 0 0-1.800.300l-.100.100a2 2 0 1 1-2.900-2.900l.100-.100a1.700 1.700 0 0 0 .300-1.800 1.700 1.700 0 0 0-1.500-1H3a2 2 0 1 1 0-4h.100a1.700 1.700 0 0 0 1.500-1.100 1.700 1.700 0 0 0-.300-1.800l-.100-.100a2 2 0 1 1 2.900-2.900l.100.100a1.700 1.700 0 0 0 1.800.300H9a1.700 1.700 0 0 0 1-1.500V3a2 2 0 1 1 4 0v.100a1.700 1.700 0 0 0 1 1.500 1.700 1.700 0 0 0 1.800-.300l-.100-.100a2 2 0 1 1 2.900 2.900l.100.100a1.700 1.700 0 0 0-.300 1.800V9a1.700 1.700 0 0 0 1.500 1H21a2 2 0 1 1 0 4h-.100a1.700 1.700 0 0 0-1.500 1z"/></svg>';
@@ -31,6 +31,8 @@
   var homeHref = isHome ? './' : P;
   var sanhHref = isHome ? 'sanh/' : P + 'sanh/';
   var shopHref = isHome ? 'shop/' : P + 'shop/';
+  var rankHref = isHome ? 'xephang/' : P + 'xephang/'; /* 🏆 BXH giờ là trang riêng (patch -150) */
+  var profHref = isHome ? 'hoso/' : P + 'hoso/'; /* 👤 Hồ sơ giờ là trang riêng (patch -150) */
 
   var header =
     '<header class="nav' + (page === 'game' ? ' game' : '') + '" id="nav"><div class="nav-in">' + /* patch -112: class "game" để CSS xếp lại topbar trên trang game (cao ~72px, không ô tìm kiếm, menu giữa hơi lệch trái) */
@@ -40,8 +42,8 @@
     navA(homeHref, 'Trang chủ', page === 'home') +
     navA(sanhHref, 'Sảnh chung', page === 'sanh') +
     navA(shopHref, 'Cửa hàng', page === 'shop') +
-    '<button type="button" data-rank>Xếp hạng</button>' +
-    '<button type="button" id="btn-prof-nav">Hồ sơ</button>' +
+    navA(rankHref, 'Xếp hạng', page === 'xephang') +
+    navA(profHref, 'Hồ sơ', page === 'hoso') +
     '<button type="button" data-donate>Ủng hộ</button>' +
     '<i class="nav-ind" aria-hidden="true"></i>' +
     '</nav>' +
@@ -55,8 +57,8 @@
     '<nav class="tabbar" aria-label="Điều hướng chính">' +
     tabHome +
     '<a href="' + sanhHref + '"' + (page === 'sanh' ? ' aria-current="page"' : '') + '>🌐<span>Sảnh</span></a>' +
-    '<button type="button" data-rank>🏆<span>Xếp hạng</span></button>' +
-    '<button type="button" id="btn-prof-m">👤<span>Hồ sơ</span></button>' +
+    '<a href="' + rankHref + '"' + (page === 'xephang' ? ' class="active" aria-current="page"' : '') + '>🏆<span>Xếp hạng</span></a>' +
+    '<a href="' + profHref + '"' + (page === 'hoso' ? ' class="active" aria-current="page"' : '') + '>👤<span>Hồ sơ</span></a>' +
     '<i class="tab-ind" aria-hidden="true"></i></nav>';
 
   var ph = document.getElementById('topbar');
@@ -85,12 +87,8 @@
   })();
   import('./theme.js?v=1').catch(function () {});
   import('./account.js?v=53').then(function (m) { m.mountAccount(document.getElementById('acct')); }).catch(function () {});
-  // hồ sơ: mở modal ở 2 nút còn lại (#btn-prof-nav, #btn-prof-m) — nút avatar tròn #btn-prof đã bỏ (patch -105), avatar chỉ còn ở nút tên tài khoản #acct
-  import('./profile.js?v=58').then(function (m) {
-    m.profileCss();
-    var bn = document.getElementById('btn-prof-nav'); if (bn) bn.onclick = function () { m.openProfile(); };
-    var bm = document.getElementById('btn-prof-m'); if (bm) bm.onclick = function () { m.openProfile(); };
-  }).catch(function () {});
+  // patch -150: Xếp hạng / Hồ sơ giờ là trang riêng (/xephang/, /hoso/) — nút nav + tab dưới là link thường,
+  // không còn mở modal nên topbar không nối profile.js/leaderboard.js nữa.
   // pill xu: hiện số dư, cập nhật khi ví đổi
   import('./wallet.js?v=7').then(function (w) {
     var x = document.getElementById('btn-xu');
@@ -103,25 +101,18 @@
   // cài đặt
   var setBtn = document.getElementById('btn-set');
   if (setBtn) setBtn.onclick = function () { import('./settings.js?v=48').then(function (m) { m.openSettings(); }).catch(function () {}); };
-  // xếp hạng / Trang chủ: nối cho cả nút trên nav (có sẵn lúc parse) lẫn nút
-  // ở tab dưới (chèn sau DOMContentLoaded — xem wireTabbar trong addTab).
-  function openRank() { import('./leaderboard.js?v=38').then(function (m) { m.openLeaderboard(); }).catch(function () {}); }
+  // Trang chủ: nút tab dưới cuộn lên đầu trang (điều hướng thật do page-trans.js lo).
   function goHomeTop() { scrollTo({ top: 0, behavior: 'smooth' }); }
-  function wireRankBtn(b) { b.onclick = openRank; }
   function wireHomeBtn(b) { b.onclick = goHomeTop; }
   function wireTabbar() {
     var tab = document.querySelector('.tabbar'); if (!tab) return;
-    tab.querySelectorAll('[data-rank]').forEach(wireRankBtn);
     tab.querySelectorAll('[data-home]').forEach(wireHomeBtn);
-    var bm = tab.querySelector('#btn-prof-m');
-    if (bm) bm.onclick = function () { import('./profile.js?v=58').then(function (m) { m.openProfile(); }).catch(function () {}); };
     // bấm tab nào thì vạch đỏ trượt tới tab đó (điều hướng thật do page-trans.js lo)
     tab.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('a,button') : null;
       if (t && tab.contains(t)) moveTab(tabItems().indexOf(t), true);
     });
   }
-  document.querySelectorAll('[data-rank]').forEach(wireRankBtn);
   document.querySelectorAll('[data-home]').forEach(wireHomeBtn);
   // thanh trên đổ bóng khi cuộn
   var nav = document.getElementById('nav');
@@ -146,9 +137,9 @@
   }
 
   /* ---------- patch -112: topbar luôn hiện cả ở trang game + chặn thoát nhầm giữa ván ----------
-     Link điều hướng trong topbar/tabbar (Trang chủ, Sảnh chung, Cửa hàng, pill xu): đang trong
-     ván thì hỏi xác nhận rồi mới rời đúng thủ tục của game; không trong ván thì chuyển thẳng.
-     Nút mở modal (Xếp hạng, Hồ sơ, Ủng hộ, Cài đặt) không rời trang nên không bị chặn. */
+     Link điều hướng trong topbar/tabbar (Trang chủ, Sảnh chung, Cửa hàng, Xếp hạng, Hồ sơ, pill xu):
+     đang trong ván thì hỏi xác nhận rồi mới rời đúng thủ tục của game; không trong ván thì chuyển thẳng.
+     Nút mở modal (Ủng hộ, Cài đặt) không rời trang nên không bị chặn. */
   var leaveMod = null, leaveConfirm = null;
   window.__gumballzTopbar = { inMatch: function () { return leaveMod ? leaveMod.inMatch(document) : false; } }; /* hook cho test */
   Promise.all([import('./topbar-leave.js?v=1'), import('./dialog.js?v=10')]).then(function (ms) {
@@ -190,10 +181,12 @@
     if (!p.length) return 'home';
     if (p[0] === 'sanh') return 'sanh';
     if (p[0] === 'shop') return 'shop';
+    if (p[0] === 'xephang') return 'xephang';
+    if (p[0] === 'hoso') return 'hoso';
     return null;
   }
   function navElForTab(key) {
-    var map = { home: 0, sanh: 1, shop: 2 };
+    var map = { home: 0, sanh: 1, shop: 2, xephang: 3, hoso: 4 };
     var items = navItems();
     return (key in map) ? (items[map[key]] || null) : null;
   }
@@ -241,20 +234,7 @@
     if (!animate || reduced) { void tabInd.offsetWidth; tabInd.style.transition = ''; }
   }
   function placeTabInitial() { moveTab(tabActiveIndex(), false); }
-  // modal Xếp hạng / Hồ sơ đóng thì trả cả 2 vạch về tab đang chọn của trang
-  var mo = new MutationObserver(function (muts) {
-    for (var k = 0; k < muts.length; k++) {
-      var removed = muts[k].removedNodes;
-      for (var j = 0; j < removed.length; j++) {
-        var n = removed[j];
-        if (n.nodeType === 1 && (n.id === 'rk-ov' || n.id === 'pf-ov') && !document.getElementById('rk-ov') && !document.getElementById('pf-ov')) {
-          var a = activeNavEl(); if (a) moveNav(a, true);
-          moveTab(tabActiveIndex(), true);
-        }
-      }
-    }
-  });
-  if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+  // patch -150: Xếp hạng / Hồ sơ không còn là modal nên không cần theo dõi #rk-ov/#pf-ov bị gỡ nữa.
   // đặt vị trí lần đầu + đặt lại khi font/co giãn xong (Baloo 2 đổi chiều rộng mục nav)
   function placeAll() { placeNavInitial(); placeTabInitial(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', placeAll);

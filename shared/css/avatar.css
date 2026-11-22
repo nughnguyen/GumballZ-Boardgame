@@ -61,12 +61,23 @@
 .pf-fr.fr-dragon-edge .dov{animation:drg-show 12s linear infinite}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
+/* 🎏 đầu Hồ sơ với banner hiệu ứng đầy đủ (patch -151): cao theo tỉ lệ 10/3 của banner, bo tròn theo hộp */
+.pf-banner.b42-head{height:auto;padding:0;overflow:hidden}
+.pf-banner.b42-head .b42-bw{border-radius:0}
 .lk-bn{display:block;width:100%;height:22px;border-radius:6px;background-size:200% auto}
+/* 🎏 lưới thẻ banner (patch -151): thẻ rộng 220px để banner 10/3 hiện rõ (khác lưới khung 92px) */
+.lk-bn-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.lk-bcard .b42-bw{width:100%}
+.lk-bcard.lock .b42-bw{filter:grayscale(1);opacity:.5}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
 @media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}.pf-fr .dov{display:none}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
 .pf-box{width:min(520px,100%);max-height:calc(100dvh - 28px);overflow:auto;background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:26px;padding:20px 18px 18px;box-shadow:var(--sh);font:600 15px/1.45 Nunito,system-ui,sans-serif;position:relative;animation:pf-p .24s cubic-bezier(.2,1.2,.4,1)}
 .pf-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--card);font-size:17px;cursor:pointer;color:var(--ink);z-index:2;box-shadow:var(--sh-sm)}
+/* ---------- trang riêng /hoso/ (patch -150): hồ sơ hiện trực tiếp trên trang, không còn khung modal ----------
+   .pf-page là phần tử chứa hồ sơ trên trang: hộp rộng hơn, không giới hạn chiều cao, không hiệu ứng mở modal. */
+.pf-page .pf-box{width:100%;max-width:640px;max-height:none;overflow:visible;margin:0 auto;animation:none}
+.pf-page .pf-x{display:none}
 .pf-head{display:flex;align-items:center;gap:14px;margin-right:40px}.pf-head button{border:0;background:none;padding:0;cursor:pointer;position:relative;border-radius:50%}
 .pf-head button::after{content:"✏️";position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:13px;box-shadow:0 2px 6px #0003}
 .pf-name{font:800 24px/1.1 "Baloo 2",Nunito,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pf-sub{color:var(--muted);font-weight:800;font-size:13.5px}
@@ -134,3 +145,94 @@
 .lk-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;align-items:center;font-weight:700;color:var(--muted);font-size:11px}
 .lk-tier{border-radius:999px;padding:1px 7px;font-size:10.5px;font-weight:800;color:#fff}
 .lk-tier.cui{background:#5b8c5a}.lk-tier.hiem{background:#3d8bff}.lk-tier.vip{background:linear-gradient(90deg,#b8860b,#e0a612)}
+/* 🎏 banner hồ sơ 55 mẫu (patch -151): CSS hiệu ứng port từ 55_banner_h__s__GumballZ.html,
+   class/keyframe tiền tố b42- (không đụng .sk skeleton / .pt hạt huy hiệu); render ở shared/ui/banner-render.js.
+   1em = 1% chiều rộng banner, cao 30em (aspect 10/3); animation tắt khi thẻ ngoài màn hình (.b42-vis). */
+/* ===== BANNER (1em = 1% chiều rộng, cao 30em) ===== */
+.b42-bw{container-type:inline-size;position:relative;border-radius:16px;overflow:hidden;padding:var(--bp,0px)}
+.b42-bw::before{content:"";position:absolute;inset:-130%;background:conic-gradient(var(--bc,transparent,transparent));animation:b42-spin 5s linear infinite}
+.b42-bn{position:relative;font-size:1cqw;width:100%;aspect-ratio:10/3;overflow:hidden;border-radius:13px;background:var(--bg2);isolation:isolate}
+.b42-bn.b42-flow{background-size:300% 300%;animation:b42-bgf 12s ease infinite}
+.b42-bn>*{position:absolute}
+.b42-bl{border-radius:50%;filter:blur(1.4em);animation:b42-drift 12s ease-in-out infinite alternate}
+.b42-st{width:.5em;height:.5em;border-radius:50%;background:var(--c);animation:b42-twk 2.4s ease-in-out infinite}
+.b42-or{border-radius:50%;animation:b42-breathe 4s ease-in-out infinite}
+.b42-pa{inset:0}
+.b42-p-dots{background:radial-gradient(rgba(255,255,255,.55) .5em,transparent .6em) 0 0/4em 4em}
+.b42-p-diag{background:repeating-linear-gradient(45deg,rgba(255,255,255,.4) 0 .3em,transparent .3em 2.4em)}
+.b42-sv{left:0;top:0;width:100%;height:100%;overflow:visible}
+.b42-wn{animation:b42-blink 3s steps(1) infinite}
+.b42-wv{left:0;width:200%;animation:b42-wvs linear infinite}
+.b42-rn{width:.14em;height:3em;background:linear-gradient(transparent,var(--c));top:-4em;opacity:.7;animation:b42-rain linear infinite}
+.b42-fh{inset:0;background:#fff;opacity:0;z-index:5;animation:b42-flash 5s steps(1) infinite}
+.b42-bz{fill:none;stroke:var(--bc);stroke-width:2.2px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:0;animation:b42-bz 2.4s steps(1) infinite;filter:drop-shadow(0 0 3px var(--bc))}
+.b42-fs{animation:b42-fsx linear infinite}
+.b42-fs.r{animation-name:b42-fsr}
+.b42-fs b{display:block;font-weight:400;line-height:1;animation:b42-bob2 2.4s ease-in-out infinite alternate}
+.b42-fl{top:-3em;line-height:1;opacity:0;z-index:4;animation:b42-fall linear infinite}
+.b42-fl.u{top:32em;animation-name:b42-fup}
+.b42-eb{bottom:0;height:13em;transform-origin:50% 100%;transform:scaleY(.2);border-radius:.4em .4em 0 0;animation:b42-eq ease-in-out infinite alternate}
+.b42-pt{width:.6em;height:.6em;border-radius:50%;background:var(--c);box-shadow:0 0 1em var(--c);opacity:0;animation:b42-rise2 ease-out infinite}
+.b42-fw{width:0;height:0;z-index:4}
+.b42-fw b{position:absolute;left:0;top:0;width:0;height:0}
+.b42-fw u{position:absolute;width:.9em;height:.9em;border-radius:50%;background:var(--c);box-shadow:0 0 1em var(--c);opacity:0;animation:b42-bst 3s ease-out infinite;animation-delay:var(--l)}
+.b42-dc{line-height:1;z-index:4}
+.b42-sw{transform-origin:50% 0;animation:b42-swing 3s ease-in-out infinite}
+.b42-sw.b{animation-delay:-1.4s}
+.b42-sh{top:-20%;height:140%;width:22%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);z-index:8;animation:b42-shn 4.5s ease-in-out infinite}
+.b42-gf{left:-50%;width:200%;bottom:0;height:55%;transform:perspective(30em) rotateX(62deg);transform-origin:50% 100%;background:repeating-linear-gradient(90deg,rgba(255,80,220,.9) 0 .18em,transparent .18em 5em),repeating-linear-gradient(0deg,rgba(255,80,220,.9) 0 .18em,transparent .18em 4em);animation:b42-gfm 1s linear infinite}
+.b42-gb{height:.9em;background:rgba(0,255,240,.28);mix-blend-mode:screen;opacity:0;animation:b42-glt 3s steps(1) infinite}
+.b42-sc{left:0;width:100%;height:5em;background:linear-gradient(transparent,rgba(0,255,240,.25),transparent);animation:b42-scn 3s linear infinite}
+.b42-lb{top:.4em;width:1.3em;height:1.8em;border-radius:50%;animation:b42-blink 1.4s steps(1) infinite;z-index:4}
+.b42-ry{left:50%;top:50%;width:260em;height:260em;margin:-130em 0 0 -130em;background:repeating-conic-gradient(var(--c) 0 3deg,transparent 3deg 12deg);opacity:.35;animation:b42-spin 80s linear infinite}
+.b42-sk{width:9em;height:.2em;background:linear-gradient(90deg,transparent,#fff);opacity:0;animation:b42-sk linear infinite}
+.b42-dr{left:0;top:0;width:100%;height:100%;z-index:3}
+.b42-kr{clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);background:var(--c);animation:b42-twk 2.2s ease-in-out infinite;filter:drop-shadow(0 0 .5em var(--c));z-index:4}
+.b42-mg{filter:drop-shadow(0 0 1em var(--c));z-index:1}
+.b42-mr1,.b42-mr2{transform-box:view-box;transform-origin:50% 50%;animation:b42-spin 24s linear infinite}
+.b42-mr2{animation-duration:16s;animation-direction:reverse}
+.b42-is{animation:b42-isb 6s ease-in-out infinite alternate}
+.b42-is svg{position:absolute;inset:0;width:100%;height:100%}
+.b42-is b{position:absolute;left:50%;top:0;font-weight:400;line-height:1;transform:translate(-50%,-55%)}
+.b42-tr{animation:b42-trn linear infinite;z-index:2}
+.b42-sy{animation:b42-sway2 4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+.b42-sl2{width:70em;height:.5em;margin-left:-35em;background:linear-gradient(90deg,transparent,#fff 50%,transparent);box-shadow:0 0 2em #fff;opacity:0;animation:b42-slh 7s linear infinite;z-index:6}
+.b42-spd{height:.14em;left:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75));opacity:.8;animation:b42-spd linear infinite;z-index:4}
+.b42-bm{top:-2em;width:14em;height:44em;margin-left:-7em;transform-origin:50% 0;clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);background:linear-gradient(to bottom,var(--c),transparent 90%);opacity:.7;animation:b42-bms ease-in-out infinite alternate;z-index:1}
+.b42-gs{bottom:-1em;width:.7em;height:4em;background:var(--c);box-shadow:0 0 1em var(--c);transform-origin:50% 100%;border-radius:.4em;animation:b42-gsw ease-in-out infinite alternate;z-index:4}
+@keyframes b42-isb{from{transform:translateY(-1.2em)}to{transform:translateY(1.2em)}}
+@keyframes b42-trn{from{transform:translateX(-70em)}to{transform:translateX(115em)}}
+@keyframes b42-sway2{from{transform:rotate(-1.6deg)}to{transform:rotate(1.6deg)}}
+@keyframes b42-slh{0%,88%{opacity:0;transform:rotate(var(--r)) scaleX(0)}90%{opacity:1;transform:rotate(var(--r)) scaleX(1)}96%{opacity:.7}100%{opacity:0;transform:rotate(var(--r)) scaleX(1)}}
+@keyframes b42-spd{to{transform:translateX(-160em)}}
+@keyframes b42-bms{from{transform:rotate(-32deg)}to{transform:rotate(32deg)}}
+@keyframes b42-gsw{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+@keyframes b42-spin{to{transform:rotate(360deg)}}
+@keyframes b42-bgf{50%{background-position:100% 100%}}
+@keyframes b42-drift{to{transform:translate(8em,3em) scale(1.15)}}
+@keyframes b42-twk{0%,100%{opacity:.15;transform:scale(.5)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes b42-breathe{0%,100%{transform:scale(.96)}50%{transform:scale(1.06)}}
+@keyframes b42-blink{0%{opacity:1}50%{opacity:.15}}
+@keyframes b42-wvs{to{transform:translateX(-50%)}}
+@keyframes b42-rain{to{transform:translate(-6em,40em)}}
+@keyframes b42-flash{0%,100%{opacity:0}2%{opacity:.7}4%{opacity:.05}6%{opacity:.5}9%{opacity:0}}
+@keyframes b42-bz{0%{opacity:0}4%{opacity:1}7%{opacity:.1}10%{opacity:1}15%,100%{opacity:0}}
+@keyframes b42-fsx{from{left:-14%}to{left:114%}}
+@keyframes b42-fsr{from{left:114%}to{left:-14%}}
+@keyframes b42-bob2{from{transform:translateY(-1em)}to{transform:translateY(1em)}}
+@keyframes b42-fall{0%{opacity:0;transform:translate(0,0) rotate(0)}10%,88%{opacity:1}100%{opacity:0;transform:translate(var(--dx),38em) rotate(300deg)}}
+@keyframes b42-fup{0%{opacity:0;transform:translate(0,0)}10%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-36em) rotate(40deg)}}
+@keyframes b42-dyw{from{transform:translateY(calc(var(--a)*-1))}to{transform:translateY(var(--a))}}
+@keyframes b42-flapl{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(14deg)}}
+@keyframes b42-flapr{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-14deg)}}
+@keyframes b42-eq{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+@keyframes b42-rise2{0%{opacity:0;transform:translate(0,0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-24em) scale(.3)}}
+@keyframes b42-bst{0%{opacity:0;transform:translateX(0)}6%{opacity:1}45%,100%{opacity:0;transform:translateX(9em) scale(.3)}}
+@keyframes b42-swing{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+@keyframes b42-shn{0%,55%{left:-30%}100%{left:130%}}
+@keyframes b42-gfm{to{background-position:0 4em,0 4em}}
+@keyframes b42-glt{0%,100%{opacity:0}30%{opacity:1;transform:translateX(3em)}34%{opacity:0}70%{opacity:1;transform:translateX(-4em)}73%{opacity:0}}
+@keyframes b42-scn{from{top:-15%}to{top:110%}}
+@keyframes b42-sk{0%{opacity:0;transform:rotate(25deg) translateX(0)}4%{opacity:1}18%{opacity:0;transform:rotate(25deg) translateX(40em)}100%{opacity:0}}
+.lk-bcard:not(.b42-vis) .b42-bn *,.pf-banner:not(.b42-vis) .b42-bn *{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){.b42-bn *,.b42-bn *::before,.b42-bn *::after,.b42-bw::before{animation:none!important}}
