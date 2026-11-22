@@ -3,8 +3,8 @@
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
 // import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=63'
-import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=92';
-import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=6';
+import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=93';
+import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=3'; /* 🐉 rồng bay khung avatar (patch -158: rồng CodePen canvas) */
 import { bannerHTML42, initBanners } from './banner-render.js?v=2'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
@@ -106,7 +106,7 @@ export function profileCss() {
   import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=12', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=12'; }
+  try { l.href = new URL('../css/avatar.css?v=13', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=13'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -433,7 +433,7 @@ function renderProfileInto(ov, isPage) {
     if (b.dataset.a === 'rename') { renameFlow(); return; }
     /* 🔄 Đặt lại / 💾 Lưu thay đổi (patch -158): chọn món là áp dụng ngay nên "Lưu" chỉ xác nhận + đẩy đồng bộ; "Đặt lại" khôi phục ngoại hình lúc mở hồ sơ — KHÔNG chuyển sang chế độ sửa dàn rồi mới lưu */
     if (b.dataset.a === 'reset') { if (savedLook) setAv({ ...savedLook }); draw(); import('./dialog.js?v=10').then(m => m.toast('Đã đặt lại ngoại hình ✨')).catch(() => {}); return; }
-    if (b.dataset.a === 'save') { import('./dialog.js?v=10').then(m => m.toast('Đã lưu ✓', 2200)).catch(() => {}); import('./sync.js?v=49').then(m => m.syncNow().catch(() => {})).catch(() => {}); return; }
+    if (b.dataset.a === 'save') { import('./dialog.js?v=10').then(m => m.toast('Đã lưu ✓', 2200)).catch(() => {}); import('./sync.js?v=50').then(m => m.syncNow().catch(() => {})).catch(() => {}); return; }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
     if (b.dataset.a === 'rank') { location.href = rankURL(); return; } /* 🏆 sang trang BXH riêng /xephang/ (patch -150) */
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */

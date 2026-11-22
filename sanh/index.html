@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <!-- patch -130: áp chế độ tối SỚM (trước khi CSS vẽ) để không chớp sáng khi tải trang -->
 <script>try{var t=localStorage.getItem('gumballz-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sảnh chung – GumballZ Boardgame</title>
 <link rel="canonical" href="https://gumballzgames.vercel.app/sanh/">
 <meta name="description" content="Sảnh chung GumballZ Boardgame: tìm phòng công khai để chơi board game cùng người lạ, chat với mọi người.">
@@ -12,7 +12,7 @@
 <meta property="og:description" content="Phòng công khai của mọi game + chat chung. Bấm là vào chơi, không cần cài đặt.">
 <meta property="og:image" content="https://gumballzgames.vercel.app/shared/img/og.jpg?v=4">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=7"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#FFF8EE" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#17122B" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -47,8 +47,8 @@ h1 span{color:var(--ink)}
 @media (max-height:720px){.sub{display:none}h1{font-size:30px}main{gap:8px}} /* màn thấp: gọn phần đầu để ô nhập chat không bị kẹt dưới đáy */
 </style>
 <link rel="stylesheet" href="../shared/ui/shell.css?v=23">
-<link rel="stylesheet" href="../shared/css/footer.css?v=11">
-<link rel="stylesheet" href="../shared/css/topbar.css?v=7">
+<link rel="stylesheet" href="../shared/css/footer.css?v=12">
+<link rel="stylesheet" href="../shared/css/topbar.css?v=8">
 <link rel="stylesheet" href="../shared/css/page-trans.css?v=1">
 </head>
 <body>

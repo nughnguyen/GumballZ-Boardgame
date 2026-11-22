@@ -76,6 +76,10 @@ header.nav.game .links{justify-content:center}
   /* patch -112: trang game không có <main> nên chừa chỗ cho tab dưới bằng padding của body (chỉ trang có màn hình game) */
   body:has(.screen){padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 }
+/* patch -166: mở từ màn hình chính (standalone) + viewport-fit=cover thì nội dung tràn lên
+   vùng status bar — chừa đúng chiều cao notch cho thanh trên. Chỉ áp khi standalone nên
+   duyệt web thường không đổi gì. */
+@media (display-mode: standalone){header.nav{padding-top:env(safe-area-inset-top)}}
 @media (max-width:480px){
   .wm{font-size:20px}
   .nav-in{gap:8px;padding:6px 8px}
