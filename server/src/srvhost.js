@@ -60,6 +60,7 @@ import noituW4 from '../../noitu/words-uts.txt'; /* từ điển mở underthese
 import noituW3 from '../../noitu/words-gumballz.txt'; /* từ riêng GumballZ: tên kỹ năng Tam Quốc Sát */
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js';
 import { clean } from './filter.js';
+import { FIND_GAMES } from './index.js'; /* danh sách game hợp lệ của web (dùng chung với tìm phòng) — goto chỉ nhận game trong này, không hardcode list mới */
 
 /* ============ ⏰ Hẹn giờ "ảo" (nhúng từ server/src/vtimers.js) ============
    Cloudflare tính tiền Durable Object suốt lúc còn hẹn giờ setTimeout đang chờ (phòng không được ngủ). Lõi game có hẹn giờ dài
@@ -442,6 +443,10 @@ export class SrvRoom {
     }
     if (d.t === 'title') { this.resolveTitleClaim(c, d.title); return; } /* 🎖️ tin 'title' thường: chặn trước khi xuống lõi game — phòng srv chỉ tin danh hiệu đã kiểm, không tin id khách tự khai */
     if (d.t === 'join' && !c.own && this.localMode && this.owner) this.owner.send({ t: 'guest', name: c.name }); /* chủ phòng đang chơi với máy trên máy mình: báo có người vào */
+    if (d.t === 'cmd' && d.m === 'goto') { /* 🔀 đổi game trong phòng: chỉ ghế chủ phòng được gửi; khách gửi thì báo lỗi, không phát */
+      if (!c.own) { c.send({ t: 'error', msg: 'Chỉ chủ phòng mới đổi được game.' }); return; }
+      this.goto(c, d.a); return;
+    }
     if (!c.own) { c.emit('data', d); return; }
     // ---- người tạo phòng: ngồi ghế 'host' của lõi game ----
     const h = this.host, hp = h.players.find(p => p.id === 'host');
@@ -453,6 +458,19 @@ export class SrvRoom {
     } else if (this.def.own(h, d, c)) { /* tin của ghế chủ phòng đã vào lõi game */ }
     else if (d.t === 'cmd' && (CMDS[this.meta.game] || []).includes(d.m)) { try { h[d.m](...(Array.isArray(d.a) ? d.a.slice(0, 4) : [])); } catch (e) { c.send({ t: 'error', msg: 'Lệnh không hợp lệ.' }); } }
     else if (d.t === 'close') { if (!this.transfer(c)) this.shut(); } /* người tạo phòng bấm rời: trao quyền cho người kế, không còn ai thì đóng phòng */
+  }
+  // ---- 🔀 đổi game trong phòng: chủ phòng gửi {t:'cmd', m:'goto', a:[{game}]} → cả phòng nhận {t:'__goto', game, code} rồi tự chuyển trang (cùng mã phòng).
+  // Game đích chỉ cần có trong danh sách game của web (FIND_GAMES): có srv thì phòng mới chạy trên máy chủ, không có srv thì trang đích tự mở phòng P2P như thường — máy chủ không chặn.
+  // Cho đổi cả khi đang giữa ván (chủ phòng quyết; ván cũ bỏ dở, không ghi kết quả). Phòng cũ: phát xong mới đóng — đợi 1500ms cho tin tới hết rồi shut() mới cắt socket + xoá kho.
+  goto(c, a) {
+    if (this.gotoSent) return;
+    const g = String((Array.isArray(a) && a[0] && a[0].game) || '').trim().toLowerCase();
+    if (!g || !FIND_GAMES.includes(g)) { c.send({ t: 'error', msg: 'Game này chưa có, chọn game khác nhé.' }); return; }
+    if (g === this.meta.game) { c.send({ t: 'error', msg: 'Đang ở game này rồi.' }); return; }
+    this.gotoSent = true;
+    const m = { t: '__goto', game: g, code: this.code };
+    for (const x of this.conns.values()) if (x.open) x.send(m);
+    setTimeout(() => { try { this.shut(); } catch (e) {} }, 1500); /* < LONG (4000ms) nên là hẹn giờ thật, không qua hẹn giờ ảo */
   }
   // ---- 🤖 chơi một mình với máy: ván chạy trên máy người tạo phòng (máy chủ được ngủ), phòng ở đây chỉ giữ mã + phòng chờ ----
   goLocal(c) {

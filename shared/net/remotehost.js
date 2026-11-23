@@ -38,6 +38,10 @@ export class RemoteBase {
         if (msg.t === 'local') { const f = this._localWait; this._localWait = null; f && f(msg); return; }
         if (msg.t === 'guest') { if (this.local) { this.backToServer(true); import('../ui/dialog.js?v=10').then(d => d.toast(`👋 ${String(msg.name || 'Có người').slice(0, 20)} vừa vào phòng – ván chuyển lên máy chủ để bạn ấy xem cùng, ván sau chơi chung nha`, 6000)).catch(() => {}); } return; } /* có người vào: đẩy nguyên ván đang chơi lên máy chủ */
         if ((this.local || this._resume) && (msg.t === 'lobby' || msg.t === 'state')) { if (msg.t === 'lobby') this.n = (Array.isArray(msg.info) ? msg.info : (msg.info && msg.info.players) || []).filter(p => !p.isBot).length || 1; return; } /* đang chơi với máy trên máy mình: phòng trên máy chủ chỉ giữ chỗ */
+        if (msg.t === '__goto') { /* 🔀 cả phòng chuyển game: game xử lý trước (o.onMsg); chưa xử lý thì báo khung chung bằng đúng chữ ký (game, code) như đường simplenet — KHÔNG truyền nguyên msg (gamekit.onGoto(g, code) sẽ hiện "[object Object]"); KHÔNG tự chuyển trang ở đây — phần chuyển trang ở simplenet/gamekit */
+          if (o.onMsg && o.onMsg(msg)) return;
+          if (this.h.onGoto) { try { this.h.onGoto(msg.game, msg.code); } catch (e) {} }
+          return; }
         if (o.onMsg && o.onMsg(msg)) return;
         if (msg.t === 'lobby') { this.n = (Array.isArray(msg.info) ? msg.info : (msg.info && msg.info.players) || []).filter(p => !p.isBot).length || 1; this.h.onLobby(msg.info, msg.code, msg.started); }
         else if (msg.t === 'state') this.h.onState(msg.view, msg.tmo);
@@ -79,6 +83,7 @@ export class RemoteBase {
     if (!keep || !snap) (this.o.raw || this.h).onState(null);
   }
   send(msg) { this.room.send(msg); }
+  goto(game) { this.room.send({ t: 'cmd', m: 'goto', a: [{ game: String(game || '').trim().toLowerCase() }] }); } /* 🔀 chủ phòng đổi game: máy chủ phát {t:'__goto'} cho cả phòng (cùng mã phòng) */
   announce(open) { try { announceRoom({ game: this.game, code: this.code, k: this.pubK, host: this.name || 'Ai đó', n: this.n, open, lv: myLevel() }); } catch (e) {} }
   setPublic(on) { this.pub = !!on; clearInterval(this.pubT); if (this.pub) { this.announce(true); this.pubT = setInterval(() => { if (!this.dead) this.announce(true); }, 60000); } else this.announce(false); }
   destroy() { if (this.local) { try { this.local.destroy(); } catch (e) {} this.local = null; } this.dead = true; clearInterval(this.pubT); if (this.pub) { this.pub = false; this.announce(false); } try { if (window.__gumballzHost === this || window.__gumballzHost === this._p) window.__gumballzHost = null; } catch (e) {} this.room.destroy(); }

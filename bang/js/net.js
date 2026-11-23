@@ -4,7 +4,7 @@ export const TURN_TIME = 60, PROMPT_TIME = 20; // giây: hết giờ thì máy t
 import { botAction } from './bot.js?v=7';
 import { S } from './fx.js?v=9';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
-import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
+import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=2';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
 import { watch } from '../../shared/ui/stats.js?v=95';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';

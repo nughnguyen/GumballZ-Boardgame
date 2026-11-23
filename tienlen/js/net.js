@@ -2,7 +2,7 @@
 import { createGame, applyAction, viewFor, current, VE_HEO, DEFAULT_OPTS, BETS, TURN_TIMES, START_CHIPS } from './engine.js?v=5';
 import { botAction, LEVELS } from './bot.js?v=7';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
-import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
+import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=2';
 import { specBanner } from '../../shared/ui/spectate.js?v=7';
 import { watch } from '../../shared/ui/stats.js?v=95';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=5';

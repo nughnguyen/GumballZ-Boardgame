@@ -1,9 +1,9 @@
 // 🐾 Hội Săn Quái – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { DEF } from './def.js?v=2';
 import * as E from './engine.js?v=2';
 import { CLS, CLS_KEYS, HEROES, LEADERS, ITEMS, MAGIC, MODS, MONSTERS, ALL, BEAST, EFF, PEN, typeName, descOf } from './cards.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);

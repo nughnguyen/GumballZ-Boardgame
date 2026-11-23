@@ -1,9 +1,9 @@
 // 🔗 Nối từ – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js. Kho từ: words.txt (Hồ Ngọc Đức, GPL – xem credits/).
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { DEF } from './def.js?v=16';
 import * as E from './engine.js?v=16';
 import { botAction } from './bot.js?v=16';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { API } from '../../shared/net/api.js?v=29';
 import { humanToken } from '../../shared/ui/turnstile.js?v=1';
 /* 🗳️ Từ vừa được cả bàn bỏ phiếu nhận: báo lên máy chủ để vào kho từ chờ duyệt (POST /noitu/voted kèm mã Turnstile) */

@@ -1,7 +1,7 @@
 // 🎯 Thật hay Thách – giao diện. Luật ở engine.js, bộ câu hỏi ở cards.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import * as E from './engine.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { API } from '../../shared/net/api.js?v=29';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=10';
 

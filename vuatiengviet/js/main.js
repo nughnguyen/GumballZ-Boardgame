@@ -1,9 +1,9 @@
 // 👑 Vua Tiếng Việt – giao diện. Luật ở engine.js, kho từ ở words.js + proverbs.js, phòng/mạng dùng shared/net/simplenet.js.
 // ?fast=1: chế độ test — vòng 3s, mở ô mỗi 2s (engine opt `fast`, không hiện ở phòng chờ).
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=10';
 
 const FAST = new URLSearchParams(location.search).has('fast');

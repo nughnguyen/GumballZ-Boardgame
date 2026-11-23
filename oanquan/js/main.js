@@ -13,8 +13,8 @@ import { loadSprites } from './sprites.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { record, recordEvent } from '../../shared/ui/stats.js?v=95';
 import { toast } from '../../shared/ui/dialog.js?v=10';
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const HINT_TEXT = '✋ Nhấn ô bên trái / phải để rải • Nhấn lại ô này để đặt xuống';

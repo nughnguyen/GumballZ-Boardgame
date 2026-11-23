@@ -13,7 +13,7 @@ import { RoomHost, RoomClient, token, session } from './room.js?v=54';
 import { specBanner } from '../ui/spectate.js?v=8';
 import { watch } from '../ui/stats.js?v=95';
 export { session };
-import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=1';
+import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=2';
 import { titleById, myTitleId } from '../titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */
 const HB_MS = 2500, STALL_MS = 8000, AWAY_MS = 8000;
 
@@ -22,6 +22,8 @@ export function makeNet(cfg) {
   const playerData = (data, name, local = false, incoming = false) => { try { const d = incoming ? cfg.cleanPlayerData && cfg.cleanPlayerData(data) : cfg.getPlayerData && cfg.getPlayerData(name, local); return d && typeof d === 'object' ? d : null; } catch (e) { return null; } };
   const MAX = cfg.max || 8, MIN = cfg.min || 2;
   const BOT_NAMES = cfg.botNames || ['Kẹo', 'Xôi', 'Gấu Bông', 'Đậu', 'Nấm', 'Sữa', 'Mochi', 'Pudding'];
+  /* Đổi game cả phòng (patch goto): slug thư mục game hợp lệ + khác game hiện tại (chặn '../' để khỏi thoát khỏi thư mục game). */
+  const GOTO_OK = g => typeof g === 'string' && /^[a-z0-9][a-z0-9-]{0,39}$/.test(g) && g !== GAME;
   const loadSnapshot = () => { try { const d = JSON.parse(localStorage.getItem(SNAP)); return d && Date.now() - d.ts < 3 * 3600e3 ? d : null; } catch (e) { return null; } };
 
   class Host {
@@ -115,6 +117,20 @@ export function makeNet(cfg) {
     heartbeat() { if (this.dead) return; for (const p of this.players) if (p.conn) try { p.conn.send({ t: 'ping', hs: this.hs, bc: p.bc || 0, started: !!this.state }); } catch (e) {} }
     destroy() { this.dead = true; clearInterval(this.hb); clearTimeout(this.pruneT); this.clearTimers(); clearTimeout(this.snapT); this.room && this.room.destroy(); }
     leave() { this.destroy(); try { localStorage.removeItem(SNAP); } catch (e) {} session.clear(GAME); }
+    gotoGame(game) {
+      // Đổi game cả phòng: chỉ chủ phòng gọi (UI hỏi xác nhận trước khi gọi). Ván đang chạy (nếu có) thì bỏ, không hỏi lại ở đây.
+      // 1) báo cho mọi người đang nối để họ chuyển theo · 2) để lại snapshot cho game đích (phòng chờ, cùng mã, cùng người) · 3) tự chuyển trang.
+      if (this.dead || !GOTO_OK(game)) return false;
+      const code = this.code;
+      for (const p of this.players) if (p.conn) try { p.conn.send({ t: '__goto', game, code }); } catch (e) {}
+      this.clearTimers(); this.state = null;
+      // Người thừa (vượt MAX ghế của game đích) vẫn giữ trong players — game đích tự xếp họ thành người xem (seated() chỉ lấy MAX ghế đầu).
+      // Bot mang theo nguyên tên + level trong snapshot; game đích không có bot thì tự lọc khi dựng bàn.
+      try { localStorage.setItem('gumballz-hostsnap-' + game, JSON.stringify({ ts: Date.now(), code, offline: !!this.offline, opts: {}, players: this.players.map(({ conn, ...p }) => p), state: null })); } catch (e) {}
+      session.save(game, { role: 'host', code });
+      try { location.href = '../' + game + '/'; } catch (e) {}
+      return true;
+    }
   }
 
   // 🖥️ Phòng online do MÁY CHỦ giữ ván (cfg.srv): máy người tạo phòng chỉ là khách ngồi ghế 'host', lệnh phòng chờ gửi lên máy chủ.
@@ -123,8 +139,12 @@ export function makeNet(cfg) {
     constructor(name, handlers, ses = null) {
       const h = watch(GAME, handlers, () => 'host');
       super({ raw: handlers, local: (hh, r) => new Host(name, hh, true, r), game: GAME, ns: NS, prefix: PREFIX, h, name, code: ses && ses.code, ok: ses && ses.ok, cmds: ['addBot', 'removePlayer', 'setOpt', 'start', 'restart', 'addLocal'],
-        onMsg: msg => { if (msg.t === 'lobby' && msg.info) { this.opts = msg.info.opts || this.opts; this.players = msg.info.players || []; } return false; } });
+        onMsg: msg => { if (msg.t === '__goto' && GOTO_OK(msg.game)) { this.h.onGoto && this.h.onGoto(msg.game, msg.code || this.code); return true; } if (msg.t === 'lobby' && msg.info) { this.opts = msg.info.opts || this.opts; this.players = msg.info.players || []; } return false; } });
       this.opts = { ...(cfg.defaults || {}) }; this.players = [];
+    }
+    gotoGame(game) { /* 🔀 đổi game (phòng srv): gửi đúng lệnh máy chủ chờ {t:'cmd', m:'goto', a:[{game}]} — KHÔNG qua cmds (cmds gửi tên lệnh y hệt tên hàm, máy chủ không có 'gotoGame') */
+      if (!GOTO_OK(game)) return false;
+      this.goto(game); return true;
     }
     act(id, a) { this.send({ t: 'action', a }); }
     actAs(id, a) { if (id === 'host') this.act(id, a); else this.send({ t: 'actAs', id, a }); }
@@ -155,6 +175,9 @@ export function makeNet(cfg) {
       if (msg.t === 'state') { specBanner(!!(msg.view && msg.view.spec)); if (msg.hs && msg.hs === this.hs && msg.bc <= this.bc) return; if (msg.hs) { this.hs = msg.hs; this.bc = msg.bc; } this.h.onState(msg.view); }
       else if (msg.t === 'ping') { if (msg.started && (msg.hs !== this.hs || msg.bc > this.bc)) this.room.send({ t: 'sync' }); }
       else if (msg.t === 'lobby') this.h.onLobby(msg.info, msg.code, msg.started);
+      else if (msg.t === '__goto') { // chủ phòng đổi game: ghi session cho game đích rồi báo ra handler để UI hiện thông báo + chuyển trang (không tự navigate ở đây)
+        if (GOTO_OK(msg.game)) { session.save(msg.game, { role: 'client', code: msg.code || this.code, name: this.name }); this.h.onGoto && this.h.onGoto(msg.game, msg.code || this.code); }
+      }
       else if (msg.t === 'error') this.h.onError(msg.msg);
       else if (msg.t === 'kicked') { this.h.onError('Bạn đã bị mời ra khỏi phòng.'); this.leave(); this.h.onKicked && this.h.onKicked(); }
     }

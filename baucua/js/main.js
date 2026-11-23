@@ -1,9 +1,9 @@
 // 🎲 Bầu cua tôm cá – giao diện. Luật ở engine.js, bot ở bot.js, phòng/mạng dùng shared/net/simplenet.js.
-import { makeNet } from '../../shared/net/simplenet.js?v=52';
+import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 
 const NET = makeNet(DEF);

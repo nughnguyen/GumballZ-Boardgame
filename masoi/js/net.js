@@ -17,7 +17,7 @@ async function aiLine(s, b, hint, code) {
   } catch (e) { aiOff = Date.now() + 60e3; }
   return null;
 }
-import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
+import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=2';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
 import { watch } from '../../shared/ui/stats.js?v=95';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';

@@ -7,6 +7,7 @@ import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../net/joinlink.
 import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứng (gumballz-vol-*) */
 import { netStatus } from './status.js';
 import { confirmBox } from './dialog.js?v=10';
+import { showGotoNotice, mountGotoButtons, syncGotoButtons } from './goto-picker.js?v=1'; /* 🔄 Đổi game trong phòng (patch goto): bảng chọn + nút, chỉ chủ phòng thấy */
 import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */
 import { paintTitles, ensureTitleCSS } from './titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 ensureSkCSS(); ensureTitleCSS();
@@ -21,8 +22,9 @@ export const avatar = (name, size = 36) => { let h = 0; for (const ch of name) h
 export function gameKit({ game, net: N, onLobby, onState, offline }) {
   const { Host, Client, Remote, srvMode, loadSnapshot, session } = N;
   const ui = { net: null, isHost: false, myId: null, lobby: null, view: null, code: '' };
+  ui.game = game; /* 🔄 tên thư mục game hiện tại — goto-picker dùng để loại game đang chơi khỏi danh sách */
   const skelLobby = () => { const pl = $('#plist') || $('#players'); if (!pl || pl.querySelector('.sk') || pl.children.length) return; pl.innerHTML = skPlayers(3, pl.tagName === 'UL' ? 'li' : 'div'); }; /* 💀 skeleton danh sách người chơi: hiện tới khi game vẽ lại #plist/#players */
-  ui.show = id => { $$('.screen').forEach(s => s.classList.toggle('active', s.id === id)); if (id === 'screen-lobby') skelLobby(); };
+  ui.show = id => { $$('.screen').forEach(s => s.classList.toggle('active', s.id === id)); if (id === 'screen-lobby') skelLobby(); syncGotoButtons(ui); /* 🔄 nút đổi game chỉ hiện đúng màn + đúng chủ phòng */ };
   let toastT; ui.toast = m => { const t = $('#toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); };
   ui.openModal = (html, cls = '') => { $('#modal-box').className = 'modal-box ' + cls; $('#modal-box').innerHTML = html; $('#modal').classList.add('open'); };
   ui.closeModal = () => $('#modal').classList.remove('open');
@@ -50,6 +52,16 @@ export function gameKit({ game, net: N, onLobby, onState, offline }) {
       onState && onState(v, prev, ui); paintGameTitles(v);
     },
     onError(m) { ui.toast(m); }, onJoined(id) { ui.myId = id; }, onDisconnect() {}, onKicked() { ui.leave(); },
+    onGoto(g, code) {
+      if (typeof g !== 'string' || !/^[a-z0-9][a-z0-9-]{0,39}$/.test(g) || g === game) return; /* chặn tin __goto lạ / về đúng game hiện tại */
+      if (ui.isHost) { /* chủ phòng srv: nhận __goto từ máy chủ → lưu phiên srv cho game đích rồi tự chuyển trang (chủ P2P đã tự chuyển trong Host.gotoGame) */
+        const raw = ui.net && ui.net.raw;
+        if (raw && raw.remote) { session.save(g, { role: 'srv', code: code || ui.code, ok: raw.ok, name: raw.name || ls.get('gumballz-name') || 'Bạn' }); try { location.href = '../' + g + '/'; } catch (e) {} }
+        return;
+      }
+      showGotoNotice(ui, g, code);
+      setTimeout(() => { try { location.href = '../' + g + '/'; } catch (e) {} }, 1200); /* để khách kịp đọc bảng "đang chuyển phòng" rồi tự sang game mới (cùng mã phòng) */
+    },
     onNet(t, k, retry) { netStatus(t, k, retry); },
   };
   // Host bọc lại để giao diện gọi thống nhất: net.act(id, a)
@@ -94,6 +106,7 @@ export function gameKit({ game, net: N, onLobby, onState, offline }) {
   if (name2) name2.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); const b = $('#btn-start'); if (b && b.offsetParent !== null && !b.disabled) b.click(); } });
   ui.leave = () => { ui.gone = true; if (ui.net) ui.net.leave(); ui.net = null; ui.view = null; ui.lobby = null; ui.closeModal(); ui.show('screen-home'); onState && onState(null, null, ui); };
   $('#btn-leave-lobby').onclick = ui.leave;
+  mountGotoButtons(ui); /* 🔄 nút "Đổi game" ở phòng chờ + nút nổi trong ván (chỉ chủ phòng thấy) */
   if ($('#btn-leave')) $('#btn-leave').onclick = async () => {
     const r = await confirmBox(ui.isHost ? 'Bạn là chủ phòng: rời đi là cả phòng giải tán.' : 'Bạn có thể vào lại bằng mã phòng.', { title: 'Rời ván?', ok: 'Rời ván', cancel: 'Ở lại', danger: true });
     if (r) ui.leave();
