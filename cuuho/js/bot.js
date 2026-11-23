@@ -1,5 +1,5 @@
 // 🤖 Máy cho Đội Cứu Hộ – game hợp tác nên bài ai cũng công khai; máy chỉ dùng những gì cả bàn đều thấy (không nhìn thứ tự chồng thẻ).
-import * as E from './engine.js?v=2';
+import * as E from './engine.js?v=3';
 const { COLORS, CITY_COLOR, CITY_IDS, NB } = E;
 
 /* độ nguy của một thành phố: điểm nguy nhiều (sắp vỡ đê) thì rất gấp */

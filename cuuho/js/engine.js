@@ -46,6 +46,8 @@ export const CHOICES = { epi: [4, 5, 6] };
 export const optOk = (k, v) => k in CHOICES && CHOICES[k].includes(v);
 
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* RNG gieo từ seed (patch chơi lại ván cũ): cùng seed → cùng dãy số → cùng bài chia ban đầu. */
+export function mulberry32(seed) { let x = (Math.floor(seed) || 0) >>> 0; return () => { x = (x + 0x6D2B79F5) >>> 0; let t = x; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 export const isCity = c => typeof c === 'string' && !!CITY_COLOR[c];
 export const isEvent = c => typeof c === 'string' && c.startsWith('ev:');
 export const cardColor = c => CITY_COLOR[c] || null;
@@ -53,8 +55,13 @@ export const cardColor = c => CITY_COLOR[c] || null;
 export function createGame(players, opts = {}, rnd = Math.random) {
   if (typeof rnd !== 'function') rnd = Math.random;
   const o = { ...DEFAULT_OPTS, ...opts }; if (!CHOICES.epi.includes(o.epi)) o.epi = 4;
+  /* seed ván (patch chơi lại ván cũ): có seed thì mọi lần xào bài đều chạy bằng mulberry32(seed)
+     → cùng seed + cùng người chơi + cùng độ khó = cùng bài chia ban đầu, chơi lại được y hệt.
+     Không đưa seed thì sinh ngẫu nhiên rồi cũng dùng nó, để ván nào cũng tái hiện được. */
+  const seed = Number.isFinite(+o.seed) ? Math.floor(+o.seed) : Math.floor(Math.random() * 1e9);
+  rnd = mulberry32(seed);
   const ps = players.slice(0, 4), roles = shuffle(ROLES.slice(), rnd);
-  const s = { gid: Math.random().toString(36).slice(2, 8), seq: 0, phase: 'play', opts: o,
+  const s = { gid: Math.random().toString(36).slice(2, 8), seed, seq: 0, phase: 'play', opts: o,
     players: ps.map((p, i) => ({ id: p.id, name: p.name, isBot: !!p.isBot, role: roles[i], at: START, hand: [] })),
     cubes: {}, stations: [START], cured: {}, gone: {}, outbreaks: 0, rateI: 0,
     infDeck: shuffle(CITY_IDS.slice(), rnd), infDisc: [], pDeck: [], pDisc: [],
@@ -147,7 +154,33 @@ export function moveWays(s, p, to) {
   return out;
 }
 
+/* ---------- Hoàn tác (patch undo/replay) ----------
+   Lịch sử nằm NGOÀI state (WeakMap theo object state), vì state được JSON hoá vào
+   snapshot phòng (localStorage / máy chủ) mỗi lần broadcast — nhét ~60 ảnh chụp
+   vào state sẽ phình snapshot ~60 lần. Hồi phục ván từ snapshot thì lịch sử trống
+   (chỉ mất hoàn tác, ván vẫn chơi tiếp được). Mỗi snapshot là ảnh chụp toàn bộ
+   state TRƯỚC một nước đi thành công; hoàn tác quay về nước của chính người bấm
+   gần nhất (bỏ qua các nước máy chen giữa), nên 1 lần bấm = lùi đúng 1 nước của mình. */
+const HIST = new WeakMap();
+const snapOf = s => JSON.parse(JSON.stringify(s));
+const histOf = s => { let h = HIST.get(s); if (!h) { h = []; HIST.set(s, h); } return h; };
+export const canUndo = (s, pid) => { const i = (s.players || []).findIndex(p => p.id === pid); if (i < 0) return false; return (HIST.get(s) || []).some(x => x.turn === i && x.step === 'act'); };
+export function undoLast(s, pid) {
+  const i = (s.players || []).findIndex(p => p.id === pid); if (i < 0) return { ok: false, reason: 'Bạn đang xem.' };
+  const h = HIST.get(s) || []; let snap = null;
+  while (h.length) { const x = h.pop(); if (x.turn === i && x.step === 'act') { snap = x; break; } }
+  if (!snap) return { ok: false, reason: 'Không còn nước để hoàn tác.' };
+  for (const k of Object.keys(s)) delete s[k]; Object.assign(s, snap); s.seq++;
+  say(s, `↩️ ${s.players[i].name} hoàn tác.`);
+  return { ok: true };
+}
 export function applyAction(s, pid, a) {
+  if (a && a.type === 'undo') return undoLast(s, pid);
+  const snap = snapOf(s); const r = applyActionInner(s, pid, a);
+  if (r && r.ok) { const h = histOf(s); h.push(snap); if (h.length > 60) h.shift(); }
+  return r;
+}
+function applyActionInner(s, pid, a) {
   if (s.phase !== 'play' || !a) return { ok: false, reason: 'Ván đã xong.' };
   const p = pl(s, pid); if (!p) return { ok: false, reason: 'Bạn đang xem.' };
   if (a.type === 'event') return playEvent(s, p, a);
@@ -230,7 +263,7 @@ export function worstCard(s, p) {
 export const actors = s => (s.phase !== 'play' ? [] : [cur(s).id]);
 export function viewFor(s, pid) {
   /* game hợp tác: bài ai cũng thấy; chỉ giấu thứ tự chồng thẻ */
-  return { gid: s.gid, seq: s.seq, phase: s.phase, opts: s.opts, players: s.players, cubes: s.cubes, stations: s.stations, cured: s.cured, gone: s.gone,
+  return { gid: s.gid, seq: s.seq, phase: s.phase, opts: s.opts, seed: s.seed != null ? s.seed : null, canUndo: canUndo(s, pid), players: s.players, cubes: s.cubes, stations: s.stations, cured: s.cured, gone: s.gone,
     outbreaks: s.outbreaks, rate: RATE[s.rateI], rateI: s.rateI, infDisc: s.infDisc, pDeckN: s.pDeck.length, epiLeft: s.pDeck.filter(c => c === 'epi').length,
     cur: s.phase === 'play' ? cur(s).id : null, left: s.left, step: s.step, calm: s.calm, log: s.log.slice(-8), last: s.last, result: s.result, burst: s.burst, hits: s.hits || [], lastEpi: s.lastEpi || null,
     spec: !s.players.some(p => p.id === pid) };

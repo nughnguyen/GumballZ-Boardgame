@@ -1,7 +1,7 @@
 // 🚁 Đội Cứu Hộ – giao diện. Luật ở engine.js, máy ở bot.js, phòng/mạng dùng shared/net/simplenet.js. Bản đồ dùng chung hình Việt Nam của Tàu Xuyên Việt.
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
-import { DEF } from './def.js?v=2';
-import * as E from './engine.js?v=3';
+import { DEF } from './def.js?v=3';
+import * as E from './engine.js?v=4';
 import { CITIES, ROUTES } from '../../xuyenviet/js/map.js?v=4';
 import { LAND, LBL, MAP_W, MAP_H } from '../../xuyenviet/js/geo.js?v=1';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
@@ -78,7 +78,7 @@ function draw(v) {
   if (v.log.length) msg += `<br><small>${esc(v.log[v.log.length - 1])}</small>`;
   $('#msg').innerHTML = msg;
   let acts = '';
-  if (v.phase === 'ended') acts = `<button class="btn" data-a="log">📜 Nhật ký</button>` + (ui.isHost ? '<button class="btn pri" data-a="again">🔁 Ván nữa</button><button class="btn" data-a="lobby">Về phòng chờ</button>' : '');
+  if (v.phase === 'ended') acts = `<button class="btn" data-a="log">📜 Nhật ký</button>` + (!v.spec && v.canUndo ? `<button class="btn" data-a="undo">↩️ Hoàn tác</button>` : '') + (ui.isHost ? '<button class="btn pri" data-a="again">🔁 Ván nữa</button>' + (v.seed != null ? '<button class="btn" data-a="replay">🔂 Chơi lại ván cũ</button>' : '') + '<button class="btn" data-a="lobby">Về phòng chờ</button>' : '');
   else if (mine) {
     const here = v.cubes[me.at], cubes = COLORS.filter(c => here[c] > 0), sta = v.stations.includes(me.at);
     const cureC = sta ? COLORS.filter(c => !v.cured[c] && me.hand.filter(x => CITY_COLOR[x] === c).length >= E.curePrice(me)) : [];
@@ -90,7 +90,7 @@ function draw(v) {
       + `<button class="btn" data-a="pass">⏭️ Xong lượt</button>`;
   }
   if (v.phase === 'play' && !v.spec && me && me.hand.some(E.isEvent)) acts += `<button class="btn ev" data-a="event">✨ Thẻ đặc biệt</button>`;
-  if (v.phase === 'play') acts += `<button class="btn" data-a="log">📜</button>`;
+  if (v.phase === 'play') acts += `<button class="btn" data-a="log">📜</button>` + (!v.spec && v.canUndo ? `<button class="btn" data-a="undo">↩️ Hoàn tác</button>` : '');
   $('#acts').innerHTML = acts;
   $('#hand').innerHTML = !me ? '' : `<span class="lbl">Bài<br>của bạn</span>` + me.hand.map((c, i) => cardHTML(c, `data-card="${i}"`)).join('');
   if (v.step === 'discard' && v.cur === ui.myId) openDiscard(v); else if ($('#modal-box').dataset.k === 'discard') ui.closeModal();
@@ -131,6 +131,8 @@ function useEvent(ev) {
 $('#acts').addEventListener('click', e => {
   const b = e.target.closest('button'), v = ui.view; if (!b || !v || b.disabled) return; const a = b.dataset.a, me = meP(v);
   if (a === 'again' && ui.isHost) return ui.net.raw.start(); if (a === 'lobby' && ui.isHost) return ui.net.raw.restart();
+  if (a === 'replay' && ui.isHost && v.seed != null) return ui.net.raw.start({ seed: v.seed }); /* chơi lại đúng ván cũ: cùng seed → cùng bài chia ban đầu */
+  if (a === 'undo') return ui.act({ type: 'undo' });
   if (a === 'log') { ui.openModal(`<h2>📜 Nhật ký</h2><div class="log">${v.log.slice().reverse().map(x => `<p>${esc(x)}</p>`).join('')}</div><div class="btns"><button class="btn" id="m-close">Đóng</button></div>`); $('#m-close').onclick = ui.closeModal; return; }
   if (a === 'event') return pick('✨ Dùng thẻ đặc biệt', me.hand.filter(E.isEvent).map(c => ({ html: `${EVENT_ICON[c.slice(3)]} <b>${EVENT_NAME[c.slice(3)]}</b><br><small>${EVENT_DO[c.slice(3)]}</small>`, val: c.slice(3) })), useEvent);
   if (a === 'pass') return ui.act({ type: 'pass' });
@@ -182,6 +184,7 @@ function openGuide() {
     <h3>Hết 4 việc</h3><ul><li>Bốc 2 thẻ cứu hộ. Gặp ⚠️ <b>Siêu thiên tai</b>: mức thiên tai tăng, một thành phố bị 3 điểm nguy, và các nơi vừa bị sẽ dễ bị lại.</li>
     <li>Rồi vài thành phố (số 🌧️) bị thêm 1 điểm nguy. Nơi đã có 3 mà bị thêm thì <b>💥 vỡ đê</b>: lan sang mọi thành phố kề.</li><li>Tay giữ tối đa 7 thẻ.</li></ul>
     <h3>Vai trò</h3><ul>${E.ROLES.map(r => `<li>${ROLE_ICON[r]} <b>${ROLE_NAME[r]}</b>: ${esc(ROLE_DO[r])}</li>`).join('')}</ul>
+    <p>↩️ <b>Hoàn tác</b>: bấm để quay lại nước trước của mình (kể cả nước máy vừa đi sau đó). 🔂 <b>Chơi lại ván cũ</b> (màn hình kết thúc, chủ phòng bấm): chơi lại đúng ván đó, bài chia ban đầu y hệt.</p>
     <h3>Thẻ đặc biệt ✨ (dùng lúc nào cũng được, không tốn việc)</h3><ul>${E.EVENTS.map(x => `<li>${EVENT_ICON[x]} <b>${EVENT_NAME[x]}</b>: ${esc(EVENT_DO[x])}</li>`).join('')}</ul>
     <div class="btns"><button class="btn" id="m-close">Đã hiểu</button></div></div>`);
   $('#m-close').onclick = ui.closeModal;
