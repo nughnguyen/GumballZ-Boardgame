@@ -110,6 +110,13 @@ $('#btn-join').onclick = () => {
   net = new Client(code, myName(), handlers); isHost = false; $('#code-box').style.display = '';
 };
 $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
+/* inputfix: Enter trong ô tên thì vào phòng (nếu đã gõ đủ mã) hoặc chơi với máy — trước đây Enter không làm gì. */
+$('#name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || e.isComposing) return; e.preventDefault();
+  const jc = $('#join-code');
+  if (jc && jc.offsetParent !== null && jc.value.trim().length >= 5) { $('#btn-join').click(); return; }
+  $('#btn-offline').click();
+});
 $('#join-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
 // link mời ?room=MÃ (shared/net/joinlink.js): mở link là vào thẳng phòng
 const qcode = linkCode(); if (qcode) $('#join-code').value = qcode;

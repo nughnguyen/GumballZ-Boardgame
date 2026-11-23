@@ -55,6 +55,19 @@ $('#btn-start-local').onclick = () => {
   try { localStorage.setItem('gumballz-banbong-p2', p2name); } catch (e) {}
   mode = 'pvp'; ui.startHost(true);
 };
+/* inputfix: Enter trong ô tên người chơi 2 thì bắt đầu chơi chung máy (trước đây không làm gì) */
+$('#inp-p2name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-start-local').click(); });
+/* inputfix: Enter trong ô tên = hành động của hàng đang mở, chưa mở hàng nào thì chơi đơn */
+$('#name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.stopImmediatePropagation(); /* gamekit cũng gắn Enter cho #name — chỉ chạy handler này */
+  const vis = id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; };
+  if (vis('local-row')) { $('#btn-start-local').click(); return; }
+  if (vis('online-row')) { const c = $('#join-code'); if (c.value.trim().length >= 5) $('#btn-join').click(); else $('#btn-create').click(); return; }
+  if (vis('bot-row')) { $('#btn-start-bot').click(); return; }
+  if (vis('solo-row')) { $('#btn-start-solo').click(); return; }
+  $('#btn-start-solo').click();
+});
 
 /* ---------- phòng chờ ---------- */
 function needCount() {

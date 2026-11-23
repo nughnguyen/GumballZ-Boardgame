@@ -9,6 +9,7 @@
 <meta property="og:image" content="../shared/img/og/banbong.jpg">
 <link rel="stylesheet" href="../shared/ui/gamekit.css?v=7">
 <link rel="stylesheet" href="../shared/ui/shell.css?v=23">
+<link rel="stylesheet" href="../shared/css/input-ui.css?v=1">
 <link rel="stylesheet" href="../shared/css/topbar.css?v=8">
 <link rel="stylesheet" href="../shared/css/footer.css?v=12">
 <link rel="stylesheet" href="css/banbong.css?v=1">
@@ -32,7 +33,7 @@
       <p class="tagline">Đỡ bóng, phá gạch — đừng để bóng rơi!</p>
       <div class="field">
         <label for="name">Tên của bạn</label>
-        <input id="name" type="text" maxlength="20" placeholder="Nhập tên...">
+        <input id="name" type="text" maxlength="16" placeholder="Nhập tên...">
       </div>
       <div class="btns">
         <button class="btn big" id="btn-solo">🎯 Chơi đơn</button>
@@ -53,12 +54,12 @@
       </div>
       <div id="online-row" class="row" style="display:none">
         <button class="btn" id="btn-create">➕ Tạo phòng</button>
-        <input id="join-code" type="text" maxlength="6" placeholder="Mã phòng">
+        <input id="join-code" type="text" maxlength="5" placeholder="Mã phòng" autocapitalize="characters">
         <button class="btn" id="btn-join">🚪 Vào phòng</button>
       </div>
       <div id="local-row" class="row" style="display:none">
         <label for="inp-p2name">Tên người chơi 2</label>
-        <input id="inp-p2name" type="text" maxlength="20" placeholder="Người chơi 2">
+        <input id="inp-p2name" type="text" maxlength="16" placeholder="Người chơi 2">
         <button class="btn" id="btn-start-local">▶ Chơi chung máy</button>
       </div>
       <div id="room-box" class="row" style="display:none"></div>
@@ -106,6 +107,7 @@
   <footer class="gmf"></footer>
 </div>
 <div id="modal"><div id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
 <script type="module" src="js/main.js?v=1"></script>
 </body>
 </html>

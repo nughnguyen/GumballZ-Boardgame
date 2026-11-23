@@ -23,7 +23,7 @@ export function gameKit({ game, net: N, onLobby, onState, offline }) {
   const ui = { net: null, isHost: false, myId: null, lobby: null, view: null, code: '' };
   const skelLobby = () => { const pl = $('#plist') || $('#players'); if (!pl || pl.querySelector('.sk') || pl.children.length) return; pl.innerHTML = skPlayers(3, pl.tagName === 'UL' ? 'li' : 'div'); }; /* 💀 skeleton danh sách người chơi: hiện tới khi game vẽ lại #plist/#players */
   ui.show = id => { $$('.screen').forEach(s => s.classList.toggle('active', s.id === id)); if (id === 'screen-lobby') skelLobby(); };
-  let toastT; ui.toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); };
+  let toastT; ui.toast = m => { const t = $('#toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); };
   ui.openModal = (html, cls = '') => { $('#modal-box').className = 'modal-box ' + cls; $('#modal-box').innerHTML = html; $('#modal').classList.add('open'); };
   ui.closeModal = () => $('#modal').classList.remove('open');
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && !$('#modal-box').classList.contains('lock')) ui.closeModal(); });
@@ -72,7 +72,26 @@ export function gameKit({ game, net: N, onLobby, onState, offline }) {
   $('#btn-create').onclick = () => startHost(false);
   if ($('#btn-offline')) $('#btn-offline').onclick = () => startHost(true);
   $('#btn-join').onclick = () => { const code = $('#join-code').value.trim(); if (code.length < 5) { ui.toast('Nhập mã phòng 5 ký tự nhé.'); return; } startClient(code, myName()); ui.toast('Đang kết nối…'); };
-  $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
+  $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) $('#btn-join').click(); });
+  /* inputfix: bàn phím di động tự viết hoa mã phòng (mã chỉ gồm chữ hoa + số) */
+  $('#join-code').setAttribute('autocapitalize', 'characters');
+  /* inputfix: Enter trong ô tên = bấm hành động chính đang hiện (vào phòng nếu đã gõ đủ mã,
+     không thì tạo phòng / bắt đầu / chơi với máy) — trước đây Enter không làm gì.
+     CHỈ 1 handler duy nhất (gộp 2 handler trùng của 2 worker: 1 thiếu chặn isComposing,
+     1 thiếu #btn-solo) + chặn isComposing để gõ tiếng Việt bằng IME không kích hoạt nhầm. */
+  const visBtn = el => el && !el.disabled && el.offsetParent !== null;
+  $('#name').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.isComposing) return;
+    e.preventDefault();
+    const code = $('#join-code');
+    if (visBtn(code) && code.value.trim().length >= 5) { $('#btn-join').click(); return; }
+    if (visBtn($('#btn-create'))) { $('#btn-create').click(); return; }
+    if (visBtn($('#btn-start'))) { $('#btn-start').click(); return; }
+    if (visBtn($('#btn-solo'))) { $('#btn-solo').click(); return; } /* Kéo Búa Bao/Nhện/Nonogram mở đầu bằng nút Chơi đơn */
+    if (visBtn($('#btn-offline'))) { $('#btn-offline').click(); return; }
+  });
+  const name2 = $('#name2');
+  if (name2) name2.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); const b = $('#btn-start'); if (b && b.offsetParent !== null && !b.disabled) b.click(); } });
   ui.leave = () => { ui.gone = true; if (ui.net) ui.net.leave(); ui.net = null; ui.view = null; ui.lobby = null; ui.closeModal(); ui.show('screen-home'); onState && onState(null, null, ui); };
   $('#btn-leave-lobby').onclick = ui.leave;
   if ($('#btn-leave')) $('#btn-leave').onclick = async () => {

@@ -485,6 +485,7 @@ async function submitGuess() {
   const pid = controlPid(cur); if (!pid || !cur) return;
   const inp = $('#vt-guess-input');
   const text = inp ? inp.value.trim() : '';
+  if (!text) { tip('Gõ từ bạn đoán vào ô trước đã.'); return; }
   const r = await ui.actAs(pid, { type: 'guess', text });
   if (r && r.ok === false) { tip(r.reason || 'Không đoán được.'); } else { if (inp) inp.value = ''; Sfx.submit(); }
 }

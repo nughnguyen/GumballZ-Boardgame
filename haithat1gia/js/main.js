@@ -91,6 +91,7 @@ let endShownFor = '';
 let pvpTurn = null; /* chuyền tay: id người đang cầm máy */
 let pvpCover = false; /* đang che màn hình để đưa máy */
 let liePick = 1; /* câu giả đang chọn trong form kể (mặc định câu 2) */
+let subDraft = ['', '', '']; /* inputfix: nháp 3 câu kể — render() vẽ lại #card-body mỗi lần có state mới nên phải giữ lại, không thì đang gõ dở bị xoá sạch */
 let timerInt = null;
 let timeLeftMs = GUESS_SECONDS * 1000;
 let timerKey = '';
@@ -268,6 +269,7 @@ function render(v, prev) {
         </div>
       </div>`;
       drawLiePick();
+      [0, 1, 2].forEach(i => { const inp = $('#sub-' + i); if (inp) inp.value = subDraft[i]; }); /* inputfix: khôi phục nháp đang gõ dở */
       $('#stage-info').innerHTML = 'Mẹo: câu giả hay nhất nghe "rất thật" nhưng hơi phóng đại một chút!';
     } else {
       const p = presenter;
@@ -325,6 +327,19 @@ function drawLiePick() {
 }
 
 /* ---------- tương tác ---------- */
+/* inputfix: giữ nháp 3 câu kể + Enter chuyển ô (ô cuối thì gửi bài) */
+$('#card-body').addEventListener('input', e => {
+  const m = e.target && e.target.id && e.target.id.match(/^sub-([012])$/);
+  if (m) subDraft[+m[1]] = e.target.value;
+});
+$('#card-body').addEventListener('keydown', e => {
+  const m = e.target && e.target.id && e.target.id.match(/^sub-([012])$/);
+  if (!m || e.key !== 'Enter' || e.isComposing) return;
+  e.preventDefault();
+  const i = +m[1];
+  if (i < 2) { const nx = $('#sub-' + (i + 1)); if (nx) nx.focus(); }
+  else { const b = $('#btn-submit-set'); if (b) b.click(); }
+});
 $('#card-body').addEventListener('click', async e => {
   const v = cur; if (!v || v.phase !== 'playing') return;
   const lieBtn = e.target.closest('[data-lie]');
@@ -335,6 +350,7 @@ $('#card-body').addEventListener('click', async e => {
     if (!pid) { tip('Chưa tới lượt bạn kể.'); return; }
     const r = await ui.actAs(pid, { type: 'draw' });
     if (!r || !r.ok) { Snd.invalid(); tip((r && r.reason) || 'Không lấy được bộ có sẵn.'); }
+    else subDraft = ['', '', '']; /* inputfix: kể xong thì xoá nháp */
     return;
   }
   if (e.target.closest('#btn-submit-set')) {
@@ -343,7 +359,7 @@ $('#card-body').addEventListener('click', async e => {
     const statements = [0, 1, 2].map(i => (document.querySelector('#sub-' + i) || {}).value || '');
     const r = await ui.actAs(pid, { type: 'submit', statements, lie: liePick });
     if (!r || !r.ok) { Snd.invalid(); tip((r && r.reason) || 'Không kể được — kiểm tra lại 3 câu.'); }
-    else Snd.correct();
+    else { subDraft = ['', '', '']; /* inputfix: kể xong thì xoá nháp */ Snd.correct(); }
     return;
   }
   const st = e.target.closest('[data-stmt]');

@@ -10,7 +10,7 @@ import { WORD_PAIRS } from './words.js?v=1';
 export const MIN_PLAYERS = 4, MAX_PLAYERS = 12;
 export const OPT_CHOICES = { spies: [1, 2], timer: [0, 30, 45, 60] };
 
-export const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+export const norm = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/đ/g, 'd').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); /* inputfix: đ→d — trước đây 'đ' bị [^a-z0-9] xoá mất ('đá'→'a') nên bot không khớp được từ khoá chứa đ */
 
 // Từ có bị nói ra trong câu mô tả không — so nguyên từ, GIỮ dấu tiếng Việt.
 // (So chuỗi sau khi bỏ dấu sẽ bắt nhầm từ đồng âm khác dấu: "mùa" ≠ "mưa",

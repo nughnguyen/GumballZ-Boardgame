@@ -65,6 +65,8 @@ $('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
 $('#btn-start').onclick = () => {
   ui.startHost(true);
 };
+/* Enter trong ô tên người chơi 2: đã có handler trong gamekit.js (cùng bấm #btn-start,
+   có chặn isComposing) — không đăng ký trùng ở đây để khỏi bấm 2 lần. */
 
 /* ---------- ván chơi ---------- */
 let cur = null, endShownGid = null, lastSeq = -1;

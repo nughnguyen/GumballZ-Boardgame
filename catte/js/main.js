@@ -76,8 +76,15 @@ $('#btn-join').onclick = () => {
   fx.actx(); fx.musicResumeIfOn();
   if (net && net.leave) net.leave();
   net = new Client(code, myName(), handlers); isHost = false; $('#code-box').style.display = '';
+  toast('Đang kết nối…'); /* inputfix: trước đây bấm Vào không có phản hồi gì cho tới khi chủ phòng trả lời */
 };
 $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
+/* inputfix: Enter trong ô tên = vào phòng nếu đã gõ đủ mã, không thì tạo phòng (trước đây không làm gì) */
+$('#name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if ($('#join-code').value.trim().length >= 5) $('#btn-join').click();
+  else $('#btn-create').click();
+});
 $('#join-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
 // link mời ?room=MÃ (shared/net/joinlink.js): mở link là vào thẳng phòng
 const qcode = linkCode(); if (qcode) $('#join-code').value = qcode;

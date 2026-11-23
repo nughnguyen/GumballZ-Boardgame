@@ -167,15 +167,21 @@ function startTimer(v, actorId) {
 
 function renderDescTurn(v) {
   const el = $('#desc-turn');
-  if (v.phase !== 'describe') { el.innerHTML = ''; return; }
+  if (v.phase !== 'describe') { el.innerHTML = ''; el.dataset.turn = ''; return; }
   const actor = v.players.find(p => p.id === v.turn);
-  if (!actor) { el.innerHTML = ''; return; }
+  if (!actor) { el.innerHTML = ''; el.dataset.turn = ''; return; }
   const controllable = v.turn === v.me || (ui.isHost && actor.local);
   const oldVal = $('#desc-input') ? $('#desc-input').value : '';
   if (!controllable) {
     el.innerHTML = `<p class="hint">${actor.isBot ? `🤖 ${esc(cleanName(actor.name))} đang nghĩ câu mô tả…` : `⏳ Đang chờ ${esc(cleanName(actor.name))} mô tả…`}</p>`;
+    el.dataset.turn = '';
     return;
   }
+  /* inputfix: đang gõ dở cùng lượt thì giữ nguyên ô nhập — vẽ lại innerHTML
+     mỗi lần có state mới sẽ làm mất focus (và mất vị trí con trỏ) giữa chừng.
+     Đồng hồ vẫn tự cập nhật qua drawTimer() (#timer-left còn nguyên). */
+  if ($('#desc-input') && el.dataset.turn === v.turn) return;
+  el.dataset.turn = v.turn;
   el.innerHTML = `<h3>✍️ ${v.turn === v.me ? 'Tới lượt bạn mô tả!' : `Tới lượt ${esc(cleanName(actor.name))} mô tả`}${v.timer ? ` <span class="timer-chip" id="timer-chip">⏱️ <b id="timer-left">${v.timer}</b>s</span>` : ''}</h3>
     <div class="row"><input id="desc-input" maxlength="120" placeholder="Mô tả từ của bạn bằng 1 câu… (đừng nói ra từ đó)" autocomplete="off"><button class="btn pri" id="btn-desc">Gửi mô tả</button></div>
     <p class="hint">Mô tả đủ rõ để phe mình nhận ra, nhưng đừng rõ quá kẻo gián điệp đoán được từ của dân.</p>`;
@@ -186,7 +192,7 @@ function renderDescTurn(v) {
     if (!t) { tip('Nhập 1 câu mô tả đã nhé.'); return; }
     ui.actAs(v.turn, { type: 'describe', text: t });
   };
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-desc').click(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) $('#btn-desc').click(); });
 }
 
 /* ai đang bỏ phiếu trên máy này (chuyền tay: chủ phòng + người cùng máy chưa bỏ phiếu) */

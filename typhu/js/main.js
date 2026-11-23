@@ -199,7 +199,7 @@ $('#btn-create').onclick = () => startHost(false);
 $('#btn-join').onclick = () => {
   const code = $('#join-code').value.trim().toUpperCase(); if (code.length < 5) return toast('Nhập mã phòng 5 ký tự nhé.');
   fx.actx(); fx.musicResumeIfOn();
-  net = new Client(code, meProfile(), handlers); isHost = false; $('#code-box').style.display = '';
+  net = new Client(code, meProfile(), handlers); isHost = false; $('#code-box').style.display = ''; toast('Đang kết nối…');
 };
 $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
 // link mời ?room=MÃ (shared/net/joinlink.js): mở link là vào thẳng phòng
@@ -817,6 +817,8 @@ function openTrade(pid) {
     $$('#modal-box [data-tile]').forEach(c => c.onchange = () => { const s = st[c.dataset.side], i = +c.dataset.tile; s.tiles = c.checked ? [...s.tiles, i] : s.tiles.filter(x => x !== i); draw(); });
     $$('#modal-box [data-cash]').forEach(c => c.onchange = () => { st[c.dataset.cash].cash = Math.max(0, Math.floor(+c.value || 0)); draw(); });
     $$('#modal-box [data-cards]').forEach(c => c.onchange = () => { st[c.dataset.cards].cards = Math.max(0, Math.floor(+c.value || 0)); draw(); });
+    // Enter trong ô số thì gửi đề nghị luôn (không có form nên Enter mặc định không làm gì)
+    $$('#modal-box [data-cash], #modal-box [data-cards]').forEach(c => c.onkeydown = e => { if (e.key !== 'Enter') return; e.preventDefault(); c.blur(); const sendBtn = document.querySelector('#modal-box .mbtns .btn.pri'); if (sendBtn && !sendBtn.disabled) sendBtn.click(); });
   };
   openModal('', 'wide', 'trade'); draw();
 }

@@ -91,6 +91,12 @@ $('#btn-join').onclick = () => {
   net = new Client(code, myName(), handlers); isHost = false; roomCode = code; $('#code-box').style.display = ''; toast('Đang kết nối…');
 };
 $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
+/* inputfix: Enter trong ô tên = vào phòng nếu đã gõ đủ mã, không thì tạo phòng (trước đây không làm gì) */
+$('#name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if ($('#join-code').value.trim().length >= 5) $('#btn-join').click();
+  else $('#btn-create').click();
+});
 // link mời ?room=MÃ (shared/net/joinlink.js): mở link là vào thẳng phòng
 const qcode = linkCode(); if (qcode) $('#join-code').value = qcode;
 function linkJoin(code) { $('#join-code').value = code; joinByLink({ code, toast: m => toast(m), join: n => { $('#name').value = n; $('#btn-join').click(); }, abort: () => leave() }); }

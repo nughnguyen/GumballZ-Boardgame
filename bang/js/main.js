@@ -143,6 +143,13 @@ $('#btn-join').onclick = () => {
   $('#lobby-host-actions').classList.add('hidden');
   show('screen-lobby'); $('#lobby-code').textContent = code; $('#lobby-msg').textContent = 'Đang kết nối…';
 };
+/* inputfix: Enter trong ô tên / mã phòng (trước đây không làm gì) */
+$('#inp-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
+$('#inp-name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if ($('#inp-code').value.trim().length >= 5) $('#btn-join').click();
+  else $('#btn-create').click();
+});
 $('#btn-copy').onclick = () => {
   const code = $('#lobby-code').textContent;
   const url = inviteUrl(code);

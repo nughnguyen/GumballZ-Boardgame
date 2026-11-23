@@ -47,6 +47,7 @@ $('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
 
 // ---------- ván chơi ----------
 let skew = 0, shownKey = '', toSent = '', lastTick = 0, seen = [], seenAll = [];
+let lsDraft = '', lastQk = ''; /* inputfix: nháp đáp án — render() vẽ lại #acts mỗi khi có người chốt đáp án nên ô #ls-in bị tạo lại, phải giữ nháp kẻo mất chữ đang gõ */
 const P = (v, id) => v.players.find(p => p.id === id) || { name: '?' };
 const nm = (v, id) => esc(cleanName(P(v, id).name));
 const left = v => v.deadline ? (v.deadline - (Date.now() + skew)) / 1000 : null;
@@ -69,7 +70,7 @@ function ansForm(v) {
   if (v.spec) return `<div class="hint">👀 Bạn đang xem – ván sau sẽ được chơi.</div>`;
   const me = v.me || {};
   if (me.ans !== null) return `<div class="hint">Đã chốt <b>${esc(me.ans)}</b> – chờ mọi người (${v.answered.length}/${v.players.length})…</div>`;
-  return `<form class="ansform" id="ls-form"><input id="ls-in" maxlength="40" placeholder="Gõ đáp án của bạn…" autocomplete="off" enterkeyhint="go"><button class="btn big pri" type="submit">Gửi đáp án</button></form><div class="hint">Chọn rồi không đổi lại được!</div>`;
+  return `<form class="ansform" id="ls-form"><input id="ls-in" maxlength="40" placeholder="Gõ đáp án của bạn…" autocomplete="off" enterkeyhint="go" value="${esc(lsDraft)}"><button class="btn big pri" type="submit">Gửi đáp án</button></form><div class="hint">Chọn rồi không đổi lại được!</div>`;
 }
 function myResult(v) {
   const g = v.gain && v.gain[ui.myId]; if (!g) return v.spec ? '' : '';
@@ -104,8 +105,9 @@ function render(v, prev) {
     st = ending(v);
     ac = ui.isHost ? '<button class="btn big pri" data-a="again">🔁 Ván mới (câu mới)</button><button class="btn" data-a="lobby">Về phòng chờ</button>' : '<div class="hint">Chờ chủ phòng mở ván mới…</div>';
   }
+  const qk = v.gid + ':' + v.i; if (v.phase === 'q' && qk !== lastQk) { lsDraft = ''; lastQk = qk; } /* inputfix: sang câu mới thì xoá nháp câu cũ */
   const key = `${v.gid}|${v.phase}|${v.i}|${v.me ? `${v.me.ans}|${v.me.depth}` : ''}|${v.answered.length}`;
-  if (key !== shownKey) { $('#stage').innerHTML = st; $('#acts').innerHTML = ac; shownKey = key; if (v.phase !== 'q') $('#stage').scrollTop = 0; const inp = $('#ls-in'); if (inp) inp.focus(); }
+  if (key !== shownKey) { $('#stage').innerHTML = st; $('#acts').innerHTML = ac; shownKey = key; if (v.phase !== 'q') $('#stage').scrollTop = 0; const inp = $('#ls-in'); if (inp) { inp.focus(); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {} } /* inputfix: sau khi vẽ lại, con trỏ về cuối nháp — không thì chữ gõ tiếp chèn lên đầu */ }
   $('#board').innerHTML = v.phase === 'ended' ? '' : board(v);
   $('#hostbar').innerHTML = ui.isHost && v.phase !== 'ended' ? '<button class="chip" data-hh="end">🏁 Dừng ván</button>' : '';
   if (prev && prev.gid === v.gid) {
@@ -133,9 +135,10 @@ $('#acts').addEventListener('submit', e => { // form đáp án nằm trong #acts
   if (e.target.id !== 'ls-form') return; e.preventDefault();
   const v = ui.view, inp = $('#ls-in'); if (!v || !inp || v.phase !== 'q') return;
   const text = inp.value.trim(); if (!text) { tip('Gõ một đáp án đã nha.'); return; }
-  beep('pick'); ui.act({ type: 'ans', text });
+  beep('pick'); ui.act({ type: 'ans', text }); lsDraft = '';
   inp.disabled = true;
 });
+$('#acts').addEventListener('input', e => { if (e.target && e.target.id === 'ls-in') lsDraft = e.target.value; }); /* inputfix: giữ nháp đáp án khi ô bị vẽ lại */
 $('#acts').addEventListener('click', e => {
   const b = e.target.closest('[data-a]'), v = ui.view; if (!b || !v || b.disabled) return;
   const a = b.dataset.a;

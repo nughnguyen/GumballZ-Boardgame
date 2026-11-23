@@ -61,6 +61,8 @@ $('#btn-start-local').onclick = () => {
   try { localStorage.setItem('gumballz-dapenalty-p2', p2name); } catch (e) {}
   mode = 'pvp'; ui.startHost(true);
 };
+/* inputfix: Enter trong ô tên người chơi 2 thì bắt đầu luôn (trước đây không làm gì) */
+$('#inp-p2name').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); $('#btn-start-local').click(); } });
 
 /* ---------- phòng chờ ---------- */
 function needCount() {

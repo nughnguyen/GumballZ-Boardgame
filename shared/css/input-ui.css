@@ -1,0 +1,112 @@
+/* input-ui.css — giao diện ô nhập dùng chung cho các game (neobrutalism).
+   Chỉ áp cho khu vực nhập đáp án / chat / lobby của game: class .iu-*.
+   Palette lấy theo :root của site (--ink #241A38, --y1 #FACD33, --y2 #FFE9A8,
+   --card #FFFDF9, --sh 4px 4px 0 #241A38). File KHÔNG tự động restyle toàn site. */
+.iu-row{display:flex;gap:10px;align-items:stretch;width:100%;max-width:560px;margin:0 auto}
+.iu-row .iu-input{flex:1;min-width:0}
+.iu-input,.iu-textarea{
+  width:100%;min-height:48px;padding:12px 14px;
+  font:700 16px/1.35 Nunito,system-ui,sans-serif;color:var(--ink,#241A38);
+  background:var(--card,#FFFDF9);
+  border:2px solid var(--ink,#241A38);border-radius:14px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);
+  outline:none;-webkit-appearance:none;appearance:none;
+}
+.iu-input::placeholder,.iu-textarea::placeholder{color:var(--muted,#8B7E9E);font-weight:600}
+.iu-input:focus,.iu-textarea:focus{
+  border-color:var(--ink,#241A38);
+  box-shadow:3px 3px 0 var(--ink,#241A38),0 0 0 4px var(--y1,#FACD33);
+  background:#fff;
+}
+.iu-input:disabled,.iu-textarea:disabled{opacity:.55;cursor:not-allowed}
+.iu-input.iu-err{border-color:#D4202F;box-shadow:3px 3px 0 #D4202F,0 0 0 4px #FFD7DA}
+.iu-input.iu-ok{border-color:#1E9E6A;box-shadow:3px 3px 0 #1E9E6A,0 0 0 4px #C8F2DD}
+.iu-textarea{min-height:84px;resize:vertical}
+.iu-btn{
+  flex:none;min-height:48px;padding:12px 20px;
+  font:400 16px/1 var(--font-display,"Baloo 2",Nunito,sans-serif);color:var(--ink,#241A38);
+  background:var(--y1,#FACD33);
+  border:2px solid var(--ink,#241A38);border-radius:14px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);cursor:pointer;
+  transition:transform .08s ease,box-shadow .08s ease;
+}
+.iu-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink,#241A38)}
+.iu-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink,#241A38)}
+.iu-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.iu-btn.iu-btn-green{background:var(--p2,#2EC5B6);color:#fff}
+.iu-btn.iu-btn-red{background:var(--p1,#FF5A60);color:#fff}
+.iu-btn.iu-btn-ghost{background:var(--card,#FFFDF9)}
+.iu-msg{
+  margin-top:8px;padding:10px 14px;border-radius:12px;
+  font:700 15px/1.4 Nunito,system-ui,sans-serif;
+  border:2px solid var(--ink,#241A38);box-shadow:3px 3px 0 var(--ink,#241A38);
+  background:var(--y2,#FFE9A8);color:var(--ink,#241A38);
+}
+.iu-msg.iu-ok{background:#C8F2DD}
+.iu-msg.iu-err{background:#FFD7DA}
+.iu-msg:empty{display:none}
+/* --- Áp cho các ô nhập chuẩn của game (chỉ có tác dụng ở game đã nối file này) --- */
+/* Ô lobby chung mọi game */
+#name,#join-code,#name2,#inp-p2name{
+  min-height:48px;padding:12px 14px;
+  font:700 16px/1.35 Nunito,system-ui,sans-serif;color:var(--ink,#241A38);
+  background:var(--card,#FFFDF9);
+  border:2px solid var(--ink,#241A38);border-radius:14px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);
+  outline:none;
+}
+#name::placeholder,#join-code::placeholder,#name2::placeholder,#inp-p2name::placeholder{color:var(--muted,#8B7E9E);font-weight:600}
+#name:focus,#join-code:focus,#name2:focus,#inp-p2name:focus{
+  box-shadow:3px 3px 0 var(--ink,#241A38),0 0 0 4px var(--y1,#FACD33);
+  background:#fff;
+}
+#join-code{text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+/* Ô đáp án / chat trong game */
+#ls-in,#vtv-in,#inp,#g-input,#t-input,#in-q,#in-answer,#desc-input,#dd-guess-input,
+#vt-guess-input,#wl-clue-input,#clue-word,#say-in,#sub-0,#sub-1,#sub-2,#deal-in{
+  min-height:48px;padding:12px 14px;
+  font:700 16px/1.35 Nunito,system-ui,sans-serif;color:var(--ink,#241A38);
+  background:var(--card,#FFFDF9);
+  border:2px solid var(--ink,#241A38);border-radius:14px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);
+  outline:none;
+}
+#ls-in::placeholder,#vtv-in::placeholder,#inp::placeholder,#g-input::placeholder,
+#t-input::placeholder,#in-q::placeholder,#in-answer::placeholder,#desc-input::placeholder,
+#dd-guess-input::placeholder,#vt-guess-input::placeholder,#wl-clue-input::placeholder,
+#clue-word::placeholder,#say-in::placeholder,#sub-0::placeholder,#sub-1::placeholder,
+#sub-2::placeholder,#deal-in::placeholder{color:var(--muted,#8B7E9E);font-weight:600}
+#ls-in:focus,#vtv-in:focus,#inp:focus,#g-input:focus,#t-input:focus,#in-q:focus,
+#in-answer:focus,#desc-input:focus,#dd-guess-input:focus,#vt-guess-input:focus,
+#wl-clue-input:focus,#clue-word:focus,#say-in:focus,#sub-0:focus,#sub-1:focus,
+#sub-2:focus,#deal-in:focus{
+  box-shadow:3px 3px 0 var(--ink,#241A38),0 0 0 4px var(--y1,#FACD33);
+  background:#fff;
+}
+/* Nút gửi trong form đáp án chuẩn (Lặn Sâu / Vua Tiếng Việt): vàng nổi, viền mực */
+form.ansform button[type="submit"]{
+  min-height:48px;padding:12px 20px;
+  font:400 16px/1 var(--font-display,"Baloo 2",Nunito,sans-serif);color:var(--ink,#241A38);
+  background:var(--y1,#FACD33);
+  border:2px solid var(--ink,#241A38);border-radius:14px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);cursor:pointer;
+}
+form.ansform button[type="submit"]:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink,#241A38)}
+/* Bàn phím ảo trong game (nút chữ/số): phím to, bấm rõ, không bị che bởi tabbar */
+.iu-kbd{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+.iu-kbd button{
+  min-width:44px;min-height:48px;padding:0 12px;
+  font:400 17px/1 var(--font-display,"Baloo 2",Nunito,sans-serif);color:var(--ink,#241A38);
+  background:var(--card,#FFFDF9);
+  border:2px solid var(--ink,#241A38);border-radius:12px;
+  box-shadow:3px 3px 0 var(--ink,#241A38);cursor:pointer;
+}
+.iu-kbd button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink,#241A38)}
+.iu-kbd button.iu-k-ok{background:#C8F2DD}
+.iu-kbd button.iu-k-bad{background:#FFD7DA}
+.iu-kbd button.iu-k-wide{min-width:64px;background:var(--y1,#FACD33)}
+/* Khu vực nhập nằm trên tabbar (mobile): chừa chỗ cho tabbar cố định */
+@media (max-width:1150px){
+  .iu-zone{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .iu-input,.iu-btn{min-height:48px;font-size:16px} /* 16px: iOS không tự zoom khi focus */
+}

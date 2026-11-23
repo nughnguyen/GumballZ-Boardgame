@@ -369,7 +369,7 @@ $('#dd-guess-area').addEventListener('input', e => {
   if (e.target && e.target.id === 'dd-guess-input') guessDraft = e.target.value;
 });
 $('#dd-guess-area').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target && e.target.id === 'dd-guess-input') { e.preventDefault(); sendGuess(); }
+  if (e.key === 'Enter' && !e.isComposing && e.target && e.target.id === 'dd-guess-input') { e.preventDefault(); sendGuess(); }
 });
 $('#dd-guess-area').addEventListener('click', e => {
   if (e.target.closest('#btn-send-guess')) sendGuess();

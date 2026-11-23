@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="css/bacao.css?v=4">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <link rel="stylesheet" href="../shared/ui/shell.css?v=23">
+<link rel="stylesheet" href="../shared/css/input-ui.css?v=1">
 <link rel="stylesheet" href="../shared/css/topbar.css?v=8">
 </head>
 <body>
@@ -37,7 +38,7 @@
     <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
     <div class="btn-col">
       <button class="btn big pri" id="btn-create">✨ Tạo phòng online</button>
-      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off" aria-label="Mã phòng"><button class="btn" id="btn-join">Vào</button></div>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off" autocapitalize="characters" aria-label="Mã phòng"><button class="btn" id="btn-join">Vào</button></div>
       <button class="btn big" id="btn-offline">🤖 Chơi với bot</button>
     </div>
     <div class="home-tools">

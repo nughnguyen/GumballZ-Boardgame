@@ -103,7 +103,7 @@ $('#btn-join').onclick = () => {
   const code = $('#join-code').value.trim().toUpperCase(); if (code.length < 5) { toast('Nhập mã phòng 5 ký tự nhé.'); return; }
   fx.actx(); fx.musicResumeIfOn();
   if (net) (net.leave ? net.leave() : net.destroy());
-  net = new Client(code, myName(), handlers); isHost = false; $('#code-box').style.display = '';
+  net = new Client(code, myName(), handlers); isHost = false; $('#code-box').style.display = ''; toast('Đang kết nối…');
 };
 $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btn-join').click(); });
 // link mời ?room=MÃ (shared/net/joinlink.js): mở link là vào thẳng phòng

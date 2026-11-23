@@ -303,6 +303,19 @@ $('#q-opts').addEventListener('click', async e => {
     if (cur) render(cur);
   }, 1500);
 });
+/* inputfix: phím 1–4 / A–D chọn đáp án như bấm nút (trước đây bàn phím không trả lời được) */
+document.addEventListener('keydown', e => {
+  if (e.repeat) return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+  if (!$('#screen-game') || !$('#screen-game').classList.contains('active')) return;
+  if ($('#modal') && $('#modal').classList.contains('open')) return;
+  const k = e.key.toUpperCase();
+  const idx = ['1', '2', '3', '4'].includes(k) ? +k - 1 : ['A', 'B', 'C', 'D'].indexOf(k);
+  if (idx < 0) return;
+  const b = document.querySelector(`#q-opts .at-opt[data-opt="${idx}"]`);
+  if (b && !b.disabled) { e.preventDefault(); b.click(); }
+});
 document.addEventListener('click', e => {
   if (e.target && e.target.id === 'btn-pvp-ready') {
     pvpCover = false;
