@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/games-93-2EC5B6?style=flat-square" alt="93 game">
+  <img src="https://img.shields.io/badge/games-94-2EC5B6?style=flat-square" alt="94 game">
   <img src="https://img.shields.io/badge/achievements-1341-FF5A60?style=flat-square" alt="1341 thành tựu">
   <img src="https://img.shields.io/badge/titles-114-B9A6FF?style=flat-square" alt="114 danh hiệu">
   <img src="https://img.shields.io/badge/frames-83-FACD33?style=flat-square" alt="83 khung avatar">
@@ -24,7 +24,7 @@
 
 | | |
 |---|---|
-| 🎮 **93 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
+| 🎮 **94 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
 | 🪙 **Ví xu chung** | Thắng +10 xu, chơi +2 xu, tài khoản mới bắt đầu 100 xu. Xu dùng chung cho mọi game. |
 | 🎁 **Shop + Rương Gacha** | Mở rương 100 xu/lượt: khung, màu tên, banner, hiệu ứng thắng. |
 | 🖼️ **Sưu tầm** | 83 khung avatar (có khung rồng bay), 58 banner (có rồng canvas), 29 màu tên, 6 hiệu ứng thắng. |
@@ -41,7 +41,7 @@ Chi tiết đầy đủ (luật từng game, vật phẩm, tỉ lệ Gacha…): 
 
 ---
 
-## 🎮 Danh sách game — 93 game
+## 🎮 Danh sách game — 94 game
 
 <details>
 <summary><b>♟️ Cờ bàn — 30 game</b></summary>
@@ -92,7 +92,7 @@ cd server && npx wrangler deploy
 ## 🗂️ Cấu trúc
 
 ```
-index.html            Trang chủ: 93 game, tìm kiếm, lọc theo nhóm
+index.html            Trang chủ: 94 game, tìm kiếm, lọc theo nhóm
 <game>/               Mỗi game một thư mục (luật + bot + online riêng)
 sanh/                 Sảnh chung: tìm phòng, chat thế giới
 shop/                 Cửa hàng + Rương Gacha

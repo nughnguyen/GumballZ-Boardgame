@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vua Tiếng Việt – xáo chữ, đoán từ, ai nhanh thì thắng | GumballZ Boardgame</title>
+<link rel="canonical" href="https://gumballzgames.vercel.app/vuatiengviet/">
+<meta name="description" content="Vua Tiếng Việt: mỗi vòng một từ hoặc câu ca dao bị xáo hết chữ cái – sắp xếp lại và đoán, ai đoán đúng trước thì thắng vòng. 7 vòng mỗi trận, càng khó càng nhiều điểm. Chơi online 2–16 người hoặc với máy.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="GumballZ Boardgame">
+<meta property="og:url" content="https://gumballzgames.vercel.app/vuatiengviet/">
+<meta property="og:title" content="Vua Tiếng Việt – xáo chữ, đoán từ, ai nhanh thì thắng | GumballZ Boardgame">
+<meta property="og:description" content="Từ và ca dao bị xáo hết chữ cái – đoán đúng trước là thắng vòng! 7 vòng mỗi trận, Dễ 10đ · TB 20đ · Khó 30đ. Bấm link là vào phòng.">
+<meta property="og:image" content="../shared/img/og/vuatiengviet.jpg">
+<meta name="theme-color" content="#FFF8EE">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.svg?v=3" type="image/svg+xml"><link rel="apple-touch-icon" href="../shared/img/brand/apple-touch-icon.png?v=3"><link rel="manifest" href="../manifest.webmanifest?v=6"><meta name="apple-mobile-web-app-title" content="GumballZ Boardgame"><meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" crossorigin>
+<link rel="stylesheet" href="../shared/ui/gamekit.css?v=7">
+<link rel="stylesheet" href="../shared/css/footer.css?v=12">
+<link rel="stylesheet" href="css/vtv.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="../shared/ui/shell.css?v=23">
+<link rel="stylesheet" href="../shared/css/topbar.css?v=8">
+</head>
+<body>
+<script src="../shared/ui/topbar.js?v=8"></script>
+
+<!-- TRANG CHỦ -->
+<section id="screen-home" class="screen active">
+  <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
+  <div class="home-card">
+    <div class="hero"><img src="../shared/img/icons/vuatiengviet.svg?v=1" alt=""></div>
+    <h1 class="logo">Vua <span>Tiếng Việt</span></h1>
+    <p class="tag">Chữ bị xáo tung – sắp lại và đoán, ai nhanh thì thắng! 👑🇻🇳</p>
+    <label class="fld"><span>Tên của bạn</span><input id="name" maxlength="16" placeholder="Nhập tên…" autocomplete="nickname"></label>
+    <div class="btn-col">
+      <button class="btn big pri" id="btn-create">✨ Tạo phòng online</button>
+      <div class="join-row"><input id="join-code" maxlength="5" placeholder="MÃ PHÒNG" autocomplete="off"><button class="btn" id="btn-join">Vào</button></div>
+      <button class="btn big" id="btn-offline">🤖 Chơi với máy</button>
+    </div>
+    <div class="home-tools">
+      <button class="chip" id="btn-guide-home">📖 Cách chơi</button>
+    </div>
+    <p class="note">2–16 người · 7 vòng mỗi trận · 30 giây mỗi vòng · Dễ 10đ · Trung bình 20đ · Khó 30đ · điểm chỉ tính trong phòng</p>
+  </div>
+</section>
+
+<!-- PHÒNG CHỜ -->
+<section id="screen-lobby" class="screen">
+  <div class="lobby">
+    <div class="lobby-head">
+      <button class="chip" id="btn-leave-lobby">← Thoát</button>
+      <div class="code-box" id="code-box">Mã phòng <b id="room-code">…</b> <button class="chip" id="btn-copy">Sao chép link</button></div>
+    </div>
+    <div class="lobby-grid">
+      <div class="panel">
+        <h3>Người chơi <small id="pcount"></small></h3>
+        <ul id="plist" class="plist"></ul>
+        <div id="add-box"></div>
+      </div>
+      <div class="panel">
+        <h3>Luật bàn <small id="ccount"></small></h3>
+        <div id="opts"></div>
+      </div>
+    </div>
+    <p class="wait" id="wait-msg">Đang chờ chủ phòng bắt đầu…</p>
+    <div class="start-bar"><button class="btn big pri" id="btn-start">👑 Bắt đầu</button></div>
+  </div>
+</section>
+
+<!-- VÁN CHƠI -->
+<section id="screen-game" class="screen">
+  <header class="topbar">
+    <button class="chip ic" id="btn-leave" title="Rời ván" aria-label="Rời ván">←</button>
+    <div class="round" id="round" aria-live="polite"></div>
+    <span class="sp"></span>
+    <div class="score" id="myscore"></div>
+    <div class="tools">
+      <button class="chip ic" id="btn-sound" title="Âm thanh" aria-label="Âm thanh">🔊</button>
+      <button class="chip ic" id="btn-guide" title="Cách chơi" aria-label="Cách chơi">📖</button>
+    </div>
+  </header>
+  <div class="arena">
+    <div class="tbar" id="tbar"><i></i></div>
+    <div class="stage" id="stage"></div>
+    <div class="board" id="board"></div>
+    <div class="acts" id="acts"></div>
+    <div class="hostbar" id="hostbar"></div>
+  </div>
+</section>
+
+<footer class="gmf"></footer>
+<div class="modal" id="modal"><div class="modal-box" id="modal-box"></div></div>
+<div class="toast" id="toast"></div>
+<script src="../shared/ui/footer.js?v=23"></script>
+<script type="module" src="js/main.js?v=1"></script>
+<script type="module" async src="../shared/ui/homebtn.js?v=71"></script> <!-- async: chạy ngay khi tải xong, không chờ main.js (nặng) → nút hiện sớm, đỡ giật -->
+<script type="module" async src="../shared/ui/feel.js?v=54"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+/* 👑 Vua Tiếng Việt – giao diện riêng (khung chung ở shared/ui/gamekit.css). Chất "lớp học Việt": nền kem, bảng xanh lá, ô chữ vàng. */
+:root{--acc:#1e6b4a;--acc2:#d4a017;--bg:#fff8ee;--line:#e8dcc3;--deep:#123f2c}
+body{background:radial-gradient(900px 520px at 0 -10%,#ffe9a8 0,transparent 60%),radial-gradient(800px 520px at 100% 0,#bfe8cf 0,transparent 60%),var(--bg)}
+.home-card .hero{height:150px;margin-bottom:14px}.home-card .hero img{height:100%;width:auto;max-width:100%}
+.logo span{color:var(--acc)}
+/* bàn chơi: bảng xanh */
+#screen-game.active{display:flex;flex-direction:column;height:100dvh;background:linear-gradient(180deg,#1e6b4a 0,#123f2c 70%,#0c2b1e 100%);color:#fff}
+#screen-game .topbar .chip{background:#ffffff14;color:#fff;border-color:#ffffff24}
+.round{font:800 15px "Baloo 2",Nunito,sans-serif;background:#ffffff14;border:1.5px solid #ffffff24;color:#fff;border-radius:999px;padding:6px 14px;min-height:42px;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;min-width:0}
+.round .tm{font-variant-numeric:tabular-nums;background:#fff;color:#123f2c;border-radius:999px;padding:1px 9px;font-size:13px}.round .tm.low{background:#ff5a60;color:#fff}
+.score{font:800 16px "Baloo 2",Nunito,sans-serif;color:#ffd166;white-space:nowrap;padding:0 4px}
+.arena{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 12px max(10px,env(safe-area-inset-bottom));width:100%;max-width:760px;margin:0 auto}
+.arena>*{flex-shrink:0}
+.tbar{width:min(640px,100%);height:8px;border-radius:9px;background:#ffffff1a;overflow:hidden}.tbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#37c8e8,#ffd166);border-radius:9px;transition:width .2s linear}.tbar i.low{background:#ff5a60}.tbar i.soft{background:#ffffff40}
+
+/* phòng chờ */
+.opt{margin:10px 0}.opt>b{display:block;margin-bottom:6px;font:800 15px Nunito,sans-serif}.opt small{color:var(--muted);font-weight:700}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{flex:1;min-width:64px;min-height:42px;border:1.5px solid var(--line);background:#fff;border-radius:12px;font:800 14px Nunito,sans-serif;color:var(--ink);cursor:pointer;padding:4px 8px}
+.seg button[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:#fff;box-shadow:0 0 0 2px #1e6b4a33}.seg button:disabled{cursor:default;opacity:.8}
+
+/* thẻ vòng chơi */
+.stage{flex:1 1 auto!important;min-height:0;width:min(640px,100%);display:flex;flex-direction:column;gap:12px;overflow:auto;padding:4px 2px 6px}.stage>*{flex:none}
+.qcard{background:#fff;color:var(--ink);border-radius:22px;padding:14px 16px 16px;box-shadow:0 18px 36px -18px #000c;animation:pop .3s cubic-bezier(.2,1.4,.4,1) both}
+.qmeta{display:flex;justify-content:space-between;gap:8px;font:800 12.5px Nunito,sans-serif;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.qmeta .tier{border-radius:999px;padding:2px 10px;color:#fff}.qmeta .tier.de{background:#1fae6a}.qmeta .tier.tb{background:#e8960c}.qmeta .tier.kho{background:#e14b7a}
+.qhint{margin:8px 0 0;font:700 13.5px Nunito,sans-serif;color:var(--muted)}
+/* gợi ý: ô chữ đã mở */
+.hintrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.hintword{display:flex;gap:4px}
+.hintcell{width:30px;height:36px;border-radius:8px;border:2px dashed #c9b98f;background:#fff8ee;display:grid;place-items:center;font:800 19px "Baloo 2",Nunito,sans-serif;color:var(--ink)}
+.hintcell.open{border-style:solid;border-color:var(--acc);background:#e3f4ea;color:var(--acc)}
+/* ô chữ xáo để bấm */
+.tiles{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.tileword{display:flex;flex-wrap:wrap;gap:5px}
+.tile{min-width:38px;height:44px;padding:0 6px;border:2px solid var(--ink);border-radius:10px;background:#ffd166;color:var(--ink);font:800 20px "Baloo 2",Nunito,sans-serif;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.tile:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.tile.used{opacity:.25;pointer-events:none;box-shadow:none}
+.tileword .tile:nth-child(3n){background:#ffb3c1}.tileword .tile:nth-child(3n+1){background:#ffd166}.tileword .tile:nth-child(3n+2){background:#9be3b8}
+/* ô nhập đáp án */
+.ansform{display:flex;gap:8px}
+.ansform input{flex:1;min-width:0;min-height:52px;border:2px solid var(--ink);border-radius:16px;padding:8px 14px;font:800 17px Nunito,sans-serif;color:var(--ink);background:#fff;box-shadow:4px 4px 0 var(--ink)}
+.ansform input:focus{outline:3px solid #37c8e8;outline-offset:1px}
+.ansform input:disabled{opacity:.6}
+.ansform .btn{flex:none;width:auto} /* gamekit .btn.big{width:100%} làm nút Đoán tràn khỏi hàng flex ở mobile */
+.ansform .btn.ghost{background:#fff}
+.hint{font:700 13.5px Nunito,sans-serif;color:#ffffffcc;text-align:center}
+.hint b{color:#ffd166}
+.res{border-radius:16px;padding:10px 14px;font:800 15px Nunito,sans-serif;text-align:center}
+.res.y{background:#1fae6a;color:#fff}.res.n{background:#ff5a6e;color:#fff}.res.info{background:#ffffff1f;color:#fff}
+.ansbig{background:#fff;color:var(--ink);border-radius:18px;padding:12px 14px;text-align:center}
+.ansbig b{display:block;font:800 20px "Baloo 2",Nunito,sans-serif}
+.ansbig small{font:700 13px Nunito,sans-serif;color:var(--muted)}
+
+/* bảng điểm */
+.board{width:min(640px,100%);display:flex;flex-direction:column;gap:6px}
+.board .row{display:flex;align-items:center;gap:8px;background:#ffffff12;border:1.5px solid #ffffff1f;border-radius:14px;padding:6px 10px;font:800 14px Nunito,sans-serif;color:#fff}
+.board .row.me{background:#ffd166;color:#241a38;border-color:#241a38}
+.board .row .rk{width:22px;text-align:center;flex:none}
+.board .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board .row .gn{color:#ffd166}.board .row.me .gn{color:#b3541e}
+.board .row small{font-weight:700;opacity:.85}
+.fire{flex:none}
+/* màn kết thúc */
+.end{text-align:center}
+.end h2{font:800 24px "Baloo 2",Nunito,sans-serif;color:#ffd166;margin:6px 0 12px}
+.end .podium{display:flex;gap:8px;justify-content:center;align-items:flex-end;margin-bottom:12px}
+.end .pd{background:#ffffff14;border:1.5px solid #ffffff24;border-radius:16px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:96px}
+.end .pd b{font-size:13.5px}.end .pd span{font-size:12.5px;color:#ffd166;font-weight:800}.end .pd i{font-size:22px}
+.end .mine{font:700 15px Nunito,sans-serif;color:#fff;margin:8px 0}
+.end .lst{text-align:left;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.intro{text-align:center;padding:18px 8px}
+.intro .big{font-size:56px}
+.intro h2{font:800 22px "Baloo 2",Nunito,sans-serif;color:#ffd166}
+.intro p{font:700 14.5px Nunito,sans-serif;color:#ffffffcc}
+.intro .cd{font:800 44px "Baloo 2",Nunito,sans-serif;color:#fff;margin-top:8px}
+@media (max-width:480px){
+  .tile{min-width:32px;height:38px;font-size:17px}
+  .hintcell{width:26px;height:32px;font-size:16px}
+}

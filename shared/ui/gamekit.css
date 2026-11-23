@@ -59,6 +59,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink,var(--ink2));box-
 #screen-home .seg button,#screen-lobby .seg button{min-height:48px}
 #screen-lobby .plist li .x{width:44px;height:44px}
 .start-bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 14px max(12px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg,var(--bg)) 34%);display:flex;justify-content:center}
+/* patch -173: tab dưới cố định (.tabbar, z-index 60, hiện ≤1150px) che kín nút Bắt đầu
+   của .start-bar (z-index 20, cũng bottom:0) — trên điện thoại thật không bấm được nút
+   Bắt đầu ở phòng chờ của mọi game (đo thật 390px: nút bottom 832, tabbar top 771,
+   elementFromPoint trúng link tabbar). Nâng start-bar lên trên tabbar (cao ~73px). */
+@media (max-width:1150px){.start-bar{bottom:calc(80px + env(safe-area-inset-bottom))}}
 .start-bar .btn{width:100%;max-width:560px;min-height:56px;font-size:19px}.wait{text-align:center;color:var(--muted,var(--muted));font-weight:800;margin:16px 0}
 /* ván chơi */
 .topbar{display:flex;align-items:center;gap:8px;padding:8px 10px;position:sticky;top:0;z-index:10;background:var(--bg,var(--bg));box-shadow:0 3px 0 rgba(74,62,92,.1)}
