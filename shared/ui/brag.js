@@ -1,7 +1,7 @@
 // 🎉 Sau ván thắng / có thành tích mới thì hiện pill thông báo (nút "Khoe" đã bỏ ở patch -128).
 // Tạo ảnh khoe vẫn dùng được qua brag({ game, title, sub, lines }) – vd. Cờ thế hôm nay gọi tay.
 // Tự nạp từ stats.js khi có sự kiện 'gumballz-stats'.
-import { load, totals, level, GAME_NAMES } from './stats.js?v=93';
+import { load, totals, level, GAME_NAMES } from './stats.js?v=94';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } } };
 const EMOJI = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍' };
 const BG = ['#ff7a8a,#ffb23d', '#7b61ff,#3d8bff', '#2fc76f,#8fe3a8', '#ff9a3d,#ffd166', '#ff5fa2,#b06bff', '#3dc7d6,#3d8bff'];

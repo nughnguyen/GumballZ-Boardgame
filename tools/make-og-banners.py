@@ -98,6 +98,7 @@ NAMES = {
     "keobuabao": "Kéo Búa Bao",
     "dovui": "Đố Vui",
     "hoisanquai": "Hội Săn Quái",
+    "lansau": "Lặn Sâu",
 }
 
 # Illustration crop (x0, y0, x1, y1) inside the game's current og jpg.
@@ -159,6 +160,7 @@ CROPS = {
     "keobuabao": (60, 40, 620, 600),
     "dovui": (60, 40, 620, 600),
     "hoisanquai": (60, 40, 620, 600),
+    "lansau": (60, 40, 620, 600),
     "covay": (700, 70, 1140, 565),
     "ranvathang": (725, 55, 1155, 520),
 }

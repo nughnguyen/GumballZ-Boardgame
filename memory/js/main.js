@@ -10,7 +10,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=10';
-import { record, recordEvent } from '../../shared/ui/stats.js?v=93';
+import { record, recordEvent } from '../../shared/ui/stats.js?v=94';
 
 const HIDE_MS = 900; /* 2 lá trượt giữ ngửa chừng này rồi úp lại */
 const LEVEL_LABEL = { easy: 'Dễ · 12 lá', medium: 'Vừa · 16 lá', hard: 'Khó · 24 lá' };

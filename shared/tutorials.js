@@ -1254,5 +1254,9 @@ export const TUT = {
  "hoisanquai": {
   "name": "Hội Săn Quái (Here to Slay)",
   "steps": []
+ },
+ "lansau": {
+  "name": "Lặn Sâu",
+  "steps": []
  }
 };
