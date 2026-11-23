@@ -54,7 +54,7 @@ function ntRateOk(ip) { const now = Date.now(), a = (ntRateHits.get(ip) || []).f
 /* ---------- ☕ ủng hộ qua SePay (patch -102) ---------- */
 let donCache = null;
 const donMsgRate = new Map(); /* 💌 mỗi IP tối đa 8 lời nhắn / 10 phút */
-async function sepayHook(req, env) {
+async function sepayHook(req, env, ctx) {
   const raw = await req.text();
   const v = await verifyWebhook('sepay', raw, req.headers, env);
   if (!v.ok) return new Response(v.msg, { status: v.status });
@@ -69,7 +69,11 @@ async function sepayHook(req, env) {
   const quota = Math.max(0, +env.DONATE_AUTO_QUOTA || DONATE_AUTO_QUOTA_DEFAULT);
   const used = await L.donAutoCount(monthStartVN());
   if (used >= quota) { /* hết lượt auto: xếp vào hàng chờ duyệt tay, không mất tiền */
-    await L.donClaimAdd({ uid: parsed.uid, name: '', amt, ref: parsed.ref || '', msg: '', hide: parsed.hide });
+    const r = await L.donClaimAdd({ uid: parsed.uid, name: '', amt, ref: parsed.ref || '', msg: '', hide: parsed.hide });
+    if (!r.dup && env.DONATE_DISCORD_WEBHOOK) { /* SePay hết quota: báo Discord như claim duyệt tay thường (chỉ claim MỚI, fire-and-forget, không chặn response) */
+      const p = notifyDiscordClaim(env.DONATE_DISCORD_WEBHOOK, { uid: parsed.uid, username: '', name: '', amt, ref: parsed.ref || '', msg: '', hide: parsed.hide, at: Date.now() }, fetch, 5000, env.DONATE_ADMIN_ID || '').then(res => { if (res && res.ok && res.messageId) return L.donClaimSetDmid(r.id, res.messageId); }).catch(() => {}); /* lưu message id để sửa embed khi duyệt/từ chối, như route /donate/claim */
+      if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
+    }
     donCache = null; return OK();
   }
   let u = null;
@@ -225,7 +229,7 @@ export default {
       return json(await inbox.err(await req.text(), req.headers.get('CF-Connecting-IP') || '', req.headers.get('User-Agent') || ''), 200, cors(origin));
     }
     // ---------- ☕ ủng hộ qua quét mã QR (patch -102) ----------
-    if (p[0] === 'sepay' && p[1] === 'hook' && req.method === 'POST') return sepayHook(req, env); /* SePay báo có chuyển khoản (máy chủ gọi máy chủ, không cần CORS) */
+    if (p[0] === 'sepay' && p[1] === 'hook' && req.method === 'POST') return sepayHook(req, env, ctx); /* SePay báo có chuyển khoản (máy chủ gọi máy chủ, không cần CORS) */
     if (p[0] === 'donate') {
       const H = cors(origin); if (!okOrigin(origin)) return json({ ok: false }, 403, H);
       const L = env.LOBBY.get(env.LOBBY.idFromName('main')), U = env.USERS.get(env.USERS.idFromName('main'));

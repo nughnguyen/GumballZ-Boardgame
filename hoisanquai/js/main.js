@@ -222,3 +222,5 @@ $('#btn-guide').onclick = $('#btn-guide-home').onclick = openGuide;
 const drawSound = () => { $('#btn-sound').textContent = sound ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { sound = !sound; ls.set('hsq-sound', sound ? '1' : '0'); drawSound(); beep('ok'); };
 const ui = gameKit({ game: 'hoisanquai', net: NET, onLobby: (info, ui, started) => { if (!started) renderLobby(info, ui); }, onState: (v, prev) => { if (v) render(v, prev); else { endShown = null; look = null; } }, offline: h => { h.addBot(); h.addBot(); } });
+/* móc test (?dbgview=1): chỉ trả view của chính người chơi (đúng những gì UI đã vẽ, không lộ tay bài người khác) để test tự động đọc trạng thái rồi bấm qua UI thật */
+if (new URLSearchParams(location.search).has('dbgview')) window.__hsqView = () => ui.view || null;

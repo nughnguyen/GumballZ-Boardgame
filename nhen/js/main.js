@@ -17,7 +17,7 @@ const NET = makeNet({
   game: 'nhen', min: 1, max: 4, maxSeats: 4, allowLocal: true,
   minMsg: 'Nhện đua cần 2–4 người: đấu máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: { suits: 'easy' },
-  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'nhMode' && (v === 'solo' || v === 'race')) || (k === 'suits' && (v === 'easy' || v === 'medium' || v === 'hard')),
+  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'nhMode' && (v === 'solo' || v === 'race')) || (k === 'suits' && (v === 'easy' || v === 'medium' || v === 'hard')) || (k === 'seed' && Number.isInteger(v) && v > 0),
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy đi sau 800–1200ms (Dễ) / 300–500ms (Khó) mỗi nước — botDelay ở bot.js */
   botDelay: (s, pid) => botDelay(s, pid),
@@ -123,6 +123,9 @@ function send(pid, a) {
 const ui = gameKit({
   game: 'nhen', net: NET,
   offline: h => {
+    /* ?seed=N: ván cố định để test/kiểm chứng (engine đã nhận opts.seed) */
+    const seedParam = new URLSearchParams(location.search).get('seed');
+    if (seedParam && /^\d+$/.test(seedParam) && +seedParam > 0) h.setOpt('seed', +seedParam >>> 0);
     if (mode === 'solo') {
       h.setOpt('nhMode', 'solo');
       h.setOpt('suits', suits);

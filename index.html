@@ -82,6 +82,7 @@
       <button type="button" data-c="all" aria-pressed="true">Tất cả</button><button type="button" data-c="board" aria-pressed="false">Cờ bàn</button><button type="button" data-c="card" aria-pressed="false">Game bài</button><button type="button" data-c="party" aria-pressed="false">Tụ tập</button><button type="button" data-c="other" aria-pressed="false">Kiểu khác</button>
     </div>
     <label class="psel">Số người <select id="pf" aria-label="Lọc theo số người chơi"><option value="all">Bao nhiêu cũng được</option><option value="1">1 người</option><option value="2">2 người</option><option value="4-7">4–7 người</option><option value="8+">8 người trở lên</option></select></label>
+    <button type="button" id="clear-filter" hidden style="border:2px solid var(--ink);background:var(--y2,#ffe066);font:400 14px var(--font-display);color:var(--ink);border-radius:999px;padding:7px 16px;min-height:42px;cursor:pointer;box-shadow:var(--sh-sm)">✕ Xoá bộ lọc</button>
   </div>
 <div class="shelves" id="games-grid">
 <a class="tile typhu" href="typhu/" data-game="typhu" data-cat="board" data-min="2" data-max="8">
@@ -761,6 +762,7 @@ function applyFilter() {
   for (const [c] of CATS) { const n = tiles.filter(t => t.dataset.cat === c && !t.classList.contains('off')).length; const sh = shelfEls[c]; sh.classList.toggle('off', (cat !== 'all' && cat !== c) || !n); sh.querySelector('.shelf-h b').textContent = n; }
   $$('.filter button').forEach(x => x.setAttribute('aria-pressed', x.dataset.c === cat));
   $('#pf').value = pf; $('#empty-filter').style.display = shown ? 'none' : 'block';
+  const cf = document.getElementById('clear-filter'); if (cf) cf.hidden = !(cat !== 'all' || pf !== 'all' || q); /* có bộ lọc đang bật thì hiện nút Xoá bộ lọc */
   const soon = document.querySelector('.tile.soon'); if (soon) soon.style.display = cat === 'all' && pf === 'all' && !q ? '' : 'none';
   ls.set('gumballz-hub-filter', pf); ls.set('gumballz-hub-cat', cat);
 }
@@ -769,12 +771,14 @@ $$('.shelf-all').forEach(x => x.onclick = () => { cat = x.dataset.c; applyFilter
 $('#pf').onchange = e => { pf = e.target.value; applyFilter(); };
 const gqTop = $('#gq-top');
 if (gqTop) { gqTop.oninput = () => { applyFilter(); }; $('#nav-search').onsubmit = e => { e.preventDefault(); applyFilter(); $('#games').scrollIntoView({ behavior: 'smooth' }); }; }
+const clearFilterBtn = document.getElementById('clear-filter');
+if (clearFilterBtn) clearFilterBtn.onclick = () => { cat = 'all'; pf = 'all'; if (gqTop) gqTop.value = ''; applyFilter(); try { localStorage.removeItem('gumballz-hub-cat'); localStorage.removeItem('gumballz-hub-filter'); } catch (e) {} };
 const _q = new URLSearchParams(location.search).get('q'); if (_q && gqTop) gqTop.value = _q;
 applyFilter();
 if (_q) document.getElementById('games').scrollIntoView({ behavior: 'smooth' });
 </script>
 <script src="shared/js/rive/rive.js?v=1"></script>
-<script type="module" src="shared/js/rive-tiles.js?v=21"></script>
+<script type="module" src="shared/js/rive-tiles.js?v=22"></script>
 <script type="module" async src="./shared/ui/feel.js?v=54"></script>
 <script>/* số game ở trang chủ tự đếm từ danh sách ô game (không hard-code) */try{var b=document.getElementById("nGames"),k=new Set([].map.call(document.querySelectorAll("[data-game]"),function(t){return t.dataset.game}));if(b&&k.size)b.textContent=k.size}catch(e){}</script>
 <script src="shared/ui/page-trans.js?v=1"></script>

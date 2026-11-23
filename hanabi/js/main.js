@@ -13,10 +13,18 @@ import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
 
+/* ?seed=N: gieo hạt cố định cho ván đấu (chơi lại 1 ván đã biết / test
+   thắng — không đổi luật, chỉ cố định cách xào bài; không có tham số
+   thì gieo hạt theo thời gian như trước) */
+let urlSeed = null;
+try {
+  const q = new URLSearchParams(location.search).get('seed');
+  if (q != null && q !== '' && Number.isInteger(+q) && +q > 0) urlSeed = +q % 2147483647;
+} catch (e) {}
 const NET = makeNet({
   game: 'hanabi', min: 2, max: 5, maxSeats: 5, allowLocal: true,
   minMsg: 'Hanabi cần 2–5 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
-  defaults: {},
+  defaults: urlSeed == null ? {} : { seed: urlSeed },
   optOk: () => false,
   create: createGame, apply: applyAction, view: viewFor, actors, bot: botAction,
   botDelay: () => 700 + Math.random() * 900,

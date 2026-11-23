@@ -273,6 +273,9 @@ $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); }
 const ui = gameKit({
   game: 's2048', net: NET,
   offline: h => {
+    /* ?seed=N: ván cố định để test/kiểm chứng (engine đã nhận opts.seed) */
+    const seedParam = new URLSearchParams(location.search).get('seed');
+    if (seedParam && /^\d+$/.test(seedParam) && +seedParam > 0) h.setOpt('seed', +seedParam >>> 0);
     if (mode === 'ai-easy' || mode === 'ai-hard') {
       /* đua với máy: bạn + 1 máy, cùng 1 dãy ô mới mọc */
       h.addBot({ level: mode === 'ai-easy' ? 'easy' : 'hard' });

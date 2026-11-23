@@ -64,6 +64,12 @@ body{background:radial-gradient(900px 520px at 0 -10%,#ffe3f0 0,transparent 60%)
 .lst{display:flex;flex-direction:column;gap:5px;text-align:left}.lst .row{display:flex;align-items:center;gap:8px;background:#ffffff12;border:1.5px solid #ffffff1f;border-radius:14px;padding:6px 10px;font:800 14px Nunito,sans-serif}.lst .row.me{border-color:#ffd166}.lst .nm{flex:1;min-width:0;max-width:none}.lst small{color:#cfc8ea;font-weight:700}
 .guide h3{margin:12px 0 4px;font-size:17px}.guide p,.guide li{font-weight:600;line-height:1.5}.guide ul{padding-left:20px;margin:4px 0}
 @media (prefers-reduced-motion:reduce){.qcard,.ans,.pd,.intro .big{animation:none}.tbar i{transition:none}}
+/* danh sách tổng kết trong end modal (mẫu chung như baucua) */
+.sum{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sum li{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:7px 10px;font-weight:800;text-align:left}
+.sum li .nm{flex:1;min-width:0}.sum li.win{background:#fff4d6;border-color:#f1cf7a}
+.sum li small{display:block;color:var(--muted);font-weight:700;font-size:12.5px}
+.sum li b{white-space:nowrap}
 @media (max-width:420px){.ans{min-height:56px;font-size:15px;padding:8px 10px}.ans .lt{width:28px;height:28px}.score{display:none}}
 @media (min-width:900px){.qt{font-size:26px}.ans{min-height:76px;font-size:18px}}
 .anss.rev .ans{min-height:44px;animation:none;padding:6px 10px}.anss.rev .ans .lt{width:26px;height:26px;font-size:14px}

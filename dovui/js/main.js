@@ -1,7 +1,7 @@
 // 🧠 Đố Vui Siêu Tốc – giao diện. Luật ở engine.js, câu hỏi ở questions.js, phòng/mạng dùng shared/net/simplenet.js.
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
 import { DEF } from './def.js?v=4';
-import * as E from './engine.js?v=4';
+import * as E from './engine.js?v=5';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { confirmBox, toast as tip } from '../../shared/ui/dialog.js?v=10';
 
@@ -53,6 +53,8 @@ $('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
 
 // ---------- ván chơi ----------
 let skew = 0, shownKey = '', toSent = '', lastTick = 0, seen = [], seenAll = [];
+let endShown = null, endModalOpen = false; /* end modal chỉ hiện 1 lần mỗi ván */
+const freshSeed = () => (Math.random() * 0xFFFFFFFF) >>> 0; /* ván mới: seed ngẫu nhiên mới → câu mới */
 const P = (v, id) => v.players.find(p => p.id === id) || { name: '?' };
 const nm = (v, id) => esc(cleanName(P(v, id).name));
 const left = v => v.deadline ? (v.deadline - (Date.now() + skew)) / 1000 : null;
@@ -98,6 +100,22 @@ function ending(v) {
     ${me && me.id ? `<p class="mine">Bạn đúng <b>${me.right}/${v.total}</b> câu · chuỗi dài nhất <b>${me.best}</b> · hạng <b>${r.findIndex(p => p.id === me.id) + 1}</b></p>` : ''}
     <div class="lst">${r.map((p, i) => `<div class="row${p.id === ui.myId ? ' me' : ''}"><span class="rk">${i + 1}</span>${avatar(p.name, 26)}<span class="nm">${esc(cleanName(p.name))}</span><small>${p.right}/${v.total} đúng</small><b>${p.score}</b></div>`).join('')}</div></div>`;
 }
+/* end modal chuẩn như các game khác (mẫu mastermind/baucua): hiện khi hết ván, có điểm số
+   + nút chơi lại / về sảnh / về trang chủ. Bảng vàng trong màn hình game vẫn giữ làm nền. */
+function showEndModal(v) {
+  const r = rank(v), me = P(v, ui.myId), w = r[0];
+  const title = !w || w.score <= 0 ? '🤝 Chưa ai ghi điểm!' : w.id === ui.myId ? '👑 Bạn thắng ván này!' : `🏁 ${esc(cleanName(w.name))} thắng ván này!`;
+  const rows = r.map((p, i) => `<li class="${i === 0 && p.score > 0 ? 'win' : ''}">${avatar(p.name)}<span class="nm">${i + 1}. ${esc(cleanName(p.name))}${p.id === ui.myId ? ' (bạn)' : ''}<small>đúng ${p.right}/${v.total} câu · chuỗi dài nhất ${p.best}</small></span><b>${p.score}</b></li>`).join('');
+  const btns = ui.isHost
+    ? `<button class="btn big pri" id="m-again">🔁 Ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`
+    : `<button class="btn big pri" id="m-close">Đóng</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`;
+  ui.openModal(`<h2>${title}</h2><ul class="sum">${rows}</ul>${me && me.id ? `<p style="text-align:center;color:var(--muted);font-weight:800;margin:10px 0 0">Bạn đúng ${me.right}/${v.total} câu · hạng ${r.findIndex(p => p.id === me.id) + 1}</p>` : ''}<div class="btns">${btns}</div>`, 'lock');
+  endModalOpen = true;
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); endModalOpen = false; seenAll = [...new Set([...seenAll, ...seen])].slice(-300); ui.net.raw.start({ seen: seenAll, seed: freshSeed() }); };
+  const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); endModalOpen = false; ui.net.raw.restart(); };
+  const home = $('#m-home'); if (home) home.onclick = () => { ui.closeModal(); endModalOpen = false; ui.leave(); };
+  const close = $('#m-close'); if (close) close.onclick = () => { ui.closeModal(); endModalOpen = false; };
+}
 function render(v, prev) {
   skew = (v.now || Date.now()) - Date.now();
   if (v.ids) seen = v.ids;
@@ -123,6 +141,8 @@ function render(v, prev) {
     if (v.phase === 'rev' && prev.phase !== 'rev') { const g = v.gain && v.gain[ui.myId]; beep(g && g.ok ? 'ok' : 'bad'); }
     if (v.phase === 'ended' && prev.phase !== 'ended') beep('win');
   }
+  if (v.phase === 'ended') { if (endShown !== v.gid) { endShown = v.gid; setTimeout(() => { if (ui.view === v && !endModalOpen) showEndModal(v); }, 600); } }
+  else { endShown = null; if (endModalOpen) { endModalOpen = false; ui.closeModal(); } } /* ván mới bắt đầu thì đóng end modal */
 }
 function drawRound(v) {
   const t = left(v), s = t == null ? null : Math.max(0, Math.ceil(t));
@@ -149,7 +169,7 @@ $('#acts').addEventListener('click', e => {
   if (b.dataset.h) { beep('help'); ui.act({ type: b.dataset.h }); return; }
   const a = b.dataset.a;
   if (a === 'next') ui.act({ type: 'next' });
-  else if (a === 'again') { seenAll = [...new Set([...seenAll, ...seen])].slice(-300); ui.net.raw.start({ seen: seenAll }); } /* không lặp câu vừa hỏi */
+  else if (a === 'again') { seenAll = [...new Set([...seenAll, ...seen])].slice(-300); ui.net.raw.start({ seen: seenAll, seed: freshSeed() }); } /* không lặp câu vừa hỏi */
   else if (a === 'lobby') ui.net.raw.restart();
 });
 $('#hostbar').addEventListener('click', async e => {

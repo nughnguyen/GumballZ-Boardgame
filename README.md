@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/achievements-1341-FF5A60?style=flat-square" alt="1341 thành tựu">
   <img src="https://img.shields.io/badge/titles-114-B9A6FF?style=flat-square" alt="114 danh hiệu">
   <img src="https://img.shields.io/badge/frames-83-FACD33?style=flat-square" alt="83 khung avatar">
-  <img src="https://img.shields.io/badge/banners-58-2EC5B6?style=flat-square" alt="58 banner">
+  <img src="https://img.shields.io/badge/banners-59-2EC5B6?style=flat-square" alt="59 banner">
 </p>
 
 ---
@@ -27,7 +27,7 @@
 | 🎮 **94 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
 | 🪙 **Ví xu chung** | Thắng +10 xu, chơi +2 xu, tài khoản mới bắt đầu 100 xu. Xu dùng chung cho mọi game. |
 | 🎁 **Shop + Rương Gacha** | Mở rương 100 xu/lượt: khung, màu tên, banner, hiệu ứng thắng. |
-| 🖼️ **Sưu tầm** | 83 khung avatar (có khung rồng bay), 58 banner (có rồng canvas), 29 màu tên, 6 hiệu ứng thắng. |
+| 🖼️ **Sưu tầm** | 83 khung avatar (có khung rồng bay), 59 banner (có rồng canvas), 29 màu tên, 6 hiệu ứng thắng. |
 | 🏅 **Danh hiệu & thành tựu** | 114 danh hiệu, 1341 thành tựu — càng chơi càng mở nhiều. |
 | 🎖️ **Huy hiệu medal** | 7 bậc huân chương (Chủ Sảnh, Quản Sảnh, Nhà Tài Trợ, VIP, DEV…), nhấn vào xem cách nhận. |
 | 👑 **Thang VIP** | Đứng top server liên tục 7–30 ngày để mở khung/màu VIP, càng lên cao càng khó. |

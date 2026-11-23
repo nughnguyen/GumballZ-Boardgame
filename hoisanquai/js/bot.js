@@ -40,13 +40,15 @@ export function botAction(s, pid) {
       const need = HEROES[pd.ctx.k].roll, val = EFF_V[HEROES[pd.ctx.k].eff] || 1;
       if (pd.by === pid) { if (A < need && val >= 1.4) return help(need - A, 'a') || { type: 'pass' }; return { type: 'pass' }; }
       const roller = s.players.find(p => p.id === pd.by);
-      if (A >= need && (val >= 3 || roller === lead) && Math.random() < 0.8) return hurt(A - need + 1, 'a') || { type: 'pass' };
+      /* chỉ phá tung của người đã gần thắng (prog ≥ 6) – không trừ điểm bừa mọi lần tung */
+      if (A >= need && prog(roller) >= 6 && (val >= 3 || roller === lead) && Math.random() < 0.8) return hurt(A - need + 1, 'a') || { type: 'pass' };
       return { type: 'pass' };
     }
     if (pd.what === 'atk') {
       const M = MONSTERS[pd.ctx.k];
       if (pd.by === pid) { if (A < M.win) return help(M.win - A, 'a') || (A <= M.lose ? help(M.lose + 1 - A, 'a') : null) || { type: 'pass' }; return { type: 'pass' }; }
-      if (A >= M.win) return hurt(A - M.win + 1, 'a') || { type: 'pass' };
+      const roller = s.players.find(p => p.id === pd.by);
+      if (A >= M.win && prog(roller) >= 6) return hurt(A - M.win + 1, 'a') || { type: 'pass' };
       return { type: 'pass' };
     }
     if (pd.what === 'chal') {
@@ -100,7 +102,15 @@ export function botAction(s, pid) {
   /* 4. phép */
   if (ap >= 1) for (const c of hand.filter(x => C(x).t === 'magic')) {
     const K = MAGIC[c.k];
-    if (K.need === 'hero') { const o = E.heroTargets(s, pid, K.eff); if (!o.length) continue; const t = o.sort((a, b) => prog(s.players.find(p => p.id === b.pid)) - prog(s.players.find(p => p.id === a.pid)))[0]; return { type: 'play', cid: c.id, pid: t.pid, hid: t.hid }; }
+    if (K.need === 'hero') {
+      /* phá đội người khác (huỷ / lấy / trả về) chỉ khi người đó đã gần thắng (prog ≥ 6),
+         không phá bừa từ đầu ván – nếu không đội ai cũng không xây nổi */
+      let o = E.heroTargets(s, pid, K.eff);
+      if (['destroy', 'destroyDraw', 'steal', 'ret'].includes(K.eff)) o = o.filter(t => prog(s.players.find(p => p.id === t.pid)) >= 6);
+      if (!o.length) continue;
+      const t = o.sort((a, b) => prog(s.players.find(p => p.id === b.pid)) - prog(s.players.find(p => p.id === a.pid)))[0];
+      return { type: 'play', cid: c.id, pid: t.pid, hid: t.hid };
+    }
     if (K.need === 'player') { const q = foes.filter(p => E.handLen(p)).sort((a, b) => E.handLen(b) - E.handLen(a))[0]; if (!q) continue; return { type: 'play', cid: c.id, pid: q.id }; }
     if (K.eff === 'wipeItems') { const mine = me.party.filter(h => h.item && ITEMS[h.item.k].curse).length, theirs = foes.reduce((n, q) => n + q.party.filter(h => h.item && !ITEMS[h.item.k].curse).length, 0); if (mine + theirs < 2) continue; }
     if (K.eff === 'digHero' && !s.disc.some(x => C(x).t === 'hero')) continue;
@@ -111,7 +121,12 @@ export function botAction(s, pid) {
     const used = s.used || {}, b = E.bonusOf;
     const cand = me.party.filter(h => !used[h.id] && !(h.item && ITEMS[h.item.k].sleep)).map(h => {
       const H = HEROES[h.k], pk = PICK[H.eff]; let ok = true;
-      if (pk === 'hero') ok = E.heroTargets(s, pid, H.eff).length > 0;
+      if (pk === 'hero') {
+        const o = E.heroTargets(s, pid, H.eff);
+        /* kỹ năng phá đội (huỷ / lấy / trả về) chỉ nhắm người đã gần thắng (prog ≥ 6) */
+        if (['destroy', 'destroyDraw', 'steal', 'ret'].includes(H.eff)) ok = o.some(t => prog(s.players.find(p => p.id === t.pid)) >= 6);
+        else ok = o.length > 0;
+      }
       if (pk === 'player') ok = foes.some(q => E.handLen(q));
       if (pk === 'item') ok = s.players.some(q => q.party.some(x => x.item));
       if (H.eff === 'atkBuff') ok = ap >= 3 && s.mons.some(m => E.canAttack(me, m));

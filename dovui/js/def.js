@@ -1,5 +1,5 @@
 // Khai báo luật + máy cho lớp mạng dùng chung (shared/net/simplenet.js) + máy chủ (server/src/srvhost.js) – không đụng tới trình duyệt.
-import * as E from './engine.js?v=4';
+import * as E from './engine.js?v=5';
 import { botAction } from './bot.js?v=4';
 export const DEF = {
   srv: true, /* phòng online do máy chủ giữ ván */
