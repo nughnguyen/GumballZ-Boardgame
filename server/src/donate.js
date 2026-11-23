@@ -188,7 +188,6 @@ export function donCfgSet(sql, goal, mins) {
    lỗi/timeout không chặn response của claim, log lỗi KHÔNG kèm URL. */
 export const DISCORD_QUANTRI_URL = 'https://gumballzgames.vercel.app/quantri/';
 export const DISCORD_BANNER_URL = 'https://gumballzgames.vercel.app/shared/img/donate-banner.png';
-export const DISCORD_THUMB_URL = 'https://gumballzgames.vercel.app/shared/img/og.jpg';
 /* Ảnh banner TĨNH (shared/img/donate-banner.png, vẽ sẵn từ đúng mẫu neobrutalism):
    bản render ĐỘNG theo từng đơn (api/donate-banner.js) đã BỎ vì Vercel không chạy được —
    bản Edge bị từ chối lúc build ("unsupported modules: @vercel: module"), bản Node của
@@ -208,8 +207,8 @@ export function donTransferCode(uid, ref, hide) {
    - clip 1 (code block làm tiêu đề): Text Display render markdown đầy đủ nên tiêu đề
      + bảng thông tin dùng code block ```...``` trực tiếp, KHÔNG cần workaround ký tự vô
      hình U+3164 như khi nhét code block vào title embed cổ điển.
-   - clip 2 (Components V2): Container (accent vàng) + Section + Text Display + Separator
-     + Media Gallery. Tài liệu chính thức Discord (Execute Webhook + Component Reference):
+   - clip 2 (Components V2): Container (accent vàng) + Text Display + Separator
+     + Media Gallery (thumbnail nhỏ og.jpg từng nằm trong Section đã BỎ ở -175). Tài liệu chính thức Discord (Execute Webhook + Component Reference):
      webhook không thuộc app vẫn gửi được component KHÔNG tương tác khi URL có
      ?with_components=true và body có flags 32768 (IS_COMPONENTS_V2); lúc đó body CHỈ
      được chứa components — gửi kèm content/embeds sẽ bị 400 BAD REQUEST. Nút bấm
@@ -254,8 +253,8 @@ function donClaimParts(c) {
 export function discordClaimPayload(c, adminId) {
   const { name, vn, info, code, msg } = donClaimParts(c);
   const inner = [
-    /* Author v3 → Section: tên donor in đậm + logo site làm thumbnail. */
-    { type: 9, components: [TD('**' + name + '**')], accessory: { type: 11, media: { url: DISCORD_THUMB_URL } } },
+    /* Tên donor in đậm (dòng Text Display thường — thumbnail nhỏ og.jpg đã BỎ ở -175, chỉ giữ ảnh lớn banner). */
+    TD('**' + name + '**'),
     /* Tiêu đề v3 → code block (clip 1). */
     TD('```\nĐơn ủng hộ đang chờ duyệt\n```'),
     TD('Có người vừa chuyển khoản. Vào trang admin để duyệt đơn.\n[Mở trang Quản trị](' + DISCORD_QUANTRI_URL + ')'),
@@ -293,7 +292,7 @@ export function discordDecidePayload(c, ok, byName, decidedAt = Date.now()) {
   const who = (String(byName || '').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30)) || 'Quản trị';
   const vnD = vnFmt(decidedAt);
   const inner = [
-    { type: 9, components: [TD('**' + name + '**')], accessory: { type: 11, media: { url: DISCORD_THUMB_URL } } },
+    TD('**' + name + '**'),
     TD('```\n' + (ok ? '✅ Đơn ủng hộ đã được duyệt' : '❌ Đơn ủng hộ đã bị từ chối') + '\n```'),
     TD((ok ? 'Đã duyệt bởi **' + who + '** · ' : 'Đã từ chối bởi **' + who + '** · ') + vnD),
     SEP(1),
