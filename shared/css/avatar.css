@@ -91,8 +91,6 @@
    pointer-events none để không chặn bấm đổi theme trên canvas. */
 .b42-bw:has(>.b42-bn.b42-cpbn){box-shadow:0 0 0 2px #f6c945,0 0 0 4px #b8860b,0 10px 26px -8px rgba(184,134,11,.55),0 0 30px rgba(250,205,51,.30)}
 .b42-bn.b42-cpbn::before{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(255,243,196,.38),rgba(255,243,196,.12) 18%,rgba(255,243,196,0) 34%)}
-.b42-cphint{left:50%;bottom:8%;transform:translateX(-50%);z-index:5;background:rgba(36,26,56,.78);color:#fff8ee;font:800 12px Nunito,sans-serif;padding:4px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
-.b42-clicked .b42-cphint{display:none}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
 @media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after,.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{animation:none}}
 /* ✍️ hiệu ứng chữ tên (patch -154): tắt animation tên ở mọi nơi (kể cả animation inline trong style) khi reduced-motion */

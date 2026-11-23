@@ -34,7 +34,6 @@ export function initBanners(root) {
     c.addEventListener('click', () => {
       const sc = c._sc; if (!sc) return;
       sc.setTheme(); cpTheme.set(c.dataset.bid || '', sc.theme);
-      const bn = c.closest('.b42-bn'); if (bn) bn.classList.add('b42-clicked');
     });
   });
   root.querySelectorAll('.lk-bcard, .pf-banner.b42-head').forEach(el => { if (regVis.has(el)) return; regVis.add(el); visIO.observe(el); });
@@ -69,7 +68,7 @@ function bannerInner(f){
  if(f.bolt){let p='';for(let i=0;i<f.bolt[0];i++){let x=j(8,92),d=`M${r1(x)} 0`;const L=j(12,24);for(let k=1;k<=7;k++)d+=`L${r1(x+(k<7?j(-3,3):0))} ${r1(L*k/7)}`;p+=`<path class="b42-bz" d="${d}" style="animation-delay:${r1(-R()*2.4)}s;animation-duration:${r1(j(1.6,3.2))}s"/>`}h+=`<svg class="b42-sv" viewBox="0 0 100 30" preserveAspectRatio="none" style="--bc:${f.bolt[1]};z-index:4">${p}</svg>`}
  (f.fly||[]).forEach(([ch,z,y,T,d,dir])=>h+=`<i class="b42-fs ${dir<0?'b42-r':''}" style="top:${y}%;animation-duration:${T}s;animation-delay:${-d}s"><b style="font-size:${z}em;${ch=='@shu'?'animation:b42-spin .5s linear infinite':dir<0?'':'transform:scaleX(-1)'}">${ch=='@shu'?SHU:ch}</b></i>`);
  if(f.dr)h+=`<canvas class="b42-dr" data-d='${JSON.stringify(f.dr)}'></canvas>`;
- if(f.cp)h+=`<canvas class="b42-cp" data-cp="1" data-bid="${f.bid||''}"></canvas><span class="b42-cphint"${cpTheme.get(f.bid||'')?' style="display:none"':''}>Bấm để đổi màu rồng 🐉</span>`;
+ if(f.cp)h+=`<canvas class="b42-cp" data-cp="1" data-bid="${f.bid||''}"></canvas>`;
  if(f.kira)for(let i=0;i<f.kira[0];i++){const z=r1(j(.8,2.6));h+=`<i class="b42-kr" style="--c:${f.kira[1]};width:${z}em;height:${z}em;left:${r1(j(0,98))}%;top:${r1(j(0,88))}%;animation-delay:${r1(-R()*2.2)}s"></i>`}
  (f.slash||[]).forEach(([x,y,r,d])=>h+=`<i class="b42-sl2" style="left:${x}%;top:${y}%;--r:${r}deg;animation-delay:${-d}s"></i>`);
  if(f.speed)for(let i=0;i<f.speed;i++)h+=`<i class="b42-spd" style="top:${r1(j(2,98))}%;width:${r1(j(15,40))}em;animation-duration:${r1(j(.35,.8))}s;animation-delay:${r1(-R())}s"></i>`;

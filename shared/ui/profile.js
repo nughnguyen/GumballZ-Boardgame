@@ -7,7 +7,7 @@ import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifie
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=4'; /* 🐉 rồng bay khung avatar (patch -158: rồng CodePen canvas) */
-import { bannerHTML42, initBanners } from './banner-render.js?v=2'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
+import { bannerHTML42, initBanners } from './banner-render.js?v=3'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=3';
 import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=8'; /* 🎖️ huân chương 6 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
@@ -106,7 +106,7 @@ export function profileCss() {
   import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=14', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=14'; }
+  try { l.href = new URL('../css/avatar.css?v=15', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=15'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
