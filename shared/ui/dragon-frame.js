@@ -10,7 +10,11 @@
    Màu: themeForColors(c1, c2) suy các sắc đậm/nhạt từ 2 màu của từng khung để giữ bản sắc khung.
    Lưu ý so với bản gốc: miệng rồng (bezier) bản gốc gọi khi đang noStroke() nên không hiện —
    bản port vẽ miệng bằng nét đen như tác giả định vẽ; còn lại giữ nguyên cả các "quirk" số học
-   (a -= 90 radian ở gai lưng, diff xoay chân) để hình ra giống hệt. */
+   (a -= 90 radian ở gai lưng, diff xoay chân) để hình ra giống hệt.
+   VẬT LÝ BAY (bổ sung, không đổi hình dáng): quỹ đạo warp theo vận tốc đứng (lao xuống nhanh,
+   vọ lên chậm, ease ở điểm cua), nghiêng bank theo độ cong + chúc/ngẩng theo vy (tối đa ~35°),
+   cánh vỗ mạnh/nhanh khi bay lên và xoè lướt khi lao xuống, thân có sóng lan đầu→đuôi, nhịp nâng
+   đồng bộ nhịp vỗ. Hàm thuần export flightProfile(u, mode) / waveOffset(i, t) để test node. */
 
 const TAU = Math.PI * 2;
 const css = (c, a = 1) => a >= 1 ? `rgb(${c[0]},${c[1]},${c[2]})` : `rgba(${c[0]},${c[1]},${c[2]},${a})`;
@@ -48,6 +52,50 @@ export function themeForColors(c1, c2) {
 /* wingSpines bản gốc có alpha 150/255 — vẽ bằng rgba riêng */
 const spineCss = c => `rgba(${c[0]},${c[1]},${c[2]},0.59)`;
 
+/* ================= VẬT LÝ BAY (hàm thuần, test được bằng node) =================
+   Quy ước: vy là vận tốc đứng VẬT LÝ, dương = bay LÊN, âm = LAO XUỐNG (ngược chiều y màn
+   hình, y màn hình tăng xuống dưới). vy chuẩn hoá về [-1, 1] (chia cho 76, biên độ y lớn
+   nhất của quỹ đạo số 8). flap: 0.05 = xoè lướt, 1 = vỗ mạnh/nhanh.
+   Warp quỹ đạo: u thời gian đều → u_warp, đạo hàm du_warp/du = tốc độ tức thời w:
+   - số 8: u_w = u - 0.225·sin(2u) → w = 1 - 0.45·cos(2u) (0.55 lúc vọ lên, 1.45 lúc lao xuống)
+   - tròn: u_w = u + 0.402·sin(u) → w = 1 + 0.402·cos(u) (0.60 lúc vọ lên, 1.40 lúc lao xuống)
+   w > 0 luôn nên warp đơn điệu, không giật, ease tự nhiên ở điểm cua (w nhỏ khi đổi hướng).
+   bank: nghiêng theo độ cong κ (dấu = dấu của x'·y'' - y'·x'', tức chiều cua) qua tanh để
+   bão hoà mềm ở 35° (0.61 rad), cộng thêm pitch nhỏ -vy·0.12 (lao xuống chúc thêm, vọ lên
+   ngẩng thêm); tổng bank kẹp trong [-0.61, 0.61]. flap = 0.5 + 0.45·vy. */
+export function flightProfile(u, mode) {
+  const m = mode === 'edge' ? 'edge' : 'orbit';
+  const uW = m === 'edge' ? u + 0.402 * Math.sin(u) : u - 0.225 * Math.sin(2 * u);
+  const w = m === 'edge' ? 1 + 0.402 * Math.cos(u) : 1 - 0.45 * Math.cos(2 * u);
+  let x, y, xp, yp, xpp, ypp, angle;
+  if (m === 'edge') {
+    x = 68 * Math.cos(uW); y = 68 * Math.sin(uW);
+    xp = -68 * Math.sin(uW); yp = 68 * Math.cos(uW);
+    xpp = -68 * Math.cos(uW); ypp = -68 * Math.sin(uW);
+    angle = uW + Math.PI / 2;
+  } else {
+    x = 68 * Math.sin(uW); y = -76 * Math.sin(uW) * Math.cos(uW);
+    xp = 68 * Math.cos(uW); yp = -76 * Math.cos(2 * uW);
+    xpp = -68 * Math.sin(uW); ypp = 152 * Math.sin(2 * uW);
+    angle = Math.atan2(yp, xp);
+  }
+  const vy = Math.max(-1, Math.min(1, -(yp * w) / 76)); // lên +, xuống −
+  const cross = xp * ypp - yp * xpp; // >0 cua một chiều, <0 cua chiều ngược
+  const kappa = Math.abs(cross) / Math.pow(xp * xp + yp * yp, 1.5);
+  const bankRoll = (cross >= 0 ? 1 : -1) * 0.61 * Math.tanh(kappa / 0.03);
+  const bank = Math.max(-0.61, Math.min(0.61, bankRoll - vy * 0.12));
+  const flap = Math.max(0.05, Math.min(1, 0.5 + 0.45 * vy));
+  return { x, y, angle, bank, vy, flap };
+}
+/* Sóng thân: đốt i lệch pha i·lag so với đầu, biên độ tăng dần về đuôi (đầu 1.5px → đuôi 6px).
+   t tính bằng giây; trả về độ lệch dọc (px) tại thời điểm t. Dùng cho CpDragon.update qua
+   wingPhase/4 (pha cánh, 4 rad/s) để sóng đồng bộ nhịp vỗ. */
+export function waveOffset(i, t) {
+  const k = Math.max(0, Math.min(27, i | 0));
+  const amp = 1.5 + (k / 27) * 4.5;
+  return amp * Math.sin(t * 4 - k * 0.35);
+}
+
 /* ================= RỒNG (port class Dragon của CodePen) =================
    Không gian vẽ riêng của rồng: đầu ở (0,0) sau phép tịnh tiến của draw(), thân trải về +x
    (đuôi ở ~+280), cánh/chân thõng xuống +y. Bên ngoài đặt đầu lên quỹ đạo rồi xoay
@@ -58,6 +106,7 @@ export class CpDragon {
     this.vx = 0; this.vy = 0;
     this.segments = [];
     this.timer = 0; this.speed = 4; this.lift = 3;
+    this.wingPhase = 0; this.vySmooth = 0; this.flap = 0.5; // pha vỗ tích luỹ (rad), vy làm mượt, mức vỗ hiện tại
     this.showLegs = true;
     this.wing = {
       x1: 0, y1: 0, x2: 0, y2: 0, x3: 0, y3: 0, x4: 0, y4: 0,
@@ -68,15 +117,35 @@ export class CpDragon {
     for (let i = 0; i <= 27; i++) this.segments.push({ x: this.x + this.w * i / 27, y: this.y });
   }
 
-  update(dt) {
+  /* vy: vận tốc đứng chuẩn hoá [-1, 1], dương = bay lên, âm = lao xuống (mặc định 0 = bay ngang).
+     Cánh gắn với vy: bay lên → vỗ nhanh + mạnh (tần số/biên độ tăng), lao xuống → vỗ chậm + xoè
+     lướt (biên độ nhỏ dần về ~0.75, cánh xoè ngang). Pha vỗ tích luỹ theo tốc độ hiệu dụng nên
+     đổi tốc không làm giật pha. Thân: đốt đầu đẩy lên khi cánh vỗ xuống (ngược pha m, tỉ lệ theo
+     mức vỗ), các đốt sau nối bằng lerp có pha sóng + sóng lan đầu→đuôi (đuôi trễ, biên độ lớn). */
+  update(dt, vy = 0) {
     this.diff = this.segments[0].y - this.segments[1].y;
+    const vyN = Math.max(-1, Math.min(1, +vy || 0));
+    this.vySmooth += (vyN - this.vySmooth) * Math.min(1, dt * 6); // vy đổi dấu không giật cánh
+    const v = this.vySmooth;
+    const climb = (v + 1) / 2; // 0 = lao xuống, 1 = vọ lên
+    const flap = Math.max(0.05, Math.min(1, 0.5 + 0.45 * v));
+    this.flap = flap;
+    const speedEff = 4 * (0.55 + 0.9 * climb); // 2.2 lúc lướt → 5.8 lúc vỗ mạnh
+    const liftEff = 3 * (0.25 + 1.1 * climb); // 0.75 cánh xoè lướt → 4.05 vỗ mạnh
+    this.speed = speedEff; this.lift = liftEff;
     this.timer += dt * 1.08; // 0.018/khung × 60 khung/giây
-    this.m = Math.sin(this.timer * this.speed) * this.lift;
-    this.m2 = Math.cos(this.timer * this.speed) * this.lift;
+    this.wingPhase += dt * 1.08 * speedEff; // pha vỗ tích luỹ, ~2.4 rad/s lướt → ~6.3 rad/s vỗ mạnh
+    this.m = Math.sin(this.wingPhase) * this.lift;
+    this.m2 = Math.cos(this.wingPhase) * this.lift;
     for (let i = 0; i < this.segments.length; i++) {
       const s = this.segments[i];
-      if (i === 0) { s.y += this.m; s.x = this.x; }
-      else { s.y += (this.segments[i - 1].y - s.y) * 0.20; s.x += (this.segments[i - 1].x - s.x) * 0.20; }
+      if (i === 0) { s.y += this.m * (1 - 1.4 * flap); s.x = this.x; } // vỗ xuống → thân đẩy lên (flap càng mạnh càng rõ)
+      else {
+        // lerp có pha sóng: 0.10..0.28 theo pha cánh trừ dần theo đốt, đuôi (i lớn) lerp nhỏ hơn = trễ quán tính
+        const k = Math.max(0.10, Math.min(0.28, 0.20 + 0.05 * Math.sin(this.wingPhase - i * 0.35))) * (1 - 0.35 * (i / 27));
+        s.y += (this.segments[i - 1].y - s.y) * k + waveOffset(i, this.wingPhase / 4) * dt * 5;
+        s.x += (this.segments[i - 1].x - s.x) * k + waveOffset(i, this.wingPhase / 4 + Math.PI / 2) * dt * 2;
+      }
     }
     this.headBob = this.segments[0].y - 200;
     const w = this.wing, s7 = this.segments[7];
@@ -370,11 +439,11 @@ function fdDraw(c, prog, op) {
   g.clearRect(0, 0, W, H);
   if (op <= 0) { c.style.opacity = '0'; return; }
   c.style.opacity = String(op);
-  const pt = orbitPoint(prog * TAU, d.mode);
+  const pt = flightProfile(prog * TAU, d.mode); // quỹ đạo warp + bank theo độ cong/vy
   const k = W / 560; // rồng dài ~280 đơn vị → ~nửa hộp 180
   g.save();
   g.translate(W / 2 + pt.x * (W / 180), H / 2 + pt.y * (H / 180));
-  g.rotate(pt.angle + Math.PI); // đầu hướng theo tiếp tuyến, thân kéo phía sau
+  g.rotate(pt.angle + Math.PI + pt.bank); // đầu hướng theo tiếp tuyến, thân kéo phía sau, nghiêng thêm bank
   g.scale(k, k);
   d.dragon.draw(g);
   g.restore();
@@ -388,8 +457,10 @@ function fdLoop(ms) {
     const cyc = (nowSec + d.phase * 12) % 12; // chu kỳ 12s: hiện ~3s đầu, ẩn 9s còn lại
     let op = 0;
     if (cyc >= 0.24 && cyc <= 2.76) op = Math.min(1, (cyc - 0.24) / 0.24, (2.76 - cyc) / 0.24);
-    if (op > 0) d.dragon.update(1 / 60);
-    fdDraw(c, ((nowSec + d.phase * 12) / d.D) % 1, op);
+    const prog = ((nowSec + d.phase * 12) / d.D) % 1;
+    const prof = flightProfile(prog * TAU, d.mode);
+    if (op > 0) d.dragon.update(1 / 60, prof.vy); // cánh vỗ theo vận tốc đứng trên quỹ đạo warp
+    fdDraw(c, prog, op);
   });
   requestAnimationFrame(fdLoop);
 }
@@ -579,7 +650,14 @@ export function createCpScene(canvas) {
       }
     };
     runClouds(this.cloudsBack); runClouds(this.cloudsFront);
-    this.dragon.update(dt || 1 / 60);
+    /* Rồng bay ngang qua trời (không đứng yên): x 60..540 theo sin chậm (~25s/vòng),
+       y lên/xuống theo sin khác tần số; vy vật lý (+ = lên) truyền vào update để cánh vỗ theo. */
+    const fx = 300 + 240 * Math.sin(nowSec * 0.25);
+    const fy = 190 + 45 * Math.sin(nowSec * 0.37 + 1.3);
+    const fvx = 60 * Math.cos(nowSec * 0.25);
+    const fvyScr = 45 * 0.37 * Math.cos(nowSec * 0.37 + 1.3); // y màn hình, + = đang hạ xuống
+    const fvy = Math.max(-1, Math.min(1, -fvyScr / 16.65)); // chuẩn hoá, + = bay lên
+    this.dragon.update(dt || 1 / 60, fvy);
     const s = Math.max(W / 600, H / 600);
     const ox = W / 2 - 300 * s, oy = H / 2 - 280 * s;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -587,12 +665,31 @@ export function createCpScene(canvas) {
     g.save();
     g.translate(ox, oy); g.scale(s, s);
     g.drawImage(this.sky, 0, 0, 600, 450);
+    /* mặt trời + hào quang nhẹ */
+    const sun = g.createRadialGradient(470, 78, 4, 470, 78, 110);
+    sun.addColorStop(0, 'rgba(255,246,200,0.95)'); sun.addColorStop(0.25, 'rgba(255,232,150,0.55)'); sun.addColorStop(1, 'rgba(255,232,150,0)');
+    g.fillStyle = sun; g.beginPath(); g.arc(470, 78, 110, 0, TAU); g.fill();
+    g.fillStyle = '#fff3c4'; g.beginPath(); g.arc(470, 78, 26, 0, TAU); g.fill();
     for (const h of this.hillsBack) g.drawImage(A.hillsBack, h.x, 305, 614, 205);
     for (const h of this.hillsFront) g.drawImage(A.hillsFront, h.x, 385, 602, 105);
     for (const gr of this.grounds) g.drawImage(this.ground, gr.x, 450, 602, 150);
-    for (const c of this.cloudsBack) g.drawImage(c.img, c.x, c.y, 110 * c.scale, 110 * c.scale * 0.8);
-    g.save(); g.translate(130, 200 + this.dragon.headBob); this.dragon.draw(g); g.restore();
-    for (const c of this.cloudsFront) g.drawImage(c.img, c.x, c.y, 110 * c.scale, 110 * c.scale * 0.8);
+    /* sương mờ ở chân đồi */
+    const fog = g.createLinearGradient(0, 380, 0, 470);
+    fog.addColorStop(0, 'rgba(255,255,255,0)'); fog.addColorStop(1, 'rgba(255,255,255,0.20)');
+    g.fillStyle = fog; g.fillRect(0, 380, 600, 90);
+    /* mây sau: nhỏ + mờ (xa), mây trước: to + rõ (gần) — chiều sâu */
+    g.globalAlpha = 0.55;
+    for (const c of this.cloudsBack) g.drawImage(c.img, c.x, c.y, 110 * c.scale * 0.7, 110 * c.scale * 0.7 * 0.8);
+    g.globalAlpha = 1;
+    g.save();
+    g.translate(fx, fy + this.dragon.headBob);
+    if (fvx >= 0) g.scale(-1, 1); // bay sang phải: lật ngang (mặc định rồng quay đầu sang trái)
+    g.rotate(-Math.atan2(fvyScr, Math.abs(fvx) + 25)); // chúc xuống khi hạ, ngẩng lên khi vọ (+25 làm mềm lúc đổi chiều)
+    this.dragon.draw(g);
+    g.restore();
+    g.globalAlpha = 0.95;
+    for (const c of this.cloudsFront) g.drawImage(c.img, c.x, c.y, 110 * c.scale * 1.15, 110 * c.scale * 1.15 * 0.8);
+    g.globalAlpha = 1;
     g.restore();
   };
   return sc;

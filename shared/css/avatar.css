@@ -58,8 +58,16 @@
    bay theo quỹ đạo số 8 qua mặt avatar (fr-dragon) hoặc tròn quanh mép viền (fr-dragon-edge).
    Chu kỳ hiện/ẩn 12s do JS điều khiển (chỉ HIỆN + bay ~3s đầu mỗi chu kỳ, ẩn 9s còn lại) để
    không che mặt avatar liên tục; reduced-motion thì JS vẽ 1 khung tĩnh (canvas vẫn hiện). */
-.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size}
+.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size;box-shadow:0 4px 10px -6px var(--sh-soft),0 0 16px 1px rgba(250,205,51,.32),0 0 5px rgba(184,134,11,.4)}
+/* ✨ viền vàng sang (trình bày khung rồng): ::after là vòng vàng gradient #FACD33→#FFF3C4→#B8860B
+   ôm sát mép ngoài khung (vòng SVG stroke, không đổi kích thước/layout, không đè background viền
+   theme inline của từng khung); ::before là quầng trời mờ sau rồng — trong suốt ở giữa để không át
+   avatar, chỉ nhuộm nhẹ vùng viền + halo ngoài khung; canvas rồng .dov (z-index 4) vẫn nổi trên cùng. */
+.pf-fr.fr-dragon::after,.pf-fr.fr-dragon-edge::after{content:"";position:absolute;inset:-3px;border-radius:50%;pointer-events:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23FACD33'/><stop offset='.45' stop-color='%23FFF3C4'/><stop offset='.7' stop-color='%23E9B949'/><stop offset='1' stop-color='%23B8860B'/></linearGradient></defs><circle cx='50' cy='50' r='47' fill='none' stroke='url(%23g)' stroke-width='6'/></svg>") center/100% 100% no-repeat}
+.pf-fr.fr-dragon::before,.pf-fr.fr-dragon-edge::before{content:"";position:absolute;inset:-18cqw;border-radius:50%;pointer-events:none;z-index:3;background:radial-gradient(circle,transparent 52%,rgba(214,238,255,.34) 64%,rgba(165,205,245,.22) 80%,rgba(165,205,245,0) 96%)}
 .pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;pointer-events:none;z-index:4}
+@keyframes fr-dragon-glow{0%,100%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 14px 1px rgba(250,205,51,.28),0 0 5px rgba(184,134,11,.35)}50%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 26px 4px rgba(250,205,51,.48),0 0 8px rgba(184,134,11,.5)}}
+@media (prefers-reduced-motion:no-preference){.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{animation:fr-dragon-glow 3.4s ease-in-out infinite}}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
 /* 🎏 đầu Hồ sơ với banner hiệu ứng đầy đủ (patch -151): cao theo tỉ lệ 10/3 của banner, bo tròn theo hộp */
@@ -77,10 +85,16 @@
    để trời + rồng + đồi + đất đều thấy; bấm vào canvas đổi theme, gợi ý ở dưới giữa */
 .b42-bn.b42-cpbn{aspect-ratio:4/3}
 .b42-bn canvas.b42-cp{inset:0;width:100%;height:100%;cursor:pointer}
+/* 🐉 banner Rồng Bay (bnrongbay — banner duy nhất có canvas .b42-cp): khung vàng sang —
+   vòng vàng 2 lớp + glow ấm trên wrapper (:has để chỉ chạm banner rồng, banner khác không đổi),
+   không đổi kích thước (box-shadow, không border/padding); ::before phủ ánh nắng nhẹ ở viền trên,
+   pointer-events none để không chặn bấm đổi theme trên canvas. */
+.b42-bw:has(>.b42-bn.b42-cpbn){box-shadow:0 0 0 2px #f6c945,0 0 0 4px #b8860b,0 10px 26px -8px rgba(184,134,11,.55),0 0 30px rgba(250,205,51,.30)}
+.b42-bn.b42-cpbn::before{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(255,243,196,.38),rgba(255,243,196,.12) 18%,rgba(255,243,196,0) 34%)}
 .b42-cphint{left:50%;bottom:8%;transform:translateX(-50%);z-index:5;background:rgba(36,26,56,.78);color:#fff8ee;font:800 12px Nunito,sans-serif;padding:4px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
 .b42-clicked .b42-cphint{display:none}
 .lk-bn.bn-anim{animation:nc-slide 6s linear infinite}
-@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after{animation:none}}
+@media (prefers-reduced-motion:reduce){.nc-anim,.pf-fr.fr-anim::before,.pf-fr.fr-glow,.pf-banner.bn-anim,.lk-bn.bn-anim,.pf-fr.fr-vuongmien::after,.pf-fr.fr-orbit::before,.pf-fr.fr-orbit::after,.pf-fr.fr-vuatrichoi::after,.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{animation:none}}
 /* ✍️ hiệu ứng chữ tên (patch -154): tắt animation tên ở mọi nơi (kể cả animation inline trong style) khi reduced-motion */
 @media (prefers-reduced-motion:reduce){.pf-name,.rk-pnm,.rk-nm span,.lb-n span,.lk-nm{animation:none!important}}
 .pf-ov{position:fixed;inset:0;z-index:9999;background:#1a1426b3;display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px);animation:pf-f .16s ease-out}
