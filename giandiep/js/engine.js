@@ -36,6 +36,7 @@ function pickPair(used) {
 
 function dealRoles(s, pair) {
   const alive = s.players.filter(p => p.alive);
+  const prevFirst = (s.order && s.order[0]) || null;
   const spies = Math.max(1, Math.min(s.spies, Math.floor((alive.length - 1) / 2)));
   const spyIds = new Set(shuffle(alive.map(p => p.id)).slice(0, spies));
   for (const p of alive) {
@@ -44,6 +45,8 @@ function dealRoles(s, pair) {
     p.described = false; p.voted = false;
   }
   s.order = shuffle(alive.map(p => p.id));
+  /* vòng sau không trùng người mô tả đầu vòng trước: đổi chỗ 0↔1 */
+  if (prevFirst && s.order.length > 1 && s.order[0] === prevFirst) [s.order[0], s.order[1]] = [s.order[1], s.order[0]];
   s.turn = s.order[0] || null;
 }
 
@@ -61,9 +64,11 @@ export function createGame(players, opts = {}) {
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, role: 'civ', word: '', alive: true, described: false, voted: false, survived: 0 })),
     order: [], turn: null, descs: [], votes: {}, elim: null,
     winnerIds: [], winSide: null, civLost: 0, firstVoteCatchers: null,
-    log: [{ text: `Vòng 1 bắt đầu — ${n} người chơi, ${spies} gián điệp đang trà trộn. Mỗi người mô tả từ của mình bằng 1 câu, đừng nói ra từ đó nhé!`, kind: 'info' }],
+    log: [],
   };
   dealRoles(s, pair);
+  const firstName = (s.players.find(p => p.id === s.turn) || {}).name || '?';
+  s.log = [{ text: `Vòng 1 bắt đầu — ${n} người chơi, ${spies} gián điệp đang trà trộn. ${firstName} mô tả đầu tiên! Mỗi người mô tả từ của mình bằng 1 câu, đừng nói ra từ đó nhé!`, kind: 'info' }];
   return s;
 }
 
@@ -74,7 +79,8 @@ function startRound(s) {
   s.round++;
   s.phase = 'describe'; s.descs = []; s.votes = {}; s.elim = null;
   dealRoles(s, pair);
-  s.log.push({ text: `Vòng ${s.round} bắt đầu — cặp từ mới, vai trò chia lại từ đầu.`, kind: 'info' });
+  const firstName = (s.players.find(p => p.id === s.turn) || {}).name || '?';
+  s.log.push({ text: `Vòng ${s.round} bắt đầu — cặp từ mới, vai trò chia lại từ đầu. ${firstName} mô tả đầu tiên!`, kind: 'info' });
 }
 
 function endGame(s, side) {

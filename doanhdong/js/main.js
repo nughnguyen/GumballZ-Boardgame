@@ -18,7 +18,7 @@ const NET = makeNet({
   game: 'doanhdong', min: 1, max: 6, maxSeats: 6, allowLocal: true,
   minMsg: 'Đoán Hành Động cần 1–6 người: chơi đơn, thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: {},
-  optOk: () => false,
+  optOk: (k, v) => k === 'firstIdx' ? Number.isInteger(v) && v >= 0 && v < 6 : false, /* 🎯 chỉ cho phép chủ phòng chia sẻ ghế diễn trước qua lobby */
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy đoán sau 1 khoảng chờ: Dễ 10–40s, Khó 5–20s; các hành động
      khác (bắt đầu diễn, chấm, sang lượt) thì máy làm nhanh */
@@ -59,11 +59,34 @@ $('#btn-start-bot').onclick = () => {
 $('#btn-start-local').onclick = () => { mode = 'pvp'; ui.startHost(true); };
 
 /* ---------- phòng chờ ---------- */
+/* 🎯 diễn viên đầu xoay qua các ván (ván đầu ghế 0, ván sau ghế kế tiếp).
+   Bộ đếm nằm ở máy chủ phòng; ghế dự kiến được chia sẻ cho cả phòng qua
+   opts.firstIdx (setOpt đẩy lobby mới cho mọi máy) để phòng chờ hiện huy
+   hiệu đúng, không chỉ đúng ở máy chủ phòng. Chơi đơn (1 người) không gắn huy hiệu. */
+const MAX_SEATS = 6;
+let firstCounter = 0;
+function seatedPlayers() {
+  const ps = ((ui.net && ui.net.raw && ui.net.raw.players) || (ui.lobby && ui.lobby.players) || []);
+  return ps.filter(p => p.connected || p.isBot || p.local).slice(0, MAX_SEATS);
+}
+function nextFirstIdx() { const n = seatedPlayers().length; return n ? firstCounter % n : 0; }
+function syncFirstOpt(info) {
+  if (!ui.isHost || !ui.net || !ui.net.raw || typeof ui.net.raw.setOpt !== 'function') return;
+  const want = nextFirstIdx();
+  if ((info.opts || {}).firstIdx !== want) ui.net.raw.setOpt('firstIdx', want);
+}
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const fi = nextFirstIdx(); firstCounter++;
+  ui.net.raw.start({ firstIdx: fi });
+}
 function renderLobby(info, u) {
+  syncFirstOpt(info);
+  const fi = Number.isInteger((info.opts || {}).firstIdx) ? info.opts.firstIdx : nextFirstIdx();
   const n = info.players.length;
   const need = mode === 'solo' ? 1 : 2;
-  $('#lobby-list').innerHTML = `<p><b>${n}/6 người</b> (cần ${need}–6)</p>` + info.players.map(p => {
-    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
+  $('#lobby-list').innerHTML = `<p><b>${n}/6 người</b> (cần ${need}–6)</p>` + info.players.map((p, i) => {
+    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${n >= 2 && i === fi ? '<span class="seat-role">🎯 Diễn trước</span>' : ''}${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
   }).join('') + (u.isHost && mode !== 'solo' && !mode.startsWith('ai-') && n < 6
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>` : '');
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
@@ -82,10 +105,11 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => ui.isHost && startGame();
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
+let announcedGid = null; /* 🎯 đã công bố người diễn đầu của ván này chưa */
 let endShownFor = '';
 let pvpTurn = null, pvpCover = false;
 let wordKey = '', coverRevealed = false;
@@ -272,7 +296,13 @@ function coverHtml(v) {
 
 function render(v, prev) {
   cur = v;
-  if (!v) { stopTimer(); drawTimer(null); endShownFor = ''; return; }
+  if (!v) { stopTimer(); drawTimer(null); endShownFor = ''; announcedGid = null; return; }
+  /* 🎯 công bố người diễn trước 1 lần / ván (cả online lẫn chơi với máy) */
+  if (!v.solo && v.phase === 'playing' && v.gid !== announcedGid) {
+    announcedGid = v.gid;
+    const ap = v.players.find(p => p.id === v.actor);
+    if (ap) tip(`🎯 ${cleanName(ap.name)} diễn trước!`);
+  }
   if (v.phase === 'playing' && v.stage === 'guess' && !v.solo && !timerInt) startTimer();
   if (v.phase !== 'playing' || v.stage !== 'guess' || v.solo) { stopTimer(); drawTimer(null); }
   const ctrl = controlPid(v);
@@ -345,7 +375,7 @@ function showEnd(v) {
   ui.openModal(`<h2>${title}</h2><p style="text-align:center">${sub}</p>
     <table class="end-table"><tr><th>Người chơi</th><th>Điểm</th><th>Đoán đúng</th><th>Đã diễn</th><th>Diễn trúng</th><th>Chuỗi tốt nhất</th><th>Bỏ qua</th></tr>${rows}</table>
     <div class="btns"><button class="btn big pri" id="m-again">🔄 Chơi lại</button><button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); if (ui.isHost) ui.net.raw.start(); else tip('Chờ chủ phòng mở ván mới.'); };
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); if (ui.isHost) startGame(); else tip('Chờ chủ phòng mở ván mới.'); };
   const home = $('#m-home'); if (home) home.onclick = () => { location.href = '../'; };
 }
 

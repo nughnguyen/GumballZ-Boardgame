@@ -24,6 +24,34 @@ const NET = makeNet({
   defaults: DEFAULT_OPTS, optOk,
 });
 
+/* ---------- lượt đi đầu xoay vòng (ván sau đổi người) ---------- */
+const FIRST_KEY = 'gumballz-covay-nextfirst';
+let announcedGid = '';
+function nextFirstIdx() {
+  let v = 0;
+  try { const s = ls.get(FIRST_KEY); v = s == null ? Math.floor(Math.random() * 2) : (parseInt(s, 10) || 0) % 2; } catch (e) { v = Math.floor(Math.random() * 2); }
+  return (v + 2) % 2;
+}
+function advanceFirstIdx() { try { ls.set(FIRST_KEY, String((nextFirstIdx() + 1) % 2)); } catch (e) {} }
+/* mở ván mới: người đi đầu lấy từ khóa đã lưu — ghi vào opt (phòng chờ hiện huy hiệu)
+   + extra (engine dùng), rồi xoay khóa cho ván sau */
+function startRotated() {
+  const h = ui.net && ui.net.raw;
+  if (!h || !ui.isHost) return false;
+  const f = nextFirstIdx();
+  try { if (typeof h.setOpt === 'function') h.setOpt('first', f); } catch (e) {}
+  h.start({ first: f });
+  advanceFirstIdx();
+  return true;
+}
+/* công bố người đi đầu lúc mở ván (mọi client đều thấy) */
+function announceFirst(v) {
+  if (!v || v.phase !== 'playing' || v.turnNo !== 1 || v.moveCount !== 0 || v.gid === announcedGid) return;
+  announcedGid = v.gid;
+  const fp = v.players.find(p => p.id === v.firstId) || v.players[0];
+  tip(`🎯 ${fp.id === v.me ? 'Bạn' : cleanName(fp.name)} đi trước (⚫ Đen)!`);
+}
+
 /* ---------- chế độ chơi + kích thước bàn (màn hình chính) ---------- */
 let mode = 'ai-hard'; /* ai-easy | ai-hard | pvp | online */
 let size = 19; /* 9 | 13 | 19 */
@@ -57,18 +85,22 @@ function renderLobby(info, ui) {
   const seated = info.players.slice(0, 2);
   const host = ui.isHost && ui.net ? ui.net.raw : null, o = info.opts, dis = ui.isHost ? '' : 'disabled';
   if (host && !optsLoaded) {
-    /* nhớ kích thước bàn lần trước của chủ phòng */
+    /* nhớ ghế đi đầu của ván tới cho cả phòng thấy (trước khi nạp cỡ bàn đã lưu) */
     optsLoaded = true;
+    const f = nextFirstIdx();
+    if (host.opts.first !== f) { host.setOpt('first', f); return; }
+    /* nhớ kích thước bàn lần trước của chủ phòng */
     const saved = Number(ls.get('gumballz-covay-size'));
     if (SIZES.includes(saved) && host.opts.size !== saved) { host.opts.size = saved; host.pushLobby(); return; }
   }
+  const fi = (o && Number.isInteger(o.first)) ? o.first : 0;
   $('#pcount').textContent = `${seated.length}/2 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (seated.length < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
   const seg = (key, items) => `<div class="seg">${items.map(([v, nm]) => `<button type="button" data-opt="${key}" data-v="${v}" aria-pressed="${String(o[key]) === String(v)}" ${dis}>${nm}</button>`).join('')}</div>`;
-  $('#opts').innerHTML = `<div class="opt"><b>♟️ Kích thước bàn</b>${seg('size', [[9, '9×9 · nhanh'], [13, '13×13 · vừa'], [19, '19×19 · chuẩn']])}<small>Bàn 9×9 hợp người mới, ván nhanh; bàn 19×19 là bàn chuẩn thi đấu, ván dài và sâu nhất.</small></div>`;
+  $('#opts').innerHTML = `<div class="opt"><b>♟️ Kích thước bàn</b>${seg('size', [[9, '9×9 · nhanh'], [13, '13×13 · vừa'], [19, '19×19 · chuẩn']])}<small>Bàn 9×9 hợp người mới, ván nhanh; bàn 19×19 là bàn chuẩn thi đấu, ván dài và sâu nhất.</small></div><div class="opt"><b>🎯 Người đi trước</b><small>Đen đi trước — người cầm Đen xoay vòng mỗi ván (xem huy hiệu 🎯 ở tên người chơi).</small></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = seated.length < 2;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -88,7 +120,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     try { ls.set('gumballz-covay-size', String(v)); } catch (e) {}
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => { if (ui.isHost) startRotated(); };
 /* chế độ local: mở phòng offline trên máy này, thêm máy / người cùng máy theo chế độ đã chọn */
 $('#btn-start').onclick = () => {
   ui.startHost(true);
@@ -197,6 +229,7 @@ function scoreTableHTML(scores) {
 function render(v, prev) {
   cur = v;
   if (!v) { lastSeq = -1; endShownGid = null; view.init = false; view.size = 0; return; }
+  announceFirst(v);
   const me = v.players.find(p => p.id === v.me);
   const turnP = v.players.find(p => p.id === v.turn);
   const away = (v.away || []).map(id => (v.players.find(p => p.id === id) || {}).name).filter(Boolean);
@@ -264,8 +297,8 @@ function render(v, prev) {
         ? '<button class="btn big pri" id="m-again">🔁 Chơi ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button>'
         : '<button class="btn" id="m-close">Đóng — chờ chủ phòng mở ván mới</button>'}
       <button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
-    const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
+    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); startRotated(); };
+    const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); optsLoaded = false; ui.net.raw.restart(); };
     const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
     $('#m-home').onclick = () => { ui.closeModal(); ui.leave(); setTimeout(() => { location.href = '../'; }, 250); };
   }
@@ -343,7 +376,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  startRotated();
 };
 $('#btn-pass').onclick = () => {
   const v = cur;

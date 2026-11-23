@@ -24,11 +24,28 @@ const NET = makeNet({
   game: 'scrabble', min: 2, max: 4, maxSeats: 4, allowLocal: true,
   minMsg: 'Scrabble cần 2–4 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: {},
-  optOk: () => false,
+  optOk: (k, v) => k === 'firstIdx' && Number.isInteger(v) && v >= 0 && v < 4,
   create: createGame, apply: applyAction, view: viewFor, actors, bot: botAction,
   botDelay: () => 700 + Math.random() * 900,
   botNames: ['Mochi', 'Bơ', 'Pudding', 'Xôi', 'Kẹo', 'Nấm', 'Sữa', 'Đậu', 'Bánh', 'Cốm'],
 });
+
+/* 🔄 Xoay lượt đi đầu qua các ván: host giữ bộ đếm trong localStorage
+   (sống qua cả tải lại trang); ván nào lấy firstIdx = đếm % số người
+   rồi tăng đếm, đăng lên opts để mọi người trong phòng chờ đều thấy ai
+   đi trước ván tới. */
+const FT_KEY = 'gumballz-scrabble-firstctr';
+let firstCtr = 0;
+try { firstCtr = +localStorage.getItem(FT_KEY) || 0; } catch (e) {}
+const peekFirst = n => (n > 0 ? firstCtr % n : 0);
+const takeFirst = n => { const i = peekFirst(n); firstCtr++; try { localStorage.setItem(FT_KEY, String(firstCtr)); } catch (e) {} return i; };
+let lastLobby = null;
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const n = (lastLobby && lastLobby.players && lastLobby.players.length) || 2;
+  if (n < 2) return;
+  ui.net.raw.start({ firstIdx: takeFirst(n) });
+}
 
 /* ---------- chế độ chơi (màn hình chính) ---------- */
 let mode = 'ai-hard'; /* ai-easy | ai-hard | pvp | online */
@@ -66,10 +83,15 @@ countBtns.forEach(b => b.addEventListener('click', () => setMode(mode)));
 
 /* ---------- phòng chờ ---------- */
 function renderLobby(info, ui) {
+  lastLobby = info;
   const n = info.players.length;
+  /* đăng lượt đi đầu ván tới lên opts để khách trong phòng cũng thấy đúng người */
+  const peek = peekFirst(n);
+  if (ui.isHost && ui.net && ui.net.raw && typeof ui.net.raw.setOpt === 'function' && (info.opts || {}).firstIdx !== peek) ui.net.raw.setOpt('firstIdx', peek);
+  const fi = Number.isInteger(info.opts && info.opts.firstIdx) ? info.opts.firstIdx : peek;
   $('#pcount').textContent = `${n}/4 người (cần 2–4)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 4
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
@@ -91,13 +113,14 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => startGame();
 $('#btn-copy-code').onclick = () => { const c = ($('#room-code').textContent || '').trim(); if (!c || c === '—') return; navigator.clipboard?.writeText(c).then(() => tip('Đã chép mã phòng 📋'), () => tip(c)); };
 $('#btn-start').onclick = () => { ui.startHost(true); };
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
 let endShownFor = '';
+let announcedGid = ''; /* gid đã công bố lượt đi đầu (tránh toast lặp khi vẽ lại) */
 let staged = []; /* [{rackIdx, ch, blank, letter, r, c}] — chữ đặt tạm trên bàn */
 let selRack = null; /* vị trí chữ đang chọn trên khay */
 let stageDir = 'H'; /* hướng của từ đang đặt tạm (1 chữ) */
@@ -226,7 +249,13 @@ function rackHtml(v, pid) {
 
 function render(v, prev) {
   cur = v;
-  if (!v) { resetStage(); endShownFor = ''; rackRevealed = false; revealedFor = null; return; }
+  if (!v) { resetStage(); endShownFor = ''; rackRevealed = false; revealedFor = null; announcedGid = ''; return; }
+  /* 🎯 Công bố người đi trước lúc mở ván (cả online lẫn đấu máy/chuyền tay) */
+  if (v.phase === 'playing' && v.seq === 0 && v.gid !== announcedGid) {
+    announcedGid = v.gid;
+    const fp = v.players[v.turnIdx];
+    if (fp) tip(`🎯 ${cleanName(fp.name)} đi trước!`);
+  }
   const pid = controlPid(v);
   const turnP = v.players.find(p => p.id === v.turn);
   /* đổi lượt / đổi khay thì bỏ hết chữ đặt tạm */
@@ -328,7 +357,7 @@ function showEnd(v) {
     ? `<button class="btn big pri" id="m-again">🔁 Ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`
     : `<button class="btn big pri" id="m-close">Đóng</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`;
   ui.openModal(`<h2>${title}</h2>${body}<div class="btns">${btns}</div>`, 'lock');
-  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); startGame(); };
   const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
   const home = $('#m-home'); if (home) home.onclick = () => { ui.closeModal(); ui.leave(); };
   const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
@@ -451,7 +480,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  startGame();
 };
 $('#btn-resign').onclick = async () => {
   const v = cur;

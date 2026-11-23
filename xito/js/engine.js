@@ -147,11 +147,17 @@ export function createGame(players, opts = {}) {
   if (players.length > o.maxPlayers) throw new Error(`Phòng này tối đa ${o.maxPlayers} người.`);
   const deck = newDeck();
   const bb = bbOf(o);
+  /* dealer: host truyền firstIdx để xoay nút Dealer qua các ván (ván sau =
+     ghế sau ván trước); không có thì bốc thăm — ván đầu ngẫu nhiên, không còn
+     cố định ghế 0 */
+  const dealerIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length
+    ? opts.firstIdx : Math.floor(rand() * players.length);
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, round: 1,
     phase: bb > 0 ? 'blinds' : 'bet',
     street: 'preflop',
-    dealer: 0,
+    dealer: dealerIdx,
+    dealerIdx, firstIdx: dealerIdx,
     turn: null,
     toCall: 0,
     community: [],
@@ -161,14 +167,17 @@ export function createGame(players, opts = {}) {
   };
   /* chia 2 lá tẩy mỗi người, vòng tròn từ sau nhà cái */
   const n = players.length;
-  const start = 1 % n;
+  const start = (dealerIdx + 1) % n;
   for (let r = 0; r < 2; r++) for (let k = 0; k < n; k++) getP(s, players[(start + k) % n].id).cards.push(s.deck.pop());
   if (bb > 0) {
     s.turn = s.players[sbIdx(s)].id;
   } else {
     s.turn = s.players[utgIdx(s)].id;
   }
-  pushLog(s, `🃏 Ván ${s.round}: ${n} người, mỗi người ${STACK} chip. ${bb > 0 ? `Mù nhỏ ${sbOf(o)} xu, mù lớn ${bb} xu.` : 'Chơi vui (0 xu) — không cần góp mù.'}`);
+  /* người đi trước ở vòng Pre-flop (sau khi góp mù xong): 2 người thì Dealer,
+     từ 3 người thì người sau mù lớn — mù chỉ góp tự động nên không tính là "đi" */
+  const firstAct = s.players[utgIdx(s)].id;
+  pushLog(s, `🃏 Ván ${s.round}: ${n} người, mỗi người ${STACK} chip. ${nameOf(s, players[dealerIdx].id)} giữ nút Dealer (D) — ${nameOf(s, firstAct)} đi trước. ${bb > 0 ? `Mù nhỏ ${sbOf(o)} xu, mù lớn ${bb} xu.` : 'Chơi vui (0 xu) — không cần góp mù.'}`);
   return s;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
@@ -176,6 +185,8 @@ export const serialize = s => JSON.stringify(s);
 export function deserialize(json) {
   const s = typeof json === 'string' ? JSON.parse(json) : json;
   if (!s || !Array.isArray(s.players) || s.players.length < MIN_PLAYERS || s.players.length > MAX_PLAYERS || !Array.isArray(s.deck)) throw new Error('Trạng thái Xì Tố không hợp lệ.');
+  if (typeof s.dealerIdx !== 'number') s.dealerIdx = s.dealer || 0; /* save cũ chưa có dealerIdx */
+  if (typeof s.firstIdx !== 'number') s.firstIdx = s.dealerIdx;
   return s;
 }
 
@@ -397,6 +408,7 @@ export function viewFor(s, pid) {
   const pot = potOf(s);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, street: s.street, dealer: s.dealer,
+    dealerIdx: s.dealerIdx, firstIdx: s.firstIdx,
     turn: s.turn, toCall: s.toCall, minRaise: MIN_RAISE, pot,
     blinds: s.opts.blinds, maxPlayers: s.opts.maxPlayers, timer: s.opts.timer,
     blindDue: s.phase === 'blinds' && s.turn ? blindDueFor(s, s.turn) : 0,

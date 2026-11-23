@@ -278,14 +278,20 @@ export function guideInfo(balls, angle) {
 export function createGame(players, opts = {}) {
   const mode = opts.bdMode === 'solo' ? 'solo' : 'match';
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
+  /* 🔄 Người phá xoay qua các ván: host truyền opts.firstIdx (bộ đếm ván
+     ở main.js, lưu localStorage nên sống qua cả tải lại trang); không có
+     thì ghế 0 như cũ; chơi đơn luôn người chơi phá. */
+  const firstIdx = mode === 'solo' ? 0
+    : Number.isInteger(opts.firstIdx) ? ((opts.firstIdx % players.length) + players.length) % players.length
+    : 0;
   const s = {
     gid: 'g' + (++gidSeq) + '-' + Math.random().toString(36).slice(2, 7),
-    seq: 0, seed, rng: seed,
+    seq: 0, seed, rng: seed, firstIdx,
     phase: 'playing', mode, solo: mode === 'solo', race: mode === 'match',
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null })),
     prog: {
       balls: rackBalls(),
-      turn: players[0].id,
+      turn: players[firstIdx].id,
       groups: {}, openTable: true, ballInHand: null, breakDone: false,
       shots: {}, pots: {}, fouls: {}, lastShot: null,
     },
@@ -298,6 +304,7 @@ export function createGame(players, opts = {}) {
     s.prog.fouls[p.id] = 0;
     s.prog.groups[p.id] = null;
   }
+  pushLog(s, `🎱 ${s.players[firstIdx].name} phá trước!`);
   return s;
 }
 
@@ -527,7 +534,7 @@ export function applyAction(s, pid, a, ctx) {
 
 export function viewFor(s, pid) {
   return {
-    gid: s.gid, seq: s.seq, phase: s.phase,
+    gid: s.gid, seq: s.seq, phase: s.phase, firstIdx: s.firstIdx,
     startedAt: s.startedAt, endedAt: s.endedAt,
     winner: s.winner, winnerIds: (s.winnerIds || []).slice(), losers: (s.losers || []).slice(),
     endReason: s.endReason, final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,

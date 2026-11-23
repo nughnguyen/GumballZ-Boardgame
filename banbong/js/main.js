@@ -164,7 +164,14 @@ function startTick() {
     if (!ui.isHost || !cur || cur.phase !== 'playing' || paused) return;
     const raw = ui.net && ui.net.raw && ui.net.raw.state;
     if (!raw) return;
-    for (const pid of actors(raw)) ui.actAs(pid, { type: 'tick' });
+    /* 'tick' là việc nhà của chủ phòng (đẩy bóng cho MỌI người): gửi thẳng qua
+       host (raw.act) — actAs bị cổng controls() chặn lặng lẽ khi pid là khách
+       xa/bot nên bóng của họ đứng im mãi (bot chỉ trả setX, tick mới đẩy bóng). */
+    const host = ui.net && ui.net.raw;
+    for (const pid of actors(raw)) {
+      if (host && typeof host.act === 'function') host.act(pid, { type: 'tick' });
+      else ui.actAs(pid, { type: 'tick' });
+    }
   }, TICK_MS);
 }
 function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }

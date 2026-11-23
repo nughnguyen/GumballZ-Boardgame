@@ -108,7 +108,9 @@ function startRound(s, firstPid) {
   const alive = s.players.filter(p => p.alive);
   s.turn = firstPid || alive[Math.floor(nextRand(s) * alive.length)].id;
   drawFor(s, s.turn);
-  pushLog(s, `— Vòng ${s.round} bắt đầu (${s.players.length} người, cần ${s.target} dấu Yêu để thắng trận) —`);
+  /* công bố đúng luật: vòng 1 bốc thăm ngẫu nhiên, từ vòng 2 người thắng vòng
+     trước đi trước — nêu rõ tên người đi đầu */
+  pushLog(s, `— Vòng ${s.round} bắt đầu (${s.players.length} người, cần ${s.target} dấu Yêu để thắng trận) — ${pOf(s, s.turn).name} đi trước${firstPid ? ' (thắng vòng trước)' : ' (bốc thăm ngẫu nhiên)'}. —`);
 }
 
 function drawFor(s, pid) {

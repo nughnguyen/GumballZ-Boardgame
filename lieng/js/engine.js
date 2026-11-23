@@ -82,24 +82,28 @@ export function createGame(players, opts = {}) {
   if (!players || players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) throw new Error('Liêng chơi 2–6 người.');
   if (players.length > o.maxPlayers) throw new Error(`Phòng này tối đa ${o.maxPlayers} người.`);
   const deck = newDeck();
+  /* nhà cái: host truyền firstIdx để xoay cái qua các ván (ván sau = ghế sau
+     ván trước); không có thì bốc thăm — ván đầu ngẫu nhiên, không còn cố định ghế 0 */
+  const dealerIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length
+    ? opts.firstIdx : Math.floor(rand() * players.length);
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, round: 1,
     phase: o.ante === 0 ? 'bet' : 'ante', /* cược 0 xu: bỏ qua bước góp gà */
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, cards: [], folded: false, contrib: 0, paid: o.ante === 0, free: false, acted: false, res: null })),
-    deck, pot: 0, currentBet: o.ante, dealerId: players[0].id, turn: null, lastRaiser: null,
+    deck, pot: 0, currentBet: o.ante, dealerId: players[dealerIdx].id, dealerIdx, firstIdx: dealerIdx, turn: null, lastRaiser: null,
     raises: 0, /* mỗi vòng cược chỉ được Tố tối đa 3 lần (kẻo Tố qua Tố lại mãi không hết ván) */
     winners: [], winnerIds: [], endReason: null, winLabel: '', hands: null,
     log: [], opts: o,
   };
   /* chia 3 lá mỗi người, vòng tròn từ sau nhà cái */
   const ids = players.map(p => p.id);
-  const start = 1 % ids.length;
+  const start = (dealerIdx + 1) % ids.length;
   for (let r = 0; r < 3; r++) for (let k = 0; k < ids.length; k++) getP(s, ids[(start + k) % ids.length]).cards.push(s.deck.pop());
   if (o.ante === 0) {
     s.turn = ids[start];
-    pushLog(s, `🃏 Ván ${s.round}: chơi vui không cược — ${nameOf(s, s.turn)} tố trước.`);
+    pushLog(s, `🃏 Ván ${s.round}: chơi vui không cược — ${nameOf(s, s.dealerId)} làm cái, ${nameOf(s, s.turn)} tố trước.`);
   } else {
-    pushLog(s, `🃏 Ván ${s.round}: mỗi người góp ${o.ante} xu vào gà, rồi tố 1 vòng.`);
+    pushLog(s, `🃏 Ván ${s.round}: mỗi người góp ${o.ante} xu vào gà, rồi tố 1 vòng. ${nameOf(s, s.dealerId)} làm cái.`);
   }
   return s;
 }
@@ -108,6 +112,8 @@ export const serialize = s => JSON.stringify(s);
 export function deserialize(json) {
   const s = typeof json === 'string' ? JSON.parse(json) : json;
   if (!s || !Array.isArray(s.players) || s.players.length < MIN_PLAYERS || s.players.length > MAX_PLAYERS || !Array.isArray(s.deck)) throw new Error('Trạng thái Liêng không hợp lệ.');
+  if (typeof s.dealerIdx !== 'number') s.dealerIdx = Math.max(0, s.players.findIndex(p => p.id === s.dealerId)); /* save cũ chưa có dealerIdx */
+  if (typeof s.firstIdx !== 'number') s.firstIdx = s.dealerIdx;
   return s;
 }
 const getP = (s, id) => s.players.find(p => p.id === id);
@@ -242,9 +248,9 @@ function maybeStartBet(s) {
   if (!s.players.every(p => p.paid)) return;
   s.phase = 'bet';
   const ids = s.players.map(p => p.id);
-  s.turn = ids[1 % ids.length];
+  s.turn = ids[(s.dealerIdx + 1) % ids.length];
   s.seq++;
-  pushLog(s, `🎲 Góp gà xong — gà ${s.pot} xu. ${nameOf(s, s.turn)} tố trước.`);
+  pushLog(s, `🎲 Góp gà xong — gà ${s.pot} xu. ${nameOf(s, s.dealerId)} làm cái, ${nameOf(s, s.turn)} tố trước.`);
 }
 function advanceTurn(s) {
   if (s.phase !== 'bet') return;
@@ -265,7 +271,7 @@ export function viewFor(s, pid) {
   const me = getP(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, round: s.round,
-    pot: s.pot, currentBet: s.currentBet, dealerId: s.dealerId, turn: s.turn,
+    pot: s.pot, currentBet: s.currentBet, dealerId: s.dealerId, dealerIdx: s.dealerIdx, firstIdx: s.firstIdx, turn: s.turn,
     lastRaiser: s.lastRaiser, raises: s.raises || 0, winners: s.winners, winnerIds: s.winnerIds,
     endReason: s.endReason, winLabel: s.winLabel, ante: s.opts.ante,
     maxPlayers: s.opts.maxPlayers, timer: s.opts.timer,

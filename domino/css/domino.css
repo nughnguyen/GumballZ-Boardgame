@@ -113,3 +113,7 @@
   .dm-chain .dm-tile.dm-vert { width: 28px; height: 46px; }
   .dm-end { min-width: 48px; min-height: 48px; font-size: 17px; }
 }
+
+/* 🎯 Huy hiệu người mở màn ở phòng chờ (patch lượt đi đầu) — domino chỉ
+   ghi luật vì người mở màn phụ thuộc bài chia, không biết trước được */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7ae; }

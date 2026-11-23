@@ -30,8 +30,11 @@ function shuffled(arr, rnd) {
   }
   return a;
 }
+/* người hỏi đầu ván trước (giữ ở host qua các trận mới; trong trận thì lấy từ state để mọi máy đồng ý) */
+let lastAskerId = null;
 
 function dealRound(s, prevLocationId = null, prevSpyId = null) {
+  const prevAskerId = s.askerId || lastAskerId;
   const rnd = () => nextRand(s);
   const locs = shuffled(LOCATIONS.filter(l => l.id !== prevLocationId), rnd);
   const loc = locs[0] || LOCATIONS[0];
@@ -45,6 +48,9 @@ function dealRound(s, prevLocationId = null, prevSpyId = null) {
     p.role = p.isSpy ? 'spy' : roles[i % roles.length];
   });
   s.askerId = ids[Math.floor(nextRand(s) * ids.length)];
+  /* ván sau không trùng người hỏi đầu ván trước: lấy người kế tiếp trong dãy đã xáo (không tốn thêm số ngẫu nhiên nên mọi máy vẫn đồng ý) */
+  if (prevAskerId && s.askerId === prevAskerId && ids.length > 1) s.askerId = ids[(ids.indexOf(s.askerId) + 1) % ids.length];
+  lastAskerId = s.askerId;
   s.pendingQ = null; s.qa = []; s.votes = {};
   s.accusedId = null; s.spyGuess = null;
   s.roundWinnerIds = []; s.endReason = null;
@@ -92,7 +98,7 @@ export function createGame(players, opts = {}) {
     log: [],
   };
   dealRound(s);
-  pushLog(s, `🕵️ Ván 1 bắt đầu — ${s.n} người, 1 gián điệp đang trà trộn!`);
+  pushLog(s, `🕵️ Ván 1 bắt đầu — ${s.n} người, 1 gián điệp đang trà trộn! ${(s.players.find(p => p.id === s.askerId) || {}).name || '?'} hỏi đầu tiên!`);
   return s;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
@@ -224,7 +230,7 @@ export function applyNext(s, pid) {
   s.roundNo++;
   dealRound(s, prevLoc, prevSpy);
   s.phase = 'ask'; s.seq++;
-  pushLog(s, `🕵️ Ván ${s.roundNo} bắt đầu — gián điệp và địa điểm đã đổi!`);
+  pushLog(s, `🕵️ Ván ${s.roundNo} bắt đầu — gián điệp và địa điểm đã đổi! ${(s.players.find(p => p.id === s.askerId) || {}).name || '?'} hỏi đầu tiên!`);
   return { ok: true };
 }
 

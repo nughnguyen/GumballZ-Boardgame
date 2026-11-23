@@ -38,6 +38,17 @@ export function mulberry32(a) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+/* người chơi của 1 ghế (2 người: ghế 0,2 = người 0; ghế 1,3 = người 1) */
+export const seatPlayerIdx = (n, seat) => {
+  const pids = n === 2 ? [0, 1, 0, 1] : n === 3 ? [0, 1, 2] : [0, 1, 2, 3];
+  return pids[((seat % n) + n) % n];
+};
+/* ván sau đổi ghế đi đầu (xoay 0→1→2→3→0) */
+export const rotateFirstSeat = (prev, n = 4) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
+/* tùy chọn phòng (simplenet defaults/optOk): ghế đi đầu — xoay vòng mỗi ván */
+export const DEFAULT_OPTS = { firstSeat: 0 };
+export const OPT_CHOICES = { firstSeat: [0, 1, 2, 3] };
+export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);
 
 /* ---------- 21 mảnh chuẩn (id, tên, ô theo [hàng, cột], gốc (0,0)) ---------- */
 const RAW = [
@@ -270,6 +281,11 @@ export function createGame(players, opts = {}) {
   /* ghế: 4 người 1 màu/người; 3 người 3 màu; 2 người mỗi người 2 màu
      ở 2 góc đối diện (đỏ+vàng, xanh dương+xanh lá), luân phiên theo lượt */
   const seatPids = n === 4 ? [0, 1, 2, 3] : n === 3 ? [0, 1, 2] : [0, 1, 0, 1];
+  /* ghế đi đầu xoay vòng mỗi ván: opts.firstSeat thắng; mặc định ghế 0 như
+     trước (chủ phòng truyền firstSeat rõ ràng qua start/opt mỗi ván) */
+  const firstSeat = Number.isInteger(opts.firstSeat)
+    ? (((opts.firstSeat % seatPids.length) + seatPids.length) % seatPids.length)
+    : 0;
   const s = {
     gid: 'bk-' + seed.toString(36) + '-' + (seed % 9973).toString(36), seq: 0,
     phase: 'playing', /* 'playing' | 'ended' */
@@ -285,11 +301,12 @@ export function createGame(players, opts = {}) {
       pieces: PIECE_IDS.slice(), placed: 0, squares: 0, bonus: 0, lastPiece: null,
     })),
     board: new Array(SIZE * SIZE).fill(-1),
-    turnSeat: 0, round: 1, consecutivePasses: 0,
+    turnSeat: firstSeat, round: 1, consecutivePasses: 0,
+    firstSeat, firstPid: players[seatPids[firstSeat]].id,
     winner: null, losers: [], endReason: null, endCause: null, final: null,
     startedAt: Date.now(), endedAt: 0, log: [],
   };
-  pushLog(s, `Ván mới: ${n} người, bàn 20×20, mỗi màu 21 mảnh (89 ô).`);
+  pushLog(s, `Ván mới: ${n} người, bàn 20×20, mỗi màu 21 mảnh (89 ô). 🎯 ${players[seatPids[firstSeat]].name} đi trước (màu ${COLORS[firstSeat].name})!`);
   return s;
 }
 
@@ -369,6 +386,7 @@ export function viewFor(s, pid) {
   return {
     gid: s.gid, seq: s.seq, phase: s.phase,
     round: s.round, turn: turnSeat ? turnSeat.pid : null, turnSeat: s.turnSeat,
+    firstSeat: s.firstSeat, firstPid: s.firstPid,
     turnColor: turnSeat ? turnSeat.color : null,
     board: s.board.slice(),
     seats: s.seats.map(se => ({

@@ -14,12 +14,30 @@ const NET = makeNet({
   game: 'phitieu', min: 2, max: 2, maxSeats: 2, allowLocal: true,
   minMsg: 'Phi Tiêu cần 2 người: đấu máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: { phMode: 'match' },
-  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'phMode' && (v === 'solo' || v === 'match')),
+  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'phMode' && (v === 'solo' || v === 'match')) || (k === 'firstIdx' && Number.isInteger(v) && v >= 0 && v < 2),
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy đi sau 700–900ms (Dễ) / 400–600ms (Khó) mỗi lượt ném — botDelay ở bot.js */
   botDelay: (s, pid) => botDelay(s, pid),
   botNames: BOT_NAMES,
 });
+
+/* 🔄 Người ném trước xoay qua các ván: host giữ bộ đếm trong localStorage
+   (sống qua cả tải lại trang — nút "Chơi lại" của game tải lại trang);
+   ván nào lấy firstIdx = đếm % số người rồi tăng đếm, đăng lên opts để
+   mọi người trong phòng chờ đều thấy ai ném trước ván tới. */
+const FT_KEY = 'gumballz-phitieu-firstctr';
+let firstCtr = 0;
+try { firstCtr = +localStorage.getItem(FT_KEY) || 0; } catch (e) {}
+const peekFirst = n => (n > 0 ? firstCtr % n : 0);
+const takeFirst = n => { const i = peekFirst(n); firstCtr++; try { localStorage.setItem(FT_KEY, String(firstCtr)); } catch (e) {} return i; };
+let lastLobby = null;
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const n = (lastLobby && lastLobby.players && lastLobby.players.length) || 2;
+  if (n < needCount()) return;
+  const fi = mode === 'solo' ? 0 : takeFirst(n);
+  ui.net.raw.start({ firstIdx: fi });
+}
 
 /* ---------- chế độ chơi (màn hình chính) ---------- */
 let mode = 'solo'; /* solo | match | pvp | online */
@@ -65,10 +83,15 @@ function needCount() {
   return 2; /* solo (người + máy ngồi chơi) / match / pvp / online đều cần 2 người */
 }
 function renderLobby(info, u) {
+  lastLobby = info;
   const n = info.players.length;
   const need = needCount();
-  $('#lobby-list').innerHTML = `<p><b>${n}/2 người</b> (cần ${need}–2)</p>` + info.players.map(p => {
-    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
+  /* đăng người ném trước ván tới lên opts để khách trong phòng cũng thấy đúng người */
+  const peek = peekFirst(n);
+  if (u.isHost && ui.net && ui.net.raw && typeof ui.net.raw.setOpt === 'function' && (info.opts || {}).firstIdx !== peek) ui.net.raw.setOpt('firstIdx', peek);
+  const fi = Number.isInteger(info.opts && info.opts.firstIdx) ? info.opts.firstIdx : peek;
+  $('#lobby-list').innerHTML = `<p><b>${n}/2 người</b> (cần ${need}–2)</p>` + info.players.map((p, i) => {
+    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${mode !== 'solo' && n > 1 && i === fi ? '<span class="seat-role">🎯 Ném trước</span>' : ''}${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
   }).join('') + (u.isHost && mode === 'online' && n < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>` : '');
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
@@ -87,11 +110,12 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (nm) h.addLocal(nm);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => startGame();
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
 let endShownFor = '';
+let announcedGid = ''; /* gid đã công bố người ném trước (tránh toast lặp khi vẽ lại) */
 let pvpP2 = null;
 let shownThrowId = 0;
 
@@ -249,6 +273,11 @@ function render(v, prev) {
   }
   const me = v.me;
   const turnP = v.players.find(p => p.id === v.turn);
+  /* 🎯 Công bố người ném trước lúc mở ván (đấu 2 người; chơi đơn không cần) */
+  if (!v.solo && v.phase === 'playing' && v.gid !== announcedGid && (v.throws || []).length === 0) {
+    announcedGid = v.gid;
+    if (turnP) tip(`🎯 ${cleanName(turnP.name)} ném trước!`);
+  }
   $('#ph-turn').textContent = turnP ? cleanName(turnP.name) + (turnP.isBot ? ' 🤖' : '') : '—';
   if (v.solo) {
     $('#ph-visit-label').textContent = `Lượt ${Math.min(v.visit, SOLO_VISITS)}/${SOLO_VISITS} · Tổng ${v.total[me] || 0}đ`;

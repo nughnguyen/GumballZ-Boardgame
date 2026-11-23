@@ -50,3 +50,6 @@
   .bd-table-wrap { padding: 6px; border-radius: 12px; }
   .bd-stage { font-size: 13px; padding: 8px 10px; }
 }
+
+/* 🎯 Huy hiệu người phá trước ở phòng chờ (patch lượt đi đầu) */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7ae; }

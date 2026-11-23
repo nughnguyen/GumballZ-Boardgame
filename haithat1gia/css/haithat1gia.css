@@ -48,3 +48,5 @@
   .ht-stmt { font-size: 14px; }
   .ht-players .ht-player { min-width: 120px; }
 }
+/* 🎯 huy hiệu người kể trước ở phòng chờ */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff; }

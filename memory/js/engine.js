@@ -36,7 +36,15 @@ export function createGame(players, opts = {}) {
   const deck = [];
   for (const f of FACES.slice(0, L.pairs)) { deck.push(f, f); }
   for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
-  return {
+  /* 🎯 lượt đầu: mặc định ghế 0 (ván đầu theo ghế); chơi lại thì main truyền
+     firstIdx (hoặc prevFirstIdx) để ĐỔI người đi đầu qua các ván — mọi client
+     cùng thấy vì firstIdx nằm trong state chung. */
+  const n = players.length;
+  let firstIdx = 0;
+  if (Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < n) firstIdx = opts.firstIdx;
+  else if (Number.isInteger(opts.prevFirstIdx) && opts.prevFirstIdx >= 0 && opts.prevFirstIdx < n && n > 1) firstIdx = (opts.prevFirstIdx + 1) % n;
+  const gameNo = Number.isInteger(opts.gameNo) && opts.gameNo > 0 ? opts.gameNo : 1;
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     level, cols: L.cols, rows: L.rows, pairs: L.pairs, total: L.cards, seed, solo,
     cards: deck.map(face => ({ face, up: false, matched: false })),
@@ -44,11 +52,14 @@ export function createGame(players, opts = {}) {
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
       level: p.level || null, pairs: 0,
     })),
-    turn: players[0].id, turnNo: 1, flips: 0, misses: 0,
+    turn: players[firstIdx].id, turnNo: 1, flips: 0, misses: 0,
+    firstIdx, firstId: players[firstIdx].id, gameNo,
     pendingFlip: null, pendingHide: null, history: [],
     winner: null, draw: false, scores: null, endReason: null,
     lastFlip: null, log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -160,6 +171,7 @@ export function viewFor(s, pid) {
     cards: s.cards.map(c => (c.matched || c.up) ? { face: c.face, up: c.up, matched: c.matched } : { face: null, up: false, matched: false }),
     players: s.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, pairs: p.pairs })),
     turn: s.turn, turnNo: s.turnNo, flips: s.flips, misses: s.misses,
+    firstIdx: s.firstIdx, firstId: s.firstId, gameNo: s.gameNo || 1,
     pendingFlip: s.pendingFlip, pendingHide: s.pendingHide,
     winner: s.winner, draw: s.draw, scores: s.scores, endReason: s.endReason,
     lastFlip: s.lastFlip, log: s.log.slice(-30),

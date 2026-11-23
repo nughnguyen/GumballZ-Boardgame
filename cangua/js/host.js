@@ -1,5 +1,5 @@
 // 🐴 Lõi chủ phòng Cờ cá ngựa – dùng chung trình duyệt (net.js) và máy chủ (server/src/srvhost.js, "máy chủ giữ ván"). Không đụng tới window / localStorage: mọi thứ qua env.
-import { createGame, applyAction, viewFor, actorOf, P } from './engine.js?v=3';
+import { createGame, applyAction, viewFor, actorOf, P, shuffleOrder } from './engine.js?v=3';
 import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 import { botAction } from './bot.js?v=4';
 export const NS = 'gumballz-cangua', PREFIX = 'gumballz-cangua-', GAME = 'cangua', SNAP = 'gumballz-hostsnap-' + GAME;
@@ -44,6 +44,7 @@ class Host {
       const ro = restore.opts || {}; this.opts = ro.rulesV === 3 ? { ...this.opts, ...ro } : { ...this.opts, turnTime: ro.turnTime ?? this.opts.turnTime, botLevel: ro.botLevel || this.opts.botLevel };
       // phòng lưu từ trước bản luật nhà mới: ván đang chơi giữ luật cũ (state.opts), ván sau dùng mặc định mới
       if (restore.opts && !('dblHalf' in restore.opts)) Object.assign(this.opts, { homeRule: CFG.homeRule, dblHalf: CFG.dblHalf });
+      if (this.state) { this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo; } /* 🎯 khôi phục lượt đầu ván trước sau khi tải lại */
     }
     if (offline) { this.code = 'OFFLINE'; setTimeout(() => { this.pushLobby(); if (this.state) { this.schedule(1500); this.broadcast(); } }, 0); return; }
     this.room = new RoomHost({ ns: NS, prefix: PREFIX, code: this.code, keepCode: !!restore, host: this, onConn: c => this.attach(c), onReady: code => { this.code = code; session.save(GAME, { role: 'host', code }); this.pushLobby(); }, onError: m => this.h.onError(m) });
@@ -110,11 +111,12 @@ class Host {
     { const n = this.players.length; this.players = this.players.filter(p => p.id === 'host' || p.isBot || p.local || p.connected); if (this.players.length !== n) this.pushLobby(); } /* người đã thoát / rớt mạng không được chia bài: ghế ma làm cả bàn phải chờ từng lượt */
     const seated = this.players.slice(0, MAX);
     if (seated.length < 2) { this.h.onError('Cần ít nhất 2 người chơi (thêm bot nhé).'); return; }
-    const order = seated.map(p => ({ p, r: Math.random() })).sort((a, b) => a.r - b.r).map(x => x.p);
-    this.state = createGame(order.map(p => ({ id: p.id, name: p.name, isBot: p.isBot })), this.opts);
+    const order = shuffleOrder(seated, this.ftPrev); /* 🎯 xáo thứ tự lượt, ván sau không trùng người đi đầu ván trước */
+    this.state = createGame(order.map(p => ({ id: p.id, name: p.name, isBot: p.isBot })), { ...this.opts, gameNo: (this.ftNo || 0) + 1 });
+    this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo;
     this.pushLobby(); this.schedule(1800); this.broadcast();
   }
-  restart() { clearTimeout(this.timer); clearTimeout(this.afk); this.state = null; this.pushLobby(); for (const p of this.players) if (p.conn) try { p.conn.send({ t: 'state', view: null }); } catch (e) {} this.h.onState(null); }
+  restart() { clearTimeout(this.timer); clearTimeout(this.afk); if (this.state) { this.ftPrev = this.state.firstId || this.ftPrev; this.ftNo = this.state.gameNo || this.ftNo; } /* 🎯 giữ người đi đầu ván vừa xong để ván sau không trùng */ this.state = null; this.pushLobby(); for (const p of this.players) if (p.conn) try { p.conn.send({ t: 'state', view: null }); } catch (e) {} this.h.onState(null); }
   act(pid, a, auto = false) {
     if (!this.state) return;
     if (!auto && !this.players.find(p => p.id === pid)) return;

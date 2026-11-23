@@ -158,12 +158,17 @@ function startTick() {
     const raw = ui.net && ui.net.raw && ui.net.raw.state;
     if (!raw) return;
     const now = Date.now();
+    /* 'tick' là việc nhà của chủ phòng (đẩy rắn cho MỌI người): gửi thẳng qua
+       host (raw.act) — actAs bị cổng controls() chặn lặng lẽ khi pid là khách
+       xa/bot nên rắn của họ đứng im mãi (bot chỉ trả move, tick mới đẩy rắn). */
+    const host = ui.net && ui.net.raw;
     for (const p of raw.players) {
       const pr = raw.prog[p.id];
       if (!pr || pr.status !== 'playing' || !pr.snake || !pr.snake.length) continue;
       if (now - (lastTick[p.id] || 0) >= speedFor(pr.foods || 0)) {
         lastTick[p.id] = now;
-        ui.actAs(p.id, { type: 'tick' });
+        if (host && typeof host.act === 'function') host.act(p.id, { type: 'tick' });
+        else ui.actAs(p.id, { type: 'tick' });
       }
     }
   }, 50);

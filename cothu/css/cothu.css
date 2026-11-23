@@ -82,3 +82,6 @@
   .ct-trays { grid-template-columns: 1fr; gap: 6px; }
   .piece .rk { min-width: 16px; height: 16px; font-size: 11px; line-height: 13px; }
 }
+
+/* huy hiệu người đi trước ở phòng chờ (patch lượt đi đầu) */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7cc; }

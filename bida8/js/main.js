@@ -18,12 +18,30 @@ const NET = makeNet({
   game: 'bida8', min: 1, max: 2, maxSeats: 2, allowLocal: true,
   minMsg: 'Bida 8-ball cần 2 người: đấu máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: { bdMode: 'match' },
-  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'bdMode' && (v === 'solo' || v === 'match')),
+  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'bdMode' && (v === 'solo' || v === 'match')) || (k === 'firstIdx' && Number.isInteger(v) && v >= 0 && v < 2),
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy đi sau 700–900ms (Dễ) / 400–600ms (Khó) mỗi cú — botDelay ở bot.js */
   botDelay: (s, pid) => botDelay(s, pid),
   botNames: BOT_NAMES,
 });
+
+/* 🔄 Người phá xoay qua các ván: host giữ bộ đếm trong localStorage
+   (sống qua cả tải lại trang — nút "Chơi lại" của game tải lại trang);
+   ván nào lấy firstIdx = đếm % số người rồi tăng đếm, đăng lên opts để
+   mọi người trong phòng chờ đều thấy ai phá trước ván tới. */
+const FT_KEY = 'gumballz-bida8-firstctr';
+let firstCtr = 0;
+try { firstCtr = +localStorage.getItem(FT_KEY) || 0; } catch (e) {}
+const peekFirst = n => (n > 0 ? firstCtr % n : 0);
+const takeFirst = n => { const i = peekFirst(n); firstCtr++; try { localStorage.setItem(FT_KEY, String(firstCtr)); } catch (e) {} return i; };
+let lastLobby = null;
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const n = (lastLobby && lastLobby.players && lastLobby.players.length) || 2;
+  if (n < needCount()) return;
+  const fi = mode === 'solo' ? 0 : takeFirst(n);
+  ui.net.raw.start({ firstIdx: fi });
+}
 
 /* ---------- chế độ chơi (màn hình chính) ---------- */
 let mode = 'solo'; /* solo | match | pvp | online */
@@ -76,10 +94,15 @@ function needCount() {
   return 2; /* match / pvp / online đều cần 2 người */
 }
 function renderLobby(info, u) {
+  lastLobby = info;
   const n = info.players.length;
   const need = needCount();
-  $('#lobby-list').innerHTML = `<p><b>${n}/2 người</b> (cần ${need}–2)</p>` + info.players.map(p => {
-    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
+  /* đăng người phá trước ván tới lên opts để khách trong phòng cũng thấy đúng người */
+  const peek = peekFirst(n);
+  if (u.isHost && ui.net && ui.net.raw && typeof ui.net.raw.setOpt === 'function' && (info.opts || {}).firstIdx !== peek) ui.net.raw.setOpt('firstIdx', peek);
+  const fi = Number.isInteger(info.opts && info.opts.firstIdx) ? info.opts.firstIdx : peek;
+  $('#lobby-list').innerHTML = `<p><b>${n}/2 người</b> (cần ${need}–2)</p>` + info.players.map((p, i) => {
+    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${mode !== 'solo' && n > 1 && i === fi ? '<span class="seat-role">🎯 Phá trước</span>' : ''}${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
   }).join('') + (u.isHost && mode === 'online' && n < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>` : '');
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
@@ -98,11 +121,12 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (nm) h.addLocal(nm);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => startGame();
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
 let endShownFor = '';
+let announcedGid = ''; /* gid đã công bố người phá trước (tránh toast lặp khi vẽ lại) */
 let pvpP2 = null; /* id người chơi 2 ở chế độ chung máy */
 let timeoutSent = false;
 let animating = false;
@@ -315,6 +339,12 @@ function render(v, prev) {
     return;
   }
   if (!v.solo) startMatchClock(); else stopMatchClock();
+  /* 🎯 Công bố người phá trước lúc mở ván (đấu 2 người; chơi đơn không cần) */
+  if (!v.solo && v.phase === 'playing' && !v.breakDone && v.gid !== announcedGid && v.players.every(p => !(v.shots[p.id] || 0))) {
+    announcedGid = v.gid;
+    const fp = v.players.find(p => p.id === v.turn);
+    if (fp) tip(`🎱 ${cleanName(fp.name)} phá trước!`);
+  }
   /* âm thanh vào lỗ / phạm lỗi theo số lượng thay đổi */
   const potsNow = v.players.reduce((n, p) => n + (v.pots[p.id] || 0), 0);
   const foulsNow = v.players.reduce((n, p) => n + (v.fouls[p.id] || 0), 0);

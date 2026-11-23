@@ -148,17 +148,22 @@ export function createGame(players, opts = {}) {
     throw new Error('Mastermind chơi đúng 2 người.');
   }
   const seed = typeof opts.seed === 'number' ? opts.seed : (Date.now() % 2147483647);
+  /* 🔄 Người đoán trước xoay qua các ván: host truyền opts.firstIdx (bộ
+     đếm ván ở main.js); không có thì ghế 0 như cũ (giữ hành vi cũ). */
+  const firstIdx = Number.isInteger(opts.firstIdx)
+    ? ((opts.firstIdx % players.length) + players.length) % players.length
+    : 0;
   const s = {
     gid: 'mm-' + seed.toString(36) + '-' + (seed % 9973).toString(36), seq: 0,
     phase: 'setup', /* 'setup' | 'playing' | 'ended' */
-    seed,
+    seed, firstIdx,
     players: players.map((p, i) => ({
       id: p.id, name: p.name || ('Người ' + (i + 1)),
       isBot: !!p.isBot, level: p.level || null, local: !!p.local,
       secret: null, guesses: [], feedbacks: [],
       turns: 0, score: 0, bestBlack: 0, bestWhite: 0, cracked: false,
     })),
-    turnIdx: 0, round: 1,
+    turnIdx: firstIdx, round: 1,
     winner: null, losers: [], endReason: null, endCause: null, final: null,
     startedAt: Date.now(), endedAt: 0, log: [],
   };
@@ -195,8 +200,8 @@ export function applyAction(s, pid, act) {
     pushLog(s, `${p.name} đã đặt xong mã bí mật.`, 'setup');
     if (s.players.every(x => x.secret)) {
       s.phase = 'playing';
-      s.turnIdx = 0;
-      pushLog(s, 'Cả 2 đã đặt mã xong — bắt đầu đoán! Người đi trước đoán trước.', 'setup');
+      s.turnIdx = s.firstIdx;
+      pushLog(s, `Cả 2 đã đặt mã xong — bắt đầu đoán! 🎯 ${s.players[s.firstIdx].name} đoán trước!`, 'setup');
     } else {
       nextTurn(s);
     }
@@ -251,7 +256,7 @@ export function viewFor(s, pid) {
   const ended = s.phase === 'ended';
   return {
     gid: s.gid, seq: s.seq, phase: s.phase,
-    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx,
+    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx, firstIdx: s.firstIdx,
     players: s.players.map(p => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null,
       /* mã bí mật chỉ mình chủ của nó thấy (hoặc cả 2 thấy khi hết ván) */

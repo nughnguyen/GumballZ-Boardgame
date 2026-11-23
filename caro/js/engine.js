@@ -10,6 +10,26 @@ export const SIZE_DEFAULT = 30;
 export const SIZE_MIN = 5;
 export const WIN_LEN = 5;
 export const MARKS = ['X', 'O'];
+/* lượt đi đầu xoay vòng: opts.first (0/1) thắng; không có thì gieo theo opts.seed */
+export function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+export const pickFirst = (opts = {}) => {
+  if (opts.first === 0 || opts.first === 1) return opts.first;
+  if (!Number.isInteger(opts.seed)) return 0; /* mặc định như trước: ghế 0 đi trước (chỉ gieo khi gọi với seed) */
+  return Math.floor(mulberry32(opts.seed)() * 2);
+};
+/* ván sau đổi người đi trước */
+export const rotateFirst = (prev, n = 2) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
+/* tùy chọn phòng (simplenet defaults/optOk): ghế đi đầu (cầm X) */
+export const DEFAULT_OPTS = { first: 0 };
+export const OPT_CHOICES = { first: [0, 1] };
+export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);
 export const DIRS = [[1, 0], [0, 1], [1, 1], [1, -1]]; /* ngang, dọc, chéo \, chéo / */
 const clampSize = s => { const n = Number(s); return Number.isInteger(n) && n >= SIZE_MIN && n <= 30 ? n : SIZE_DEFAULT; };
 export const idx = (s, x, y) => y * s.size + x;
@@ -46,17 +66,21 @@ export function winLine(s, x, y) {
 export function createGame(players, opts = {}) {
   if (!players || players.length !== 2) throw new Error('Cờ Caro chơi 2 người.');
   const size = clampSize(opts.size);
-  return {
+  const firstIdx = pickFirst(opts); /* ghế đi đầu (cầm X) xoay vòng mỗi ván */
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     size, cells: new Array(size * size).fill(0),
     players: players.map((p, i) => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
-      level: p.level || null, mark: MARKS[i],
+      level: p.level || null, mark: MARKS[i === firstIdx ? 0 : 1],
     })),
-    turn: players[0].id, turnNo: 1, moveCount: 0,
+    turn: players[firstIdx].id, turnNo: 1, moveCount: 0,
+    firstIdx, firstId: players[firstIdx].id,
     winner: null, draw: false, scores: null, endReason: null,
     lastMove: null, winLine: null, log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} (X) đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -121,6 +145,7 @@ export function viewFor(s, pid) {
   const me = pOf(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, size: s.size, turn: s.turn, turnNo: s.turnNo,
+    firstIdx: s.firstIdx, firstId: s.firstId,
     moveCount: s.moveCount, winner: s.winner, draw: s.draw, scores: s.scores,
     endReason: s.endReason, cells: [...s.cells], counts: counts(s),
     players: s.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, mark: p.mark })),

@@ -30,17 +30,25 @@ export function winLine(s, x, y) {
 
 export function createGame(players, opts = {}) {
   if (!players || players.length !== 2) throw new Error('TicTacToe chơi 2 người.');
-  return {
+  /* 🎯 lượt đầu xoay qua các ván: chủ phòng truyền opts.firstIdx (ván đầu
+     ghế 0, ván sau ghế kế tiếp); không truyền thì mặc định ghế 0 để các
+     test/luật cũ vẫn ổn định. Quân X/O vẫn theo ghế, chỉ lượt đi đổi. */
+  const firstIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length ? opts.firstIdx : 0;
+  const first = players[firstIdx];
+  const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     size: SIZE, cells: new Array(SIZE * SIZE).fill(0),
     players: players.map((p, i) => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
       level: p.level || null, mark: MARKS[i],
     })),
-    turn: players[0].id, turnNo: 1, moveCount: 0,
+    turn: first.id, turnNo: 1, moveCount: 0,
+    firstIdx, firstId: first.id,
     winner: null, draw: false, scores: null, endReason: null,
     lastMove: null, winLine: null, log: [],
   };
+  pushLog(s, `🎯 ${first.name} (${MARKS[firstIdx]}) đi trước.`, 'first');
+  return s;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -106,6 +114,7 @@ export function viewFor(s, pid) {
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, size: s.size, turn: s.turn, turnNo: s.turnNo,
     moveCount: s.moveCount, winner: s.winner, draw: s.draw, scores: s.scores,
+    firstIdx: s.firstIdx ?? 0, firstId: s.firstId || s.turn,
     endReason: s.endReason, cells: [...s.cells], counts: counts(s),
     players: s.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null, mark: p.mark })),
     log: s.log.slice(-30), lastMove: s.lastMove, winLine: s.winLine,

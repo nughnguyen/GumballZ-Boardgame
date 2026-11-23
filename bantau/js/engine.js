@@ -79,8 +79,13 @@ const allSunk = p => SHIPS.every(s => isSunk(p, s.id));
 
 export function createGame(players, opts = {}) {
   if (players.length !== 2) throw new Error('Bắn Tàu chơi 2 người.');
+  /* 🎯 lượt bắn đầu xoay qua các ván: chủ phòng truyền opts.firstIdx (ván
+     đầu ghế 0, ván sau ghế kế tiếp); không truyền thì mặc định ghế 0 để
+     các test/luật cũ vẫn ổn định. Lượt bắn chỉ chốt khi cả 2 đã sẵn sàng. */
+  const firstIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length ? opts.firstIdx : 0;
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'setup', opts: { ...opts },
+    firstIdx, firstId: players[firstIdx].id,
     players: players.map(p => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
       ready: false, fleet: {}, hits: [], shots: {}, sunk: [], sunkCells: [], missStreak: 0,
@@ -143,7 +148,7 @@ export function applyAction(s, pid, a) {
       if (!v.ok) return { ok: false, reason: v.reason };
       me.fleet = Object.fromEntries(SHIPS.map(x => [x.id, [...a.ships[x.id]]])); me.ready = true; s.seq++;
       pushLog(s, `⚓ ${me.name} đã khóa đội hình.`);
-      if (s.players.every(p => p.ready)) { s.phase = 'battle'; s.turn = s.players[0].id; s.turnNo = 1; pushLog(s, '⚔️ Trận đấu bắt đầu! ' + s.players[0].name + ' bắn trước.'); }
+      if (s.players.every(p => p.ready)) { s.phase = 'battle'; const fi = s.firstIdx ?? 0; s.turn = s.players[fi].id; s.turnNo = 1; pushLog(s, '⚔️ Trận đấu bắt đầu! ' + s.players[fi].name + ' bắn trước.', 'first'); }
       return { ok: true };
     }
     return { ok: false, reason: 'Chưa bắt đầu – hãy xếp tàu rồi bấm Sẵn sàng.' };
@@ -227,6 +232,7 @@ export function viewFor(s, pid) {
   const pub = p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, ready: p.ready, coins: p.coins, shots: p.shots, sunk: p.sunk, sunkCells: p.sunkCells, hitsTaken: p.hits.length });
   const v = {
     gid: s.gid, seq: s.seq, phase: s.phase, turn: s.turn, turnNo: s.turnNo, winner: s.winner,
+    firstIdx: s.firstIdx ?? 0, firstId: s.firstId || s.players[0].id,
     players: s.players.map(pub), log: s.log.slice(-30),
     lastShot: s.lastShot, lastNuke: s.lastNuke,
     me: pid, you: null, foe: null,

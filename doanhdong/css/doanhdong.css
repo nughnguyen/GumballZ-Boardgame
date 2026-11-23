@@ -52,3 +52,5 @@
 .dd-cover-icon { font-size: 52px; }
 .dd-cover-card h3 { margin: 8px 0; color: var(--dd-ink); }
 .dd-cover-card p { color: var(--dd-muted); font-weight: 700; }
+/* 🎯 huy hiệu người diễn trước ở phòng chờ */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff; }

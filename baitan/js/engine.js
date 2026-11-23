@@ -22,9 +22,11 @@ export function createGame(players, opts, rnd = Math.random) {
   const s = { gid: Math.random().toString(36).slice(2, 8), seq: 0, phase: 'play', opts: o, players: players.map((p, i) => ({ id: p.id, name: p.name, isBot: !!p.isBot, team: o.team ? i % 2 : null })),
     hands, deck, trumpCard, trump: suit(trumpCard), table: [], passed: [], out: [], loser: null, draw: false, bout: 0, last: null, att: null, def: null, cap: 0 };
   /* người cầm lá chủ nhỏ nhất đi trước; không ai có chủ thì người đầu bàn */
-  let first = players[0].id, low = 99;
-  for (const p of players) for (const c of hands[p.id]) if (suit(c) === s.trump && rank(c) < low) { low = rank(c); first = p.id; }
+  let first = players[0].id, low = 99, lowCard = null;
+  for (const p of players) for (const c of hands[p.id]) if (suit(c) === s.trump && rank(c) < low) { low = rank(c); first = p.id; lowCard = c; }
   setTurn(s, first);
+  /* 🎯 công bố lượt đầu: ai tấn trước + vì sao (lá chủ nhỏ nhất / không ai có chủ) */
+  s.firstInfo = { att: first, def: s.def, card: lowCard, reason: lowCard == null ? 'seat0' : 'trump' };
   return s;
 }
 const active = s => s.players.filter(p => !s.out.includes(p.id)).map(p => p.id);

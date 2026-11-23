@@ -26,10 +26,27 @@ export const N = 12;
 export const MANDARIN = [0, 6];
 export const QUAN_VALUES = [5, 10];
 export const QUAN_DEFAULT = 10;
+/* lượt đi đầu xoay vòng: opts.first (0/1) thắng; không có thì gieo theo opts.seed */
+export function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+export const pickFirst = (opts = {}) => {
+  if (opts.first === 0 || opts.first === 1) return opts.first;
+  if (!Number.isInteger(opts.seed)) return 0; /* mặc định như trước: ghế 0 đi trước (chỉ gieo khi gọi với seed) */
+  return Math.floor(mulberry32(opts.seed)() * 2);
+};
+/* ván sau đổi người đi trước */
+export const rotateFirst = (prev, n = 2) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
 /* Tùy chọn bàn cho phòng online (simplenet): chủ phòng chọn trong phòng chờ,
-   khách chỉ xem. optOk để máy chủ từ chối giá trị lạ gửi từ khách. */
-export const DEFAULT_OPTS = { quanValue: QUAN_DEFAULT };
-export const OPT_CHOICES = { quanValue: QUAN_VALUES };
+   khách chỉ xem. optOk để máy chủ từ chối giá trị lạ gửi từ khách.
+   `first`: ghế đi đầu — xoay vòng mỗi ván, phòng chờ hiện huy hiệu 🎯 ở người đó. */
+export const DEFAULT_OPTS = { quanValue: QUAN_DEFAULT, first: 0 };
+export const OPT_CHOICES = { quanValue: QUAN_VALUES, first: [0, 1] };
 export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);
 /* 5 ô dân của từng bên, theo chỉ số người chơi (0 = Người chơi 1, hàng dưới; 1 = Người chơi 2, hàng trên) */
 export const SIDE_CELLS = [[7, 8, 9, 10, 11], [1, 2, 3, 4, 5]];
@@ -72,7 +89,8 @@ export function createGame(players, opts = {}) {
   cells[0] = { q: 1, d: 0 };
   cells[6] = { q: 1, d: 0 };
   for (const c of [1, 2, 3, 4, 5, 7, 8, 9, 10, 11]) cells[c] = { q: 0, d: 5 };
-  return {
+  const firstIdx = pickFirst(opts); /* người đi đầu xoay vòng mỗi ván */
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     opts: { quanValue },
     cells,
@@ -80,9 +98,12 @@ export function createGame(players, opts = {}) {
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
       bag: { q: 0, d: 0 }, debt: 0,
     })),
-    turn: players[0].id, turnNo: 1, winner: null, draw: false,
+    turn: players[firstIdx].id, turnNo: 1, winner: null, draw: false,
+    firstIdx, firstId: players[firstIdx].id,
     scores: null, endReason: null, lastMove: null, lastTrace: [], log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 const pIdx = (s, id) => s.players.findIndex(p => p.id === id);
@@ -229,6 +250,7 @@ export function viewFor(s, pid) {
   const me = pOf(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, turn: s.turn, turnNo: s.turnNo,
+    firstIdx: s.firstIdx, firstId: s.firstId,
     winner: s.winner, draw: s.draw, scores: s.scores, endReason: s.endReason,
     cells: s.cells.map(c => ({ ...c })), quanValue: s.opts.quanValue,
     players: s.players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, bag: { ...p.bag }, debt: p.debt })),

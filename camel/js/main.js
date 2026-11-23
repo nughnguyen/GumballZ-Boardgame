@@ -129,7 +129,8 @@ function renderLobby() {
   }).join('');
   $('#opts').innerHTML = OPTS.map(([key, name, list, hint]) => `<div class="opt"><b>${name}</b><div class="seg">${list.map(([v, n]) =>
     `<button class="${lobby.opts[key] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(key, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${hint}</small>` : ''}</div>`).join('') +
-    `<div class="opt"><b>🪙 Tiền</b><small>Mỗi người 3 xu ảo. Vé chặng 5/3/2/2 · cược chung cuộc 8/5/3/2/1 · sai −1. Chơi vui bằng xu ảo, không cá cược tiền thật.</small></div>`;
+    `<div class="opt"><b>🪙 Tiền</b><small>Mỗi người 3 xu ảo. Vé chặng 5/3/2/2 · cược chung cuộc 8/5/3/2/1 · sai −1. Chơi vui bằng xu ảo, không cá cược tiền thật.</small></div>
+    <div class="opt"><b>🎯 Người đi đầu</b><small>Ngẫu nhiên mỗi ván — ván sau không trùng người đi đầu ván trước.</small></div>`;
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
   paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
@@ -202,7 +203,7 @@ async function enterGame(v) {
   B.resize(); B.sync(v, colorsOf(v)); B.snap && B.snap();
   seenEv = v.fxN; endShown = v.phase === 'ended'; trayN = v.rolled.length;
   applyView(v);
-  if (v.phase === 'playing' && v.fxN <= 1) { fx.banner('Xuất phát! 🐪💨', 'gold'); fx.sfx.grunt(); }
+  if (v.phase === 'playing' && v.fxN <= 1) { fx.banner(`Xuất phát! 🐪💨 · 🎯 ${youOr(v, cur(v).id)} đi trước`, 'gold'); fx.sfx.grunt(); }
   if (!flat && !ls.get('camel-camhint')) { $('#cam-hint').hidden = false; setTimeout(() => { $('#cam-hint').hidden = true; }, 6000); ls.set('camel-camhint', '1'); }
 }
 function applyView(v) {

@@ -36,16 +36,28 @@ function log(s, text) { s.log.push(text); if (s.log.length > 80) s.log.splice(0,
 function ev(s, e) { s.ev.push({ n: ++s.evn, ...e }); if (s.ev.length > 80) s.ev.splice(0, s.ev.length - 80); }
 
 export function seatsFor(n) { return n <= 2 ? [0, 2] : n === 3 ? [0, 1, 2] : [0, 1, 2, 3]; }
+/* 🎯 Xáo thứ tự người chơi cho ván mới, ván sau không trùng người đi đầu ván
+   trước (prevFirstId). Dùng Fisher–Yates với rnd truyền vào để test gieo seed được. */
+export function shuffleOrder(players, prevFirstId, rnd = Math.random) {
+  const arr = players.slice();
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  if (arr.length > 1 && prevFirstId && arr[0].id === prevFirstId) {
+    const k = 1 + Math.floor(rnd() * (arr.length - 1));
+    [arr[0], arr[k]] = [arr[k], arr[0]];
+  }
+  return arr;
+}
 
 export function createGame(players, opts = {}) {
   const o = { ...DEFAULTS, ...opts }; o.dice = +o.dice === 1 ? 1 : 2;
   const seats = seatsFor(players.length);
   const s = {
     v: 1, phase: 'playing', opts: o, round: 1, turn: 0, stage: 'roll',
+    firstIdx: 0, firstId: players[0].id, gameNo: Number.isInteger(opts.gameNo) && opts.gameNo > 0 ? opts.gameNo : 1,
     players: players.map((p, i) => { const seat = p.seat != null ? p.seat : seats[i]; return { id: p.id, name: p.name, isBot: !!p.isBot, seat, color: COLORS[seat], horses: [-1, -1, -1, -1], done: false, kicks: 0, kicked: 0 }; }),
     dice: [], left: [], full: false, moves: [], streak: 0, ev: [], evn: 0, log: [], winner: null, ranks: [],
   };
-  log(s, '🐴 Bắt đầu ván! ' + (o.dice === 2 ? 'Đổ đôi hoặc 1+6 để xuất chuồng.' : 'Đổ 6 để xuất chuồng.'));
+  log(s, '🐴 Bắt đầu ván! 🎯 ' + players[0].name + ' đi trước. ' + (o.dice === 2 ? 'Đổ đôi hoặc 1+6 để xuất chuồng.' : 'Đổ 6 để xuất chuồng.'));
   ev(s, { t: 'turn', pid: s.players[0].id });
   return s;
 }

@@ -64,7 +64,8 @@ function renderLobby(info, ui) {
   const dis = ui.isHost ? '' : 'disabled';
   $('#opts').innerHTML = `<div class="opt"><b>🎯 Điểm mục tiêu</b><div class="seg">${[[0, 'Ván đơn'], [50, '50 điểm'], [100, '100 điểm'], [150, '150 điểm']].map(([v, n]) => `<button type="button" data-target="${v}" aria-pressed="${+o.target === v}" ${dis}>${n}</button>`).join('')}</div><small>Điểm tích lũy qua các ván — ai đủ điểm trước thì thắng trận. Ván đơn thì hết 1 ván là hết trận.</small></div>
   <div class="opt"><b>👥 Số người tối đa</b><div class="seg">${[2, 3, 4].map(v => `<button type="button" data-maxp="${v}" aria-pressed="${maxP === v}" ${dis}>${v}</button>`).join('')}</div><small>Phòng đủ số này thì không thêm được người nữa.</small></div>
-  <div class="opt"><b>⏱️ Đồng hồ đi</b><div class="seg">${[[0, 'Tắt'], [30, '30 giây'], [60, '60 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${+o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ mà chưa hành động: còn quân hợp thì game tự đặt 1 quân, không có quân hợp thì tự rút.</small></div>`;
+  <div class="opt"><b>⏱️ Đồng hồ đi</b><div class="seg">${[[0, 'Tắt'], [30, '30 giây'], [60, '60 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${+o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ mà chưa hành động: còn quân hợp thì game tự đặt 1 quân, không có quân hợp thì tự rút.</small></div>
+  <div class="opt"><b>🎯 Người mở màn</b><small>Ai có đôi lớn nhất (6-6 to nhất) đi trước bằng đúng quân đó; không có đôi thì quân nhiều nút nhất. Ván sau trong trận: người thắng ván trước mở màn.</small></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = ps.length < MIN_PLAYERS || ps.length > maxP;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -189,7 +190,7 @@ function showRevealStep(v) {
 }
 
 /* ---------- ván chơi ---------- */
-let cur = null, endShownGid = null, lastPlayN = -1, lastDrawN = -1, lastPassN = -1, lastHandNo = -1;
+let cur = null, endShownGid = null, lastPlayN = -1, lastDrawN = -1, lastPassN = -1, lastHandNo = -1, announcedHand = ''; /* ván đã công bố người mở màn (tránh toast lặp khi vẽ lại) */
 
 function seatHTML(v, p) {
   const isTurn = v.phase === 'playing' && !v.handEnd && v.turn === p.id;
@@ -223,12 +224,21 @@ function otherHTML(v, p) {
 function render(v, prev) {
   cur = v;
   if (!v) {
-    lastPlayN = -1; lastDrawN = -1; lastPassN = -1; lastHandNo = -1;
+    lastPlayN = -1; lastDrawN = -1; lastPassN = -1; lastHandNo = -1; announcedHand = '';
     endShownGid = null; peekPid = null; revealState = null; selTile = null;
     stopTimer(); timerKey = ''; hideReveal(); return;
   }
   const me = v.players.find(p => p.id === v.me);
   const turnP = v.players.find(p => p.id === v.turn);
+  /* 🎯 Công bố người mở màn lúc mở ván / mở ván mới trong trận */
+  if (v.phase === 'playing' && !v.handEnd && !v.chain.length && v.starter && v.starter.pid) {
+    const hk = v.gid + ':hand' + v.handNo;
+    if (hk !== announcedHand) {
+      announcedHand = hk;
+      const sp = v.players.find(p => p.id === v.starter.pid);
+      if (sp) tip(`🎲 ${cleanName(sp.name)} mở màn bằng ${tileName(v.starter.tile)}!`);
+    }
+  }
   const away = (v.away || []).map(id => (v.players.find(p => p.id === id) || {}).name).filter(Boolean);
   /* âm thanh: đặt quân / rút quân / bỏ lượt / ván mới */
   if (v.lastPlay && v.lastPlay.n !== lastPlayN) {

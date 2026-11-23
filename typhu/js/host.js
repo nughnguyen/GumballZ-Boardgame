@@ -1,6 +1,6 @@
 // Lõi chủ phòng Cờ Tỷ Phú – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, tốc độ hoạt ảnh… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
-import { createGame, applyAction, viewFor, actorOf, P } from './engine.js?v=66';
+import { createGame, applyAction, viewFor, actorOf, P, shuffleOrder } from './engine.js?v=66';
 import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
 export { setData } from './engine.js?v=66'; /* máy chủ nạp tiles.json + cards.json qua đây để cùng một bản engine với lõi */
 import { botAction } from './bot.js?v=66';
@@ -56,6 +56,7 @@ class Host {
     if (restore) {
       this.players = restore.players.map(p => ({ ...p, conn: null, connected: p.isBot || p.local || (!remote && p.id === 'host') }));
       this.state = restore.state; this.code = restore.code; this.opts = { ...this.opts, ...(restore.opts || {}) };
+      if (this.state) { this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo; } /* 🎯 khôi phục lượt đầu ván trước sau khi tải lại */
     }
     if (offline) { this.code = 'OFFLINE'; setTimeout(() => { this.pushLobby(); if (this.state) { this.schedule(1500); this.broadcast(); } }, 0); return; }
     this.room = new RoomHost({ ns: NS, prefix: PREFIX, code: this.code, keepCode: !!restore, host: this, onConn: c => this.attach(c), onReady: code => { this.code = code; session.save(GAME, { role: 'host', code }); this.pushLobby(); }, onError: m => this.h.onError(m) });
@@ -134,14 +135,15 @@ class Host {
     { const n = this.players.length; this.players = this.players.filter(p => (p.id === 'host' && !remote) || p.isBot || p.local || p.connected || p.id === 'host'); if (this.players.length !== n) this.pushLobby(); } /* người đã thoát / rớt mạng không được chia bài: ghế ma làm cả bàn phải chờ từng lượt */
     const seated = this.players.slice(0, MAX);
     if (seated.length < 2) { this.h.onError('Cần ít nhất 2 người chơi (thêm máy nhé).'); return; }
-    const used = new Set(), cols = seated.map(p => { let c = p.avatar && p.avatar.color; if (!COLORS.includes(c) || used.has(c)) c = COLORS.find(x => !used.has(x)); used.add(c); return c; });
-    // thứ tự lượt ngẫu nhiên
-    const order = seated.map((p, i) => ({ p, c: cols[i], r: Math.random() })).sort((a, b) => a.r - b.r);
-    this.state = createGame(order.map(({ p, c }) => ({ id: p.id, name: p.name, isBot: p.isBot, avatar: p.avatar, color: c })), this.opts);
+    /* 🎯 thứ tự lượt ngẫu nhiên, ván sau không trùng người đi đầu ván trước */
+    const order = shuffleOrder(seated, this.ftPrev);
+    const used = new Set(), cols = order.map(p => { let c = p.avatar && p.avatar.color; if (!COLORS.includes(c) || used.has(c)) c = COLORS.find(x => !used.has(x)); used.add(c); return c; });
+    this.state = createGame(order.map((p, i) => ({ id: p.id, name: p.name, isBot: p.isBot, avatar: p.avatar, color: cols[i] })), { ...this.opts, gameNo: (this.ftNo || 0) + 1 });
+    this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo;
     this.lastEv = 0;
     this.pushLobby(); this.schedule(1800); this.broadcast();
   }
-  restart() { clearTimeout(this.timer); clearTimeout(this.afk); this.state = null; this.pushLobby(); for (const p of this.players) if (p.conn) p.conn.send({ t: 'state', view: null }); this.h.onState(null); }
+  restart() { clearTimeout(this.timer); clearTimeout(this.afk); if (this.state) { this.ftPrev = this.state.firstId || this.ftPrev; this.ftNo = this.state.gameNo || this.ftNo; } /* 🎯 giữ người đi đầu ván vừa xong để ván sau không trùng */ this.state = null; this.pushLobby(); for (const p of this.players) if (p.conn) p.conn.send({ t: 'state', view: null }); this.h.onState(null); }
   act(pid, a, auto = false) {
     if (!this.state) return;
     if (!auto && pid !== 'host' && !this.players.find(p => p.id === pid)) return;

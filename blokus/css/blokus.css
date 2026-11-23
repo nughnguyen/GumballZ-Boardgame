@@ -89,3 +89,6 @@
 @media (max-width: 480px) {
   .bk-topbar .tools { flex-wrap: wrap; justify-content: flex-end; }
 }
+
+/* huy hiệu người đi trước ở phòng chờ (patch lượt đi đầu) */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7cc; }

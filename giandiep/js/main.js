@@ -53,7 +53,8 @@ function renderLobby(info, ui) {
     ? '<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Thêm người cùng máy</button></div>' : '';
   const o = info.opts || {}, dis = ui.isHost ? '' : 'disabled';
   $('#opts').innerHTML = `<div class="opt"><b>🕵️ Số gián điệp</b><div class="seg">${[[1, '1 gián điệp'], [2, '2 gián điệp']].map(([v, n]) => `<button type="button" data-spies="${v}" aria-pressed="${o.spies === v}" ${dis}>${n}</button>`).join('')}</div><small>2 gián điệp cần ít nhất 6 người (ít người hơn thì máy tự giảm xuống 1).</small></div>
-  <div class="opt"><b>⏱️ Đồng hồ mô tả</b><div class="seg">${[[0, 'Tắt'], [30, '30 giây'], [45, '45 giây'], [60, '60 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ mà chưa mô tả thì game tự gửi 1 câu chung chung giúp bạn.</small></div>`;
+  <div class="opt"><b>⏱️ Đồng hồ mô tả</b><div class="seg">${[[0, 'Tắt'], [30, '30 giây'], [45, '45 giây'], [60, '60 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ mà chưa mô tả thì game tự gửi 1 câu chung chung giúp bạn.</small></div>
+  <div class="opt"><b>🎲 Người mô tả đầu tiên</b><small>Ngẫu nhiên mỗi vòng — thứ tự mô tả xáo lại từ đầu, vòng sau đổi người khác. Ai mô tả đầu sẽ hiện rõ khi vòng mở.</small></div>`;
   $('#btn-start').style.display = ui.isHost ? '' : 'none';
   $('#btn-start').disabled = info.players.length < MIN_PLAYERS;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -70,7 +71,7 @@ $('#screen-lobby').addEventListener('click', async e => {
 $('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
 
 // ---------- ván chơi ----------
-let cur = null, endShown = null;
+let cur = null, endShown = null, lastFirstKey = '';
 let hideWord = false, lastWordOwner = null, voteAs = null, revealState = null;
 let timerInt = null, timerLeft = 0;
 
@@ -308,6 +309,13 @@ function showEndModal(v) {
 
 function render(v, prev) {
   cur = v;
+  /* công bố người mô tả đầu mỗi vòng (1 lần / vòng) */
+  const fk = v.gid + ':describe:' + v.round;
+  if (v.phase === 'describe' && fk !== lastFirstKey) {
+    lastFirstKey = fk;
+    const tp = v.players.find(p => p.id === v.turn);
+    tip(v.turn === v.me ? '✍️ Bạn mô tả đầu tiên!' : `✍️ ${cleanName(tp ? tp.name : '?')} mô tả đầu tiên!`);
+  }
   if (prev) {
     if (v.phase === 'describe' && prev.phase !== 'describe') beep('turn');
     else if (v.phase === 'describe' && v.turn !== prev.turn && v.turn === v.me) beep('turn');

@@ -42,7 +42,7 @@ function renderLobby(info, ui) {
   const n = info.players.length;
   $('#pcount').textContent = `${n}/4 người (cần 2–4)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 4
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
@@ -50,7 +50,8 @@ function renderLobby(info, ui) {
   const o = info.opts || {}, dis = ui.isHost ? '' : 'disabled';
   const t = +o.target || 0;
   $('#opts').innerHTML = `<div class="opt"><b>💌 Dấu Yêu để thắng trận</b><div class="seg">${[[0, 'Tự động'], [3, '3 dấu'], [4, '4 dấu'], [5, '5 dấu'], [6, '6 dấu'], [7, '7 dấu']].map(([v, n]) => `<button type="button" data-target="${v}" aria-pressed="${t === v}" ${dis}>${n}</button>`).join('')}</div><small>Tự động: 2 người cần 7 dấu, 3 người cần 5 dấu, 4 người cần 4 dấu.</small></div>
-  <div class="opt"><b>🃏 Bộ bài</b><div class="role-note">16 lá: Vệ binh ×5, Linh mục ×2, Nam tước ×2, Thị nữ ×2, Hoàng tử ×2, Quốc vương, Nữ bá tước, Công chúa. Mỗi vòng úp 1 lá ra ngoài (2 người thì lật thêm 3 lá ngửa).</div></div>`;
+  <div class="opt"><b>🃏 Bộ bài</b><div class="role-note">16 lá: Vệ binh ×5, Linh mục ×2, Nam tước ×2, Thị nữ ×2, Hoàng tử ×2, Quốc vương, Nữ bá tước, Công chúa. Mỗi vòng úp 1 lá ra ngoài (2 người thì lật thêm 3 lá ngửa).</div></div>
+  <div class="opt"><b>🎲 Ai đi trước?</b><div class="role-note">Vòng 1 bốc thăm ngẫu nhiên. Từ vòng 2, người thắng vòng trước đi trước.</div></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < 2 || n > 4;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -105,6 +106,12 @@ function render(v, prev) {
   if (!v) { selCard = null; selTarget = null; handRevealed = false; revealedFor = null; endShownFor = ''; return; }
   const me = v.players.find(p => p.id === v.me) || {};
   const turnP = v.players.find(p => p.id === v.turn);
+  /* công bố người đi đầu mỗi vòng (mọi máy đều thấy): vòng 1 bốc thăm ngẫu
+     nhiên, vòng sau người thắng vòng trước đi trước — tên đã có trong log mở vòng */
+  if (v.phase === 'playing' && turnP) {
+    const newRound = (prev && prev.round !== v.round) || (!prev && v.seq === 0);
+    if (newRound) tip(v.turn === v.me ? `💌 Vòng ${v.round}: Bạn đi trước!` : `💌 Vòng ${v.round}: ${cleanName(turnP.name)} đi trước!`);
+  }
   /* chuyền tay: đổi lượt thì che bài lại */
   if (mode === 'pvp' && revealedFor !== v.turn) { handRevealed = false; revealedFor = null; }
   selCard = null; selTarget = null;

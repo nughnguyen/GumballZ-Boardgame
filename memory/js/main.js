@@ -56,6 +56,16 @@ try {
 let cur = null, endShownGid = null, lastFlipKey = '', lastSeq = -1;
 let soloG = null; /* state engine chơi đơn (không qua mạng) */
 let hideTimer = null, gameStartAt = 0, endAt = 0, curGid = '';
+/* 🎯 xoay lượt đầu qua các ván trong phòng này: nhớ người đi đầu ván trước
+   (theo ghế ngồi ở phòng chờ — engine không xáo ghế nên ghế lobby = ghế ván). */
+let ftLastIdx = -1, ftLastId = null, ftGameNo = 0, ftN = 0;
+const ftExtra = () => (ftLastIdx < 0 || ftN < 2 ? undefined : { firstIdx: (ftLastIdx + 1) % ftN, gameNo: ftGameNo + 1 });
+const ftNote = v => {
+  const i = v.firstIdx != null ? v.firstIdx : v.players.findIndex(p => p.id === v.turn);
+  if (i >= 0) { ftLastIdx = i; ftLastId = v.players[i].id; ftGameNo = v.gameNo || ftGameNo + 1; }
+  ftN = v.players.length;
+};
+const ftNext = n => (n < 2 ? -1 : ftLastIdx < 0 ? 0 : (ftLastIdx + 1) % n); /* ghế đi đầu ván tới (ván đầu: ghế 0) */
 const myName = () => { try { return localStorage.getItem('gumballz-name') || 'Bạn'; } catch (e) { return 'Bạn'; } };
 const fmtTime = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
 /* xếp hạng sao chơi đơn: 3 sao = không trượt lần nào; 2 sao = trượt ≤ số cặp; còn lại 1 sao */
@@ -69,7 +79,13 @@ function scheduleHide(v) {
   hideTimer = setTimeout(() => {
     hideTimer = null;
     if (!cur || cur.gid !== gid || cur.seq !== seq || !cur.pendingHide) return;
-    ui.actAs(turn, { type: 'hide' });
+    /* 'hide' là việc nhà của chủ phòng, không phải nước đi của người lật:
+       gửi thẳng qua host (raw.act) — actAs bị cổng controls() chặn lặng lẽ
+       khi turn là khách xa/bot nên 2 lá ngửa mãi, ván kẹt (pendingHide chặn
+       actors()). Engine vẫn kiểm turn + pendingHide nên an toàn. */
+    const host = ui.net && ui.net.raw;
+    if (host && typeof host.act === 'function') host.act(turn, { type: 'hide' });
+    else ui.actAs(turn, { type: 'hide' });
   }, HIDE_MS);
 }
 
@@ -84,12 +100,15 @@ function renderLobby(info, u) {
     if (['easy', 'medium', 'hard'].includes(saved) && host.opts.level !== saved) { host.opts.level = saved; host.pushLobby(); return; }
   }
   $('#pcount').textContent = `${n}/2 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  if (ftLastId && !info.players.some(p => p.id === ftLastId)) { ftLastIdx = -1; ftLastId = null; ftGameNo = 0; } /* sang phòng khác / người đi đầu đã rời: quên lượt cũ */
+  ftN = n;
+  const nextFirst = ftNext(n);
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}${i === nextFirst ? ' <span class="ft-badge">🎯 Đi trước</span>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = !u.isHost ? '' : (n < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot-easy">🤖 Thêm máy Dễ</button><button class="btn" id="btn-addbot-hard">🧠 Thêm máy Khó</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
   const seg = (key, items) => `<div class="seg">${items.map(([v, nm]) => `<button type="button" data-opt="${key}" data-v="${v}" aria-pressed="${String(o[key]) === String(v)}" ${dis}>${nm}</button>`).join('')}</div>`;
-  $('#opts').innerHTML = `<div class="opt"><b>😊 Mức khó (số lá)</b>${seg('level', [['easy', 'Dễ · 12 lá'], ['medium', 'Vừa · 16 lá'], ['hard', 'Khó · 24 lá']])}<small>Càng nhiều lá càng khó nhớ vị trí.</small></div>`;
+  $('#opts').innerHTML = `<div class="opt"><b>😊 Mức khó (số lá)</b>${seg('level', [['easy', 'Dễ · 12 lá'], ['medium', 'Vừa · 16 lá'], ['hard', 'Khó · 24 lá']])}<small>Càng nhiều lá càng khó nhớ vị trí.</small></div><p class="opt-note">🎯 ${ftLastIdx < 0 || nextFirst < 0 ? 'Ván đầu: người ngồi ghế đầu đi trước.' : `Ván sau: ${esc(cleanName(info.players[nextFirst].name))} đi trước (xoay lượt qua các ván).`}</p>`;
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < 2;
   $('#wait-msg').style.display = u.isHost ? 'none' : '';
@@ -110,7 +129,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     try { localStorage.setItem('gumballz-memory-level', v); } catch (err) {}
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start(ftExtra());
 
 /* ---------- chơi đơn (không qua mạng) ---------- */
 function startSolo() {
@@ -170,7 +189,15 @@ function boardHTML(v) {
 function render(v, prev) {
   if (!v) { cur = null; lastSeq = -1; endShownGid = null; clearHideTimer(); return; }
   const isNewGame = v.gid !== curGid;
-  if (isNewGame) { curGid = v.gid; gameStartAt = Date.now(); endAt = 0; endShownGid = null; lastFlipKey = ''; lastSeq = -1; clearHideTimer(); }
+  if (isNewGame) {
+    curGid = v.gid; gameStartAt = Date.now(); endAt = 0; endShownGid = null; lastFlipKey = ''; lastSeq = -1; clearHideTimer();
+    ftNote(v);
+    /* 🎯 công bố người đi đầu lúc mở ván (cả online lẫn chơi chung máy) */
+    if (!v.solo && v.players.length > 1) {
+      const fp = v.players.find(p => p.id === v.turn);
+      if (fp) tip(fp.id === v.me ? '🎯 Bạn đi trước!' : `🎯 ${cleanName(fp.name)} đi trước!`);
+    }
+  }
   cur = v;
   /* âm thanh theo lần lật mới (flips tăng = có lá mới được lật; úp lại không tăng flips nên không kêu lại) */
   const fk = v.gid + '|' + v.flips + '|' + (v.lastFlip ? v.lastFlip.i : '');
@@ -258,7 +285,7 @@ function render(v, prev) {
           ? '<button class="btn big pri" id="m-again">🔁 Chơi ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button>'
           : '<button class="btn" id="m-close">Đóng — chờ chủ phòng mở ván mới</button>'}
         <button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-      const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
+      const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(ftExtra()); };
       const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
       const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
       $('#m-home').onclick = () => { ui.closeModal(); ui.leave(); setTimeout(() => { location.href = '../'; }, 250); };
@@ -302,7 +329,7 @@ $('#btn-new').onclick = () => {
   if (soloG) { startSolo(); return; }
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  ui.net.raw.start(ftExtra());
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };

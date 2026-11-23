@@ -113,6 +113,13 @@ function hasCheckerHigher(pl, points, from) {
   return false;
 }
 
+/* ván sau đổi người đi trước */
+export const rotateFirst = (prev, n = 2) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
+/* tùy chọn phòng (simplenet defaults/optOk): ghế đi đầu — xoay vòng mỗi ván */
+export const DEFAULT_OPTS = { first: 0 };
+export const OPT_CHOICES = { first: [0, 1] };
+export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);
+
 export function createGame(players, opts = {}) {
   if (!players || players.length !== 2) {
     throw new Error('Backgammon cần đúng 2 người chơi');
@@ -132,10 +139,13 @@ export function createGame(players, opts = {}) {
     bar: 0, off: 0, hits: 0, turns: 0, score: 0,
   }));
   const rng = mulberry32(seed);
-  const firstIdx = Math.floor(rng() * 2);
+  /* lượt đi đầu: opts.first (0/1) thắng — chủ phòng xoay vòng mỗi ván;
+     không có thì gieo ngẫu nhiên theo seed; không seed thì ghế 0 như trước */
+  const firstIdx = (opts.first === 0 || opts.first === 1) ? opts.first
+    : (opts.seed == null ? 0 : Math.floor(rng() * 2));
   const s = {
     gid: 'bg-' + seed,
-    seq: 0, phase: 'playing', turnIdx: firstIdx, turnCount: 0, round: 1,
+    seq: 0, phase: 'playing', turnIdx: firstIdx, firstIdx, turnCount: 0, round: 1,
     step: 'roll', dice: [], diceLeft: [],
     points,
     players: statePlayers,
@@ -548,7 +558,7 @@ export function viewFor(s, pid) {
   const turnPid = s.players[s.turnIdx] ? s.players[s.turnIdx].id : null;
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, round: s.round,
-    turn: turnPid, turnCount: s.turnCount,
+    turn: turnPid, turnCount: s.turnCount, firstIdx: s.firstIdx,
     step: s.step,
     dice: s.dice.slice(), diceLeft: s.diceLeft.slice(),
     cube: { value: s.cube.value, owner: s.cube.owner },

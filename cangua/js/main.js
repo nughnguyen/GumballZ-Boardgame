@@ -141,7 +141,8 @@ function renderLobby() {
     return `<li><span class="av">${p.isBot ? '🤖' : '🐴'}</span><div><b>${esc(p.name)}</b>${p.id === myId ? ' <small>(bạn)</small>' : ''}<br><small>${tag}</small></div>${isHost && p.id !== 'host' ? `<button class="x" ${fnAttr('lobby', () => net && net.removePlayer(p.id))} aria-label="Mời ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#opts').innerHTML = OPTS.filter(o => !o[4] || o[4](lobby.opts, offline)).map(([key, name, list, hint]) => `<div class="opt"><b>${name}</b><div class="seg">${list.map(([v, n]) =>
-    `<button class="${lobby.opts[key] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(key, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${typeof hint === 'function' ? hint(lobby.opts) || '' : hint}</small>` : ''}</div>`).join('');
+    `<button class="${lobby.opts[key] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(key, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${typeof hint === 'function' ? hint(lobby.opts) || '' : hint}</small>` : ''}</div>`).join('') +
+    `<div class="opt"><b>🎯 Người đi đầu</b><small>Thứ tự lượt ngẫu nhiên mỗi ván — ván sau không trùng người đi đầu ván trước.</small></div>`;
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
   paintTitles($('#plist'), ps); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
@@ -209,7 +210,7 @@ async function enterGame(v) {
   B.setMySeat(mySeat(v)); B.resize(); B.sync(v); B.setTurn(cur(v).seat); B.snap && B.snap();
   seenEv = v.evn; winShown = v.phase === 'over';
   applyView(v);
-  if (v.phase === 'playing' && v.evn <= 2) { fx.banner('Xuất phát! 🐴', 'gold'); fx.sfx.out(); }
+  if (v.phase === 'playing' && v.evn <= 2) { fx.banner(`Xuất phát! 🐴 · 🎯 ${youOr(v, cur(v).id)} đi trước`, 'gold'); fx.sfx.out(); }
   if (!ls.get('cangua-camhint')) { $('#cam-hint').hidden = false; setTimeout(() => { $('#cam-hint').hidden = true; }, 6000); ls.set('cangua-camhint', '1'); }
 }
 function applyView(v) {

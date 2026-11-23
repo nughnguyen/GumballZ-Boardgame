@@ -94,15 +94,20 @@ export function createGame(players, opts = {}) {
   if (!players || players.length < 1 || players.length > 6) throw new Error('Đoán Hành Động chơi 1–6 người.');
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
   const solo = players.length === 1;
+  /* 🎯 diễn viên đầu xoay qua các ván: chủ phòng truyền opts.firstIdx (ván
+     đầu ghế 0, ván sau ghế kế tiếp); không truyền thì mặc định ghế 0 để
+     các test/luật cũ vẫn ổn định. Chơi đơn không có lượt diễn đầu. */
+  const firstIdx = !solo && Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length ? opts.firstIdx : 0;
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     seed, /* hạt giống LCG — mọi lần rút số trong ván đều qua nextRand(s) */
     phase: 'playing', /* 'playing' | 'ended' */
     solo,
+    firstIdx, firstId: players[firstIdx].id,
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null })),
     prog: {},
     round: 1, /* nhiều người: vòng 1..3 */
-    actorIdx: 0, /* chỉ số ghế của diễn viên hiện tại (nhiều người) */
+    actorIdx: firstIdx, /* chỉ số ghế của diễn viên hiện tại (nhiều người) */
     stage: solo ? 'guess' : 'act', /* nhiều người: 'act' | 'guess' | 'reveal'; chơi đơn: 'guess' | 'reveal' */
     current: null, /* từ đang diễn (nhiều người): {actor, word, cat, guesses:[{id,pid,text,correct}], guessedBy, revealed, skipped, timedOut} */
     soloSet: null, /* chơi đơn: {index, word, cat, act, options, correctIdx, picked, revealed} */
@@ -125,8 +130,9 @@ export function createGame(players, opts = {}) {
     pushLog(s, `🎭 Ván Đoán Hành Động mới — xem mô tả hành động rồi chọn từ khớp trong 10 từ, đúng từ ${SOLO_WIN_CORRECT}/10 mới thắng!`);
   } else {
     const w = drawWord(s);
-    s.current = { actor: s.players[0].id, word: w.word, cat: w.cat, guesses: [], guessedBy: null, revealed: false, skipped: false, timedOut: false };
+    s.current = { actor: s.players[firstIdx].id, word: w.word, cat: w.cat, guesses: [], guessedBy: null, revealed: false, skipped: false, timedOut: false };
     pushLog(s, `🎭 Ván Đoán Hành Động mới — ${s.players.length} người, ${ROUNDS} vòng, mỗi vòng mọi người diễn 1 lần!`);
+    pushLog(s, `🎯 ${s.players[firstIdx].name} diễn trước!`, 'first');
   }
   return s;
 }
@@ -527,6 +533,7 @@ export function viewFor(s, pid) {
     final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,
     solo: s.solo, round: s.round, rounds: ROUNDS,
     stage: s.stage, actor: actorId(s),
+    firstIdx: s.firstIdx ?? 0, firstId: s.firstId || actorId(s),
     wordsDone: s.solo ? (s.soloSet ? s.soloSet.index : 0) : (s.round - 1) * s.players.length + s.actorIdx,
     totalWords: s.solo ? SOLO_SETS : ROUNDS * s.players.length,
     current: currentView, soloSet: soloView,

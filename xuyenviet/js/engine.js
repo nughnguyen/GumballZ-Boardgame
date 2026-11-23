@@ -7,12 +7,18 @@ export const CHOICES = { trains: [22, 30, 38], level: [1, 2, 3] };
 export const optOk = (k, v) => !!CHOICES[k] && CHOICES[k].includes(v);
 export const P_COLORS = ['#e2483d', '#2f7de1', '#2fb36a', '#f2a51e', '#9b59d0'];
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* người đi đầu đổi qua các ván: host giữ trong module (chỉ host chạy createGame) — ván sau không trùng người đi đầu ván trước */
+let lastFirstId = null;
 export function createGame(players, opts = {}, rnd = Math.random) {
   if (typeof rnd !== 'function') rnd = Math.random;
   const o = { ...DEFAULT_OPTS }; for (const k of Object.keys(CHOICES)) if (optOk(k, opts[k])) o[k] = opts[k];
   const deck = []; for (const c of COLORS) for (let i = 0; i < 12; i++) deck.push(c); for (let i = 0; i < 14; i++) deck.push('L'); shuffle(deck, rnd);
   const tk = shuffle(TICKETS.map(t => t.id), rnd);
-  const ps = shuffle(players.slice(0, 5).map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot })), rnd).map((p, i) => ({ ...p, color: P_COLORS[i], trains: o.trains, pts: 0, hand: deck.splice(0, 4 + Math.min(i, 3)), tickets: [], offer: tk.splice(0, 3), need: 2 }));
+  const shuffled = shuffle(players.slice(0, 5).map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot })), rnd);
+  /* đổi chỗ 0↔1 (không tốn thêm số ngẫu nhiên nên dòng random sau đó giữ nguyên như trước) */
+  if (shuffled.length > 1 && shuffled[0].id === lastFirstId) [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+  lastFirstId = shuffled.length ? shuffled[0].id : null;
+  const ps = shuffled.map((p, i) => ({ ...p, color: P_COLORS[i], trains: o.trains, pts: 0, hand: deck.splice(0, 4 + Math.min(i, 3)), tickets: [], offer: tk.splice(0, 3), need: 2 }));
   /* người đi sau được thêm thẻ lúc đầu (ghế 2: +1, ghế 3: +2, ghế 4–5: +3) để bù thiệt vì bị giành tuyến trước – số đo bằng máy đấu máy */
   const s = { gid: Math.floor(rnd() * 1e9), seq: 0, phase: 'tickets', opts: o, players: ps, turn: 0, deck, discard: [], up: [], tk, owner: {}, drawn: 0, finalLeft: -1, last: null, log: [], result: null };
   fillUp(s, rnd); return s;
@@ -62,7 +68,7 @@ export function applyAction(s, pid, a, rnd = Math.random) {
     const ids = [...new Set(Array.isArray(a.ids) ? a.ids : [])].filter(id => p.offer.includes(id));
     if (ids.length < p.need) return { ok: false, reason: `Phải giữ ít nhất ${p.need} vé.` };
     s.seq++; p.tickets.push(...ids); s.tk.unshift(...p.offer.filter(id => !ids.includes(id))); p.offer = null;
-    if (s.phase === 'tickets') { if (s.players.every(q => !q.offer)) { s.phase = 'play'; note(s, '🚂 Tàu chuyển bánh!'); } }
+    if (s.phase === 'tickets') { if (s.players.every(q => !q.offer)) { s.phase = 'play'; note(s, `🚂 Tàu chuyển bánh! ${(s.players[0] || {}).name || '?'} đi trước.`); } }
     else { note(s, `🎫 ${p.name} lấy thêm ${ids.length} vé đích.`); endTurn(s, rnd); }
     return { ok: true };
   }
@@ -103,7 +109,7 @@ export const actors = s => (s.phase === 'ended' ? [] : s.phase === 'tickets' ? s
 /* mỗi người chỉ thấy bài + vé của mình; của người khác chỉ thấy số lượng (hết ván mới lộ vé) */
 export function viewFor(s, pid) {
   const me = s.players.find(p => p.id === pid);
-  return { gid: s.gid, seq: s.seq, phase: s.phase, opts: s.opts, cur: s.phase === 'play' ? curId(s) : null, up: s.up, deckN: s.deck.length + s.discard.length, tkN: s.tk.length, owner: s.owner, drawn: s.drawn, finalLeft: s.finalLeft, last: s.last, log: s.log.slice(-6), canPass: !(s.deck.length || s.discard.length || s.up.some(c => c !== 'L' || !s.drawn)),
+  return { gid: s.gid, seq: s.seq, phase: s.phase, opts: s.opts, cur: s.phase === 'play' ? curId(s) : null, first: (s.players[0] || {}).id || null, up: s.up, deckN: s.deck.length + s.discard.length, tkN: s.tk.length, owner: s.owner, drawn: s.drawn, finalLeft: s.finalLeft, last: s.last, log: s.log.slice(-6), canPass: !(s.deck.length || s.discard.length || s.up.some(c => c !== 'L' || !s.drawn)),
     players: s.players.map(p => ({ id: p.id, name: p.name, isBot: p.isBot, color: p.color, trains: p.trains, pts: p.pts, cards: p.hand.length, tks: p.tickets.length, choosing: !!p.offer })),
     hand: me ? me.hand : [], tickets: me ? me.tickets.map(id => ({ id, ok: ticketDone(s, pid, id) })) : [], offer: me ? me.offer : null, need: me ? me.need : 0,
     result: s.result, winner: s.winner, winners: s.winners, spec: !me };

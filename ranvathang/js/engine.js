@@ -48,17 +48,28 @@ export function createGame(players, opts = {}) {
   if (opts.online && players.length !== 2) throw new Error('Chơi online Rắn và Thang chỉ đúng 2 người.');
   const pos = {};
   for (const p of players) pos[p.id] = 0; /* 0 = chưa vào bàn (đang ở ô xuất phát) */
-  return {
+  /* 🎯 lượt đầu: mặc định ghế 0 (ván đầu theo ghế); chơi lại thì main truyền
+     firstIdx (hoặc prevFirstIdx) để ĐỔI người đi đầu qua các ván — mọi client
+     cùng thấy vì firstIdx nằm trong state chung. */
+  const n = players.length;
+  let firstIdx = 0;
+  if (Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < n) firstIdx = opts.firstIdx;
+  else if (Number.isInteger(opts.prevFirstIdx) && opts.prevFirstIdx >= 0 && opts.prevFirstIdx < n && n > 1) firstIdx = (opts.prevFirstIdx + 1) % n;
+  const gameNo = Number.isInteger(opts.gameNo) && opts.gameNo > 0 ? opts.gameNo : 1;
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     players: players.map((p, i) => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
       level: p.level || null, color: i,
     })),
     pos, out: [],
-    turn: players[0].id, turnNo: 1, moveCount: 0,
+    turn: players[firstIdx].id, turnNo: 1, moveCount: 0,
+    firstIdx, firstId: players[firstIdx].id, gameNo,
     lastRoll: null, lastMove: null,
     winner: null, draw: false, endReason: null, log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -149,6 +160,7 @@ export function viewFor(s, pid) {
   const me = pOf(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, turn: s.turn, turnNo: s.turnNo,
+    firstIdx: s.firstIdx, firstId: s.firstId, gameNo: s.gameNo || 1,
     moveCount: s.moveCount, winner: s.winner, draw: s.draw,
     endReason: s.endReason, pos: { ...s.pos }, out: [...s.out],
     lastRoll: s.lastRoll, lastMove: s.lastMove,

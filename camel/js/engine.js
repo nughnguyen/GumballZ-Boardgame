@@ -94,7 +94,19 @@ export function createGame(players, opts = {}) {
   const order = [...RACERS].sort(() => rnd() - 0.5);
   for (const c of order) st.board[ri(3) + 1].push(c);
   if (o.crazy) for (const c of [...CRAZY].sort(() => rnd() - 0.5)) st.board[TRACK + 1 - (ri(3) + 1)].push(c);
-  st.turn = ri(st.players.length);
+  /* 🎯 lượt đầu ngẫu nhiên; chơi lại thì host truyền prevFirstId để ván sau
+     KHÔNG trùng người đi đầu ván trước, hoặc firstIdx để chỉ định thẳng.
+     firstIdx/firstId/gameNo nằm trong state nên mọi client cùng thấy. */
+  const n = st.players.length;
+  let firstIdx = 0;
+  if (Number.isInteger(o.firstIdx) && o.firstIdx >= 0 && o.firstIdx < n) firstIdx = o.firstIdx;
+  else {
+    firstIdx = ri(n);
+    if (n > 1 && o.prevFirstId && st.players[firstIdx].id === o.prevFirstId) firstIdx = (firstIdx + 1 + ri(n - 1)) % n;
+  }
+  st.turn = firstIdx;
+  st.firstIdx = firstIdx; st.firstId = st.players[firstIdx].id;
+  st.gameNo = Number.isInteger(o.gameNo) && o.gameNo > 0 ? o.gameNo : 1;
   log(st, `🏜️ Cuộc đua bắt đầu! ${st.players[st.turn].name} đi trước.`);
   fx(st, { k: 'start' });
   return st;

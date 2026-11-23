@@ -160,7 +160,15 @@ class Host {
     if (ps.length > maxPlayers(o)) { this.h.onError(`Chế độ này tối đa ${MAX_NORMAL} người – chọn Tam sao thất bản › Đông vui để chơi tới ${MAX_CROWD} người.`); return; }
     this.players = ps;
     if (this.state && Array.isArray(this.state.used) && this.state.used.length) this.usedWords = this.state.used.slice(-800); /* nhớ từ đã vẽ qua các ván trong phòng */
-    this.state = createGame(ps.map(p => ({ id: p.id, name: p.name })), { ...this.opts, host: 'host', used: this.usedWords || [] }, Date.now());
+    /* xoay hoạ sĩ đầu (chế độ Đoán hình): ván sau là người sau hoạ sĩ đầu ván
+       trước trong hàng ghế; ván đầu thì xáo ngẫu nhiên */
+    let firstDrawer = null;
+    if (o.mode === 'guess' && this.lastFirstDrawer) {
+      const ids = ps.map(p => p.id), i = ids.indexOf(this.lastFirstDrawer);
+      if (i >= 0) firstDrawer = ids[(i + 1) % ids.length];
+    }
+    this.state = createGame(ps.map(p => ({ id: p.id, name: p.name })), { ...this.opts, host: 'host', used: this.usedWords || [], firstDrawer }, Date.now());
+    if (this.state.mode === 'guess') this.lastFirstDrawer = this.state.firstDrawer || null;
     this.bookSent = null; this.players.forEach(p => p.lastKey = null);
     this.pushLobby(); this.broadcast(true);
   }

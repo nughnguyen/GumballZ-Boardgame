@@ -44,7 +44,7 @@ function renderLobby(info, ui) {
   const n = info.players.length;
   $('#pcount').textContent = `${n}/8 người (cần 3–8)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">🕵️ Người hỏi đầu tiên</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 8
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
@@ -52,7 +52,8 @@ function renderLobby(info, ui) {
   const o = info.opts || {}, dis = ui.isHost ? '' : 'disabled';
   $('#opts').innerHTML = `<div class="opt"><b>⏱️ Đồng hồ hỏi đáp (mỗi lượt hỏi)</b><div class="seg">${[[0, 'Tắt'], [60, '60 giây'], [120, '120 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${+o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ thì tự chuyển sang bỏ phiếu — hỏi hay trả lời chậm quá là cả bàn đi bỏ phiếu luôn.</small></div>
   <div class="opt"><b>🏁 Thắng trận khi thắng trước</b><div class="seg">${[[1, '1 ván'], [2, '2 ván'], [3, '3 ván']].map(([v, n]) => `<button type="button" data-target="${v}" aria-pressed="${+o.target === v}" ${dis}>${n}</button>`).join('')}</div><small>Gián điệp thắng ván thì chỉ mình gián điệp được 1 điểm; đội còn lại thắng ván thì mỗi người được 1 điểm.</small></div>
-  <div class="opt"><b>📍 Địa điểm</b><div class="role-note">Mỗi ván bốc ngẫu nhiên 1 trong 24 địa điểm quen thuộc (chợ Bến Thành, trường học, bệnh viện, sân bay, bãi biển, rạp chiếu phim…) — mỗi người thường nhận 1 vai ở đó, gián điệp không biết gì.</div></div>`;
+  <div class="opt"><b>📍 Địa điểm</b><div class="role-note">Mỗi ván bốc ngẫu nhiên 1 trong 24 địa điểm quen thuộc (chợ Bến Thành, trường học, bệnh viện, sân bay, bãi biển, rạp chiếu phim…) — mỗi người thường nhận 1 vai ở đó, gián điệp không biết gì.</div></div>
+  <div class="opt"><b>❓ Người hỏi đầu tiên</b><div class="role-note">🎲 Bốc ngẫu nhiên khi bắt đầu mỗi ván — không cố định ở ghế nào; ván sau đổi người khác. Ai hỏi đầu sẽ hiện rõ khi ván mở.</div></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < 3 || n > 8;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -174,6 +175,13 @@ function render(v, prev) {
   }
   if (v.phase !== lastPhase || v.roundNo !== lastRoundNo) { lastPhase = v.phase; lastRoundNo = v.roundNo; }
   lastQaLen = v.qa.length;
+  /* công bố người hỏi đầu mỗi ván (1 lần / ván) */
+  const askKey = v.gid + ':ask:' + v.roundNo;
+  if (v.phase === 'ask' && askKey !== lastAskKey) {
+    lastAskKey = askKey;
+    const an = (v.players.find(p => p.id === v.askerId) || {}).name || '?';
+    tip(v.askerId === v.me ? '❓ Bạn hỏi đầu tiên!' : `❓ ${cleanName(an)} hỏi đầu tiên!`);
+  }
   /* đồng hồ hỏi đáp */
   const tKey = v.gid + ':ask:' + v.roundNo + ':' + v.qa.length + ':' + (v.pendingQ ? '1' : '0');
   if (v.timer && v.phase === 'ask') {

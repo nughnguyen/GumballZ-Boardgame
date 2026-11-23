@@ -205,17 +205,23 @@ export function createGame(players, opts = {}) {
     throw new Error('Rummikub chơi 2–4 người.');
   }
   const seed = typeof opts.seed === 'number' ? opts.seed : (Date.now() % 2147483647);
+  /* 🔄 Lượt đi đầu xoay qua các ván: host truyền opts.firstIdx (bộ đếm
+     ván ở main.js); không có thì ghế 0 như cũ (giữ hành vi cũ cho mọi
+     đường gọi createGame khác, vd. test/sim). */
+  const firstIdx = Number.isInteger(opts.firstIdx)
+    ? ((opts.firstIdx % players.length) + players.length) % players.length
+    : 0;
   const s = {
     gid: 'rk-' + seed.toString(36) + '-' + (seed % 9973).toString(36), seq: 0,
     phase: 'playing', /* 'playing' | 'ended' */
-    seed,
+    seed, firstIdx,
     players: players.map((p, i) => ({
       id: p.id, name: p.name || ('Người ' + (i + 1)),
       isBot: !!p.isBot, level: p.level || null, local: !!p.local,
       hand: [], melded: false, meldsPlayed: 0, jokersPlayed: 0, turns: 0, score: 0,
     })),
     deck: [], table: [],
-    turnIdx: 0, round: 1,
+    turnIdx: firstIdx, round: 1,
     winner: null, losers: [], endReason: null, endCause: null, final: null,
     startedAt: Date.now(), endedAt: 0, log: [],
   };
@@ -224,7 +230,7 @@ export function createGame(players, opts = {}) {
     p.hand = deck.splice(0, HAND_CARDS).sort(sortTiles);
   });
   s.deck = deck;
-  pushLog(s, `Ván mới: ${s.players.length} người, mỗi người 14 lá, 106 lá (2 bộ 1–13 × 4 màu + 2 joker).`);
+  pushLog(s, `Ván mới: ${s.players.length} người, mỗi người 14 lá, 106 lá (2 bộ 1–13 × 4 màu + 2 joker). 🎯 ${s.players[firstIdx].name} đi trước!`);
   return s;
 }
 
@@ -316,7 +322,7 @@ export function viewFor(s, pid) {
   const ended = s.phase === 'ended';
   return {
     gid: s.gid, seq: s.seq, phase: s.phase,
-    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx,
+    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx, firstIdx: s.firstIdx,
     table: s.table.map(m => m.slice()),
     deckCount: s.deck.length,
     players: s.players.map(p => ({

@@ -55,15 +55,20 @@ export function createGame(players, opts = {}) {
   if (!players || players.length < 1 || players.length > 6) throw new Error('2 Thật 1 Giả chơi 1–6 người.');
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
   const solo = players.length === 1;
+  /* 🎯 người kể đầu xoay qua các ván: chủ phòng truyền opts.firstIdx (ván
+     đầu ghế 0, ván sau ghế kế tiếp); không truyền thì mặc định ghế 0 để
+     các test/luật cũ vẫn ổn định. Chơi đơn không có lượt kể đầu. */
+  const firstIdx = !solo && Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length ? opts.firstIdx : 0;
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     seed, /* hạt giống LCG — mọi lần rút số trong ván đều qua nextRand(s) */
     phase: 'playing', /* 'playing' | 'ended' */
     solo,
+    firstIdx, firstId: players[firstIdx].id,
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null })),
     prog: {},
     round: 1, /* nhiều người: vòng 1..3 */
-    presenterIdx: 0, /* chỉ số ghế của người đang kể (nhiều người) */
+    presenterIdx: firstIdx, /* chỉ số ghế của người đang kể (nhiều người) */
     stage: solo ? 'guess' : 'submit', /* 'submit' | 'guess' | 'reveal' */
     current: null, /* bộ đang kể (nhiều người): {presenter, statements, lie, source, topic, guesses:{pid:idx|-1}, revealed} */
     soloSet: null, /* chơi đơn: {index (0-based), statements, lie, topic, guessed: idx|-1|null, revealed} */
@@ -83,6 +88,7 @@ export function createGame(players, opts = {}) {
     pushLog(s, `🤥 Ván 2 Thật 1 Giả mới — đoán câu giả trong 10 bộ, đúng từ ${SOLO_WIN_CORRECT}/10 mới thắng!`);
   } else {
     pushLog(s, `🤥 Ván 2 Thật 1 Giả mới — ${s.players.length} người, ${ROUNDS} vòng, mỗi vòng mọi người kể 1 lần!`);
+    pushLog(s, `🎯 ${s.players[firstIdx].name} kể trước!`, 'first');
   }
   return s;
 }
@@ -436,6 +442,7 @@ export function viewFor(s, pid) {
     final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,
     solo: s.solo, round: s.round, rounds: ROUNDS,
     stage: s.stage, presenter: presenterId(s),
+    firstIdx: s.firstIdx ?? 0, firstId: s.firstId || presenterId(s),
     setsDone: s.solo ? (s.soloSet ? s.soloSet.index : 0) : (s.round - 1) * s.players.length + s.presenterIdx,
     totalSets: s.solo ? SOLO_SETS : ROUNDS * s.players.length,
     current: currentView, soloSet: soloView,

@@ -14,6 +14,8 @@ export const SPIRAL = [5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11
 export const optOk = (k, v) => !!CHOICES[k] && CHOICES[k].includes(v);
 export const P_COLORS = ['#e2483d', '#2f7de1', '#ff8a1e', '#8e44c9'];
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+/* người đi đầu đổi qua các ván: host giữ trong module (chỉ host chạy createGame) — ván sau không trùng người đi đầu ván trước */
+let lastFirstId = null;
 const empty = () => ({ w: 0, b: 0, g: 0, f: 0, o: 0 });
 export const total = h => RES.reduce((n, r) => n + (h[r] || 0), 0);
 export const canPay = (h, c) => Object.keys(c).every(r => (h[r] || 0) >= c[r]);
@@ -35,7 +37,11 @@ export function createGame(players, opts = {}, rnd = Math.random) {
   const pt = shuffle(['*', '*', '*', '*', 'w', 'b', 'g', 'f', 'o'], rnd);
   const ports = PORT_EDGES.map((e, i) => ({ e, v: [EDGES[e].a, EDGES[e].b], t: pt[i] }));
   const deck = shuffle([...Array(14).fill('guard'), ...Array(5).fill('vp'), 'road', 'road', 'plenty', 'plenty', 'mono', 'mono'], rnd);
-  const ps = shuffle(players.slice(0, 4).map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot })), rnd).map((p, i) => ({ ...p, color: P_COLORS[i], hand: empty(), dev: [], fresh: [], guards: 0 }));
+  const shuffled = shuffle(players.slice(0, 4).map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot })), rnd);
+  /* đổi chỗ 0↔1 (không tốn thêm số ngẫu nhiên nên dòng random sau đó giữ nguyên như trước) */
+  if (shuffled.length > 1 && shuffled[0].id === lastFirstId) [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+  lastFirstId = shuffled.length ? shuffled[0].id : null;
+  const ps = shuffled.map((p, i) => ({ ...p, color: P_COLORS[i], hand: empty(), dev: [], fresh: [], guards: 0 }));
   const n = ps.length, order = [...Array(n).keys(), ...[...Array(n).keys()].reverse()];
   return { gid: Math.floor(rnd() * 1e9), seq: 0, phase: 'setup', opts: o, players: ps, turn: 0, hexes, storm: hexes.findIndex(h => h.t === 'd'), ports, B: {}, R: {}, deck,
     bank: { w: 19, b: 19, g: 19, f: 19, o: 19 }, dice: null, setup: { order, i: 0, need: 'village', v: -1 }, need: {}, back: 'main', free: 0, played: false, offer: null, oid: 0, offN: 0, longest: null, army: null, last: null, log: [], result: null };
@@ -120,7 +126,7 @@ export function applyAction(s, pid, a, rnd = Math.random) {
       if (st.i >= s.players.length) for (const h of VERTS[a.at].hex) { const t = s.hexes[h].t; if (t !== 'd' && s.bank[t] > 0) { p.hand[t]++; s.bank[t]--; } } /* làng thứ hai: nhận ngay tài nguyên quanh nó */
       s.last = { t: 'build', kind: 'village', at: a.at, by: pid }; return yes(); }
     s.R[a.at] = pid; s.last = { t: 'build', kind: 'road', at: a.at, by: pid }; st.i++; st.need = 'village'; st.v = -1;
-    if (st.i >= st.order.length) { s.phase = 'roll'; s.turn = 0; note(s, '🏝️ Khai hoang bắt đầu!'); }
+    if (st.i >= st.order.length) { s.phase = 'roll'; s.turn = 0; note(s, `🏝️ Khai hoang bắt đầu! ${s.players[0].name} đi trước.`); }
     return yes();
   }
   if (s.phase === 'discard') return no('Chờ mọi người bỏ bớt bài đã.');

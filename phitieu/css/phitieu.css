@@ -43,3 +43,6 @@
   .ph-stage { font-size: 13px; padding: 8px 10px; }
   .ph-prompt { font-size: 14px; }
 }
+
+/* 🎯 Huy hiệu người ném trước ở phòng chờ (patch lượt đi đầu) */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7ae; }

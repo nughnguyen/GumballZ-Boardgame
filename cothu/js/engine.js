@@ -15,6 +15,26 @@
 // Mã ô: 0 trống, +hạng = quân Đỏ, -hạng = quân Xanh.
 export const W = 7, H = 9;
 export const SIDES = ['R', 'B'];
+/* lượt đi đầu xoay vòng: opts.first (0/1) thắng; không có thì gieo theo opts.seed */
+export function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+export const pickFirst = (opts = {}) => {
+  if (opts.first === 0 || opts.first === 1) return opts.first;
+  if (!Number.isInteger(opts.seed)) return 0; /* mặc định như trước: ghế 0 đi trước (chỉ gieo khi gọi với seed) */
+  return Math.floor(mulberry32(opts.seed)() * 2);
+};
+/* ván sau đổi người đi trước */
+export const rotateFirst = (prev, n = 2) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
+/* tùy chọn phòng (simplenet defaults/optOk): ghế đi đầu (cầm Đỏ) */
+export const DEFAULT_OPTS = { first: 0 };
+export const OPT_CHOICES = { first: [0, 1] };
+export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);
 export const ANIMALS = [
   { rank: 1, kind: 'rat', name: 'Chuột', emoji: '🐀' },
   { rank: 2, kind: 'cat', name: 'Mèo', emoji: '🐱' },
@@ -151,17 +171,21 @@ export function createGame(players, opts = {}) {
   for (const [x, y, v] of START) cells[idx(x, y)] = v;
   const captured = {};
   captured[players[0].id] = []; captured[players[1].id] = [];
-  return {
+  const firstIdx = pickFirst(opts); /* ghế đi đầu (cầm Đỏ) xoay vòng mỗi ván */
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     cells,
     players: players.map((p, i) => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
-      level: p.level || null, side: SIDES[i],
+      level: p.level || null, side: SIDES[i === firstIdx ? 0 : 1],
     })),
-    turn: players[0].id, turnNo: 1, moveCount: 0,
+    turn: players[firstIdx].id, turnNo: 1, moveCount: 0,
+    firstIdx, firstId: players[firstIdx].id,
     lastMove: null, captured, quietPlies: 0, hashes: [hashCells(cells)],
     winner: null, draw: false, endReason: null, log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} (🔴 Đỏ) đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -258,6 +282,7 @@ export function viewFor(s, pid) {
   const me = pOf(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, turn: s.turn, turnNo: s.turnNo,
+    firstIdx: s.firstIdx, firstId: s.firstId,
     moveCount: s.moveCount, winner: s.winner, draw: s.draw,
     endReason: s.endReason, cells: [...s.cells], lastMove: s.lastMove,
     captured: JSON.parse(JSON.stringify(s.captured)),

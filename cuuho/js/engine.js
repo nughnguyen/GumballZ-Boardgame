@@ -61,11 +61,19 @@ export function createGame(players, opts = {}, rnd = Math.random) {
   const seed = Number.isFinite(+o.seed) ? Math.floor(+o.seed) : Math.floor(Math.random() * 1e9);
   rnd = mulberry32(seed);
   const ps = players.slice(0, 4), roles = shuffle(ROLES.slice(), rnd);
+  /* 🎯 lượt đầu: mặc định ghế 0 (ván đầu theo ghế); chơi lại thì main truyền
+     firstIdx (hoặc prevFirstIdx) để ĐỔI người đi đầu qua các ván — mọi client
+     cùng thấy vì firstIdx nằm trong state chung. "Chơi lại ván cũ" truyền
+     đúng firstIdx cũ nên giữ nguyên người đi đầu của ván đó. */
+  let firstIdx = 0;
+  if (Number.isInteger(o.firstIdx) && o.firstIdx >= 0 && o.firstIdx < ps.length) firstIdx = o.firstIdx;
+  else if (Number.isInteger(o.prevFirstIdx) && o.prevFirstIdx >= 0 && o.prevFirstIdx < ps.length && ps.length > 1) firstIdx = (o.prevFirstIdx + 1) % ps.length;
+  const gameNo = Number.isInteger(o.gameNo) && o.gameNo > 0 ? o.gameNo : 1;
   const s = { gid: Math.random().toString(36).slice(2, 8), seed, seq: 0, phase: 'play', opts: o,
     players: ps.map((p, i) => ({ id: p.id, name: p.name, isBot: !!p.isBot, role: roles[i], at: START, hand: [] })),
     cubes: {}, stations: [START], cured: {}, gone: {}, outbreaks: 0, rateI: 0,
     infDeck: shuffle(CITY_IDS.slice(), rnd), infDisc: [], pDeck: [], pDisc: [],
-    turn: 0, left: 4, step: 'act', calm: false, log: [], last: null, result: null, burst: [] };
+    turn: firstIdx, firstIdx, firstId: ps[firstIdx].id, gameNo, left: 4, step: 'act', calm: false, log: [], last: null, result: null, burst: [] };
   for (const k of CITY_IDS) s.cubes[k] = { b: 0, y: 0, r: 0, o: 0 };
   /* bày thiên tai đầu ván: 3 thành phố ×3, 3 ×2, 3 ×1 */
   for (const n of [3, 3, 2, 2, 1, 1]) { const c = s.infDeck.shift(); s.infDisc.push(c); for (let k = 0; k < n; k++) addCube(s, c, CITY_COLOR[c], new Set()); }
@@ -77,6 +85,7 @@ export function createGame(players, opts = {}, rnd = Math.random) {
   const parts = Array.from({ length: o.epi }, () => []); deck.forEach((c, i) => parts[i % o.epi].push(c));
   s.pDeck = parts.flatMap(part => { part.splice(Math.floor(rnd() * (part.length + 1)), 0, 'epi'); return part; });
   s.rndSeed = Math.floor(rnd() * 1e9);
+  s.log.push('🎯 ' + ps[firstIdx].name + ' đi trước!');
   s.log.push('Đội cứu hộ tập trung ở Đà Nẵng. Bắt đầu!');
   return s;
 }
@@ -264,6 +273,7 @@ export const actors = s => (s.phase !== 'play' ? [] : [cur(s).id]);
 export function viewFor(s, pid) {
   /* game hợp tác: bài ai cũng thấy; chỉ giấu thứ tự chồng thẻ */
   return { gid: s.gid, seq: s.seq, phase: s.phase, opts: s.opts, seed: s.seed != null ? s.seed : null, canUndo: canUndo(s, pid), players: s.players, cubes: s.cubes, stations: s.stations, cured: s.cured, gone: s.gone,
+    firstIdx: s.firstIdx, firstId: s.firstId, gameNo: s.gameNo || 1,
     outbreaks: s.outbreaks, rate: RATE[s.rateI], rateI: s.rateI, infDisc: s.infDisc, pDeckN: s.pDeck.length, epiLeft: s.pDeck.filter(c => c === 'epi').length,
     cur: s.phase === 'play' ? cur(s).id : null, left: s.left, step: s.step, calm: s.calm, log: s.log.slice(-8), last: s.last, result: s.result, burst: s.burst, hits: s.hits || [], lastEpi: s.lastEpi || null,
     spec: !s.players.some(p => p.id === pid) };

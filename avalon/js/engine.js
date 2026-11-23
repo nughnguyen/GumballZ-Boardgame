@@ -59,6 +59,8 @@ function shuffled(arr) {
   }
   return a;
 }
+/* thủ lĩnh đầu ván trước (giữ ở host qua các ván mới — chỉ host chạy createGame) */
+let lastLeaderId = null;
 
 export function createGame(players, opts = {}) {
   if (!players || players.length < 5 || players.length > 10) throw new Error('Avalon chơi 5–10 người.');
@@ -70,11 +72,15 @@ export function createGame(players, opts = {}) {
     role: roles[i], side: ROLE_INFO[roles[i]].side,
   }));
   const sizes = QUEST_SIZES[n];
-  return {
+  /* thủ lĩnh đầu bốc ngẫu nhiên; ván sau không trùng người làm thủ lĩnh đầu ván trước */
+  let leader = Math.floor(Math.random() * n);
+  if (n > 1 && ps[leader].id === lastLeaderId) leader = (leader + 1) % n;
+  lastLeaderId = ps[leader].id;
+  const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     phase: 'propose', /* 'propose' | 'vote' | 'quest' | 'assassin' | 'ended' */
     players: ps, n,
-    leader: Math.floor(Math.random() * n), /* ghế thủ lĩnh đầu tiên */
+    leader, /* ghế thủ lĩnh đầu tiên */
     questNo: 0, questSizes: sizes,
     failsNeeded: sizes.map((_, qi) => failsNeededFor(n, qi)),
     quests: sizes.map((size, qi) => ({ qi, size, failsNeeded: failsNeededFor(n, qi), team: [], votes: null, fails: 0, result: null, leader: null })),
@@ -84,6 +90,8 @@ export function createGame(players, opts = {}) {
     q4Double: failsNeededFor(n, 3) === 2,
     log: [], timer,
   };
+  pushLog(s, `👑 ${ps[leader].name} làm thủ lĩnh đầu tiên — chọn đội nhiệm vụ 1!`);
+  return s;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);

@@ -19,7 +19,7 @@ const NET = makeNet({
   game: 'resistance', min: 1, max: 10, maxSeats: 10, allowLocal: true,
   minMsg: 'The Resistance cần 5–10 người: chơi đơn (tự có máy), thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: {},
-  optOk: (k, v) => k === 'botLevel' && (v === 'easy' || v === 'hard'),
+  optOk: (k, v) => (k === 'botLevel' && (v === 'easy' || v === 'hard')) || (k === 'firstIdx' && Number.isInteger(v) && v >= 0), /* firstIdx: chỉ để chủ phòng đẩy ghế đi đầu ván tới cho phòng chờ */
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy hành động sau 1.2–3s */
   botDelay: () => 1200 + Math.random() * 1800,
@@ -65,12 +65,56 @@ $('#btn-start-local').onclick = () => {
 };
 
 /* ---------- phòng chờ ---------- */
+/* xoay người đi đầu qua các ván: ghế Thủ lĩnh đầu ván trước được nhớ
+   (localStorage để sống qua cả tải lại trang); ván sau là ghế sau đó, ván đầu
+   thì engine bốc thăm theo seed. Chủ phòng đẩy ghế đi đầu ván tới lên opts
+   để mọi máy trong phòng chờ đều thấy cùng 1 người. */
+const FIRST_KEY = 'gumballz-resistance-firstidx';
+let lobbyPlayers = [];
+function readLastFirstIdx() {
+  try { const v = +localStorage.getItem(FIRST_KEY); return Number.isInteger(v) && v >= 0 ? v : null; } catch (e) { return null; }
+}
+function saveLastFirstIdx(i) {
+  try { localStorage.setItem(FIRST_KEY, String(i)); } catch (e) {}
+}
+function nextFirstIdx(n) {
+  if (!n || n < 1) return null;
+  const last = readLastFirstIdx();
+  return last == null ? null : (last + 1) % n;
+}
+function publishNextFirstIdx(info, u) {
+  if (!u.isHost || !u.net || !u.net.raw) return;
+  const next = nextFirstIdx((info.players || []).length);
+  if (next != null && (!info.opts || info.opts.firstIdx !== next)) u.net.raw.setOpt('firstIdx', next);
+}
+function startGame() {
+  const n = (cur && cur.players ? cur.players.length : 0) || lobbyPlayers.length;
+  const next = nextFirstIdx(n);
+  ui.net.raw.start(next == null ? undefined : { firstIdx: next });
+}
+/* toast công bố người đi đầu khi ván mới mở (mọi máy đều thấy) */
+let announcedGid = '';
+function announceFirst(v, prev) {
+  if (!v || v.phase !== 'playing') return;
+  if (prev && prev.gid === v.gid) return;
+  if (!prev && v.seq > 0) return; /* vào giữa ván thì không công bố lại */
+  if (announcedGid === v.gid) return;
+  announcedGid = v.gid;
+  const p = v.players.find(x => x.id === v.leader);
+  if (!p) return;
+  tip(p.id === v.me ? '👑 Bạn làm Thủ lĩnh đầu tiên!' : `👑 ${cleanName(p.name)} làm Thủ lĩnh đầu tiên!`);
+}
 function renderLobby(info, u) {
   const n = info.players.length;
   const need = mode === 'solo' ? 1 : 5;
-  $('#lobby-list').innerHTML = `<p><b>${n}/10 người</b> (cần ${need}–10)</p>` + info.players.map(p => {
-    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
-  }).join('') + (u.isHost && mode !== 'solo' && !mode.startsWith('ai-') && n < 10
+  lobbyPlayers = info.players.slice();
+  publishNextFirstIdx(info, u);
+  const next = mode === 'solo' ? null
+    : (info.opts && Number.isInteger(info.opts.firstIdx) && info.opts.firstIdx < n) ? info.opts.firstIdx
+    : nextFirstIdx(n);
+  $('#lobby-list').innerHTML = `<p><b>${n}/10 người</b> (cần ${need}–10)</p>` + info.players.map((p, i) => {
+    return `<div class="lobby-row">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'hard' ? 'Khó' : 'Dễ'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${next != null && i === next ? '<span class="seat-role">👑 Đi trước</span>' : ''}${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</div>`;
+  }).join('') + (next == null && mode !== 'solo' && n >= need ? `<p class="note">🎲 Thủ lĩnh đầu tiên sẽ bốc thăm ngẫu nhiên khi mở ván.</p>` : '') + (u.isHost && mode !== 'solo' && !mode.startsWith('ai-') && n < 10
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>` : '');
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < need;
@@ -88,7 +132,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => { if (ui.isHost) startGame(); };
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
@@ -287,6 +331,8 @@ function coverHtml(v) {
 function render(v, prev) {
   cur = v;
   if (!v) { endShownFor = ''; return; }
+  if (Number.isInteger(v.firstIdx)) saveLastFirstIdx(v.firstIdx);
+  announceFirst(v, prev);
   const ctrl = controlPid(v);
   const me = v.me;
 

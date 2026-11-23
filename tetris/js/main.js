@@ -163,13 +163,19 @@ function startGravity() {
     const raw = ui.net && ui.net.raw && ui.net.raw.state;
     if (!raw) return;
     const now = Date.now();
+    /* 'tick' là việc nhà của chủ phòng (thả khối cho MỌI người): gửi thẳng qua
+       host (raw.act) — actAs bị cổng controls() chặn lặng lẽ khi pid là khách
+       xa/bot nên khối của họ không rơi nữa (bot chỉ trả move/rotate, tick mới
+       thả khối xuống). */
+    const host = ui.net && ui.net.raw;
     for (const p of raw.players) {
       const pr = raw.prog[p.id];
       if (!pr || pr.status !== 'playing' || !pr.cur) continue;
       if (lastPieces[p.id] !== pr.piecesPlaced) { lastPieces[p.id] = pr.piecesPlaced; lastFall[p.id] = now; continue; }
       if (now - (lastFall[p.id] || 0) >= speedFor(pr.level)) {
         lastFall[p.id] = now;
-        ui.actAs(p.id, { type: 'tick' });
+        if (host && typeof host.act === 'function') host.act(p.id, { type: 'tick' });
+        else ui.actAs(p.id, { type: 'tick' });
       }
     }
   }, 50);

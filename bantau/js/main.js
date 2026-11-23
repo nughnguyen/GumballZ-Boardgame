@@ -111,9 +111,32 @@ function markLayerHTML(v) {
 }
 
 // ---------- phòng chờ ----------
+/* 🎯 lượt bắn đầu xoay qua các ván (ván đầu ghế 0, ván sau ghế kế tiếp).
+   Bộ đếm nằm ở máy chủ phòng; ghế dự kiến được chia sẻ cho cả phòng qua
+   opts.firstIdx (setOpt đẩy lobby mới cho mọi máy) để phòng chờ hiện huy
+   hiệu đúng, không chỉ đúng ở máy chủ phòng. */
+const MAX_SEATS = 2;
+let firstCounter = 0;
+function seatedPlayers() {
+  const ps = ((ui.net && ui.net.raw && ui.net.raw.players) || (ui.lobby && ui.lobby.players) || []);
+  return ps.filter(p => p.connected || p.isBot || p.local).slice(0, MAX_SEATS);
+}
+function nextFirstIdx() { const n = seatedPlayers().length; return n ? firstCounter % n : 0; }
+function syncFirstOpt(info) {
+  if (!ui.isHost || !ui.net || !ui.net.raw || typeof ui.net.raw.setOpt !== 'function') return;
+  const want = nextFirstIdx();
+  if ((info.opts || {}).firstIdx !== want) ui.net.raw.setOpt('firstIdx', want);
+}
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const fi = nextFirstIdx(); firstCounter++;
+  ui.net.raw.start({ firstIdx: fi });
+}
 function renderLobby(info, ui) {
+  syncFirstOpt(info);
+  const fi = Number.isInteger((info.opts || {}).firstIdx) ? info.opts.firstIdx : nextFirstIdx();
   $('#pcount').textContent = `${info.players.length}/2 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : p.isBot ? ' <small>· máy</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : p.isBot ? ' <small>· máy</small>' : ''}</span>${i === fi ? '<span class="seat-role">🎯 Bắn trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = ui.isHost && info.players.length < 2 ? '<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button></div>' : '';
   $('#btn-start').style.display = ui.isHost ? '' : 'none';
   $('#btn-start').disabled = info.players.length < 2;
@@ -125,7 +148,7 @@ $('#screen-lobby').addEventListener('click', e => {
   if (b.dataset.rm) h.removePlayer(b.dataset.rm);
   else if (b.id === 'btn-addbot') h.addBot();
 });
-$('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start').onclick = () => ui.isHost && startGame();
 
 // ---------- ván chơi ----------
 let cur = null, endShown = null, lastFx = '';
@@ -438,10 +461,10 @@ function render(v, prev) {
     }
     if (prev && v.turn !== (prev.turn || null) && isMyTurn(v) && v.phase === 'battle') beep('turn');
   }
-  /* toast: chìm tàu / dùng vật phẩm – lấy từ log (cả 2 bên đều thấy), không ghi thêm vào log */
+  /* toast: chìm tàu / dùng vật phẩm / ai bắn trước – lấy từ log (cả 2 bên đều thấy), không ghi thêm vào log */
   if (v.gid !== toastGid) { toastGid = v.gid; shownLog.clear(); v.log.forEach(l => shownLog.add(l.text)); }
   else {
-    const fresh = v.log.filter(l => (l.kind === 'sink' || l.kind === 'trap' || l.kind === 'radar' || l.kind === 'nuke') && !shownLog.has(l.text));
+    const fresh = v.log.filter(l => (l.kind === 'sink' || l.kind === 'trap' || l.kind === 'radar' || l.kind === 'nuke' || l.kind === 'first') && !shownLog.has(l.text));
     fresh.forEach(l => shownLog.add(l.text));
     if (fresh.length) tip(fresh[fresh.length - 1].text, 3600);
   }
@@ -625,7 +648,7 @@ $('#acts').addEventListener('click', e => {
     if (placedCount() !== 5) { tip('Xếp đủ 5 tàu đã rồi bấm Sẵn sàng.'); return; }
     ui.act({ type: 'ready', ships: fleet });
   }
-  else if (a === 'again') ui.net.raw.start();
+  else if (a === 'again') startGame();
   else if (a === 'lobby') ui.net.raw.restart();
 });
 $('#shop').addEventListener('click', e => {

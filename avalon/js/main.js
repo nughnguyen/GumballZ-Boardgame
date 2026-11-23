@@ -43,14 +43,15 @@ function renderLobby(info, ui) {
   const n = info.players.length;
   $('#pcount').textContent = `${n}/10 người (cần 5–10)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Thủ lĩnh đầu tiên</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 10
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
   const o = info.opts || {}, dis = ui.isHost ? '' : 'disabled';
   $('#opts').innerHTML = `<div class="opt"><b>⏱️ Đồng hồ đi (mỗi pha)</b><div class="seg">${[[0, 'Tắt'], [60, '60 giây'], [120, '120 giây']].map(([v, n]) => `<button type="button" data-timer="${v}" aria-pressed="${+o.timer === v}" ${dis}>${n}</button>`).join('')}</div><small>Hết giờ thì lượt tự chuyển: thủ lĩnh tự chọn đội ngẫu nhiên, phiếu chưa bỏ thì tính Thuận, nhiệm vụ chưa chọn thì Thiện tự Thành công / Ác tự Thất bại, Sát thủ đoán bừa 1 người phe Thiện.</small></div>
-  <div class="opt"><b>🎭 Chia vai</b><div class="role-note">Vai trò chia ngẫu nhiên khi bắt đầu: 5 người: Merlin, Percival, Hiệp sĩ — Sát thủ, Morgana · 6 người: + Mordred · 7 người: + Oberon · 8–9 người: + Hiệp sĩ · 10 người: + Tay sai Mordred. Mỗi người chỉ xem được vai của mình (bấm 👁 Xem vai trò trong ván).</div></div>`;
+  <div class="opt"><b>🎭 Chia vai</b><div class="role-note">Vai trò chia ngẫu nhiên khi bắt đầu: 5 người: Merlin, Percival, Hiệp sĩ — Sát thủ, Morgana · 6 người: + Mordred · 7 người: + Oberon · 8–9 người: + Hiệp sĩ · 10 người: + Tay sai Mordred. Mỗi người chỉ xem được vai của mình (bấm 👁 Xem vai trò trong ván).</div></div>
+  <div class="opt"><b>👑 Thủ lĩnh đầu tiên</b><div class="role-note">🎲 Bốc ngẫu nhiên khi bắt đầu ván — không cố định ở ghế nào; ván sau đổi người khác. Ai làm thủ lĩnh đầu sẽ hiện rõ khi ván mở.</div></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < 5 || n > 10;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -113,7 +114,7 @@ function startTimer(v) {
 }
 
 /* ---------- ván chơi ---------- */
-let cur = null, endShownGid = null;
+let cur = null, endShownGid = null, lastLeaderGid = null;
 let selTeam = []; /* đội đang chọn (thủ lĩnh) */
 let voteRevealed = null, questRevealed = null, assassinTarget = null, assassinRevealed = false, assassinTargetsNow = [], assassinActorNow = null;
 let roleShown = false, peekPid = null;
@@ -182,6 +183,11 @@ function render(v, prev) {
   cur = v;
   if (!v) { endShownGid = null; roleShown = false; peekPid = null; stopTimer(); timerKey = ''; lastPhase = ''; return; }
   resetFlowState(v, prev);
+  /* công bố thủ lĩnh đầu lúc mở ván (1 lần / ván) */
+  if ((!prev || prev.gid !== v.gid) && v.phase !== 'ended' && lastLeaderGid !== v.gid) {
+    lastLeaderGid = v.gid;
+    tip(v.leader === v.me ? '👑 Bạn làm thủ lĩnh đầu tiên!' : `👑 ${cleanName(v.leaderName || '?')} làm thủ lĩnh đầu tiên!`);
+  }
   /* âm thanh theo diễn biến */
   if (prev && v.seq !== prev.seq) {
     if (v.phase !== prev.phase) {

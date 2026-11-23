@@ -239,7 +239,8 @@ function renderLobby() {
   }).join('');
   const offline = net && net.offline;
   $('#opts').innerHTML = OPTS.filter(o => !(o[4] && offline)).map(([k, name, list, hint]) => `<div class="opt"><b>${name}</b><div class="seg">${list.map(([v, n]) =>
-    `<button class="${lobby.opts[k] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(k, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${hint}</small>` : ''}</div>`).join('');
+    `<button class="${lobby.opts[k] === v ? 'on' : ''}" ${isHost ? fnAttr('lobby', () => net && net.setOpt(k, v)) : 'disabled'}>${n}</button>`).join('')}</div>${hint ? `<small>${hint}</small>` : ''}</div>`).join('') +
+    `<div class="opt"><b>🎯 Người đi đầu</b><small>Thứ tự lượt ngẫu nhiên mỗi ván — ván sau không trùng người đi đầu ván trước.</small></div>`;
   $('#btn-addbot').style.display = $('#btn-addlocal').style.display = isHost ? '' : 'none';
   $('#btn-addbot').disabled = $('#btn-addlocal').disabled = ps.length >= MAX;
   $('#btn-start').style.display = isHost ? '' : 'none'; $('#wait-msg').style.display = isHost ? 'none' : '';
@@ -334,7 +335,7 @@ async function enterGame(v) {
   seenEv = v.evn; winShown = v.phase === 'over';
   recapReset(v);
   applyView(v);
-  if (v.phase === 'playing' && v.round === 1 && v.evn <= 2) { fx.banner('Bắt đầu! 🎲', 'gold'); fx.sfx.turn(); }
+  if (v.phase === 'playing' && v.round === 1 && v.evn <= 2) { fx.banner(`Bắt đầu! 🎲 · 🎯 ${youOr(v, cur(v).id)} đi trước`, 'gold'); fx.sfx.turn(); }
   if (!ls.get('typhu-camhint')) { $('#cam-hint').hidden = false; setTimeout(() => { $('#cam-hint').hidden = true; }, 6000); ls.set('typhu-camhint', '1'); }
 }
 function applyView(v) {

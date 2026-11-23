@@ -11,6 +11,16 @@ const NET = makeNet(DEF);
 const { COLORS, HAZ, HAZ_ICON, CITY_COLOR, CITY_IDS, ROLE_NAME, ROLE_ICON, ROLE_COLOR, ROLE_DO, EVENT_NAME, EVENT_ICON, EVENT_DO } = E;
 const CC = c => `var(--h-${c})`, LV = { 4: 'Dễ', 5: 'Vừa', 6: 'Khó' };
 let sound = ls.get('cuuho-sound') !== '0', endShown = null, ac = null, picked = null;
+/* 🎯 xoay lượt đầu qua các ván trong phòng này: nhớ người đi đầu ván trước
+   (theo ghế ngồi ở phòng chờ — engine không xáo ghế nên ghế lobby = ghế ván). */
+let ftLastIdx = -1, ftLastId = null, ftGameNo = 0, ftN = 0, ftGid = null;
+const ftExtra = () => (ftLastIdx < 0 || ftN < 2 ? undefined : { firstIdx: (ftLastIdx + 1) % ftN, gameNo: ftGameNo + 1 });
+const ftNote = v => {
+  const i = v.firstIdx != null ? v.firstIdx : v.turn;
+  if (i >= 0 && v.players[i]) { ftLastIdx = i; ftLastId = v.players[i].id; ftGameNo = v.gameNo || ftGameNo + 1; }
+  ftN = v.players.length;
+};
+const ftNext = n => (n < 2 ? -1 : ftLastIdx < 0 ? 0 : (ftLastIdx + 1) % n); /* ghế đi đầu ván tới (ván đầu: ghế 0) */
 function beep(kind) {
   if (!sound) return;
   try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime;
@@ -43,17 +53,21 @@ $('#hero').innerHTML = `<svg viewBox="${VB}">${mapSVG(null)}</svg>`; $('#map').s
 function renderLobby(info, ui) {
   const o = info.opts, dis = ui.isHost ? '' : 'disabled', n = info.players.length;
   $('#pcount').textContent = `${n}/4 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' <small>· máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  if (ftLastId && !info.players.some(p => p.id === ftLastId)) { ftLastIdx = -1; ftLastId = null; ftGameNo = 0; } /* sang phòng khác / người đi đầu đã rời: quên lượt cũ */
+  ftN = n;
+  const nextFirst = ftNext(n);
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' <small>· máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}${i === nextFirst ? ' <span class="ft-badge">🎯 Đi trước</span>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = ui.isHost && n < 4 ? `<div class="row-btns"><button class="btn" id="btn-addbot">+ Thêm máy</button></div>` : '';
   $('#opts').innerHTML = `<div class="opt"><b>⚠️ Độ khó</b><div class="seg">${[4, 5, 6].map(x => `<button type="button" data-opt="epi" data-v="${x}" aria-pressed="${o.epi === x}" ${dis}>${LV[x]} · ${x}</button>`).join('')}</div><small>Số lá ⚠️ Siêu thiên tai trộn trong chồng thẻ. Mới chơi thì chọn Dễ.</small></div>
-    <div class="opt"><b>🤝 Chơi chung</b><small>Cả bàn cùng thắng hoặc cùng thua. Bài ai cũng thấy – bàn bạc thoải mái nha!</small></div>`;
+    <div class="opt"><b>🤝 Chơi chung</b><small>Cả bàn cùng thắng hoặc cùng thua. Bài ai cũng thấy – bàn bạc thoải mái nha!</small></div>
+    <div class="opt"><b>🎯 Người đi đầu</b><small>${ftLastIdx < 0 || nextFirst < 0 ? 'Ván đầu: người ngồi ghế đầu đi trước.' : `Ván sau: ${esc(cleanName(info.players[nextFirst].name))} đi trước (xoay lượt qua các ván).`}</small></div>`;
   $('#btn-start').style.display = ui.isHost ? '' : 'none'; $('#btn-start').disabled = n < 2; $('#wait-msg').style.display = ui.isHost ? 'none' : '';
 }
 $('#screen-lobby').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !ui.net || !ui.isHost) return; const h = ui.net.raw;
   if (b.dataset.rm) h.removePlayer(b.dataset.rm); else if (b.id === 'btn-addbot') h.addBot(); else if (b.dataset.opt) h.setOpt(b.dataset.opt, +b.dataset.v);
 });
-$('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start').onclick = () => ui.isHost && ui.net.raw.start(ftExtra());
 // ---------- ván chơi ----------
 const nameOf = (v, id) => { const p = v.players.find(x => x.id === id); return p ? esc(cleanName(p.name)) : '?'; };
 const meP = v => v.players.find(p => p.id === ui.myId);
@@ -130,8 +144,8 @@ function useEvent(ev) {
 }
 $('#acts').addEventListener('click', e => {
   const b = e.target.closest('button'), v = ui.view; if (!b || !v || b.disabled) return; const a = b.dataset.a, me = meP(v);
-  if (a === 'again' && ui.isHost) return ui.net.raw.start(); if (a === 'lobby' && ui.isHost) return ui.net.raw.restart();
-  if (a === 'replay' && ui.isHost && v.seed != null) return ui.net.raw.start({ seed: v.seed }); /* chơi lại đúng ván cũ: cùng seed → cùng bài chia ban đầu */
+  if (a === 'again' && ui.isHost) return ui.net.raw.start(ftExtra()); if (a === 'lobby' && ui.isHost) return ui.net.raw.restart();
+  if (a === 'replay' && ui.isHost && v.seed != null) return ui.net.raw.start({ seed: v.seed, firstIdx: v.firstIdx }); /* chơi lại đúng ván cũ: cùng seed + cùng người đi đầu → cùng bài chia ban đầu */
   if (a === 'undo') return ui.act({ type: 'undo' });
   if (a === 'log') { ui.openModal(`<h2>📜 Nhật ký</h2><div class="log">${v.log.slice().reverse().map(x => `<p>${esc(x)}</p>`).join('')}</div><div class="btns"><button class="btn" id="m-close">Đóng</button></div>`); $('#m-close').onclick = ui.closeModal; return; }
   if (a === 'event') return pick('✨ Dùng thẻ đặc biệt', me.hand.filter(E.isEvent).map(c => ({ html: `${EVENT_ICON[c.slice(3)]} <b>${EVENT_NAME[c.slice(3)]}</b><br><small>${EVENT_DO[c.slice(3)]}</small>`, val: c.slice(3) })), useEvent);
@@ -161,6 +175,12 @@ $('#hand').addEventListener('click', e => {
   toast(`${HAZ_ICON[CITY_COLOR[c]]} ${E.cityName(c)}: bay tới đây, thuê chuyến khi đang đứng ở đây, lập trạm ở đây, hoặc gom ${E.curePrice(me)} thẻ ${HAZ[CITY_COLOR[c]]} để khắc phục.`);
 });
 function render(v, prev) {
+  if (v.gid !== ftGid) {
+    /* 🎯 ván mới mở: ghi nhớ + công bố người đi đầu (cả online lẫn chung máy) */
+    ftGid = v.gid; ftNote(v);
+    const fp = v.players[v.firstIdx != null ? v.firstIdx : v.turn];
+    if (fp && v.phase === 'play') toast(fp.id === ui.myId ? '🎯 Bạn đi trước!' : `🎯 ${cleanName(fp.name)} đi trước!`);
+  }
   if (prev && prev.gid === v.gid && prev.seq !== v.seq) {
     if (v.outbreaks > prev.outbreaks) { beep('boom'); toast(`💥 Vỡ đê! (${v.outbreaks}/8)`); }
     else if (v.rateI > prev.rateI) { beep('epi'); toast(`⚠️ Siêu thiên tai ở ${E.cityName(v.lastEpi)}!`); }

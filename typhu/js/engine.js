@@ -18,6 +18,17 @@ let rand = Math.random;
 export function setRandom(f) { rand = f || Math.random; }
 const d6 = () => 1 + Math.floor(rand() * 6);
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+/* 🎯 Xáo thứ tự người chơi cho ván mới, ván sau không trùng người đi đầu ván
+   trước (prevFirstId). Dùng Fisher–Yates với rnd truyền vào để test gieo seed được. */
+export function shuffleOrder(players, prevFirstId, rnd = Math.random) {
+  const arr = players.slice();
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  if (arr.length > 1 && prevFirstId && arr[0].id === prevFirstId) {
+    const k = 1 + Math.floor(rnd() * (arr.length - 1));
+    [arr[0], arr[k]] = [arr[k], arr[0]];
+  }
+  return arr;
+}
 
 export const DEFAULTS = { startMoney: 1500, maxRounds: 0, monopolyWin: true, auction: true, buyback: true, freeBuild: true, travel: true, travelFee: 100, turnTime: 0, teams: false };
 export const SALARY = 200, JAIL_FINE = 50, MAX_TRADES = 3;
@@ -36,13 +47,14 @@ export function createGame(players, opts = {}) {
   const tm = !!o.teams && [4, 6, 8].includes(players.length), nt = players.length / 2; /* chơi theo đội: 4, 6 hoặc 8 người, mỗi đội 2 người ngồi đối diện nhau (ghế i và ghế i + n/2) */
   const s = {
     v: 1, phase: 'playing', opts: o, round: 1, turn: 0, stage: 'roll',
+    firstIdx: 0, firstId: players[0].id, gameNo: Number.isInteger(opts.gameNo) && opts.gameNo > 0 ? opts.gameNo : 1,
     players: players.map((p, i) => ({ id: p.id, name: p.name, team: tm ? i % nt : null, isBot: !!p.isBot, avatar: p.avatar || null, color: p.color || '#ff5a5f', cash: o.startMoney, pos: 0, inJail: false, jailTurns: 0, cards: [], out: false, doubles: 0 })),
     props: {}, dice: [1, 1], rolled: false, again: false,
     auction: null, trade: null, debt: null, buyback: null, buyTile: null, landed: null,
     decks: { chance: shuffle([...CARDS.chance.keys()]), chest: shuffle([...CARDS.chest.keys()]) },
     trades: 0, tradeHist: {}, ev: [], evn: 0, log: [], winner: null, winReason: null, ranks: [],
   };
-  log(s, '🎲 Bắt đầu ván! Mỗi người có ' + money(o.startMoney) + '.');
+  log(s, '🎲 Bắt đầu ván! 🎯 ' + players[0].name + ' đi trước. Mỗi người có ' + money(o.startMoney) + '.');
   return s;
 }
 function log(s, text) { s.log.push(text); if (s.log.length > 60) s.log.splice(0, s.log.length - 60); }

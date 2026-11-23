@@ -14,6 +14,22 @@ export const SIZES = [9, 13, 19];
 export const SIZE_DEFAULT = 19;
 export const KOMI = 7.5;
 export const MARKS = ['B', 'W'];
+/* lượt đi đầu xoay vòng: opts.first (0/1) thắng; không có thì gieo theo opts.seed */
+export function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+export const pickFirst = (opts = {}) => {
+  if (opts.first === 0 || opts.first === 1) return opts.first;
+  if (!Number.isInteger(opts.seed)) return 0; /* mặc định như trước: ghế 0 đi trước (chỉ gieo khi gọi với seed) */
+  return Math.floor(mulberry32(opts.seed)() * 2);
+};
+/* ván sau đổi người đi trước */
+export const rotateFirst = (prev, n = 2) => (((prev == null ? 0 : prev) + 1) % n + n) % n;
 export const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]]; /* 4 hướng kề */
 export const idx = (s, x, y) => y * s.size + x;
 export const inBoard = (s, x, y) => x >= 0 && y >= 0 && x < s.size && y < s.size;
@@ -35,18 +51,22 @@ export function createGame(players, opts = {}) {
   const size = SIZES.includes(Number(opts.size)) ? Number(opts.size) : SIZE_DEFAULT;
   const prisoners = {};
   prisoners[players[0].id] = 0; prisoners[players[1].id] = 0;
-  return {
+  const firstIdx = pickFirst(opts); /* ghế đi đầu (cầm Đen) xoay vòng mỗi ván */
+  const st = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0, phase: 'playing',
     size, cells: new Array(size * size).fill(0),
     players: players.map((p, i) => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local,
-      level: p.level || null, mark: MARKS[i],
+      level: p.level || null, mark: MARKS[i === firstIdx ? 0 : 1],
     })),
-    turn: players[0].id, turnNo: 1, moveCount: 0,
+    turn: players[firstIdx].id, turnNo: 1, moveCount: 0,
+    firstIdx, firstId: players[firstIdx].id,
     passes: 0, prevHash: null, lastMove: null,
     prisoners, dead: [], scores: null,
     winner: null, draw: false, endReason: null, log: [],
   };
+  pushLog(st, `🎯 ${players[firstIdx].name} (⚫ Đen) đi trước!`);
+  return st;
 }
 export function cloneState(s) { return JSON.parse(JSON.stringify(s)); }
 export const serialize = s => JSON.stringify(s);
@@ -264,6 +284,7 @@ export function viewFor(s, pid) {
   const me = pOf(s, pid);
   return {
     gid: s.gid, seq: s.seq, phase: s.phase, size: s.size, turn: s.turn, turnNo: s.turnNo,
+    firstIdx: s.firstIdx, firstId: s.firstId,
     moveCount: s.moveCount, passes: s.passes, winner: s.winner, draw: s.draw,
     endReason: s.endReason, cells: [...s.cells], dead: [...s.dead], lastMove: s.lastMove,
     prisoners: { ...s.prisoners }, scores: s.scores,
@@ -291,7 +312,8 @@ export function applyAction(s, pid, a, ctx) {
 }
 
 /* Tùy chọn phòng (simplenet defaults/optOk): chủ phòng chọn kích thước bàn
-   trong phòng chờ; giá trị lạ gửi từ khách bị từ chối. */
-export const DEFAULT_OPTS = { size: SIZE_DEFAULT };
-export const OPT_CHOICES = { size: SIZES };
+   trong phòng chờ; giá trị lạ gửi từ khách bị từ chối. `first`: ghế đi đầu
+   (cầm Đen) — xoay vòng mỗi ván, phòng chờ hiện huy hiệu 🎯 ở người đó. */
+export const DEFAULT_OPTS = { size: SIZE_DEFAULT, first: 0 };
+export const OPT_CHOICES = { size: SIZES, first: [0, 1] };
 export const optOk = (k, v) => k in OPT_CHOICES && OPT_CHOICES[k].includes(v);

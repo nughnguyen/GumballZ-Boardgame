@@ -48,7 +48,37 @@ let animQueue = [];      /* các view chờ animate theo đúng thứ tự nhậ
 let animating = false;
 let lastSeq = -1;        /* seq của view đã animate xong */
 let lastGid = '', endShownGid = '', endAchGid = '', achGid = '';
+let announcedGid = ''; /* ván đã công bố người đi đầu (tránh toast lại khi render lại) */
 let optsLoaded = false;  /* đã nạp tùy chọn Quan đã lưu vào phòng chờ lần này chưa */
+
+/* ---------- lượt đi đầu xoay vòng (ván sau đổi người) ---------- */
+const FIRST_KEY = 'gumballz-oanquan-nextfirst';
+function nextFirstIdx() {
+  let v = 0;
+  try { const s = ls.get(FIRST_KEY); v = s == null ? Math.floor(Math.random() * 2) : (parseInt(s, 10) || 0) % 2; } catch (e) { v = Math.floor(Math.random() * 2); }
+  return (v + 2) % 2;
+}
+function advanceFirstIdx() { try { ls.set(FIRST_KEY, String((nextFirstIdx() + 1) % 2)); } catch (e) {} }
+/* mở ván online mới: người đi đầu lấy từ khóa đã lưu — ghi vào opt (phòng chờ
+   hiện huy hiệu) + extra (engine dùng), rồi xoay khóa cho ván sau */
+function startRotated() {
+  const h = ui.net && ui.net.raw;
+  if (!h || !ui.isHost) return false;
+  const f = nextFirstIdx();
+  try { if (typeof h.setOpt === 'function') h.setOpt('first', f); } catch (e) {}
+  h.start({ first: f });
+  advanceFirstIdx();
+  return true;
+}
+/* hẹn máy đi khi tới lượt máy (dùng cả lúc mở ván máy đi trước lẫn sau mỗi nước) */
+function scheduleBot() {
+  if (mode === 'pvp' || !G || G.phase !== 'playing' || G.turn !== 'p2') return;
+  clearTimeout(botTimer);
+  botTimer = setTimeout(() => {
+    const m = chooseMove(G, 'p2', mode === 'ai-hard' ? 'hard' : 'easy');
+    if (m) doMove('p2', m);
+  }, 750);
+}
 const stateNow = () => (mode === 'online' ? cur : G);
 const myId = () => (mode === 'online' && cur ? cur.me : 'p1');
 const isSpectator = () => mode === 'online' && !!cur && !cur.players.some(p => p.id === cur.me);
@@ -373,13 +403,7 @@ async function doMove(pid, move) {
     if (rescuedIsP1) { gs.rescues++; recordEvent('oanquan', 'rescue', {}); }
   }
   if (G.phase === 'ended') { endGame(); return; }
-  if (mode !== 'pvp' && G.turn === 'p2') {
-    clearTimeout(botTimer);
-    botTimer = setTimeout(() => {
-      const m = chooseMove(G, 'p2', mode === 'ai-hard' ? 'hard' : 'easy');
-      if (m) doMove('p2', m);
-    }, 750);
-  }
+  scheduleBot();
 }
 function endGame() {
   const won = G.winner === 'p1';
@@ -403,16 +427,20 @@ function endGame() {
 function renderLobby(info, u) {
   const host = u.isHost && u.net ? u.net.raw : null, o = info.opts, dis = u.isHost ? '' : 'disabled', n = info.players.length;
   if (host && !optsLoaded) {
-    /* nhớ giá trị Quan lần trước của chủ phòng */
+    /* nhớ ghế đi đầu của ván tới cho cả phòng thấy (trước khi nạp giá trị Quan đã lưu) */
     optsLoaded = true;
+    const f = nextFirstIdx();
+    if (host.opts.first !== f) { host.setOpt('first', f); return; }
+    /* nhớ giá trị Quan lần trước của chủ phòng */
     const saved = Number(ls.get('gumballz-oanquan-qv'));
     if ((saved === 5 || saved === 10) && host.opts.quanValue !== saved) { host.opts.quanValue = saved; host.pushLobby(); return; }
   }
+  const fi = (o && Number.isInteger(o.first)) ? o.first : 0;
   $('#pcount').textContent = `${n}/2 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' <small>· máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}${p.local ? ' <small>· cùng máy</small>' : ''}</span>${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' <small>· máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}${p.local ? ' <small>· cùng máy</small>' : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đi trước</span>' : ''}${u.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = u.isHost && n < 2 ? '<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button></div>' : '';
   const seg = (key, items) => `<div class="seg">${items.map(([v, nm]) => `<button type="button" data-opt="${key}" data-v="${v}" aria-pressed="${String(o[key]) === String(v)}" ${dis}>${nm}</button>`).join('')}</div>`;
-  $('#opts').innerHTML = `<div class="opt"><b>👑 Giá trị 1 quân Quan</b>${seg('quanValue', [[5, '5 điểm'], [10, '10 điểm']])}<small>Quan ăn được tính 5 hoặc 10 điểm. Khi cứu dân thì 1 Quan luôn đổi được 10 Dân.</small></div>`;
+  $('#opts').innerHTML = `<div class="opt"><b>👑 Giá trị 1 quân Quan</b>${seg('quanValue', [[5, '5 điểm'], [10, '10 điểm']])}<small>Quan ăn được tính 5 hoặc 10 điểm. Khi cứu dân thì 1 Quan luôn đổi được 10 Dân.</small></div><div class="opt"><b>🎯 Người đi trước</b><small>Người đi trước xoay vòng mỗi ván (xem huy hiệu 🎯 ở tên người chơi).</small></div>`;
   $('#btn-start-online').style.display = u.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n < 2;
   $('#wait-msg').style.display = u.isHost ? 'none' : '';
@@ -458,6 +486,12 @@ function handleNetState(v, prev, u) {
   mode = 'online';
   cur = v;
   trackAch(v, prev);
+  /* công bố người đi đầu lúc mở ván (cả đường online): chỉ ván mới toanh, không toast khi vào lại giữa ván */
+  if (v.phase === 'playing' && v.turnNo === 1 && !v.lastMove && v.gid !== announcedGid) {
+    announcedGid = v.gid;
+    const fp = v.players.find(p => p.id === v.firstId) || v.players[0];
+    toast(fp.id === v.me ? '🎯 Bạn đi trước! Bấm 1 ô bên mình để bốc đá nhé!' : `🎯 ${cleanName(fp.name)} đi trước!`);
+  }
   if (!prev) {
     /* ván mới bắt đầu / vừa vào lại giữa ván: chưa có state trước để animate */
     display = E.cloneState(v);
@@ -515,7 +549,7 @@ function showOnlineEnd(v) {
     : `<p>⏳ Chờ chủ phòng bắt đầu ván mới…</p><div class="btn-col"><button class="btn" id="btn-home2">🏠 Về màn hình chính</button></div>`;
   openModal(`<h2>${title}</h2>${scoreHtml}${detail}${reason}${btns}`);
   const again = $('#btn-again');
-  if (again) again.onclick = () => { closeModal(); if (ui.net) ui.net.raw.start(); };
+  if (again) again.onclick = () => { closeModal(); if (ui.net) startRotated(); };
   $('#btn-home2').onclick = () => { closeModal(); if (ui.net) ui.leave(); else showHome(); };
 }
 
@@ -528,7 +562,8 @@ function startGame() {
   G = E.createGame([
     { id: 'p1', name: p1name },
     { id: 'p2', name: p2name, isBot: mode !== 'pvp' },
-  ], { quanValue });
+  ], { quanValue, first: nextFirstIdx() });
+  advanceFirstIdx();
   display = E.cloneState(G);
   gs = { quanEaten: 0, rescues: 0 };
   held = null; busy = false;
@@ -536,7 +571,10 @@ function startGame() {
   $('#screen-home').classList.remove('active');
   $('#screen-game').classList.add('active');
   render();
-  toast(mode === 'pvp' ? '2 người chơi — ' + p1name + ' đi trước!' : 'Bạn đi trước — bấm 1 ô hàng dưới để bốc đá nhé!');
+  /* công bố người đi đầu thật (xoay vòng — có ván máy đi trước) */
+  if (G.turn === 'p1') toast(mode === 'pvp' ? '2 người chơi — ' + p1name + ' đi trước!' : 'Bạn đi trước — bấm 1 ô hàng dưới để bốc đá nhé!');
+  else toast(mode === 'pvp' ? p2name + ' đi trước!' : 'Máy đi trước — chờ máy bốc đá nhé!');
+  scheduleBot(); /* máy đi trước thì máy tự đi ngay */
 }
 function showHome() {
   if (mode === 'online' && ui.net) { ui.leave(); return; } /* handleNetState(null) dọn dẹp + khôi phục chế độ local */
@@ -582,7 +620,7 @@ try {
   setQv(sq === '5' ? 5 : 10);
 } catch (e) { setMode('ai-hard'); setQv(10); }
 $('#btn-start').addEventListener('click', startGame);
-$('#btn-start-online').onclick = () => { if (ui.isHost && ui.net) ui.net.raw.start(); };
+$('#btn-start-online').onclick = () => { if (ui.isHost && ui.net) startRotated(); };
 $('#screen-lobby').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !ui || !ui.net || !ui.isHost) return;
   const h = ui.net.raw;

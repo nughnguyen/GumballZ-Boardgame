@@ -12,7 +12,7 @@ const NET = makeNet(DEF);
 const RES = E.RES, RN = E.RES_NAME, HEX_NAME = { w: 'Rừng', b: 'Đồi đất', g: 'Ruộng lúa', f: 'Đồng cỏ', o: 'Núi đá', d: 'Bãi cát' };
 const BUILD = { road: ['🛤️', 'Đường'], village: ['🏠', 'Làng'], town: ['🏘️', 'Thành phố'] };
 const CARD = { guard: ['🛡️', 'Dời tên cướp sang ô khác rồi lấy 1 thẻ của người có làng cạnh ô đó. Dùng 3 thẻ nhiều nhất bàn: +2 điểm.'], vp: ['🏛️', '+1 điểm. Giữ kín tới khi thắng.'], road: ['🛤️', 'Làm ngay 2 con đường miễn phí.'], plenty: ['🌾', 'Lấy 2 tài nguyên tuỳ chọn từ kho.'], mono: ['🧺', 'Chọn 1 loại tài nguyên: cả bàn phải đưa hết loại đó cho bạn.'] };
-let sound = ls.get('khaihoang-sound') !== '0', endShown = null, mode = null, discFor = null, stealFor = null, ac = null;
+let sound = ls.get('khaihoang-sound') !== '0', endShown = null, mode = null, discFor = null, stealFor = null, ac = null, firstToastGid = null;
 // ---------- xúc xắc 3D (model GLB) ----------
 // Góc bản đồ chỉ còn bảng tổng nhỏ (đặt mặt tĩnh); nước đổ mới lăn to ở
 // GIỮA bàn qua overlay #dice-ov rồi mờ dần. Hỏng WebGL/GLB thì về 2D như cũ.
@@ -86,7 +86,8 @@ function renderLobby(info, ui) {
   $('#add-box').innerHTML = ui.isHost && n < 4 ? `<div class="row-btns"><button class="btn" id="btn-addbot">+ Thêm máy</button></div>` : '';
   $('#opts').innerHTML = `<div class="opt"><b>⭐ Điểm để thắng</b>${seg('goal', [[8, '8 · nhanh'], [10, '10 · vừa'], [12, '12 · dài']])}<small>Làng 1 điểm, thành phố 2 điểm, Đường dài nhất và Đội quân mạnh nhất mỗi thứ 2 điểm.</small></div>
     <div class="opt"><b>🎲 Số trên ô</b>${seg('nums', [[1, 'Vòng xoắn · luật gốc'], [0, 'Ngẫu nhiên']])}<small>Luật gốc đặt số theo vòng xoắn nên 6 và 8 không bao giờ nằm cạnh nhau.</small></div>
-    <div class="opt"><b>🤖 Sức máy</b>${seg('level', [[1, 'Dễ'], [2, 'Vừa'], [3, 'Khó']])}<small>Chỉ dùng khi có máy trong bàn.</small></div>`;
+    <div class="opt"><b>🤖 Sức máy</b>${seg('level', [[1, 'Dễ'], [2, 'Vừa'], [3, 'Khó']])}<small>Chỉ dùng khi có máy trong bàn.</small></div>
+    <div class="opt"><b>🎲 Người đi đầu</b><small>Ngẫu nhiên mỗi ván — ai dựng làng trước chỉ biết khi ván mở; ván sau đổi người khác.</small></div>`;
   $('#btn-start').style.display = ui.isHost ? '' : 'none'; $('#btn-start').disabled = n < 2; $('#wait-msg').style.display = ui.isHost ? 'none' : '';
 }
 $('#screen-lobby').addEventListener('click', e => {
@@ -134,7 +135,7 @@ function draw(v) {
     }
   }
   $('#round').textContent = ended ? '🏁 Hết ván' : v.phase === 'setup' ? `🏝️ Chọn chỗ ở (vòng ${v.setup.round})` : `${myTurn ? '🎯 Lượt của bạn' : '⏳ ' + ((v.players.find(p => p.id === v.cur) || {}).name || '')} · đích ⭐${v.opts.goal}`;
-  $('#seats').innerHTML = v.players.map(p => `<div class="seat${p.id === v.cur ? ' turn' : ''}" style="--pc:${p.color}" data-pid="${p.id}">${avatar(p.name, 24)}<span class="nm">${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</span><span class="pt">${p.id === me && !ended ? v.myPts : p.pts}<i>⭐</i></span><small title="thẻ tài nguyên · thẻ phát triển · thẻ Hiệp sĩ đã dùng · đường dài nhất">🃏${p.cards} · 🎴${p.devN} · 🛡️${p.guards}${v.army === p.id ? '👑' : ''} · 🛤️${p.road}${v.longest === p.id ? '👑' : ''}${v.need[p.id] ? ' · đang bỏ bài' : ''}</small></div>`).join('');
+  $('#seats').innerHTML = v.players.map((p, i) => `<div class="seat${p.id === v.cur ? ' turn' : ''}" style="--pc:${p.color}" data-pid="${p.id}">${avatar(p.name, 24)}<span class="nm">${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</span><span class="pt">${p.id === me && !ended ? v.myPts : p.pts}<i>⭐</i></span><small title="thẻ tài nguyên · thẻ phát triển · thẻ Hiệp sĩ đã dùng · đường dài nhất">🃏${p.cards} · 🎴${p.devN} · 🛡️${p.guards}${v.army === p.id ? '👑' : ''} · 🛤️${p.road}${v.longest === p.id ? '👑' : ''}${v.need[p.id] ? ' · đang bỏ bài' : ''}${i === 0 && v.phase === 'setup' ? ' · 🎯 Đi trước' : ''}</small></div>`).join('');
   $('#hand').innerHTML = v.spec ? '' : RES.map(r => `<span class="hc t-${r}${v.hand[r] ? '' : ' z'}" title="${RN[r]}">${ico(r)}<b>${v.hand[r]}</b><small>${RN[r]}</small></span>`).join('') + `<button class="hc dev" data-a="cards" aria-label="Thẻ phát triển của bạn">🎴<b>${v.dev.length + v.fresh.length}</b><small>thẻ</small></button>`;
   let msg = '', acts = '';
   const can = k => E.canPay(v.hand, E.COST[k]), cost = k => `<small>${bag(E.COST[k])}</small>`;
@@ -220,6 +221,12 @@ function openResult(v) {
 }
 function render(v, prev) {
   if (!prev || prev.gid !== v.gid) { mode = null; discFor = stealFor = null; }
+  /* công bố người đi đầu lúc mở ván (pha setup: cur = người dựng làng đầu tiên) */
+  if ((!prev || prev.gid !== v.gid) && v.phase === 'setup' && firstToastGid !== v.gid) {
+    firstToastGid = v.gid;
+    const nm = (v.players.find(p => p.id === v.cur) || {}).name || '?';
+    toast(v.cur === ui.myId ? '🏝️ Bạn dựng làng đầu tiên!' : `🏝️ ${cleanName(nm)} dựng làng đầu tiên!`);
+  }
   if (prev && prev.gid === v.gid && prev.seq !== v.seq && v.last && v.last !== prev.last && JSON.stringify(v.last) !== JSON.stringify(prev.last)) { const l = v.last;
     if (l.t === 'roll') { /* tiếng lắc do khung 3D kêu trong rollTo() */ const g = l.gain && l.gain[ui.myId]; if (g) { setTimeout(() => beep('gain'), 260); toast('Bạn nhận ' + bagText(g)); } }
     else if (l.t === 'build') beep('build'); else if (l.t === 'storm') beep('storm'); else if (l.t === 'trade' || l.t === 'bank') beep('trade'); }

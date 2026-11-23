@@ -100,6 +100,11 @@ export function createGame(players, opts = {}) {
     for (let i = 0; i < 4; i++) all.push({ id: 'bot' + (i + 1), name: BOT_NAMES[i], isBot: true, local: false, level: botLevel });
   }
   if (all.length < 5 || all.length > 10) throw new Error('The Resistance cần 5–10 người trong ván (chơi đơn tự thêm máy).');
+  /* người đi đầu: host truyền firstIdx để xoay lượt qua các ván (ván sau =
+     ghế sau ván trước); không có thì bốc thăm theo seed — ván đầu ngẫu nhiên,
+     không còn cố định ghế 0 mọi ván mới */
+  const firstIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < all.length
+    ? opts.firstIdx : seed % all.length;
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     seed, /* hạt giống LCG — mọi lần rút số trong ván đều qua nextRand(s) */
@@ -109,7 +114,8 @@ export function createGame(players, opts = {}) {
     prog: {},
     mission: 1, /* nhiệm vụ hiện tại 1..5 */
     stage: 'propose', /* 'propose' | 'vote' | 'mission' | 'reveal' */
-    leaderIdx: 0,
+    leaderIdx: firstIdx,
+    firstIdx, /* ghế Thủ lĩnh đầu tiên của ván — để xoay lượt qua các ván + hiện ở phòng chờ */
     rejects: 0, /* số lần từ chối liên tiếp trong nhiệm vụ hiện tại */
     proposal: null, /* {leader, team:[pids], votes:{pid:'approve'|'reject'}} */
     current: null, /* {team:[pids], actions:{pid:'success'|'fail'}, failsNeeded} */
@@ -139,8 +145,8 @@ export function createGame(players, opts = {}) {
       s.prog[swap.id].side = 'spy';
     }
   }
-  s.prog[s.players[0].id].leaderCount = 1;
-  pushLog(s, `🛡️ Ván The Resistance mới — ${s.players.length} người, ${SPY_COUNT[s.players.length]} gián điệp trà trộn! Nhiệm vụ 1 cần đội ${TEAM_SIZES[s.players.length][0]} người.`);
+  s.prog[s.players[firstIdx].id].leaderCount = 1;
+  pushLog(s, `🛡️ Ván The Resistance mới — ${s.players.length} người, ${SPY_COUNT[s.players.length]} gián điệp trà trộn! ${s.players[firstIdx].name} làm Thủ lĩnh đầu tiên. Nhiệm vụ 1 cần đội ${TEAM_SIZES[s.players.length][0]} người.`);
   return s;
 }
 
@@ -154,6 +160,7 @@ export function deserialize(json) {
     || typeof s.mission !== 'number' || s.mission < 1 || s.mission > 5) {
     throw new Error('Trạng thái The Resistance không hợp lệ.');
   }
+  if (typeof s.firstIdx !== 'number') s.firstIdx = s.leaderIdx || 0; /* save cũ chưa có firstIdx */
   return s;
 }
 
@@ -378,7 +385,7 @@ export function viewFor(s, pid) {
     winner: s.winner, winnerIds: (s.winnerIds || []).slice(), losers: (s.losers || []).slice(), endReason: s.endReason,
     final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,
     solo: s.solo, mission: s.mission, stage: s.stage,
-    leader: leaderId(s),
+    leader: leaderId(s), firstIdx: s.firstIdx,
     rejects: s.rejects,
     teamSize: TEAM_SIZES[s.players.length][s.mission - 1],
     failsNeeded: failsNeededFor(s.players.length, s.mission),

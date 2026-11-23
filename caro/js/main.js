@@ -2,7 +2,7 @@
 // shared/net/simplenet.js (cùng pattern Bắn Tàu: chủ phòng giữ state, khách
 // chỉ gửi action {x,y}). Bàn 30×30 xem bằng khung trượt: giữ + kéo để di
 // chuyển góc nhìn, nhấn nhanh để đặt quân (kéo > 8px thì chỉ trượt, không đặt).
-import { createGame, applyAction, viewFor, actors, idx } from './engine.js?v=1';
+import { createGame, applyAction, viewFor, actors, idx, DEFAULT_OPTS, optOk } from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
@@ -18,10 +18,39 @@ const TAP_PX = 8; /* kéo xa hơn chừng này thì chỉ trượt bàn, không 
 const NET = makeNet({
   game: 'caro', min: 2, max: 2, maxSeats: 10, allowLocal: true,
   minMsg: 'Cờ Caro cần 2 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
+  defaults: DEFAULT_OPTS, optOk,
   create: createGame, apply: applyAction, view: viewFor, actors, bot: botAction,
   botDelay: () => 600 + Math.random() * 600,
   botNames: ['Mochi', 'Bơ', 'Pudding', 'Xôi', 'Kẹo'],
 });
+
+/* ---------- lượt đi đầu xoay vòng (ván sau đổi người) ---------- */
+const FIRST_KEY = 'gumballz-caro-nextfirst';
+let optsLoaded = false, announcedGid = '';
+function nextFirstIdx() {
+  let v = 0;
+  try { const s = ls.get(FIRST_KEY); v = s == null ? Math.floor(Math.random() * 2) : (parseInt(s, 10) || 0) % 2; } catch (e) { v = Math.floor(Math.random() * 2); }
+  return (v + 2) % 2;
+}
+function advanceFirstIdx() { try { ls.set(FIRST_KEY, String((nextFirstIdx() + 1) % 2)); } catch (e) {} }
+/* mở ván mới: người đi đầu lấy từ khóa đã lưu — ghi vào opt (phòng chờ hiện huy hiệu)
+   + extra (engine dùng), rồi xoay khóa cho ván sau */
+function startRotated() {
+  const h = ui.net && ui.net.raw;
+  if (!h || !ui.isHost) return false;
+  const f = nextFirstIdx();
+  try { if (typeof h.setOpt === 'function') h.setOpt('first', f); } catch (e) {}
+  h.start({ first: f });
+  advanceFirstIdx();
+  return true;
+}
+/* công bố người đi đầu lúc mở ván (mọi client đều thấy) */
+function announceFirst(v) {
+  if (!v || v.phase !== 'playing' || v.turnNo !== 1 || v.moveCount !== 0 || v.gid === announcedGid) return;
+  announcedGid = v.gid;
+  const fp = v.players.find(p => p.id === v.firstId) || v.players[0];
+  tip(`🎯 ${fp.id === v.me ? 'Bạn' : cleanName(fp.name)} đi trước (quân X)!`);
+}
 
 /* ---------- chế độ chơi (màn hình chính) ---------- */
 let mode = 'ai-hard'; /* ai-easy | ai-hard | pvp | online */
@@ -39,9 +68,16 @@ try { const sm = localStorage.getItem('gumballz-caro-mode'); if (['ai-easy', 'ai
 
 /* ---------- phòng chờ ---------- */
 function renderLobby(info, ui) {
+  const host = ui.isHost && ui.net ? ui.net.raw : null;
+  if (host && !optsLoaded) { /* nhớ ghế đi đầu của ván tới cho cả phòng thấy */
+    optsLoaded = true;
+    const f = nextFirstIdx();
+    if (host.opts.first !== f) { host.setOpt('first', f); return; }
+  }
+  const fi = (info.opts && Number.isInteger(info.opts.first)) ? info.opts.first : 0;
   const seated = info.players.slice(0, 2);
   $('#pcount').textContent = `${seated.length}/2 người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (seated.length < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
@@ -60,7 +96,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => { if (ui.isHost) startRotated(); };
 /* chế độ local: mở phòng offline trên máy này, thêm máy / người cùng máy theo chế độ đã chọn */
 $('#btn-start').onclick = () => {
   ui.startHost(true);
@@ -150,6 +186,7 @@ function boardHTML(v) {
 function render(v, prev) {
   cur = v;
   if (!v) { lastSeq = -1; endShownGid = null; view.init = false; return; }
+  announceFirst(v);
   const me = v.players.find(p => p.id === v.me);
   const foe = v.players.find(p => p.id !== v.me);
   const turnP = v.players.find(p => p.id === v.turn);
@@ -195,8 +232,8 @@ function render(v, prev) {
         ? '<button class="btn big pri" id="m-again">🔁 Chơi ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button>'
         : '<button class="btn" id="m-close">Đóng — chờ chủ phòng mở ván mới</button>'}
       <button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
-    const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
+    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); startRotated(); };
+    const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); optsLoaded = false; ui.net.raw.restart(); };
     const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
     $('#m-home').onclick = () => { ui.closeModal(); ui.leave(); setTimeout(() => { location.href = '../'; }, 250); };
   }
@@ -266,7 +303,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  startRotated();
 };
 const drawSound = () => { $('#btn-sound').textContent = Snd.isSoundOn() ? '🔊' : '🔇'; }; drawSound();
 $('#btn-sound').onclick = () => { Snd.setSound(!Snd.isSoundOn()); drawSound(); };
@@ -282,7 +319,7 @@ const ui = gameKit({
     }
   },
   onLobby: (info, u, started) => { if (!started) renderLobby(info, u); },
-  onState: (v, prev) => { render(v, prev); },
+  onState: (v, prev) => { if (!v && !ui.net) optsLoaded = false; render(v, prev); },
 });
 
 /* 🏠 nút home phải về đúng trang chủ web (gameKit chỉ về màn hình đầu của game) */

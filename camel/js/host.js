@@ -26,6 +26,7 @@ class Host {
     if (restore) {
       this.players = restore.players.map(p => ({ ...p, conn: null, connected: p.isBot || (!remote && p.id === 'host') }));
       this.state = restore.state; this.code = restore.code; this.opts = restore.opts || this.opts;
+      if (this.state) { this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo; } /* 🎯 khôi phục lượt đầu ván trước sau khi tải lại */
     }
     if (offline) { this.code = 'OFFLINE'; setTimeout(() => { this.pushLobby(); if (this.state) { this.graceUntil = Date.now() + 1500; this.schedule(); this.broadcast(); } }, 0); return; }
     this.room = new RoomHost({ ns: NS, prefix: PREFIX, code: this.code, keepCode: !!restore, host: this, onConn: c => this.attach(c), onReady: code => { this.code = code; session.save(GAME, { role: 'host', code }); this.pushLobby(); }, onError: m => this.h.onError(m) });
@@ -102,11 +103,13 @@ class Host {
     const seated = this.players.slice(0, MAX);
     if (seated.length < MIN) { this.h.onError('Cần ít nhất 2 người chơi (thêm bot nhé).'); return; }
     this.clearTimers();
-    this.state = createGame(seated.map(p => ({ id: p.id, name: p.name, isBot: p.isBot })), this.opts);
+    /* 🎯 ván sau không trùng người đi đầu ván trước (engine tránh khi random) */
+    this.state = createGame(seated.map(p => ({ id: p.id, name: p.name, isBot: p.isBot })), { ...this.opts, prevFirstId: this.ftPrev, gameNo: (this.ftNo || 0) + 1 });
+    this.ftPrev = this.state.firstId; this.ftNo = this.state.gameNo;
     this.graceUntil = Date.now() + 2200 * speedK();
     this.pushLobby(); this.schedule(); this.broadcast();
   }
-  restart() { this.clearTimers(); this.state = null; this.clock = null; this.pushLobby(); for (const p of this.players) if (p.conn) this.sendRaw(p, null); this.h.onState(null); }
+  restart() { this.clearTimers(); if (this.state) { this.ftPrev = this.state.firstId || this.ftPrev; this.ftNo = this.state.gameNo || this.ftNo; } /* 🎯 giữ người đi đầu ván vừa xong để ván sau không trùng */ this.state = null; this.clock = null; this.pushLobby(); for (const p of this.players) if (p.conn) this.sendRaw(p, null); this.h.onState(null); }
   act(pid, a) {
     const s = this.state; if (!s) return;
     const before = s.fxN;

@@ -87,14 +87,21 @@ export function createGame(players, opts = {}, now = Date.now()) {
     players: players.map(p => ({ id: p.id, name: String(p.name || '?').slice(0, 16), score: 0, on: true, offAt: 0 })),
     phase: '', deadline: 0, chat: [], mid: 0,
   };
-  if (s.mode === 'gartic') initGartic(s, now); else initGuess(s, now, Array.isArray(opts.used) ? opts.used.filter(w => typeof w === 'string').slice(-800) : []);
+  if (s.mode === 'gartic') initGartic(s, now); else initGuess(s, now, Array.isArray(opts.used) ? opts.used.filter(w => typeof w === 'string').slice(-800) : [], opts.firstDrawer);
   return s;
 }
 
 // ======================= ĐOÁN HÌNH =======================
-function initGuess(s, now, usedBefore = []) { /* usedBefore: từ đã vẽ ở các ván trước trong cùng phòng → ván sau không ra lại */
+function initGuess(s, now, usedBefore = [], firstDrawer = null) { /* usedBefore: từ đã vẽ ở các ván trước trong cùng phòng → ván sau không ra lại */
   Object.assign(s, { order: shuffle(s.players.map(p => p.id)), round: 1, turn: -1, turnKey: 0, cv: 0, canvas: [], used: usedBefore.slice(), seen: [], guessed: {}, gains: {}, word: null, choices: null, revealed: [], hintAt: [], drawer: null, drawStart: 0, endReason: '' });
-  sys(s, `Bắt đầu! ${s.opts.rounds} vòng, mỗi lượt vẽ ${s.opts.drawTime} giây. Chúc may mắn 🍀`);
+  /* xoay hoạ sĩ đầu qua các ván: host truyền firstDrawer (người sau hoạ sĩ
+     đầu ván trước); xáo ngẫu nhiên thứ tự còn lại, chỉ đưa người đó lên đầu —
+     ván đầu không truyền thì hoạ sĩ đầu hoàn toàn ngẫu nhiên */
+  if (firstDrawer && s.order.includes(firstDrawer)) {
+    s.order = [firstDrawer, ...s.order.filter(id => id !== firstDrawer)];
+  }
+  s.firstDrawer = s.order[0];
+  sys(s, `Bắt đầu! ${pl(s, s.firstDrawer).name} vẽ trước ✏️ — ${s.opts.rounds} vòng, mỗi lượt vẽ ${s.opts.drawTime} giây. Chúc may mắn 🍀`);
   nextTurn(s, now);
 }
 function pickChoices(s) {
@@ -472,6 +479,7 @@ export function viewFor(s, pid, now = Date.now()) {
     const knows = pid === s.drawer || s.guessed[pid] != null || s.phase === 'turnEnd' || s.phase === 'end';
     Object.assign(v, {
       round: s.round, rounds: s.opts.rounds, turnKey: s.turnKey, cv: s.cv, drawer: s.drawer,
+      firstDrawer: s.firstDrawer || null, /* hoạ sĩ đầu tiên của ván — để xoay lượt qua các ván + hiện ở phòng chờ */
       total: s.phase === 'choose' ? CHOOSE_MS : s.phase === 'draw' ? s.opts.drawTime * 1000 : s.phase === 'turnEnd' ? TURN_END_MS : 0,
       players: s.players.map(p => ({ id: p.id, name: p.name, score: p.score, on: p.on, guessed: s.guessed[p.id] != null, gain: s.gains[p.id] || 0 })),
       choices: s.phase === 'choose' && pid === s.drawer ? s.choices.slice() : null,

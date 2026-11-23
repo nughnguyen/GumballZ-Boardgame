@@ -427,17 +427,23 @@ export function createGame(players, opts = {}) {
     throw new Error('Scrabble chơi 2–4 người.');
   }
   const seed = typeof opts.seed === 'number' ? opts.seed : (Date.now() % 2147483647);
+  /* 🔄 Lượt đi đầu xoay qua các ván: host truyền opts.firstIdx (bộ đếm
+     ván ở main.js); không có thì ghế 0 như cũ (giữ hành vi cũ cho mọi
+     đường gọi createGame khác, vd. test/sim). */
+  const firstIdx = Number.isInteger(opts.firstIdx)
+    ? ((opts.firstIdx % players.length) + players.length) % players.length
+    : 0;
   const s = {
     gid: 'sc-' + seed.toString(36) + '-' + (seed % 9973).toString(36), seq: 0,
     phase: 'playing', /* 'playing' | 'ended' */
-    seed,
+    seed, firstIdx,
     players: players.map((p, i) => ({
       id: p.id, name: p.name || ('Người ' + (i + 1)),
       isBot: !!p.isBot, level: p.level || null, local: !!p.local,
       rack: [], score: 0, turns: 0, wordsPlayed: 0, bingoCount: 0,
     })),
     board: new Array(SIZE * SIZE).fill(null),
-    bag: [], turnIdx: 0, round: 1, consecutivePasses: 0,
+    bag: [], turnIdx: firstIdx, round: 1, consecutivePasses: 0,
     winner: null, losers: [], endReason: null, endCause: null, final: null,
     startedAt: Date.now(), endedAt: 0, log: [],
   };
@@ -446,7 +452,7 @@ export function createGame(players, opts = {}) {
     while (p.rack.length < RACK_SIZE && s.bag.length) p.rack.push(s.bag.pop());
     p.rack.sort((a, b) => (a === '*' ? 1 : b === '*' ? -1 : a.localeCompare(b)));
   }
-  pushLog(s, `Ván mới: ${players.length} người, bàn 15×15, túi 100 chữ. Nước đầu phải phủ ô trung tâm ★.`);
+  pushLog(s, `Ván mới: ${players.length} người, bàn 15×15, túi 100 chữ. Nước đầu phải phủ ô trung tâm ★. 🎯 ${s.players[firstIdx].name} đi trước!`);
   return s;
 }
 
@@ -565,7 +571,7 @@ export function actors(s) {
 export function viewFor(s, pid) {
   return {
     gid: s.gid, seq: s.seq, phase: s.phase,
-    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx,
+    round: s.round, turn: s.players[s.turnIdx] ? s.players[s.turnIdx].id : null, turnIdx: s.turnIdx, firstIdx: s.firstIdx,
     board: s.board.map(c => (c ? { ch: c.ch, blank: !!c.blank } : null)),
     players: s.players.map(p => ({
       id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null,

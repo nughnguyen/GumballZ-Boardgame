@@ -5,23 +5,50 @@
 // vạch giữa ở chính giữa, khay ra quân + xúc xắc ở dưới bàn.
 // Bấm quân của mình để chọn (hiện điểm đến được), bấm điểm đích để đi,
 // bấm khay "Ra ngoài" để ra quân.
-import { createGame, applyAction, viewFor, actors, legalMovesFromView, destsFor } from './engine.js?v=1';
+import { createGame, applyAction, viewFor, actors, legalMovesFromView, destsFor, DEFAULT_OPTS, optOk } from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=52';
-import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=14';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet({
   game: 'backgammon', min: 2, max: 2, maxSeats: 2, allowLocal: true,
   minMsg: 'Backgammon cần đúng 2 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
-  defaults: {},
-  optOk: () => false,
+  defaults: DEFAULT_OPTS, optOk,
   create: createGame, apply: applyAction, view: viewFor, actors, bot: botAction,
   botDelay: () => 700 + Math.random() * 900,
   botNames: ['Mochi', 'Bơ', 'Pudding', 'Xôi', 'Kẹo'],
 });
+
+/* ---------- lượt đi đầu xoay vòng (ván sau đổi người) ---------- */
+const FIRST_KEY = 'gumballz-backgammon-nextfirst';
+let optsLoaded = false, announcedGid = '';
+function nextFirstIdx() {
+  let v = 0;
+  try { const s = ls.get(FIRST_KEY); v = s == null ? Math.floor(Math.random() * 2) : (parseInt(s, 10) || 0) % 2; } catch (e) { v = Math.floor(Math.random() * 2); }
+  return (v + 2) % 2;
+}
+function advanceFirstIdx() { try { ls.set(FIRST_KEY, String((nextFirstIdx() + 1) % 2)); } catch (e) {} }
+/* mở ván mới: người đi đầu lấy từ khóa đã lưu — ghi vào opt (phòng chờ hiện huy hiệu)
+   + extra (engine dùng), rồi xoay khóa cho ván sau */
+function startRotated() {
+  const h = ui.net && ui.net.raw;
+  if (!h || !ui.isHost) return false;
+  const f = nextFirstIdx();
+  try { if (typeof h.setOpt === 'function') h.setOpt('first', f); } catch (e) {}
+  h.start({ first: f });
+  advanceFirstIdx();
+  return true;
+}
+/* công bố người đi đầu lúc mở ván (mọi client đều thấy) — chỉ khi ván còn chưa gieo */
+function announceFirst(v) {
+  if (!v || v.phase !== 'playing' || v.turnCount !== 0 || v.dice.length !== 0 || v.step !== 'roll' || v.gid === announcedGid) return;
+  announcedGid = v.gid;
+  const fp = v.players[v.firstIdx] || v.players.find(p => p.id === v.turn) || v.players[0];
+  tip(`🎲 ${fp.id === v.me ? 'Bạn' : cleanName(fp.name)} đi trước (chọn ngẫu nhiên)!`);
+}
 
 /* màu ghế ngồi — cùng thứ tự với engine.js PLAYER_COLORS */
 const PLAYER_COLORS = ['#E05D5D', '#5B8DEF'];
@@ -55,15 +82,22 @@ try {
 
 /* ---------- phòng chờ ---------- */
 function renderLobby(info, ui) {
+  const host = ui.isHost && ui.net ? ui.net.raw : null;
+  if (host && !optsLoaded) { /* nhớ người đi đầu của ván tới cho cả phòng thấy */
+    optsLoaded = true;
+    const f = nextFirstIdx();
+    if (host.opts.first !== f) { host.setOpt('first', f); return; }
+  }
+  const fi = (info.opts && Number.isInteger(info.opts.first)) ? info.opts.first : 0;
   const n = info.players.length;
   $('#pcount').textContent = `${n}/2 người (cần đúng 2)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Đi trước (ngẫu nhiên)</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
-  $('#opts').innerHTML = `<div class="opt"><b>🎲 Luật nhanh</b><div class="role-note">Bàn 24 điểm, mỗi người 15 quân. Gieo 2 xúc xắc — mỗi xúc xắc là 1 nước đi, ra đôi được 4 nước. Điểm đến phải trống, có quân mình, hoặc đúng 1 quân địch (đánh trúng lên vạch). Ra quân hết 15 quân trước thì thắng: Gammon ×2, Backgammon ×3. Xúc xắc gấp đôi trước khi gieo.</div></div>`;
+  $('#opts').innerHTML = `<div class="opt"><b>🎲 Luật nhanh</b><div class="role-note">Bàn 24 điểm, mỗi người 15 quân. Gieo 2 xúc xắc — mỗi xúc xắc là 1 nước đi, ra đôi được 4 nước. Điểm đến phải trống, có quân mình, hoặc đúng 1 quân địch (đánh trúng lên vạch). Ra quân hết 15 quân trước thì thắng: Gammon ×2, Backgammon ×3. Xúc xắc gấp đôi trước khi gieo. Người đi trước được chọn ngẫu nhiên mỗi ván — ván sau đổi người (xem huy hiệu 🎯 ở tên người chơi).</div></div>`;
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = n !== 2;
   $('#wait-msg').style.display = ui.isHost ? 'none' : '';
@@ -80,7 +114,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => { if (ui.isHost) startRotated(); };
 $('#btn-start').onclick = () => { ui.startHost(true); };
 
 /* ---------- trạng thái hiển thị ---------- */
@@ -164,6 +198,7 @@ function diceHTML(v) {
 function render(v, prev) {
   cur = v;
   if (!v) { endShownFor = ''; selFrom = null; return; }
+  announceFirst(v);
   const me = v.players.find(p => p.id === v.me) || {};
   const turnP = v.players.find(p => p.id === v.turn);
   const human = turnHuman(v);
@@ -310,8 +345,8 @@ function showEnd(v) {
     ? `<button class="btn big pri" id="m-again">🔁 Ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`
     : `<button class="btn big pri" id="m-close">Đóng</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`;
   ui.openModal(`<h2>${title}</h2>${body}<div class="btns">${btns}</div>`, 'lock');
-  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
-  const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); startRotated(); };
+  const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); optsLoaded = false; ui.net.raw.restart(); };
   const home = $('#m-home'); if (home) home.onclick = () => { ui.closeModal(); ui.leave(); };
   const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
 }
@@ -397,7 +432,7 @@ const ui = gameKit({
     /* pvp: chủ phòng thêm người trong phòng chờ (thêm máy / người cùng máy) */
   },
   onLobby: (info, u, started) => { if (!started) renderLobby(info, u); },
-  onState: (v, prev) => { render(v, prev); },
+  onState: (v, prev) => { if (!v && !ui.net) optsLoaded = false; render(v, prev); },
 });
 
 /* 🏠 nút home phải về đúng trang chủ web (gameKit chỉ về màn hình đầu của game) */

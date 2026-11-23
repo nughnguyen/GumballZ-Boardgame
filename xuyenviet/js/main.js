@@ -10,7 +10,7 @@ import { toast } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);
 const LV = { 1: 'Dễ', 2: 'Vừa', 3: 'Khó' }, CC = c => `var(--c-${c})`;
-let sound = ls.get('xuyenviet-sound') !== '0', endShown = null, goal = null, offerKey = '', ac = null;
+let sound = ls.get('xuyenviet-sound') !== '0', endShown = null, goal = null, offerKey = '', ac = null, firstToastGid = null;
 function beep(kind) {
   if (!sound) return;
   try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime;
@@ -45,7 +45,8 @@ function renderLobby(info, ui) {
   $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ' <small>· máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = ui.isHost && n < 5 ? `<div class="row-btns"><button class="btn" id="btn-addbot">+ Thêm máy</button></div>` : '';
   $('#opts').innerHTML = `<div class="opt"><b>🚃 Số toa mỗi người</b>${seg('trains', [[22, '22 · nhanh'], [30, '30 · vừa'], [38, '38 · dài']])}<small>Ai còn 2 toa trở xuống là báo hiệu lượt cuối.</small></div>
-    <div class="opt"><b>🤖 Sức máy</b>${seg('level', [[1, 'Dễ'], [2, 'Vừa'], [3, 'Khó']])}<small>Chỉ dùng khi có máy trong bàn.</small></div>`;
+    <div class="opt"><b>🤖 Sức máy</b>${seg('level', [[1, 'Dễ'], [2, 'Vừa'], [3, 'Khó']])}<small>Chỉ dùng khi có máy trong bàn.</small></div>
+    <div class="opt"><b>🎲 Người đi đầu</b><small>Ngẫu nhiên mỗi ván — ai đi trước chỉ biết khi ván mở (lúc chọn vé xong); ván sau đổi người khác.</small></div>`;
   $('#btn-start').style.display = ui.isHost ? '' : 'none'; $('#btn-start').disabled = n < 2; $('#wait-msg').style.display = ui.isHost ? 'none' : '';
 }
 $('#screen-lobby').addEventListener('click', e => {
@@ -61,7 +62,7 @@ function draw(v) {
   const can = new Set(); if (myTurn && !v.drawn) for (const r of ROUTES) if (E.routeFree(v, r.id, me) && r.n <= mine.trains && E.payOptions(v.hand, r).length) can.add(r.id);
   $('#map').innerHTML = mapSVG(v, { can, goal });
   $('#round').textContent = ended ? '🏁 Hết ván' : v.phase === 'tickets' ? '🎫 Chọn vé đích' : v.finalLeft >= 0 ? `🚨 Lượt cuối (còn ${v.finalLeft})` : `🚂 Lượt của ${v.cur === me ? 'bạn' : (v.players.find(p => p.id === v.cur) || {}).name || ''}`;
-  $('#seats').innerHTML = v.players.map(p => `<div class="seat${p.id === v.cur ? ' turn' : ''}${(v.away || []).includes(p.id) ? ' away' : ''}" style="--pc:${p.color}" data-pid="${p.id}">${avatar(p.name, 24)}<span class="nm">${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</span><span class="pt">${p.pts}</span><small title="toa còn lại · thẻ trên tay · vé đích">🚃${p.trains} · 🃏${p.cards} · 🎫${p.tks}${p.choosing ? ' · chọn vé' : ''}</small></div>`).join('');
+  $('#seats').innerHTML = v.players.map((p, i) => `<div class="seat${p.id === v.cur ? ' turn' : ''}${(v.away || []).includes(p.id) ? ' away' : ''}" style="--pc:${p.color}" data-pid="${p.id}">${avatar(p.name, 24)}<span class="nm">${esc(cleanName(p.name))}${p.id === me ? ' (bạn)' : ''}</span><span class="pt">${p.pts}</span><small title="toa còn lại · thẻ trên tay · vé đích">🚃${p.trains} · 🃏${p.cards} · 🎫${p.tks}${p.choosing ? ' · chọn vé' : ''}${i === 0 && v.phase === 'tickets' ? ' · 🎯 Đi trước' : ''}</small></div>`).join('');
   const dis = !myTurn;
   $('#market').innerHTML = v.up.map((c, i) => `<button class="cd ${c}" style="--cc:${CC(c)}" data-up="${i}" ${dis || (c === 'L' && v.drawn) ? 'disabled' : ''} aria-label="Lấy thẻ ${COLOR_NAME[c]}">${c === 'L' ? '🚂' : ''}</button>`).join('')
     + `<button class="cd deck" data-deck ${dis || !v.deckN ? 'disabled' : ''} aria-label="Bốc thẻ úp">🂠 ${v.deckN}</button><button class="cd tk" data-tk ${dis || v.drawn || !v.tkN ? 'disabled' : ''} aria-label="Bốc vé đích">🎫 +</button>`;
@@ -98,6 +99,12 @@ function openResult(v) {
 }
 function render(v, prev) {
   if (!prev || prev.gid !== v.gid) { goal = null; offerKey = ''; }
+  /* công bố người đi đầu lúc mở ván (pha chọn vé: cur chưa có nên dùng v.first) */
+  if ((!prev || prev.gid !== v.gid) && v.phase === 'tickets' && v.first && firstToastGid !== v.gid) {
+    firstToastGid = v.gid;
+    const nm = (v.players.find(p => p.id === v.first) || {}).name || '?';
+    toast(v.first === ui.myId ? '🚂 Bạn đi trước — chọn vé xong là tới lượt bạn!' : `🚂 ${cleanName(nm)} đi trước — chọn vé xong là tới lượt ${cleanName(nm)}!`);
+  }
   if (prev && prev.gid === v.gid && prev.seq !== v.seq && v.last) { if (v.last.t === 'claim' && (!prev.last || prev.last.route !== v.last.route)) beep('claim'); else if (v.last.t === 'draw') beep('card'); }
   if (prev && prev.finalLeft < 0 && v.finalLeft >= 0) { beep('horn'); toast('🚨 Lượt cuối! Mỗi người còn đúng 1 lượt.'); }
   draw(v);

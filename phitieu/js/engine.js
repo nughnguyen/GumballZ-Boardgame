@@ -133,13 +133,19 @@ export function ringName(res) {
 export function createGame(players, opts = {}) {
   const mode = opts.phMode === 'solo' ? 'solo' : 'match';
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
+  /* 🔄 Người ném trước xoay qua các ván: host truyền opts.firstIdx (bộ
+     đếm ván ở main.js, lưu localStorage nên sống qua cả tải lại trang);
+     không có thì ghế 0 như cũ; chơi đơn luôn người chơi ném. */
+  const firstIdx = mode === 'solo' ? 0
+    : Number.isInteger(opts.firstIdx) ? ((opts.firstIdx % players.length) + players.length) % players.length
+    : 0;
   const s = {
     gid: 'g' + (++gidSeq) + '-' + Math.random().toString(36).slice(2, 7),
-    seq: 0, seed, rngState: seed,
+    seq: 0, seed, rngState: seed, firstIdx,
     phase: 'playing', mode, solo: mode === 'solo', race: false,
     players: players.map(p => ({ id: p.id, name: p.name, isBot: !!p.isBot, local: !!p.local, level: p.level || null })),
     prog: {
-      turn: players[0].id, /* người đang ném */
+      turn: players[firstIdx].id, /* người đang ném */
       visit: 1, /* lượt hiện tại (1..) */
       visitDarts: [], /* các phi tiêu đã ném trong lượt hiện tại */
       visitStart: mode === 'solo' ? 0 : START_SCORE, /* điểm còn lại đầu lượt (để bust khôi phục) */
@@ -163,6 +169,7 @@ export function createGame(players, opts = {}) {
     s.prog.maxVisit[p.id] = 0;
     s.prog.bulls[p.id] = 0;
   }
+  pushLog(s, `🎯 ${s.players[firstIdx].name} ném trước!`);
   return s;
 }
 
@@ -301,7 +308,7 @@ export function applyAction(s, pid, a, ctx) {
 export function viewFor(s, pid) {
   const p = s.prog;
   return {
-    gid: s.gid, seq: s.seq, phase: s.phase,
+    gid: s.gid, seq: s.seq, phase: s.phase, firstIdx: s.firstIdx,
     startedAt: s.startedAt, endedAt: s.endedAt,
     winner: s.winner, winnerIds: (s.winnerIds || []).slice(), losers: (s.losers || []).slice(),
     endReason: s.endReason, final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,

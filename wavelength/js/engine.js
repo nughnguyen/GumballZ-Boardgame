@@ -94,6 +94,11 @@ export function createGame(players, opts = {}) {
   if (!players || players.length < 1 || players.length > 6) throw new Error('Wavelength chơi 1–6 người.');
   const seed = (opts.seed >>> 0) || (Math.floor(Math.random() * 2147483647) + 1);
   const solo = players.length === 1;
+  /* người đi đầu: host truyền firstIdx để xoay lượt qua các ván (ván sau =
+     ghế sau ván trước); không có thì bốc thăm theo seed — ván đầu ngẫu nhiên,
+     không còn cố định ghế 0 mọi ván mới */
+  const firstIdx = Number.isInteger(opts.firstIdx) && opts.firstIdx >= 0 && opts.firstIdx < players.length
+    ? opts.firstIdx : seed % players.length;
   const s = {
     gid: Math.random().toString(36).slice(2, 9), seq: 0,
     seed, /* hạt giống LCG — mọi lần rút số trong ván đều qua nextRand(s) */
@@ -103,7 +108,8 @@ export function createGame(players, opts = {}) {
     prog: {},
     round: 1, /* nhiều người: lượt 1..maxRounds; chơi đơn: lượt 1..10 */
     maxRounds: solo ? SOLO_ROUNDS : players.length * 2,
-    psychicIdx: 0, /* chỉ số ghế của Nhà ngoại cảm hiện tại (nhiều người) */
+    psychicIdx: firstIdx, /* chỉ số ghế của Nhà ngoại cảm hiện tại (nhiều người) */
+    firstIdx, /* ghế Nhà ngoại cảm đầu tiên của ván — để xoay lượt qua các ván + hiện ở phòng chờ */
     stage: solo ? 'guess' : 'clue', /* nhiều người: 'clue' | 'guess' | 'reveal'; chơi đơn: 'guess' | 'reveal' */
     current: null, /* nhiều người: {psychic, spectrumIdx, target, clue, shown, markers:[{pid,pos,locked,band}], revealed} */
     soloSet: null, /* chơi đơn: {index, spectrumIdx, clue, target, picked, locked, revealed, band} */
@@ -124,9 +130,9 @@ export function createGame(players, opts = {}) {
     pushLog(s, `🌈 Ván Wavelength mới — xem gợi ý rồi đặt mốc lên thang đo, 10 lượt, đúng từ ${SOLO_WIN_POINTS}/40 điểm mới thắng!`);
   } else {
     const sp = drawSpectrum(s);
-    s.current = { psychic: s.players[0].id, spectrumIdx: sp, target: drawTarget(s), clue: null, shown: false, markers: [], revealed: false };
-    s.prog[s.players[0].id].roundsAsPsychic = 1;
-    pushLog(s, `🌈 Ván Wavelength mới — ${s.players.length} người, ${s.maxRounds} lượt, mỗi lượt 1 Nhà ngoại cảm đưa gợi ý!`);
+    s.current = { psychic: s.players[firstIdx].id, spectrumIdx: sp, target: drawTarget(s), clue: null, shown: false, markers: [], revealed: false };
+    s.prog[s.players[firstIdx].id].roundsAsPsychic = 1;
+    pushLog(s, `🌈 Ván Wavelength mới — ${s.players[firstIdx].name} làm Nhà ngoại cảm đầu tiên! ${s.players.length} người, ${s.maxRounds} lượt, mỗi lượt 1 Nhà ngoại cảm đưa gợi ý!`);
   }
   return s;
 }
@@ -140,6 +146,7 @@ export function deserialize(json) {
     || !['clue', 'guess', 'reveal'].includes(s.stage)) {
     throw new Error('Trạng thái Wavelength không hợp lệ.');
   }
+  if (typeof s.firstIdx !== 'number') s.firstIdx = s.psychicIdx || 0; /* save cũ chưa có firstIdx */
   return s;
 }
 
@@ -527,7 +534,7 @@ export function viewFor(s, pid) {
     winner: s.winner, losers: (s.losers || []).slice(), endReason: s.endReason,
     final: s.final ? JSON.parse(JSON.stringify(s.final)) : null,
     solo: s.solo, round: s.round, rounds: s.maxRounds,
-    stage: s.stage, psychic: psychicId(s),
+    stage: s.stage, psychic: psychicId(s), firstIdx: s.firstIdx,
     wordsDone: s.solo ? (s.soloSet ? s.soloSet.index : 0) : s.round - 1,
     totalWords: s.maxRounds,
     current: currentView, soloSet: soloView,

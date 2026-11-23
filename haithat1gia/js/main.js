@@ -15,7 +15,7 @@ const NET = makeNet({
   game: 'haithat1gia', min: 1, max: 6, maxSeats: 6, allowLocal: true,
   minMsg: '2 Thật 1 Giả cần 1–6 người: chơi đơn, thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: {},
-  optOk: () => false,
+  optOk: (k, v) => k === 'firstIdx' ? Number.isInteger(v) && v >= 0 && v < 6 : false, /* 🎯 chỉ cho phép chủ phòng chia sẻ ghế kể trước qua lobby */
   create: createGame, apply: applyAction, view: viewFor, serialize, deserialize, actors, bot: botAction,
   /* máy nghĩ 1,5–4s rồi mới kể/đoán */
   botDelay: () => 1500 + Math.random() * 2500,
@@ -55,12 +55,35 @@ drawCount();
 setMode(mode);
 
 /* ---------- phòng chờ ---------- */
+/* 🎯 người kể đầu xoay qua các ván (ván đầu ghế 0, ván sau ghế kế tiếp).
+   Bộ đếm nằm ở máy chủ phòng; ghế dự kiến được chia sẻ cho cả phòng qua
+   opts.firstIdx (setOpt đẩy lobby mới cho mọi máy) để phòng chờ hiện huy
+   hiệu đúng, không chỉ đúng ở máy chủ phòng. Chơi đơn (1 người) không gắn huy hiệu. */
+const MAX_SEATS = 6;
+let firstCounter = 0;
+function seatedPlayers() {
+  const ps = ((ui.net && ui.net.raw && ui.net.raw.players) || (ui.lobby && ui.lobby.players) || []);
+  return ps.filter(p => p.connected || p.isBot || p.local).slice(0, MAX_SEATS);
+}
+function nextFirstIdx() { const n = seatedPlayers().length; return n ? firstCounter % n : 0; }
+function syncFirstOpt(info) {
+  if (!ui.isHost || !ui.net || !ui.net.raw || typeof ui.net.raw.setOpt !== 'function') return;
+  const want = nextFirstIdx();
+  if ((info.opts || {}).firstIdx !== want) ui.net.raw.setOpt('firstIdx', want);
+}
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const fi = nextFirstIdx(); firstCounter++;
+  ui.net.raw.start({ firstIdx: fi });
+}
 function renderLobby(info, ui) {
+  syncFirstOpt(info);
+  const fi = Number.isInteger((info.opts || {}).firstIdx) ? info.opts.firstIdx : nextFirstIdx();
   const n = info.players.length;
   const need2 = mode === 'online' || mode === 'pvp';
   $('#pcount').textContent = `${n}/6 người (chơi đơn 1 · nhiều người 2–6)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${n >= 2 && i === fi ? '<span class="seat-role">🎯 Kể trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost || mode === 'solo' || mode.startsWith('ai-') ? '' : (n < 6
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
@@ -82,11 +105,12 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => ui.isHost && startGame();
 $('#btn-start').onclick = () => { ui.startHost(true); };
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
+let announcedGid = null; /* 🎯 đã công bố người kể đầu của ván này chưa */
 let endShownFor = '';
 let pvpTurn = null; /* chuyền tay: id người đang cầm máy */
 let pvpCover = false; /* đang che màn hình để đưa máy */
@@ -180,6 +204,13 @@ function stmtHtml(v, stmts, opts) {
 
 function render(v, prev) {
   cur = v;
+  if (!v) { announcedGid = null; return; }
+  /* 🎯 công bố người kể trước 1 lần / ván (cả online lẫn chơi với máy) */
+  if (!v.solo && v.phase === 'playing' && v.gid !== announcedGid) {
+    announcedGid = v.gid;
+    const pp = v.players.find(p => p.id === v.presenter);
+    if (pp) tip(`🎯 ${cleanName(pp.name)} kể trước!`);
+  }
   if (v.phase === 'playing' && v.stage === 'guess' && !timerInt) startTimer();
   if (v.phase !== 'playing' || v.stage !== 'guess') { stopTimer(); drawTimer(null); }
   const me = v.me;
@@ -396,7 +427,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  startGame();
 };
 $('#btn-resign').onclick = async () => {
   const v = cur;
@@ -428,7 +459,7 @@ function showEnd(v) {
   ui.openModal(`<h2>${title}</h2><p style="text-align:center">${sub}</p>
     <table class="end-table"><tr><th>Người chơi</th><th>Điểm</th><th>Đoán đúng</th><th>Lừa được</th><th>Đã kể</th><th>Chuỗi tốt nhất</th></tr>${rows}</table>
     <div class="btns"><button class="btn big pri" id="m-again">🔄 Chơi lại</button><button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); if (ui.isHost) ui.net.raw.start(); else tip('Chờ chủ phòng mở ván mới.'); };
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); if (ui.isHost) startGame(); else tip('Chờ chủ phòng mở ván mới.'); };
   const home = $('#m-home'); if (home) home.onclick = () => { location.href = '../'; };
 }
 

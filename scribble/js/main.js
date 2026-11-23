@@ -20,6 +20,8 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 
 let net = null, isHost = false, myId = null, lobby = null, view = null;
+let lastFirstDrawerId = null; /* hoạ sĩ đầu ván trước (chế độ Đoán hình) — để xoay lượt qua các ván */
+let announcedGid = ''; /* gid đã toast công bố hoạ sĩ đầu (tránh toast lặp) */
 
 // ---------- tiện ích giao diện ----------
 function show(id) { $$('.screen').forEach(s => s.classList.toggle('active', s.id === id)); syncReacts(id); if (id !== 'screen-game' && id !== 'screen-gartic') fx.musicMood('lobby'); }
@@ -94,7 +96,16 @@ const handlers = {
   onState(v) {
     if (!v) { view = null; closeModal(); show('screen-lobby'); renderLobby(); return; }
     const prev = view; view = v;
-    if (v.mode === 'guess') renderGuess(v, prev && prev.gid === v.gid ? prev : null);
+    if (v.mode === 'guess') {
+      if (v.firstDrawer) lastFirstDrawerId = v.firstDrawer;
+      /* công bố hoạ sĩ đầu khi ván mới mở (mọi máy đều thấy) */
+      if ((!prev || prev.gid !== v.gid) && v.phase === 'choose' && v.drawer && announcedGid !== v.gid) {
+        announcedGid = v.gid;
+        const d = v.players.find(p => p.id === v.drawer);
+        if (d) toast(d.id === myId ? '🎨 Bạn vẽ trước!' : `🎨 ${d.name} vẽ trước!`);
+      }
+      renderGuess(v, prev && prev.gid === v.gid ? prev : null);
+    }
     else renderGartic(v, prev && prev.gid === v.gid ? prev : null);
   },
   onDraw(ops, n) { onDraw(ops, n); },
@@ -176,13 +187,18 @@ function renderLobby() {
   if (!lobby) return;
   const ps = lobby.players, o = lobby.opts;
   const mx = maxPlayers(o);
+  /* hoạ sĩ đầu ván tới (chế độ Đoán hình): người sau hoạ sĩ đầu ván trước;
+     chưa chơi ván nào thì bốc thăm ngẫu nhiên khi mở ván */
+  const nextDrawerId = o.mode === 'guess' && lastFirstDrawerId && ps.some(p => p.id === lastFirstDrawerId)
+    ? ps[(ps.findIndex(p => p.id === lastFirstDrawerId) + 1) % ps.length].id : null;
   $('#pcount').textContent = `${ps.length}/${mx}`;
   $('#code-box').style.display = net && net.offline ? 'none' : '';
-  $('#plist').innerHTML = ps.map(p => `<li data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(p.name)}${p.id === myId ? ' <small>(bạn)</small>' : ''}${p.id === 'host' ? ' 👑' : ''}${!p.connected ? ' <small>📴</small>' : ''}</span>${isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</li>`).join('');
+  $('#plist').innerHTML = ps.map(p => `<li data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(p.name)}${p.id === myId ? ' <small>(bạn)</small>' : ''}${p.id === 'host' ? ' 👑' : ''}${!p.connected ? ' <small>📴</small>' : ''}${p.id === nextDrawerId ? ' <small>🎯 Vẽ trước</small>' : ''}</span>${isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ra">✕</button>` : ''}</li>`).join('');
   $$('#plist [data-rm]').forEach(b => b.onclick = e => { e.stopPropagation(); kickAsk(b.dataset.rm, (ps.find(p => p.id === b.dataset.rm) || {}).name); });
   const online = ps.filter(p => p.connected).length;
   const solo = o.mode === 'gartic' && o.gmode === 'solo', need = solo ? 1 : 2;
   $('#lobby-tip').innerHTML = online < need ? '👋 Cần ít nhất <b>2 người</b>. Gửi mã phòng hoặc bấm <b>Chép link mời</b> cho hội bạn nhé! (Chỉ có mình bạn? Chọn Tam sao thất bản › <b>Một mình</b>.)' : online > mx ? `⚠️ Chế độ này tối đa <b>${mx} người</b> – chọn <b>🎉 Đông vui</b> để chơi tới ${MAX} người.` : `Đủ người rồi, quẩy thôi! (tối đa ${mx} người)`;
+  if (o.mode === 'guess' && !nextDrawerId) $('#lobby-tip').innerHTML += ' 🎲 Hoạ sĩ đầu tiên sẽ bốc thăm ngẫu nhiên.';
   $('#modes').innerHTML = Object.entries(MODE_INFO).map(([k, [t, d]]) => `<button class="mode ${o.mode === k ? 'on' : ''}" data-mode="${k}" ${isHost ? '' : 'disabled'}><b>${t}</b><small>${d}</small></button>`).join('');
   $$('#modes [data-mode]').forEach(b => b.onclick = () => net && net.setOpts({ mode: b.dataset.mode }));
   renderSettings();

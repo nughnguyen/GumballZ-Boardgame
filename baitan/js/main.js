@@ -40,6 +40,7 @@ function renderLobby(info, ui) {
   $('#add-box').innerHTML = ui.isHost && n < info.max ? `<div class="row-btns"><button class="btn" id="btn-addbot">+ Thêm bot</button></div>` : '';
   const seg = (key, items) => `<div class="seg">${items.map(([v, nm]) => `<button type="button" data-opt="${key}" data-v="${v}" aria-pressed="${String(o[key]) === String(v)}" ${dis}>${nm}</button>`).join('')}</div>`;
   $('#opts').innerHTML = `
+    <div class="opt"><b>🎯 Ai tấn trước</b><div class="role-note">Người cầm <b>lá chủ nhỏ nhất</b> tấn đầu; không ai có chủ thì người ngồi đầu bàn đi trước.</div></div>
     <div class="opt"><b>🖐️ Số lá mỗi người</b>${seg('hand', [[8, '8 lá'], [6, '6 lá']])}<small>Đánh xong lượt nào thì bốc bù cho đủ số lá, tới khi hết nọc.${n * 8 > 48 ? ' Bàn 6 người tự chia 6 lá.' : ''}</small></div>
     <div class="opt"><b>⚔️ Ai được tấn thêm</b>${seg('adders', [['all', 'Cả bàn'], ['side', 'Hai người ngồi cạnh']])}<small>Sau lá tấn đầu, những người này được "ném" thêm lá cùng số.</small></div>
     <div class="opt"><b>🤝 Kiểu chơi</b>${seg('team', [[false, 'Cá nhân'], [true, 'Chéo cánh (2 đấu 2)']])}<small>${o.team ? (n === 4 ? 'Người ngồi đối diện là đồng đội. Đội nào hết bài cả hai trước thì thắng.' : '⚠️ Chéo cánh cần đúng 4 người – hiện sẽ chơi cá nhân.') : 'Ai còn bài sau cùng là người thua.'}</small></div>`;
@@ -56,11 +57,20 @@ $('#btn-start').onclick = () => ui.isHost && ui.net.raw.start();
 
 // ---------- ván chơi ----------
 let sel = [], target = -1, endShown = null, lastKey = '', shownCards = new Set();
+let announcedGid = null; /* 🎯 đã công bố người tấn đầu của ván này chưa */
 const meId = () => ui.myId;
 /* dựng lại "state" tối thiểu từ view để dùng chung hàm kiểm tra luật của engine (chỉ cần số lá của người khác) */
 const pseudo = v => ({ ...v, hands: Object.fromEntries(v.players.map(p => [p.id, p.id === meId() ? v.hand : Array(p.n).fill(-1)])) });
 const nameOf = (v, id) => { const p = v.players.find(p => p.id === id); return p ? esc(cleanName(p.name)) : '?'; };
 function render(v, prev) {
+  /* 🎯 công bố người tấn đầu 1 lần / ván (cả online lẫn chơi với máy) */
+  if (v.phase === 'play' && v.gid !== announcedGid && v.firstInfo) {
+    announcedGid = v.gid;
+    const fi = v.firstInfo, attName = cleanName((v.players.find(p => p.id === fi.att) || {}).name || '?');
+    ui.toast(fi.reason === 'trump' && fi.card != null
+      ? `🎯 ${attName} đi trước — cầm ${E.cardTxt(fi.card)} chủ nhỏ nhất!`
+      : `🎯 ${attName} đi trước — không ai có lá chủ!`);
+  }
   const me = meId(), s = pseudo(v), iDef = v.def === me && !v.spec, canAtt = !v.spec && v.phase === 'play' && E.canAdd(s, me);
   const open = v.table.map((t, i) => t.d == null ? i : -1).filter(i => i >= 0), ranks = new Set(v.table.flatMap(t => t.d != null ? [E.rank(t.a), E.rank(t.d)] : [E.rank(t.a)]));
   const key = `${v.gid}|${v.bout}|${v.table.length}`; if (key !== lastKey) { sel = []; lastKey = key; }
@@ -155,7 +165,7 @@ function showSummary(v) {
 function openGuide() {
   ui.openModal(`<div class="guide"><h2>📖 Cách chơi Bài Tấn</h2>
     <p><b>Mục tiêu:</b> đánh hết bài trên tay. Khi nọc đã hết, ai còn ôm bài sau cùng là <b>người thua</b>.</p>
-    <h3>Lá chủ</h3><ul><li>Lá lật dưới đáy nọc cho biết <b>chất chủ</b>. Lá chủ thắng mọi lá chất khác.</li><li>Thứ tự lớn dần: 2, 3 … 10, J, Q, K, A.</li></ul>
+    <h3>Lá chủ</h3><ul><li>Lá lật dưới đáy nọc cho biết <b>chất chủ</b>. Lá chủ thắng mọi lá chất khác.</li><li>Thứ tự lớn dần: 2, 3 … 10, J, Q, K, A.</li><li>🎯 <b>Ai đi trước:</b> người cầm <b>lá chủ nhỏ nhất</b> tấn đầu; không ai có chủ thì người ngồi đầu bàn đi trước.</li></ul>
     <h3>Tấn và đỡ</h3><ul><li>Người <b>⚔️ tấn</b> đánh 1 lá (hoặc nhiều lá cùng số) vào người kế bên.</li><li>Người <b>🛡️ đỡ</b> phải đè từng lá bằng lá <b>cùng chất lớn hơn</b> hoặc một <b>lá chủ</b>.</li><li>Mọi người được <b>tấn thêm</b> lá cùng số với bất kỳ lá nào đang nằm trên bàn (tối đa 6 lá, không quá số bài người đỡ đang cầm).</li></ul>
     <h3>Hết lượt</h3><ul><li><b>Đỡ được hết:</b> bài trên bàn bỏ đi, người đỡ được quyền tấn tiếp.</li><li><b>Không đỡ nổi:</b> bấm <b>Bốc hết</b>, ôm toàn bộ bài trên bàn và mất lượt tấn.</li><li>Sau mỗi lượt, mọi người bốc bù cho đủ bài tới khi hết nọc.</li></ul>
     <h3>Chéo cánh</h3><ul><li>4 người, ngồi đối diện là đồng đội, không tấn đồng đội. Đội nào cả hai hết bài trước thì thắng.</li></ul>

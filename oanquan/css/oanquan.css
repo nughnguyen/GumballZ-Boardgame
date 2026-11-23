@@ -91,3 +91,6 @@
   .oq-hint { font-size: 12px; padding: 7px 10px; max-width: 260px; }
   .oq-topbar h1 { font-size: 21px; }
 }
+
+/* huy hiệu người đi trước ở phòng chờ (patch lượt đi đầu) */
+.seat-role { flex: none; font-size: 12px; font-weight: 800; border: 2px solid #2a2340; border-radius: 999px; padding: 2px 8px; background: #fff7cc; }

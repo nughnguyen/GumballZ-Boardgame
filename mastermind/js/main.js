@@ -17,11 +17,28 @@ const NET = makeNet({
   game: 'mastermind', min: 2, max: 2, maxSeats: 2, allowLocal: true,
   minMsg: 'Mastermind cần đúng 2 người: thêm máy, thêm người chơi cùng máy, hoặc mời bạn vào phòng.',
   defaults: {},
-  optOk: () => false,
+  optOk: (k, v) => k === 'firstIdx' && Number.isInteger(v) && v >= 0 && v < 2,
   create: createGame, apply: applyAction, view: viewFor, actors, bot: botAction,
   botDelay: () => 700 + Math.random() * 900,
   botNames: ['Mochi', 'Bơ', 'Pudding', 'Xôi', 'Kẹo', 'Nấm', 'Sữa', 'Đậu', 'Bánh', 'Cốm'],
 });
+
+/* 🔄 Người đoán trước xoay qua các ván: host giữ bộ đếm trong
+   localStorage (sống qua cả tải lại trang); ván nào lấy
+   firstIdx = đếm % 2 rồi tăng đếm, đăng lên opts để mọi người trong
+   phòng chờ đều thấy ai đoán trước ván tới. */
+const FT_KEY = 'gumballz-mastermind-firstctr';
+let firstCtr = 0;
+try { firstCtr = +localStorage.getItem(FT_KEY) || 0; } catch (e) {}
+const peekFirst = n => (n > 0 ? firstCtr % n : 0);
+const takeFirst = n => { const i = peekFirst(n); firstCtr++; try { localStorage.setItem(FT_KEY, String(firstCtr)); } catch (e) {} return i; };
+let lastLobby = null;
+function startGame() {
+  if (!ui.isHost || !ui.net || !ui.net.raw) return;
+  const n = (lastLobby && lastLobby.players && lastLobby.players.length) || 2;
+  if (n !== 2) return;
+  ui.net.raw.start({ firstIdx: takeFirst(n) });
+}
 
 /* ---------- chế độ chơi (màn hình chính) ---------- */
 let mode = 'ai-hard'; /* ai-easy | ai-hard | pvp | online */
@@ -42,10 +59,15 @@ try {
 
 /* ---------- phòng chờ ---------- */
 function renderLobby(info, ui) {
+  lastLobby = info;
   const n = info.players.length;
+  /* đăng người đoán trước ván tới lên opts để khách trong phòng cũng thấy đúng người */
+  const peek = peekFirst(n);
+  if (ui.isHost && ui.net && ui.net.raw && typeof ui.net.raw.setOpt === 'function' && (info.opts || {}).firstIdx !== peek) ui.net.raw.setOpt('firstIdx', peek);
+  const fi = Number.isInteger(info.opts && info.opts.firstIdx) ? info.opts.firstIdx : peek;
   $('#pcount').textContent = `${n}/2 người (cần đúng 2)`;
   $('#plist').innerHTML = info.players.map((p, i) => {
-    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === 0 ? '<span class="seat-role">👑 Đi trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
+    return `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ` <small>· chủ phòng</small>` : ''}</span>${i === fi ? '<span class="seat-role">🎯 Đoán trước</span>' : ''}${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`;
   }).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (n < 2
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
@@ -73,12 +95,13 @@ $('#btn-copy-code').onclick = () => {
   if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => tip('Đã sao chép mã phòng: ' + code)).catch(() => tip('Mã phòng: ' + code));
   else tip('Mã phòng: ' + code);
 };
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start();
+$('#btn-start-online').onclick = () => startGame();
 $('#btn-start').onclick = () => { ui.startHost(true); };
 
 /* ---------- trạng thái hiển thị ---------- */
 let cur = null;
 let endShownFor = '';
+let announcedGid = ''; /* gid đã công bố người đoán trước (tránh toast lặp khi vẽ lại) */
 let setupCode = [null, null, null, null]; /* mã đang đặt */
 let setupSel = 0; /* ô đang chọn trong hàng đặt mã */
 let guessCode = [null, null, null, null]; /* lượt đoán đang soạn */
@@ -137,7 +160,13 @@ function slotsHtml(code, sel, idPrefix) {
 
 function render(v, prev) {
   cur = v;
-  if (!v) { endShownFor = ''; return; }
+  if (!v) { endShownFor = ''; announcedGid = ''; return; }
+  /* 🎯 Công bố người đoán trước khi cả 2 đặt mã xong (cả online lẫn đấu máy/chuyền tay) */
+  if (v.phase === 'playing' && v.gid !== announcedGid && v.players.every(p => (p.guesses || []).length === 0)) {
+    announcedGid = v.gid;
+    const fp = v.players[v.turnIdx];
+    if (fp) tip(`🎯 ${cleanName(fp.name)} đoán trước!`);
+  }
   const me = v.players.find(p => p.id === v.me) || {};
   const turnP = v.players.find(p => p.id === v.turn);
   const meP = v.players.find(p => p.id === v.me);
@@ -234,7 +263,7 @@ function showEnd(v) {
     ? `<button class="btn big pri" id="m-again">🔁 Ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`
     : `<button class="btn big pri" id="m-close">Đóng</button><button class="btn" id="m-home">🏠 Về trang chủ</button>`;
   ui.openModal(`<h2>${title}</h2>${body}<div class="btns">${btns}</div>`, 'lock');
-  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start(); };
+  const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); startGame(); };
   const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
   const home = $('#m-home'); if (home) home.onclick = () => { ui.closeModal(); ui.leave(); };
   const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
@@ -324,7 +353,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start();
+  startGame();
 };
 $('#btn-resign').onclick = async () => {
   const v = cur;

@@ -59,18 +59,33 @@ try {
   setCount([2, 3, 4].includes(sc) ? sc : 2);
 } catch (e) { setMode('ai-hard'); setCount(2); }
 
+/* 🎯 xoay lượt đầu qua các ván trong phòng này: nhớ người đi đầu ván trước
+   (theo ghế ngồi ở phòng chờ — engine không xáo ghế nên ghế lobby = ghế ván). */
+let ftLastIdx = -1, ftLastId = null, ftGameNo = 0, ftN = 0;
+const ftExtra = () => (ftLastIdx < 0 || ftN < 2 ? undefined : { firstIdx: (ftLastIdx + 1) % ftN, gameNo: ftGameNo + 1 });
+const ftNote = v => {
+  const i = v.firstIdx != null ? v.firstIdx : v.players.findIndex(p => p.id === v.turn);
+  if (i >= 0) { ftLastIdx = i; ftLastId = v.players[i].id; ftGameNo = v.gameNo || ftGameNo + 1; }
+  ftN = v.players.length;
+};
+const ftNext = n => (n < 2 ? -1 : ftLastIdx < 0 ? 0 : (ftLastIdx + 1) % n); /* ghế đi đầu ván tới (ván đầu: ghế 0) */
+
 /* ---------- phòng chờ ---------- */
 function renderLobby(info, ui) {
   const seated = info.players.slice(0, 4);
   const cap = mode === 'online' ? 2 : 4; /* online đúng 2 người, chung máy tối đa 4 */
   $('#pcount').textContent = `${seated.length}/${cap} người`;
-  $('#plist').innerHTML = info.players.map(p => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ' <small>· cùng máy</small>' : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
+  if (ftLastId && !info.players.some(p => p.id === ftLastId)) { ftLastIdx = -1; ftLastId = null; ftGameNo = 0; } /* sang phòng khác / người đi đầu đã rời: quên lượt cũ */
+  ftN = info.players.length;
+  const nextFirst = ftNext(info.players.length);
+  $('#plist').innerHTML = info.players.map((p, i) => `<li class="${p.connected ? '' : 'off'}" data-id="${p.id}">${avatar(p.name)}<span class="nm">${esc(cleanName(p.name))}${p.isBot ? ` <small>· máy ${p.level === 'easy' ? 'Dễ' : 'Khó'}</small>` : p.local ? ` <small>· cùng máy</small>` : p.id === 'host' ? ' <small>· chủ phòng</small>' : ''}${i === nextFirst ? ' <span class="ft-badge">🎯 Đi trước</span>' : ''}</span>${ui.isHost && p.id !== 'host' ? `<button class="x" data-rm="${p.id}" aria-label="Mời ${esc(p.name)} ra">✕</button>` : ''}</li>`).join('');
   $('#add-box').innerHTML = !ui.isHost ? '' : (seated.length < cap
     ? `<div class="row-btns"><button class="btn" id="btn-addbot">🤖 Thêm máy</button><button class="btn" id="btn-addlocal">👥 Người chơi cùng máy</button></div>`
     : '');
   $('#opts').innerHTML = mode === 'online'
     ? `<p class="opt-note">🌐 Chơi online: đúng 2 người. Số xúc xắc do người tới lượt tung ra, gửi kèm trong nước đi nên 2 bên luôn thấy cùng 1 kết quả.</p>`
     : `<p class="opt-note">👥 Chơi trên máy này: 2–4 người. Thêm máy hoặc thêm người chơi cùng máy rồi bấm Bắt đầu chơi.</p>`;
+  $('#opts').innerHTML += `<p class="opt-note">🎯 ${ftLastIdx < 0 || nextFirst < 0 ? 'Ván đầu: người ngồi ghế đầu đi trước.' : `Ván sau: ${esc(cleanName(info.players[nextFirst].name))} đi trước (xoay lượt qua các ván).`}</p>`;
   const okCount = seated.length >= 2 && (mode !== 'online' || seated.length === 2);
   $('#btn-start-online').style.display = ui.isHost ? '' : 'none';
   $('#btn-start-online').disabled = !okCount;
@@ -87,7 +102,7 @@ $('#screen-lobby').addEventListener('click', async e => {
     if (n) h.addLocal(n);
   }
 });
-$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start({ online: mode === 'online' });
+$('#btn-start-online').onclick = () => ui.isHost && ui.net.raw.start({ ...ftExtra(), online: mode === 'online' });
 /* chế độ local: mở phòng offline trên máy này, thêm máy / người cùng máy theo chế độ đã chọn */
 $('#btn-start').onclick = () => {
   ui.startHost(true);
@@ -323,6 +338,10 @@ function render(v, prev) {
   const away = (v.away || []).map(id => (v.players.find(p => p.id === id) || {}).name).filter(Boolean);
   const board = $('#board');
   if (!board.dataset.gid || board.dataset.gid !== v.gid) {
+    /* 🎯 ván mới mở: ghi nhớ + công bố người đi đầu (cả online lẫn chung máy) */
+    const fp = v.players.find(p => p.id === v.turn);
+    ftNote(v);
+    if (fp) tip(fp.id === v.me ? '🎯 Bạn đi trước!' : `🎯 ${cleanName(fp.name)} đi trước!`);
     board.dataset.gid = v.gid;
     buildBoard(v);
     for (const p of v.players) disp[p.id] = v.pos[p.id] ?? 0;
@@ -387,7 +406,7 @@ function render(v, prev) {
         ? '<button class="btn big pri" id="m-again">🔁 Chơi ván mới</button><button class="btn" id="m-lobby">Về phòng chờ</button>'
         : '<button class="btn" id="m-close">Đóng — chờ chủ phòng mở ván mới</button>'}
       <button class="btn" id="m-home">🏠 Về trang chủ</button></div>`);
-    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start({ online: mode === 'online' }); };
+    const again = $('#m-again'); if (again) again.onclick = () => { ui.closeModal(); ui.net.raw.start({ ...ftExtra(), online: mode === 'online' }); };
     const lobby = $('#m-lobby'); if (lobby) lobby.onclick = () => { ui.closeModal(); ui.net.raw.restart(); };
     const close = $('#m-close'); if (close) close.onclick = ui.closeModal;
     $('#m-home').onclick = () => { ui.closeModal(); ui.leave(); setTimeout(() => { location.href = '../'; }, 250); };
@@ -430,7 +449,7 @@ $('#btn-log').onclick = () => {
 $('#btn-new').onclick = () => {
   if (!cur) return;
   if (!ui.isHost) { tip('Chỉ chủ phòng mở ván mới được.'); return; }
-  ui.net.raw.start({ online: mode === 'online' });
+  ui.net.raw.start({ ...ftExtra(), online: mode === 'online' });
 };
 $('#btn-resign').onclick = async () => {
   const v = cur;
