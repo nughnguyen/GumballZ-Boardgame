@@ -4818,4 +4818,92 @@ function makeCamel(riv, root, o) {
   save('hoisanquai', riv);
 }
 
+// ---- 93. vuatiengviet: XÁO CHỮ — XẾP THÀNH "BÁNH" + VƯƠNG MIỆN (180f = 3s).
+// Hàng trên: 4 ô xáo trộn Á N H B; các ô nhảy xuống hàng đáp án lần lượt
+// thành B Á N H; vương miện vàng bật lên + nhấp nháy, sao vàng bật lên.
+// Chữ vẽ bằng nét thẳng (runtime Rive không có text), Á có dấu sắc.
+{
+  const { riv, ab, root } = newFile('vuatiengviet');
+  const D = 180;
+  const BG_COL = hex('#FFF3CF'); // nền lớp học kem vàng nhạt
+  // Chữ cái vẽ bằng nét mực (cao 20, nét 3.5) — trả về các part.
+  const letterParts = (cx, cy, ch) => {
+    const parts = [];
+    if (ch === 'A') {
+      parts.push(poly(riv, root, { name: 'LL', cx: cx - 5, cy, points: rotRectPoints(cx - 5, cy, 4, 21, 0.32), color: INK }));
+      parts.push(poly(riv, root, { name: 'LR', cx: cx + 5, cy, points: rotRectPoints(cx + 5, cy, 4, 21, -0.32), color: INK }));
+      parts.push(rect(riv, root, { name: 'LB', x: cx, y: cy + 4, w: 11, h: 3.5, color: INK }));
+      parts.push(poly(riv, root, { name: 'LA', cx: cx + 4, cy: cy - 12.5, points: rotRectPoints(cx + 4, cy - 12.5, 3, 5, -0.55), color: INK }));
+    } else if (ch === 'N') {
+      parts.push(rect(riv, root, { name: 'NL', x: cx - 6.5, y: cy, w: 3.5, h: 20, color: INK }));
+      parts.push(rect(riv, root, { name: 'NR', x: cx + 6.5, y: cy, w: 3.5, h: 20, color: INK }));
+      parts.push(poly(riv, root, { name: 'ND', cx, cy, points: rotRectPoints(cx, cy, 3.5, 23, -0.62), color: INK }));
+    } else if (ch === 'H') {
+      parts.push(rect(riv, root, { name: 'HL', x: cx - 6.5, y: cy, w: 3.5, h: 20, color: INK }));
+      parts.push(rect(riv, root, { name: 'HR', x: cx + 6.5, y: cy, w: 3.5, h: 20, color: INK }));
+      parts.push(rect(riv, root, { name: 'HB', x: cx, y: cy, w: 13, h: 3.5, color: INK }));
+    } else { // 'B': thân + 2 khoang viền (nền trắng, viền mực)
+      parts.push(rect(riv, root, { name: 'BS', x: cx - 6.5, y: cy, w: 3.5, h: 20, color: INK }));
+      parts.push(rect(riv, root, { name: 'BT', x: cx + 1, y: cy - 5, w: 11, h: 9, r: 3, color: WHITE, stroke: INK, strokeW: 1.5 }));
+      parts.push(rect(riv, root, { name: 'BB', x: cx + 1, y: cy + 5, w: 11, h: 9, r: 3, color: WHITE, stroke: INK, strokeW: 1.5 }));
+    }
+    return parts;
+  };
+  // Ô chữ: chữ add TRƯỚC nền ô (thêm trước = vẽ TRÊN).
+  const mkTile = (cx, cy, ch) => {
+    const parts = letterParts(cx, cy, ch);
+    parts.push(rect(riv, root, { name: 'TBg', x: cx, y: cy, w: 32, h: 32, r: 5, color: WHITE, stroke: INK, strokeW: 2 }));
+    return parts;
+  };
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // Vương miện vàng giữa trên + đế.
+  const crown = suitPip(riv, root, 200, 27, 26, 'crown', GOLD);
+  crown.push(rect(riv, root, { name: 'CrBase', x: 200, y: 37, w: 22, h: 4, r: 2, color: GOLD, stroke: INK, strokeW: 1.5 }));
+  // Hàng xáo trộn (y=62): Á N H B.
+  const tA = mkTile(122, 62, 'A');
+  const tN = mkTile(158, 62, 'N');
+  const tH = mkTile(194, 62, 'H');
+  const tB = mkTile(230, 62, 'B');
+  // 4 ô đáp án trống (y=132) — add SAU các ô chữ để ô đáp án nằm DƯỚI
+  // ô chữ khi ô nhảy xuống đè lên.
+  const slots = [122, 158, 194, 230].map((x) =>
+    rect(riv, root, { name: 'Slot', x, y: 132, w: 34, h: 34, r: 5, color: BG_COL, stroke: INK, strokeW: 1.5 }));
+  bg(riv, root, BG_COL);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Ô xáo trộn bật lần lượt (0-26).
+  const pop = (parts, t0) => {
+    for (const p of parts) {
+      keys(riv, an, p.id, SX, [[0, 0], [t0, 0], [t0 + 8, 1.2], [t0 + 14, 1], [D, 1]]);
+      keys(riv, an, p.id, SY, [[0, 0], [t0, 0], [t0 + 8, 1.2], [t0 + 14, 1], [D, 1]]);
+    }
+  };
+  pop(tA, 0);
+  pop(tN, 6);
+  pop(tH, 12);
+  pop(tB, 18);
+  // Nhảy xuống hàng đáp án thành B Á N H (mỗi ô 25f, vòng cung -22).
+  const hop = (parts, t0, t1, dx, dy) => {
+    for (const p of parts) {
+      const x0 = p.x, y0 = p.y, x1 = x0 + dx, y1 = y0 + dy, tm = Math.round((t0 + t1) / 2);
+      keys(riv, an, p.id, X, [[t0, x0], [tm, (x0 + x1) / 2], [t1, x1]]);
+      keys(riv, an, p.id, Y, [[t0, y0], [tm, (y0 + y1) / 2 - 22], [t1, y1]]);
+    }
+  };
+  hop(tB, 35, 60, -108, 70);
+  hop(tA, 60, 85, 36, 70);
+  hop(tN, 85, 110, 36, 70);
+  hop(tH, 110, 135, 36, 70);
+  // Vương miện bật (140-155) + nhấp nháy (158-170).
+  for (const p of crown) {
+    keys(riv, an, p.id, SX, [[0, 0], [140, 0], [148, 1.2], [155, 1], [D, 1]]);
+    keys(riv, an, p.id, SY, [[0, 0], [140, 0], [148, 1.2], [155, 1], [D, 1]]);
+    keys(riv, an, p.id, OPACITY, [[0, 0], [140, 0], [148, 1], [158, 1], [164, 0.35], [170, 1], [D, 1]], 'linear');
+  }
+  // Sao vàng bật (150-165).
+  keys(riv, an, star.id, SX, [[0, 0], [150, 0], [158, 1.2], [165, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [150, 0], [158, 1.2], [165, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ...crown, ...tA, ...tN, ...tH, ...tB, ...slots], D);
+  save('vuatiengviet', riv);
+}
+
 console.log('done');
