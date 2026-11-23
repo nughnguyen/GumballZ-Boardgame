@@ -69,6 +69,7 @@ export function donTables(sql) {
   try { sql.exec(`ALTER TABLE don ADD COLUMN src TEXT DEFAULT 'auto'`); } catch (e) {}
   try { sql.exec(`ALTER TABLE don ADD COLUMN reply TEXT`); } catch (e) {}
   try { sql.exec(`ALTER TABLE don ADD COLUMN rat INTEGER`); } catch (e) {}
+  try { sql.exec(`ALTER TABLE donclaim ADD COLUMN dmid TEXT`); } catch (e) {} /* patch -172: id tin nhắn Discord đã gửi cho yêu cầu — để sửa lại tin đó khi duyệt/từ chối; dòng cũ chưa có cột thì ALTER chạy 1 lần rồi các lần sau bắt lỗi bỏ qua, giống pattern cột mới của bảng don */
 }
 
 export function donHas(sql, id) { return sql.exec('SELECT 1 FROM don WHERE id = ?', String(id)).toArray().length > 0; }
@@ -128,6 +129,15 @@ export function donClaimDecide(sql, id, ok, byName) {
   if (!c || c.st !== 'pend') return null;
   sql.exec('UPDATE donclaim SET st = ?, decided = ?, byName = ? WHERE id = ?', ok ? 'ok' : 'no', Date.now(), String(byName || '').slice(0, 30), +id);
   return c;
+}
+/* Lưu Discord message id của tin đã gửi cho yêu cầu (patch -172): route /donate/claim gọi
+   sau khi notifyDiscordClaim trả về messageId — để route /donate/claim-decide sửa lại đúng
+   tin đó khi duyệt/từ chối. Chỉ ghi khi dòng còn chờ duyệt (st='pend'); dmid rỗng → false. */
+export function donClaimSetDmid(sql, claimId, dmid) {
+  const mid = String(dmid || '').trim().slice(0, 32);
+  if (!mid) return false;
+  sql.exec("UPDATE donclaim SET dmid = ? WHERE id = ? AND st = 'pend'", mid, +claimId || 0);
+  return true;
 }
 
 /* ---------- xoá yêu cầu ủng hộ (patch -163) ----------
@@ -213,19 +223,23 @@ export function donTransferCode(uid, ref, hide) {
 export const DISCORD_COMPONENTS_V2 = 32768; /* IS_COMPONENTS_V2 = 1 << 15 */
 const TD = content => ({ type: 10, content });
 const SEP = (spacing = 1) => ({ type: 14, divider: true, spacing });
-export function discordClaimPayload(c, adminId) {
+/* Giờ VN, ngày trước giờ sau như trong mẫu ("22/11/2026 14:32"). */
+const vnFmt = at => {
+  const d = new Date(+at || Date.now());
+  const day = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+  const hour = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(d);
+  return day + ' ' + hour;
+};
+/* Phần dữ liệu dùng chung cho tin tạo đơn (v4) và tin cập nhật khi duyệt/từ chối (-172):
+   tên/username đã vệ sinh (bỏ xuống dòng + backtick để không phá vỡ code block),
+   bảng thông tin căn cột trong code block (font monospace giữ khoảng trắng). */
+function donClaimParts(c) {
   const amt = Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ';
-  /* Tên/username hiển thị: bỏ xuống dòng + backtick để không phá vỡ code block. */
   const name = (String(c.name || 'Ẩn danh').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30)) || 'Ẩn danh';
   const ref = String(c.ref || '').replace(/\D/g, '').slice(0, 6);
-  const at = new Date(+c.at || Date.now());
-  /* Giờ VN, ngày trước giờ sau như trong mẫu ("22/11/2026 14:32"). */
-  const vnDay = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(at);
-  const vnHour = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(at);
-  const vn = vnDay + ' ' + vnHour;
+  const vn = vnFmt(+c.at || Date.now());
   const uname = String(c.username || '').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30);
   const code = donTransferCode(+c.uid || 0, ref, !!c.hide);
-  /* Bảng thông tin căn cột trong code block (font monospace giữ khoảng trắng). */
   const pad = s => (s + '            ').slice(0, 12);
   const info = [
     ['Người gửi', name],
@@ -234,6 +248,11 @@ export function discordClaimPayload(c, adminId) {
     ['ID người gửi', donUid6(+c.uid || 0)],
     ['Username', uname ? '@' + uname : name],
   ].map(([k, v]) => pad(k) + ': ' + v).join('\n');
+  const msg = String(c.msg || '').trim().replace(/\r/g, '');
+  return { amt, name, ref, vn, uname, code, info, msg };
+}
+export function discordClaimPayload(c, adminId) {
+  const { name, vn, info, code, msg } = donClaimParts(c);
   const inner = [
     /* Author v3 → Section: tên donor in đậm + logo site làm thumbnail. */
     { type: 9, components: [TD('**' + name + '**')], accessory: { type: 11, media: { url: DISCORD_THUMB_URL } } },
@@ -244,7 +263,6 @@ export function discordClaimPayload(c, adminId) {
     TD('```\n' + info + '\n```'),
     TD('**Nội dung chuyển khoản**\n```\n' + code + '\n```'),
   ];
-  const msg = String(c.msg || '').trim().replace(/\r/g, '');
   if (msg) inner.push(TD('**Lời nhắn**\n' + msg.slice(0, 200).split('\n').map(l => '> ' + l).join('\n')));
   inner.push(SEP(1));
   inner.push({ type: 12, items: [{ media: { url: DISCORD_BANNER_URL }, description: 'GumballZ Boardgame' }] });
@@ -264,19 +282,81 @@ export function discordClaimPayload(c, adminId) {
   }
   return out;
 }
+/* Tin nhắn CẬP NHẬT khi Quản trị duyệt/từ chối đơn (patch -172): dựng lại tin V2 từ cùng
+   dòng claim, dùng lại cấu trúc Container của v4 nhưng đổi trạng thái — tiêu đề code block
+   "✅ Đơn ủng hộ đã được duyệt" / "❌ Đơn ủng hộ đã bị từ chối", accent xanh lá 0x2ECC71
+   khi duyệt / đỏ 0xED4245 khi từ chối, thêm dòng người duyệt + giờ quyết định (giờ VN).
+   BỎ dòng tag ping (đã ping từ lúc tạo đơn) và BỎ link "Mở trang Quản trị" (quyết định xong
+   rồi). Giữ nguyên bảng thông tin + mã chuyển khoản SEVQR + Lời nhắn + banner tĩnh. */
+export function discordDecidePayload(c, ok, byName, decidedAt = Date.now()) {
+  const { name, info, code, msg } = donClaimParts(c);
+  const who = (String(byName || '').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30)) || 'Quản trị';
+  const vnD = vnFmt(decidedAt);
+  const inner = [
+    { type: 9, components: [TD('**' + name + '**')], accessory: { type: 11, media: { url: DISCORD_THUMB_URL } } },
+    TD('```\n' + (ok ? '✅ Đơn ủng hộ đã được duyệt' : '❌ Đơn ủng hộ đã bị từ chối') + '\n```'),
+    TD((ok ? 'Đã duyệt bởi **' + who + '** · ' : 'Đã từ chối bởi **' + who + '** · ') + vnD),
+    SEP(1),
+    TD('```\n' + info + '\n```'),
+    TD('**Nội dung chuyển khoản**\n```\n' + code + '\n```'),
+  ];
+  if (msg) inner.push(TD('**Lời nhắn**\n' + msg.slice(0, 200).split('\n').map(l => '> ' + l).join('\n')));
+  inner.push(SEP(1));
+  inner.push({ type: 12, items: [{ media: { url: DISCORD_BANNER_URL }, description: 'GumballZ Boardgame' }] });
+  inner.push(TD('-# GumballZ · ' + (ok ? 'Đã duyệt' : 'Đã từ chối') + ' · ' + vnD));
+  return {
+    flags: DISCORD_COMPONENTS_V2,
+    components: [{ type: 17, accent_color: ok ? 0x2ecc71 : 0xed4245, components: inner }],
+  };
+}
 export async function notifyDiscordClaim(webhookUrl, c, fetchFn = fetch, timeoutMs = 5000, adminId = '') {
-  if (!webhookUrl) return false; /* chưa cấu hình webhook: bỏ qua lặng lẽ */
+  if (!webhookUrl) return { ok: false }; /* chưa cấu hình webhook: bỏ qua lặng lẽ */
   /* V2 qua webhook không thuộc app (patch -171): Discord chỉ tôn trọng field `components`
-     khi URL có ?with_components=true (mặc định false thì components bị bỏ qua lặng lẽ). */
+     khi URL có ?with_components=true (mặc định false thì components bị bỏ qua lặng lẽ).
+     Thêm wait=true (patch -172) để Discord trả về JSON tin nhắn đã tạo thay vì 204 rỗng —
+     trong đó có `id` (message id) cần để sửa lại tin khi duyệt/từ chối. Trả về
+     { ok: true, messageId } khi gửi thành công, { ok: false } khi thất bại. */
   const hookUrl = String(webhookUrl);
-  const sendUrl = hookUrl + (hookUrl.includes('?') ? '&with_components=true' : '?with_components=true');
+  let sendUrl = hookUrl;
+  if (!/[?&]with_components=/.test(hookUrl)) sendUrl += (sendUrl.includes('?') ? '&' : '?') + 'with_components=true';
+  if (!/[?&]wait=/.test(hookUrl)) sendUrl += '&wait=true';
   try {
     const r = await fetchFn(sendUrl, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(discordClaimPayload(c, adminId)),
       signal: AbortSignal.timeout(Math.max(100, +timeoutMs || 5000)),
     });
-    if (!r || !r.ok) { console.error('[donate-discord] webhook trả mã lỗi'); return false; }
+    if (!r || !r.ok) { console.error('[donate-discord] webhook trả mã lỗi'); return { ok: false }; }
+    /* Discord trả JSON tin nhắn khi wait=true; không đọc được / không có id thì vẫn tính
+       là gửi ok nhưng không có messageId (route không lưu dmid, tin sẽ không được sửa sau). */
+    let messageId = '';
+    try { const j = await r.json(); if (j && j.id) messageId = String(j.id); } catch (e) {}
+    return { ok: true, messageId };
+  } catch (e) { console.error('[donate-discord] gửi thông báo thất bại'); return { ok: false }; } /* KHÔNG log URL */
+}
+/* Ghép URL sửa tin webhook (patch -172): PATCH /webhooks/<id>/<token>/messages/<messageId>.
+   Webhook URL thật dạng https://discord.com/api/webhooks/<id>/<token> → tách id/token rồi ghép
+   lại theo đúng đường REST; URL khác dạng đó (vd. mock local trong test) thì nối thẳng
+   /messages/<id> vào sau URL gốc (bỏ query). */
+export function discordEditUrl(webhookUrl, messageId) {
+  const u = String(webhookUrl || '').split('?')[0].replace(/\/+$/, '');
+  const m = u.match(/\/api\/webhooks\/(\d+)\/([\w-]+)$/);
+  const base = m ? 'https://discord.com/api/webhooks/' + m[1] + '/' + m[2] : u;
+  return base + '/messages/' + encodeURIComponent(String(messageId)) + '?with_components=true';
+}
+/* Sửa lại tin Discord của đơn đã quyết định (patch -172): PATCH tin đã gửi với payload V2
+   mới (flags 32768 + components). Timeout 5s, không throw, không log URL, lỗi → false lặng
+   lẽ (đơn vẫn duyệt/từ chối bình thường — chỉ mất cập nhật tin). */
+export async function editDiscordClaim(webhookUrl, messageId, payload, fetchFn = fetch, timeoutMs = 5000) {
+  const mid = String(messageId || '').trim();
+  if (!webhookUrl || !/^\d{5,25}$/.test(mid) || !payload) return false;
+  try {
+    const r = await fetchFn(discordEditUrl(webhookUrl, mid), {
+      method: 'PATCH', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(Math.max(100, +timeoutMs || 5000)),
+    });
+    if (!r || !r.ok) { console.error('[donate-discord] sửa tin webhook trả mã lỗi'); return false; }
     return true;
-  } catch (e) { console.error('[donate-discord] gửi thông báo thất bại'); return false; } /* KHÔNG log URL */
+  } catch (e) { console.error('[donate-discord] sửa tin webhook thất bại'); return false; } /* KHÔNG log URL */
 }

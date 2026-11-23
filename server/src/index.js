@@ -13,7 +13,7 @@ import { cfUsage } from './cfstats.js';
 import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
-import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
+import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim, editDiscordClaim, discordDecidePayload } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
 import { TUT } from '../../shared/tutorials.js';
 import { DurableObject } from 'cloudflare:workers';
 export { Users } from './users.js';
@@ -270,7 +270,7 @@ export default {
         const msg = clean(String(d.msg || '').replace(/\s+/g, ' ').trim().slice(0, 200)).text;
         const r = await L.donClaimAdd({ uid: me.id, name: me.name, amt, ref, msg, hide: !!d.hide });
         if (!r.dup && env.DONATE_DISCORD_WEBHOOK) { /* patch -160: chỉ claim MỚI chờ duyệt mới báo Discord, fire-and-forget, không chặn response */
-          const p = notifyDiscordClaim(env.DONATE_DISCORD_WEBHOOK, { uid: me.id, username: me.username || '', name: me.name, amt, ref, msg, hide: !!d.hide, at: Date.now() }, fetch, 5000, env.DONATE_ADMIN_ID || '');
+          const p = notifyDiscordClaim(env.DONATE_DISCORD_WEBHOOK, { uid: me.id, username: me.username || '', name: me.name, amt, ref, msg, hide: !!d.hide, at: Date.now() }, fetch, 5000, env.DONATE_ADMIN_ID || '').then(res => { if (res && res.ok && res.messageId) return L.donClaimSetDmid(r.id, res.messageId); }).catch(() => {}); /* patch -172: lưu message id để sửa embed khi duyệt/từ chối */
           if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
         }
         return json({ ok: true, claimId: r.id, dup: r.dup }, 200, H);
@@ -298,6 +298,10 @@ export default {
           await U.auditLog({ id: me.id, name: me.name }, 'donate', c.uid, c.name, 'duyệt ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + c.ref + ')');
         } else {
           await U.auditLog({ id: me.id, name: me.name }, 'donate', c.uid, c.name, 'từ chối yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + c.ref + ')');
+        }
+        if (c.dmid && env.DONATE_DISCORD_WEBHOOK) { /* patch -172: cập nhật lại embed Discord đã gửi (duyệt → ✅ xanh, từ chối → ❌ đỏ), fire-and-forget */
+          const ep = editDiscordClaim(env.DONATE_DISCORD_WEBHOOK, c.dmid, discordDecidePayload(c, d.approve === true, me.name), fetch, 5000);
+          if (ctx && ctx.waitUntil) ctx.waitUntil(ep); else ep.catch(() => {});
         }
         donCache = null; return json({ ok: true }, 200, H);
       }
