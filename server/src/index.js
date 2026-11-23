@@ -310,11 +310,16 @@ export default {
         if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
         const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
         if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xoá' }, 200, H);
-        const d = await body(), c = await L.donClaimDel(+d.id || 0);
-        if (!c) return json({ ok: false, msg: 'Không tìm thấy yêu cầu ủng hộ' }, 200, H);
-        /* chỉ xoá bản ghi yêu cầu trong donclaim – tiền đã cộng vào quỹ (bảng don) và huy hiệu KHÔNG đổi (xem donClaimDel) */
-        await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', c.uid, c.name, 'xoá yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + (c.ref || '—') + ', ' + (c.st === 'ok' ? 'đã duyệt' : c.st === 'no' ? 'đã từ chối' : 'chờ duyệt') + ') – tiền quỹ + huy hiệu giữ nguyên');
-        return json({ ok: true }, 200, H);
+        const d = await body(), r = await L.donClaimDel(+d.id || 0);
+        if (!r || !r.claim) return json({ ok: false, msg: 'Không tìm thấy yêu cầu ủng hộ' }, 200, H);
+        const c = r.claim, subtracted = r.subtracted || 0;
+        /* patch -176: đơn đã duyệt mà bị xoá thì TRỪ tiền khỏi quỹ — dòng don đã xoá
+           trong donClaimDel; trừ ngược tổng ủng hộ của người đó (addSup âm) để huy hiệu
+           Nhà Tài Trợ hạ theo khi tổng về 0 (supamt kẹp ≥ 0). Chỉ trừ khi uid > 0
+           (đơn ẩn danh không có tài khoản). Tin Discord đã gửi giữ nguyên làm lịch sử. */
+        if (subtracted > 0 && +c.uid > 0) await U.addSup(c.uid, -subtracted);
+        await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', c.uid, c.name, 'xoá yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + (c.ref || '—') + ', ' + (c.st === 'ok' ? 'đã duyệt' : c.st === 'no' ? 'đã từ chối' : 'chờ duyệt') + ')' + (subtracted > 0 ? ' – đã TRỪ ' + subtracted.toLocaleString('vi-VN') + 'đ khỏi quỹ (hạng ủng hộ hạ theo)' : ' – quỹ không đổi'));
+        donCache = null; return json({ ok: true, subtracted }, 200, H);
       }
       if (p[1] === 'config' && req.method === 'POST') { /* 🎯 Quản trị đổi mốc quỹ: mục tiêu + 5 mốc bậc (patch -163) */
         const me = bearer() ? await U.whoami(bearer()) : null;

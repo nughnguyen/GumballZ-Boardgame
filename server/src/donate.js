@@ -140,16 +140,23 @@ export function donClaimSetDmid(sql, claimId, dmid) {
   return true;
 }
 
-/* ---------- xoá yêu cầu ủng hộ (patch -163) ----------
-   Xoá CHỈ bản ghi yêu cầu trong donclaim — KHÔNG trừ tiền khỏi quỹ, KHÔNG gỡ hạng ủng hộ:
-   tiền thật nằm ở bảng `don` riêng (ghi khi SePay báo về / khi duyệt), huy hiệu tính từ tổng
-   tiền trong `don` nên cả hai đều giữ nguyên dù claim đã duyệt có bị xoá đi chăng nữa.
-   Trả về dòng claim vừa xoá (để ghi audit), hoặc null khi không tìm thấy. */
+/* ---------- xoá yêu cầu ủng hộ (patch -163, đổi ngữ nghĩa ở -176) ----------
+   Xoá bản ghi yêu cầu trong donclaim. Nếu yêu cầu ĐÃ DUYỆT (st='ok') thì xoá luôn
+   dòng tiền tương ứng trong bảng `don` (id = 'c' + claimId, ghi khi duyệt) — quỹ
+   (SUM của don) giảm đúng số tiền đó, bậc ủng hộ tính từ SUM cũng hạ theo.
+   Chờ duyệt/từ chối thì chưa cộng tiền nên quỹ không đổi. Dòng don đã bị xoá trước
+   đó (vd xoá riêng ở danh sách quỹ qua donDel) thì chỉ xoá claim, subtracted = 0.
+   Trả về { claim, subtracted }, hoặc null khi không tìm thấy. */
 export function donClaimDel(sql, id) {
   const c = sql.exec('SELECT * FROM donclaim WHERE id = ?', +id).toArray()[0];
   if (!c) return null;
+  let subtracted = 0;
+  if (c.st === 'ok') {
+    const d = sql.exec('SELECT amt FROM don WHERE id = ?', 'c' + c.id).toArray()[0];
+    if (d) { sql.exec('DELETE FROM don WHERE id = ?', 'c' + c.id); subtracted = Math.max(0, Math.floor(+d.amt || 0)); }
+  }
   sql.exec('DELETE FROM donclaim WHERE id = ?', +id);
-  return c;
+  return { claim: c, subtracted };
 }
 
 /* ---------- cấu hình quỹ: mục tiêu + mốc 5 bậc (patch -163) ----------

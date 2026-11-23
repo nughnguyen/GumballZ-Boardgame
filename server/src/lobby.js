@@ -419,7 +419,7 @@ export class Lobby extends DurableObject {
   async donClaims() { return _donClaims(this.sql); }
   async donClaimDecide(id, ok, byName) { return _donClaimDecide(this.sql, id, ok, byName); }
   async donClaimSetDmid(id, dmid) { return _donClaimSetDmid(this.sql, id, dmid); } /* patch -172: lưu Discord message id để sửa embed khi duyệt/từ chối */
-  async donClaimDel(id) { return _donClaimDel(this.sql, id); } /* patch -163: xoá yêu cầu ủng hộ (chỉ xoá donclaim) */
+  async donClaimDel(id) { return _donClaimDel(this.sql, id); } /* patch -163, -176: xoá yêu cầu + trừ tiền khỏi quỹ nếu đã duyệt (trả {claim, subtracted}) */
   async donCfg() { return _donCfgGet(this.sql); } /* patch -163: cấu hình quỹ (mục tiêu + mốc bậc) */
   async donCfgSet(goal, mins) { return _donCfgSet(this.sql, goal, mins); }
   async auditMod(by, action, who, detail) { // 📜 ghi hành động cấm/ẩn/bỏ qua vào nhật ký quản trị (Users DO)
