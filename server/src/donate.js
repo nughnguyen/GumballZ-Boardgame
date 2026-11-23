@@ -194,60 +194,84 @@ export function donTransferCode(uid, ref, hide) {
   if (!uid) return r ? 'SEVQR GZ R' + r + 'Z' : 'SEVQR GZ';
   return 'SEVQR GZ ' + (hide ? 'A' : 'U') + donUid6(uid) + 'X' + (r ? ' R' + r + 'Z' : '');
 }
-/* Embed v3 (patch -168, thiết kế lại theo đúng mẫu user gửi 19:06 ngày 22/11 + dặn 19:08 "ping tôi á"):
-   author = tên người ủng hộ (icon = logo site — avatar nhân vật 3D trong web không có URL ảnh);
-   title là LINK tới /quantri/ nên BỎ hẳn nút link "Mở trang Quản trị"; content tag TRỰC TIẾP
-   admin bằng ID số <@id> (KHÔNG dùng @here); field Nội dung chuyển khoản vẫn MÃ THẬT
-   'SEVQR GZ U<uid6>X R<ref>Z' (SePay khớp giao dịch + modal donate đều dùng đúng công thức này,
-   chữ "GUMBALLZ NGUYENVANA 8F3K" trong mẫu chỉ là chữ mẫu). */
+/* Tin nhắn v4 (patch -171, Components V2 — theo 3 clip Aeno user gửi 23/11):
+   - clip 1 (code block làm tiêu đề): Text Display render markdown đầy đủ nên tiêu đề
+     + bảng thông tin dùng code block ```...``` trực tiếp, KHÔNG cần workaround ký tự vô
+     hình U+3164 như khi nhét code block vào title embed cổ điển.
+   - clip 2 (Components V2): Container (accent vàng) + Section + Text Display + Separator
+     + Media Gallery. Tài liệu chính thức Discord (Execute Webhook + Component Reference):
+     webhook không thuộc app vẫn gửi được component KHÔNG tương tác khi URL có
+     ?with_components=true và body có flags 32768 (IS_COMPONENTS_V2); lúc đó body CHỈ
+     được chứa components — gửi kèm content/embeds sẽ bị 400 BAD REQUEST. Nút bấm
+     (Action Row/Button) KHÔNG dùng được qua webhook này nên link Quản trị để dạng
+     markdown link trong Text Display (v3 đã bỏ nút, title là link; V2 không có title).
+   - clip 3 (divider/header): Separator thật ngăn các phần thay vì field rỗng.
+   Ping admin: mention <@id> đặt trong Text Display — theo tài liệu chính thức, mention
+   trong Text Display vẫn ping theo allowed_mentions (mảng mentions của message được
+   tái tạo từ nội dung components). Giới hạn V2: tối đa 40 component, 10 top-level,
+   4000 ký tự trên mọi Text Display — tin này dùng ~10 component, dưới 1000 ký tự. */
+export const DISCORD_COMPONENTS_V2 = 32768; /* IS_COMPONENTS_V2 = 1 << 15 */
+const TD = content => ({ type: 10, content });
+const SEP = (spacing = 1) => ({ type: 14, divider: true, spacing });
 export function discordClaimPayload(c, adminId) {
   const amt = Math.max(0, Math.floor(+c.amt || 0)).toLocaleString('vi-VN') + 'đ';
-  const name = String(c.name || 'Ẩn danh').slice(0, 30) || 'Ẩn danh';
+  /* Tên/username hiển thị: bỏ xuống dòng + backtick để không phá vỡ code block. */
+  const name = (String(c.name || 'Ẩn danh').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30)) || 'Ẩn danh';
   const ref = String(c.ref || '').replace(/\D/g, '').slice(0, 6);
   const at = new Date(+c.at || Date.now());
   /* Giờ VN, ngày trước giờ sau như trong mẫu ("22/11/2026 14:32"). */
   const vnDay = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' }).format(at);
   const vnHour = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(at);
   const vn = vnDay + ' ' + vnHour;
-  const uname = String(c.username || '').trim().slice(0, 30);
-  const fields = [
-    { name: 'Người gửi', value: name, inline: true },
-    { name: 'Số tiền', value: amt, inline: true },
-    { name: 'Thời gian', value: vn, inline: true },
-    { name: 'ID người gửi', value: donUid6(+c.uid || 0), inline: true },
-    { name: 'Username', value: uname ? '@' + uname : name, inline: true },
-    { name: 'Nội dung chuyển khoản', value: '`' + donTransferCode(+c.uid || 0, ref, !!c.hide) + '`' },
+  const uname = String(c.username || '').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30);
+  const code = donTransferCode(+c.uid || 0, ref, !!c.hide);
+  /* Bảng thông tin căn cột trong code block (font monospace giữ khoảng trắng). */
+  const pad = s => (s + '            ').slice(0, 12);
+  const info = [
+    ['Người gửi', name],
+    ['Số tiền', amt],
+    ['Thời gian', vn],
+    ['ID người gửi', donUid6(+c.uid || 0)],
+    ['Username', uname ? '@' + uname : name],
+  ].map(([k, v]) => pad(k) + ': ' + v).join('\n');
+  const inner = [
+    /* Author v3 → Section: tên donor in đậm + logo site làm thumbnail. */
+    { type: 9, components: [TD('**' + name + '**')], accessory: { type: 11, media: { url: DISCORD_THUMB_URL } } },
+    /* Tiêu đề v3 → code block (clip 1). */
+    TD('```\nĐơn ủng hộ đang chờ duyệt\n```'),
+    TD('Có người vừa chuyển khoản. Vào trang admin để duyệt đơn.\n[Mở trang Quản trị](' + DISCORD_QUANTRI_URL + ')'),
+    SEP(1),
+    TD('```\n' + info + '\n```'),
+    TD('**Nội dung chuyển khoản**\n```\n' + code + '\n```'),
   ];
-  const msg = String(c.msg || '').trim();
-  if (msg) fields.push({ name: 'Lời nhắn', value: msg.slice(0, 200) });
+  const msg = String(c.msg || '').trim().replace(/\r/g, '');
+  if (msg) inner.push(TD('**Lời nhắn**\n' + msg.slice(0, 200).split('\n').map(l => '> ' + l).join('\n')));
+  inner.push(SEP(1));
+  inner.push({ type: 12, items: [{ media: { url: DISCORD_BANNER_URL }, description: 'GumballZ Boardgame' }] });
+  inner.push(TD('-# GumballZ · Chờ duyệt · ' + vn));
   const out = {
-    embeds: [{
-      author: { name, icon_url: DISCORD_THUMB_URL },
-      title: 'Đơn ủng hộ đang chờ duyệt',
-      url: DISCORD_QUANTRI_URL,
-      description: 'Có người vừa chuyển khoản. Vào trang admin để duyệt đơn.',
-      color: 0xfacd33,
-      fields,
-      thumbnail: { url: DISCORD_THUMB_URL },
-      image: { url: DISCORD_BANNER_URL },
-      footer: { text: 'GumballZ · Chờ duyệt' },
-      timestamp: at.toISOString(),
-    }],
+    flags: DISCORD_COMPONENTS_V2,
+    components: [{ type: 17, accent_color: 0xfacd33, components: inner }],
   };
   /* Tag admin bằng ID SỐ Discord (<@id> mới ping được — tag bằng tên không có tác dụng,
      @here cũng KHÔNG dùng theo dặn của user: ping trực tiếp admin.
-     ID lấy từ env DONATE_ADMIN_ID; chưa cấu hình thì gửi embed không tag. */
+     ID lấy từ env DONATE_ADMIN_ID; chưa cấu hình thì gửi tin không tag. Dòng tag đặt NGOÀI
+     Container (như content của tin thường) để mention hiện rõ + ping theo allowed_mentions. */
   const id = String(adminId || '').trim();
   if (/^\d{5,25}$/.test(id)) {
-    out.content = '<@' + id + '> Có đơn ủng hộ đang chờ bạn duyệt.';
+    out.components.unshift(TD('<@' + id + '> Có đơn ủng hộ đang chờ bạn duyệt.'));
     out.allowed_mentions = { parse: [], users: [id] };
   }
   return out;
 }
 export async function notifyDiscordClaim(webhookUrl, c, fetchFn = fetch, timeoutMs = 5000, adminId = '') {
   if (!webhookUrl) return false; /* chưa cấu hình webhook: bỏ qua lặng lẽ */
+  /* V2 qua webhook không thuộc app (patch -171): Discord chỉ tôn trọng field `components`
+     khi URL có ?with_components=true (mặc định false thì components bị bỏ qua lặng lẽ). */
+  const hookUrl = String(webhookUrl);
+  const sendUrl = hookUrl + (hookUrl.includes('?') ? '&with_components=true' : '?with_components=true');
   try {
-    const r = await fetchFn(String(webhookUrl), {
+    const r = await fetchFn(sendUrl, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(discordClaimPayload(c, adminId)),
       signal: AbortSignal.timeout(Math.max(100, +timeoutMs || 5000)),
