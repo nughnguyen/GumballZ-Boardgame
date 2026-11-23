@@ -15,7 +15,6 @@ import { watch } from '../ui/stats.js?v=93';
 export { session };
 import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=1';
 import { titleById, myTitleId } from '../titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */
-import('../ui/antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — simplenet phủ 77 game */
 const HB_MS = 2500, STALL_MS = 8000, AWAY_MS = 8000;
 
 export function makeNet(cfg) {

@@ -115,5 +115,4 @@
 
   // patch -150: link Xếp hạng trong footer giờ là link thường tới trang riêng /xephang/ —
   // không còn mở modal nên bỏ delegation mở leaderboard.js.
-  import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) — trang hướng dẫn chỉ nạp footer.js */
 })();

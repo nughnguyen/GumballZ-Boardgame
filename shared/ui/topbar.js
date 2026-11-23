@@ -76,7 +76,6 @@
 
   /* ---------- nối JS của topbar (chuyển nguyên từ script inline của trang chủ) ---------- */
   // tài khoản (nút Đăng nhập / tên + menu trong #acct)
-  import('./antidebug.js?v=1').catch(function () {}); /* 🛡️ chống mở DevTools (mức răn đe, patch -107) */
   /* patch -130: chế độ tối — theme.js tự áp theme + nối nút #btn-theme + theo hệ thống.
      Icon nút đồng bộ ngay tại đây để đúng từ lần vẽ đầu (theme.js nạp động có thể về sau). */
   (function () {
