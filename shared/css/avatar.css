@@ -54,11 +54,14 @@
 .pf-fr.fr-orbit::before{content:"🐉"}
 .pf-fr.fr-orbit::after{content:"🦅";animation-direction:reverse}
 .pf-fr.fr-vuatrichoi::after{content:"👑 VUA TRÒ CHƠI";position:absolute;left:50%;bottom:-7%;transform:translateX(-50%);z-index:2;white-space:nowrap;line-height:1.4;pointer-events:none;font-family:"Baloo 2",Nunito,sans-serif;font-weight:800;font-size:9px;font-size:19cqw;letter-spacing:.02em;color:#ffd84a;text-shadow:0 1px 0 #7a1f1f;background:linear-gradient(90deg,#8a1d1d,#d4202f,var(--p1),#d4202f,#8a1d1d);background-size:200% auto;padding:.2em .55em;border-radius:999px;box-shadow:0 0 0 1.5px var(--ink),0 2px 6px var(--sh-soft);animation:nc-slide 3s linear infinite}
-/* 🐉 rồng bay khung avatar (patch -158): rồng CodePen vẽ bằng canvas (shared/ui/dragon-frame.js),
-   bay theo quỹ đạo số 8 qua mặt avatar (fr-dragon) hoặc tròn quanh mép viền (fr-dragon-edge).
+/* 🐉 rồng bay khung avatar (patch -158, -184: rồng đông EastDragon làm khung):
+   rồng đông uốn thân 300° quanh viền khung + đuổi ngọc trai ở khoảng trống 60° (cả 2 mode
+   dragon / dragon-edge đều bay viền tròn, không còn bay số 8 qua mặt avatar).
    Chu kỳ hiện/ẩn 12s do JS điều khiển (chỉ HIỆN + bay ~3s đầu mỗi chu kỳ, ẩn 9s còn lại) để
-   không che mặt avatar liên tục; reduced-motion thì JS vẽ 1 khung tĩnh (canvas vẫn hiện). */
-.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size;box-shadow:0 4px 10px -6px var(--sh-soft),0 0 16px 1px rgba(250,205,51,.32),0 0 5px rgba(184,134,11,.4)}
+   không che mặt avatar liên tục; reduced-motion thì JS vẽ 1 khung tĩnh (canvas vẫn hiện).
+   Vòng vàng ::after GIỮ làm lớp lót mờ (là khung lúc rồng đang ẩn 9s; thân rồng dày gấp
+   3–5 lần nên lúc rồng hiện thì rồng là thứ thấy đầu tiên); glow đã làm mờ lại ở -184. */
+.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{position:relative;container-type:size;box-shadow:0 4px 10px -6px var(--sh-soft),0 0 10px 1px rgba(250,205,51,.20),0 0 4px rgba(184,134,11,.3)}
 /* ✨ viền vàng sang (trình bày khung rồng): ::after là vòng vàng gradient #FACD33→#FFF3C4→#B8860B
    ôm sát mép ngoài khung (vòng SVG stroke, không đổi kích thước/layout, không đè background viền
    theme inline của từng khung); ::before là quầng trời mờ sau rồng — trong suốt ở giữa để không át
@@ -66,7 +69,7 @@
 .pf-fr.fr-dragon::after,.pf-fr.fr-dragon-edge::after{content:"";position:absolute;inset:-3px;border-radius:50%;pointer-events:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23FACD33'/><stop offset='.45' stop-color='%23FFF3C4'/><stop offset='.7' stop-color='%23E9B949'/><stop offset='1' stop-color='%23B8860B'/></linearGradient></defs><circle cx='50' cy='50' r='47' fill='none' stroke='url(%23g)' stroke-width='6'/></svg>") center/100% 100% no-repeat}
 .pf-fr.fr-dragon::before,.pf-fr.fr-dragon-edge::before{content:"";position:absolute;inset:-18cqw;border-radius:50%;pointer-events:none;z-index:3;background:radial-gradient(circle,transparent 52%,rgba(214,238,255,.34) 64%,rgba(165,205,245,.22) 80%,rgba(165,205,245,0) 96%)}
 .pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;pointer-events:none;z-index:4}
-@keyframes fr-dragon-glow{0%,100%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 14px 1px rgba(250,205,51,.28),0 0 5px rgba(184,134,11,.35)}50%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 26px 4px rgba(250,205,51,.48),0 0 8px rgba(184,134,11,.5)}}
+@keyframes fr-dragon-glow{0%,100%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 9px 1px rgba(250,205,51,.18),0 0 4px rgba(184,134,11,.28)}50%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 16px 3px rgba(250,205,51,.30),0 0 6px rgba(184,134,11,.4)}}
 @media (prefers-reduced-motion:no-preference){.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{animation:fr-dragon-glow 3.4s ease-in-out infinite}}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}

@@ -5,7 +5,7 @@
 // chỉ vẽ khi banner trong màn hình (IntersectionObserver), reduced-motion thì vẽ 1 khung tĩnh rồi dừng.
 // Vị trí ngẫu nhiên (sao, mưa, hạt...) được seed theo id banner nên không xáo trộn mỗi lần vẽ lại.
 // Banner "Rồng Bay" (patch -158): Scene CodePen port ở shared/ui/dragon-frame.js (createCpScene).
-import { createCpScene } from './dragon-frame.js?v=4';
+import { createCpScene } from './dragon-frame.js?v=5';
 let R = Math.random;
 const r1 = (x, n = 1) => (+x).toFixed(n);
 const j = (a, b) => a + R() * (b - a);

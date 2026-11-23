@@ -5,8 +5,10 @@
    miệng, mũi, đường vân, hốc), gai lưng, bụng đen, vảy, đuôi tam giác, 3 theme màu đỏ/xanh lá/đen.
    Scene (trời/đất/đồi/mây) ở cuối file — dùng cho banner "Rồng Bay" (banner-render.js).
    Rồng khung avatar (dragonSVG) giờ vẽ bằng canvas thay cho SVG cũ (-147): cùng chữ ký gọi,
-   cùng quỹ đạo orbit (số 8) / edge (tròn mép viền), cùng chu kỳ 12s hiện ~3s, phase lệch cho
-   khung nhiều rồng; reduced-motion = 1 khung tĩnh; chỉ vẽ khi trong màn hình (IntersectionObserver).
+   cùng chu kỳ 12s hiện ~3s, phase lệch cho khung nhiều rồng; reduced-motion = 1 khung tĩnh;
+   chỉ vẽ khi trong màn hình (IntersectionObserver). -184: khung avatar dùng RỒNG ĐÔNG
+   (EastDragon, thân uốn theo vòng làm khung, đuổi ngọc trai); cả 2 mode cũ đều bay viền
+   tròn (edge), quỹ đạo số 8 qua mặt avatar đã bỏ; rồng tây (CpDragon) chỉ còn cho banner.
    Màu: themeForColors(c1, c2) suy các sắc đậm/nhạt từ 2 màu của từng khung để giữ bản sắc khung.
    Lưu ý so với bản gốc: miệng rồng (bezier) bản gốc gọi khi đang noStroke() nên không hiện —
    bản port vẽ miệng bằng nét đen như tác giả định vẽ; còn lại giữ nguyên cả các "quirk" số học
@@ -420,9 +422,13 @@ export function orbitPoint(u, mode) {
 }
 const escA = s => String(s ?? '').replace(/["&<>]/g, c => ({ '"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 /* Giữ nguyên chữ ký gọi của -147: dragonSVG(c1, c2, D, mode, phase) — giờ trả <canvas>
-   thay cho <svg>; mount bằng initFrameDragons(root) sau khi vẽ HTML (như initBanners). */
-export function dragonSVG(c1, c2, D = 3, mode = 'orbit', phase = 0) {
-  return `<canvas class="dov" data-c1="${escA(c1)}" data-c2="${escA(c2)}" data-d="${+D || 3}" data-mode="${mode === 'edge' ? 'edge' : 'orbit'}" data-phase="${+phase || 0}" width="360" height="360" aria-hidden="true"></canvas>`;
+   thay cho <svg>; mount bằng initFrameDragons(root) sau khi vẽ HTML (như initBanners).
+   -184: thêm 2 param tùy chọn cuối (frameId, elemIndex) — đưa ID khung vào data-fid để
+   initFrameDragons suy nguyên tố rồng đông (khung nhiều rồng: mỗi canvas 1 con, data-ei
+   chọn con trong mảng elementForFrame trả về); không truyền thì suy từ màu như cũ.
+   Cả 2 mode cũ đều bay viền tròn (edge): quỹ đạo số 8 qua mặt avatar đã bỏ hẳn. */
+export function dragonSVG(c1, c2, D = 3, mode = 'orbit', phase = 0, frameId = '', elemIndex = 0) {
+  return `<canvas class="dov" data-c1="${escA(c1)}" data-c2="${escA(c2)}" data-d="${+D || 3}" data-mode="edge" data-phase="${+phase || 0}" data-fid="${escA(frameId)}" data-ei="${+elemIndex || 0}" width="360" height="360" aria-hidden="true"></canvas>`;
 }
 const FD = new Set();
 let fdTick = false, fdIO = null, fdRM = false;
@@ -439,8 +445,14 @@ function fdDraw(c, prog, op) {
   g.clearRect(0, 0, W, H);
   if (op <= 0) { c.style.opacity = '0'; return; }
   c.style.opacity = String(op);
-  const pt = flightProfile(prog * TAU, d.mode); // quỹ đạo warp + bank theo độ cong/vy
-  const k = W / 560; // rồng dài ~280 đơn vị → ~nửa hộp 180
+  /* -184: rồng đông CHỈ bay viền tròn (edge); phase lệch → lệch vị trí trên vòng */
+  const u = (prog + (d.phase || 0)) * TAU;
+  const pt = flightProfile(u, 'edge'); // quỹ đạo warp + bank theo độ cong/vy
+  const { k, R } = eastRingScale(W); // thân phủ 300° vòng khung
+  d.dragon.setArc(R / k); // uốn thân theo vòng (đơn vị local)
+  /* ngọc trai ở giữa khoảng trống 60° trước đầu rồng (đầu đuổi ngọc) */
+  const pa = Math.atan2(pt.y, pt.x) + Math.PI / 6;
+  drawPearl(g, W / 2 + R * Math.cos(pa), H / 2 + R * Math.sin(pa), 9 * (W / 180));
   g.save();
   g.translate(W / 2 + pt.x * (W / 180), H / 2 + pt.y * (H / 180));
   g.rotate(pt.angle + Math.PI + pt.bank); // đầu hướng theo tiếp tuyến, thân kéo phía sau, nghiêng thêm bank
@@ -458,8 +470,8 @@ function fdLoop(ms) {
     let op = 0;
     if (cyc >= 0.24 && cyc <= 2.76) op = Math.min(1, (cyc - 0.24) / 0.24, (2.76 - cyc) / 0.24);
     const prog = ((nowSec + d.phase * 12) / d.D) % 1;
-    const prof = flightProfile(prog * TAU, d.mode);
-    if (op > 0) d.dragon.update(1 / 60, prof.vy); // cánh vỗ theo vận tốc đứng trên quỹ đạo warp
+    const prof = flightProfile((prog + d.phase) * TAU, 'edge'); // cùng góc u với fdDraw, chỉ bay viền tròn
+    if (op > 0) d.dragon.update(1 / 60, prof.vy); // sóng thân theo vận tốc đứng trên quỹ đạo warp
     fdDraw(c, prog, op);
   });
   requestAnimationFrame(fdLoop);
@@ -474,9 +486,13 @@ export function initFrameDragons(root) {
     if (FD.has(c)) return;
     FD.add(c);
     const th = themeForColors(c.dataset.c1 || '#ff3b1a', c.dataset.c2 || '#7a0d0d');
-    const dr = new CpDragon(th);
+    /* -184: rồng đông — nguyên tố theo ID khung (khung nhiều rồng: mỗi canvas 1 con,
+       data-ei chọn con trong mảng elementForFrame trả về); không có ID thì suy từ màu */
+    const els = elementForFrame(c.dataset.fid || '', c.dataset.c1, c.dataset.c2);
+    const el = Array.isArray(els) ? els[(+c.dataset.ei || 0) % els.length] : els;
+    const dr = new EastDragon(th, el);
     for (let i = 0; i < 40; i++) dr.update(1 / 60); // thân uốn sẵn, khung tĩnh đầu tiên đã đẹp
-    c._fd = { dragon: dr, mode: c.dataset.mode === 'edge' ? 'edge' : 'orbit', D: +c.dataset.d || 3, phase: +c.dataset.phase || 0 };
+    c._fd = { dragon: dr, D: +c.dataset.d || 3, phase: +c.dataset.phase || 0 };
     if (fdIO) fdIO.observe(c); else c._fdv = true;
     if (fdRM) fdDraw(c, 0.25, 1); // reduced-motion: 1 khung tĩnh, hiện rõ
   });
@@ -693,4 +709,478 @@ export function createCpScene(canvas) {
     g.restore();
   };
   return sc;
+}
+
+/* ================= RỒNG ĐÔNG (khung avatar — worker 1) =================
+   Rồng đông thuần Canvas 2D, CHỈ THÊM — không đụng CpDragon / fdDraw / initFrameDragons /
+   createCpScene (rồng tây giữ nguyên cho banner "Rồng Bay"; worker 2 đấu nối sau).
+   Không gian local GIỐNG CpDragon.draw: đầu ở (0,0), thân trải về +x, đuôi ở ~+EAST_BODY_LEN.
+   Worker 2 đặt đầu lên quỹ đạo tròn + xoay theo tiếp tuyến như rồng tây.
+   Thân ~64 đốt, bán kính 36 gần đầu → 8 ở chóp đuôi (đủ dày để đọc được ở khung 54px:
+   canvas lưới chọn khung ~97px, tỉ lệ vẽ ~0.17 → thân giữa ~26 đơn vị ≈ 4.5px).
+   Không dùng Math.random trong code vẽ — hạt hiệu ứng gieo bằng mulberry32(seed cố định
+   theo nguyên tố) nên mọi khung đều xác định, test được bằng node. */
+export const EAST_BODY_LEN = 550;
+export const EAST_SEGMENTS = 64;
+/* 8 nguyên tố — khác nhau ở HÌNH DÁNG (sừng/bờm/vảy/đuôi/mào) + HIỆU ỨNG (hạt bay quanh thân),
+   không chỉ khác màu. */
+export const EAST_ELEMENTS = {
+  lua: { label: 'Lửa', horn: 'antler', mane: 'flame', scale: 'ember', tail: 'flame', crest: 'flame', fx: 'ember', fxColor: [255, 150, 40], glow: [255, 80, 20] },
+  bang: { label: 'Băng', horn: 'crystal', mane: 'frost', scale: 'ice', tail: 'crystal', crest: 'crystal', fx: 'frost', fxColor: [190, 235, 255], glow: [120, 200, 255] },
+  set: { label: 'Sét', horn: 'bolt', mane: 'spark', scale: 'bolt', tail: 'spark', crest: 'bolt', fx: 'spark', fxColor: [255, 240, 120], glow: [255, 220, 60] },
+  nuoc: { label: 'Nước', horn: 'fin', mane: 'flow', scale: 'wave', tail: 'fin', crest: 'fin', fx: 'drop', fxColor: [120, 210, 255], glow: [60, 160, 255] },
+  gio: { label: 'Gió', horn: 'feather', mane: 'feather', scale: 'wind', tail: 'feather', crest: 'feather', fx: 'feather', fxColor: [225, 242, 255], glow: [180, 220, 255] },
+  thienha: { label: 'Thiên Hà', horn: 'star', mane: 'stardust', scale: 'star', tail: 'comet', crest: 'star', fx: 'star', fxColor: [255, 220, 150], glow: [150, 110, 255] },
+  phuong: { label: 'Phượng Long', horn: 'phoenix', mane: 'phoenix', scale: 'phoenix', tail: 'phoenix', crest: 'plume', fx: 'plume', fxColor: [255, 170, 80], glow: [255, 90, 60] },
+  moc: { label: 'Mộc', horn: 'branch', mane: 'leaf', scale: 'leaf', tail: 'leaf', crest: 'leaf', fx: 'leaf', fxColor: [150, 230, 120], glow: [80, 180, 90] },
+};
+/* khung rồng → nguyên tố (theo ID khung trong shared/js/avatar-rewards.js; dragon: [c1, c2]).
+   Khung nhiều rồng trả về MẢNG (mỗi con 1 nguyên tố, thứ tự theo thứ tự cặp màu dragon). */
+const EAST_FRAME_ELEMENTS = {
+  ronglua: 'lua', banglong: 'bang', banglongbay: 'bang',
+  thanhlong: 'moc', thanhlongbay: 'moc', longthienha: 'thienha',
+  phuonglong: 'phuong', longphung: 'phuong', xichlong: 'lua', xichlongbay: 'lua',
+  songlong: ['lua', 'bang'], tamlong: ['lua', 'bang', 'set'], chusanh: ['lua', 'thienha', 'nuoc'],
+};
+/* Suy nguyên tố cho 1 khung: ưu tiên ID, không có trong bảng thì suy từ màu c1
+   (đỏ/cam→lua, xanh dương nhạt→bang, xanh lá→moc, tím→thienha, vàng→lua, xanh dương đậm→nuoc).
+   themeName chỉ làm gợi ý cuối khi màu c1 không phân loại được. KHÔNG bịa thêm khung mới. */
+export function elementForFrame(id, c1, c2, themeName) {
+  const key = String(id || '').trim().toLowerCase();
+  if (key && Object.prototype.hasOwnProperty.call(EAST_FRAME_ELEMENTS, key)) {
+    const v = EAST_FRAME_ELEMENTS[key];
+    return Array.isArray(v) ? [...v] : v;
+  }
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(c1 || '').trim());
+  if (m) {
+    const n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    if (b >= 150 && b > r + 40 && g > 110) return 'bang'; // xanh dương nhạt
+    if (g > r + 30 && g > b + 20) return 'moc'; // xanh lá
+    if (r > 100 && b > 150 && g < 150 && b > r) return 'thienha'; // tím
+    if (r > 180 && g > 150 && b < 120) return 'lua'; // vàng/vàng kim
+    if (r > 150 && g < 170) return 'lua'; // đỏ/cam
+    if (b > r + 30) return 'nuoc'; // xanh dương đậm
+  }
+  const th = String(themeName || '');
+  if (/Vũ Trụ/.test(th)) return 'thienha';
+  if (/Biển/.test(th)) return 'nuoc';
+  return 'lua';
+}
+/* Viên ngọc trai sáng — đầu rồng đuổi ngọc ở khoảng trống đầu–đuôi (worker 2 đặt vị trí). */
+export function drawPearl(g, x, y, r) {
+  const rr = Math.max(1, +r || 8);
+  const halo = g.createRadialGradient(x, y, rr * 0.2, x, y, rr * 1.8);
+  halo.addColorStop(0, 'rgba(220,200,255,0.45)'); halo.addColorStop(1, 'rgba(220,200,255,0)');
+  g.fillStyle = halo; g.beginPath(); g.arc(x, y, rr * 1.8, 0, TAU); g.fill();
+  const pearl = g.createRadialGradient(x - rr * 0.35, y - rr * 0.4, rr * 0.1, x, y, rr);
+  pearl.addColorStop(0, '#ffffff'); pearl.addColorStop(0.55, '#f4ecff');
+  pearl.addColorStop(0.85, '#cbb8f5'); pearl.addColorStop(1, '#a78fe0');
+  g.fillStyle = pearl; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = Math.max(1, rr * 0.08);
+  g.beginPath(); g.arc(x, y, rr * 0.92, 0, TAU); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.95)';
+  g.beginPath(); g.ellipse(x - rr * 0.32, y - rr * 0.38, rr * 0.22, rr * 0.13, -0.6, 0, TAU); g.fill();
+}
+
+const EAST_R = u => 8 + 28 * Math.pow(1 - u, 0.6); // bán kính đốt: 36 ở đầu → 8 ở chóp đuôi
+/* Uốn 1 điểm local (x dọc thân, y lệch ngang) theo vòng tròn bán kính R (tâm vòng ở
+   (0, −R), đầu rồng ở gốc — góc uốn = x/R, y+ = hướng ra ngoài vòng). R không hữu hạn/
+   dương → trả điểm gốc (thân thẳng). Hàm thuần, test được bằng node. */
+export function eastBendPoint(x, y, R) {
+  const r = +R;
+  if (!(r > 0) || !Number.isFinite(r)) return { x: +x || 0, y: +y || 0 };
+  const a = x / r, s = Math.sin(a), co = Math.cos(a);
+  return { x: (r + y) * s, y: -r + (r + y) * co };
+}
+/* Tỉ lệ vẽ rồng đông làm khung (hàm thuần, test được bằng node):
+   vòng khung trên màn hình có bán kính R = 68 × (W/180) (68 = bán kính quỹ đạo edge,
+   canvas .dov rộng W); chu vi C = 2πR. Thân dài EAST_BODY_LEN, uốn theo vòng, cần phủ
+   300° = 5/6 chu vi → k = (5/6 × C) / EAST_BODY_LEN; 60° còn lại là khoảng trống
+   đầu–đuôi (ngọc trai ở giữa). k tỉ lệ tuyến tính theo W. */
+export function eastRingScale(W) {
+  const w = Math.max(1, +W || 0);
+  const R = 68 * w / 180;
+  const C = 2 * Math.PI * R;
+  const k = (5 / 6 * C) / EAST_BODY_LEN;
+  return { k, R, coverDeg: 300, gapDeg: 60 };
+}
+const eastHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+
+export class EastDragon {
+  constructor(theme, element = 'lua') {
+    this.colors = theme || DRAGON_THEMES.red;
+    this.element = EAST_ELEMENTS[element] ? element : 'lua';
+    this.cfg = EAST_ELEMENTS[this.element];
+    this.t = 0; this.vySmooth = 0; this.arcR = Infinity; // arcR: bán kính uốn thân theo vòng (local); Infinity = thân thẳng
+    this.segments = [];
+    const R = mulberry32(eastHash(this.element)); // hạt hiệu ứng: seed cố định theo nguyên tố
+    this._fx = [];
+    for (let i = 0; i < 14; i++) this._fx.push({ u: 0.05 + 0.9 * R(), off: (R() * 2 - 1) * 1.15, sz: 2.5 + R() * 3.5, ph: R() * TAU, sp: 0.6 + R() * 1.4 });
+    this._layout();
+  }
+  /* Uốn thân theo vòng tròn bán kính R (đơn vị local) để làm khung: R = Infinity
+     (mặc định) = thân thẳng như cũ. Chỉ layout lại khi R đổi. */
+  setArc(R) {
+    const r = (+R > 0 && Number.isFinite(+R)) ? +R : Infinity;
+    if (r !== this.arcR) { this.arcR = r; this._layout(); }
+  }
+  /* đốt thân: x đều dọc +x, y = cong S mềm + sóng lan đầu→đuôi (tái dùng waveOffset, đuôi mạnh hơn đầu) */
+  _layout() {
+    const n = EAST_SEGMENTS, dx = EAST_BODY_LEN / (n - 1), t = this.t;
+    const bob = Math.sin(t * 2.2) * 3 - this.vySmooth * 6; // đầu nhấp nhô nhẹ, chúc xuống khi lao
+    const s0 = 8 * Math.sin(1.2); // để đốt 0 về đúng y ≈ bob
+    for (let i = 0; i < n; i++) {
+      const u = i / (n - 1), x = i * dx;
+      const sCurve = 16 * Math.sin(x / 130) + 8 * Math.sin(x / 55 + 1.2) - s0;
+      const wob = waveOffset(Math.round(u * 27), t) * (0.25 + 0.75 * u);
+      let px = x, py = bob * (1 - 0.85 * u) + sCurve * (0.35 + 0.65 * u) + wob;
+      if (Number.isFinite(this.arcR)) { const b = eastBendPoint(px, py, this.arcR); px = b.x; py = b.y; } // uốn thân theo vòng khung
+      this.segments[i] = { x: px, y: py, r: EAST_R(u) };
+    }
+  }
+  /* dt tính bằng giây; vy chuẩn hoá [-1, 1] (+ = bay lên, − = lao xuống), mặc định 0. */
+  update(dt, vy = 0) {
+    const d = Math.max(0, Math.min(0.1, +dt || 0));
+    this.t += d;
+    const vyN = Math.max(-1, Math.min(1, +vy || 0));
+    this.vySmooth += (vyN - this.vySmooth) * Math.min(1, d * 6);
+    this._layout();
+  }
+  /* sao 4 cánh (hiệu ứng sét / thiên hà) */
+  _star4(g, x, y, r) {
+    g.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 === 0 ? r : r * 0.28;
+      const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+      if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
+    }
+    g.closePath(); g.fill();
+  }
+  /* 1 túm bờm/lông đuôi: hình thon dài dọc +x, xoay ang; kind: flame | feather | leaf | ribbon */
+  _tuft(g, x, y, ang, len, w, kind, fill) {
+    g.save(); g.translate(x, y); g.rotate(ang);
+    g.fillStyle = fill;
+    g.beginPath();
+    if (kind === 'leaf') {
+      g.moveTo(0, 0);
+      g.quadraticCurveTo(len * 0.5, -w, len, 0);
+      g.quadraticCurveTo(len * 0.5, w, 0, 0);
+    } else if (kind === 'feather') {
+      g.moveTo(0, -w * 0.45);
+      g.bezierCurveTo(len * 0.5, -w * 0.9, len * 0.9, -w * 0.5, len, 0);
+      g.bezierCurveTo(len * 0.9, w * 0.5, len * 0.5, w * 0.9, 0, w * 0.45);
+      g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(2, 0); g.lineTo(len * 0.96, 0); g.stroke();
+      g.restore(); return;
+    } else if (kind === 'ribbon') {
+      g.moveTo(0, 0);
+      g.bezierCurveTo(len * 0.35, -w, len * 0.7, w * 0.6, len, 0);
+      g.bezierCurveTo(len * 0.7, w * 0.9, len * 0.35, -w * 0.5, 0, 0);
+    } else { // flame: giọt lửa nhọn đầu
+      g.moveTo(0, -w * 0.5);
+      g.bezierCurveTo(len * 0.45, -w, len * 0.8, -w * 0.4, len, 0);
+      g.bezierCurveTo(len * 0.8, w * 0.4, len * 0.45, w, 0, w * 0.5);
+    }
+    g.closePath(); g.fill();
+    g.restore();
+  }
+  /* vảy tại 1 đốt — mỗi nguyên tố 1 kiểu */
+  _drawScale(g, s, i) {
+    const E = this.cfg, x = s.x, y = s.y - s.r * 0.1, r = s.r;
+    const dark = css(this.colors.black, 0.4);
+    if (E.scale === 'ember') {
+      g.fillStyle = css(E.fxColor, 0.75);
+      g.beginPath(); g.arc(x, y, Math.max(1.5, r * 0.26), 0, TAU); g.fill();
+    } else if (E.scale === 'ice') {
+      g.strokeStyle = css(E.fxColor, 0.9); g.lineWidth = 1.5;
+      g.beginPath();
+      g.moveTo(x, y - r * 0.5); g.lineTo(x + r * 0.3, y); g.lineTo(x, y + r * 0.35); g.lineTo(x - r * 0.3, y);
+      g.closePath(); g.stroke();
+    } else if (E.scale === 'bolt') {
+      g.strokeStyle = css(E.glow, 0.95); g.lineWidth = 2; g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(x - r * 0.3, y - r * 0.3); g.lineTo(x, y); g.lineTo(x - r * 0.2, y + r * 0.2); g.lineTo(x + r * 0.25, y + r * 0.35);
+      g.stroke();
+    } else if (E.scale === 'star') {
+      g.fillStyle = css(E.fxColor, 0.9);
+      this._star4(g, x, y, Math.max(2, r * 0.3));
+    } else if (E.scale === 'phoenix') {
+      g.strokeStyle = css(E.fxColor, 0.8); g.lineWidth = 2;
+      g.beginPath(); g.moveTo(x - r * 0.45, y - r * 0.2);
+      g.quadraticCurveTo(x, y + r * 0.35, x + r * 0.45, y + r * 0.15); g.stroke();
+    } else if (E.scale === 'leaf') {
+      g.fillStyle = css(E.glow, 0.7);
+      g.beginPath(); g.ellipse(x, y, Math.max(2, r * 0.32), Math.max(1.5, r * 0.18), 0.7, 0, TAU); g.fill();
+    } else if (E.scale === 'wind') {
+      g.strokeStyle = dark; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(x, y, r * 0.5, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+      g.beginPath(); g.arc(x + r * 0.15, y + r * 0.25, r * 0.35, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+    } else { // wave: cung sóng
+      g.strokeStyle = dark; g.lineWidth = 1.5;
+      g.beginPath(); g.arc(x, y, r * 0.5, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+    }
+  }
+  /* mào sống lưng tại 1 đốt — mỗi nguyên tố 1 kiểu, KHÔNG cánh dơi */
+  _drawCrest(g, s) {
+    const E = this.cfg, x = s.x, y0 = s.y - s.r * 0.95, h = 6 + s.r * 0.35;
+    if (E.crest === 'crystal') {
+      g.fillStyle = css(E.fxColor, 0.95);
+      g.beginPath();
+      g.moveTo(x, y0 - h); g.lineTo(x + 4, y0); g.lineTo(x, y0 + 2); g.lineTo(x - 4, y0);
+      g.closePath(); g.fill();
+    } else if (E.crest === 'bolt') {
+      g.fillStyle = css(E.glow, 0.95);
+      g.beginPath();
+      g.moveTo(x - 3, y0); g.lineTo(x + 2, y0 - h); g.lineTo(x, y0 - h * 0.45); g.lineTo(x + 4, y0 - h * 0.9); g.lineTo(x - 1, y0);
+      g.closePath(); g.fill();
+    } else if (E.crest === 'fin') {
+      g.fillStyle = css(this.colors.spikes, 0.9);
+      g.beginPath(); g.ellipse(x, y0 - h * 0.4, 4.5, h * 0.55, -0.25, 0, TAU); g.fill();
+    } else if (E.crest === 'feather') {
+      g.fillStyle = css(this.colors.wingUpper, 0.95);
+      g.beginPath(); g.ellipse(x, y0 - h * 0.5, 3, h * 0.6, -0.5, 0, TAU); g.fill();
+    } else if (E.crest === 'star') {
+      g.fillStyle = css(E.fxColor, 0.95);
+      this._star4(g, x, y0 - h * 0.45, Math.max(3, h * 0.45));
+    } else if (E.crest === 'plume') {
+      g.fillStyle = css(E.fxColor, 0.9);
+      g.beginPath();
+      g.moveTo(x - 3, y0); g.quadraticCurveTo(x + 2, y0 - h * 1.2, x + 7, y0 - h * 1.3); g.quadraticCurveTo(x + 4, y0 - h * 0.4, x + 3, y0);
+      g.closePath(); g.fill();
+    } else if (E.crest === 'leaf') {
+      g.fillStyle = css(E.glow, 0.9);
+      g.beginPath(); g.ellipse(x, y0 - h * 0.45, 3.5, h * 0.55, -0.4, 0, TAU); g.fill();
+    } else { // flame: giọt lửa
+      g.fillStyle = css(E.glow, 0.95);
+      g.beginPath();
+      g.moveTo(x - 4, y0); g.quadraticCurveTo(x - 3, y0 - h, x + 1, y0 - h * 1.15); g.quadraticCurveTo(x + 4, y0 - h * 0.5, x + 4, y0);
+      g.closePath(); g.fill();
+    }
+  }
+  /* chân nhỏ thu gọn: cẳng ngắn + 3 móng, thõng dưới bụng (không thõng to như rồng tây) */
+  _drawLeg(g, s, fwd) {
+    const x = s.x + (fwd ? 5 : -5), y0 = s.y + s.r * 0.55, y1 = s.y + s.r + 11;
+    g.strokeStyle = css(this.colors.body); g.lineWidth = 5; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x, y0); g.lineTo(x + (fwd ? 3 : -3), y1); g.stroke();
+    g.strokeStyle = css(this.colors.black); g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(x + (fwd ? 3 : -3), y1);
+    g.lineTo(x + (fwd ? 1 : -1), y1 + 6);
+    g.moveTo(x + (fwd ? 3 : -3), y1);
+    g.lineTo(x + (fwd ? 5 : -5), y1 + 6);
+    g.moveTo(x + (fwd ? 3 : -3), y1);
+    g.lineTo(x + (fwd ? 9 : -9), y1 + 5);
+    g.stroke();
+  }
+  /* chùm lông đuôi ở chóp đuôi — mỗi nguyên tố 1 kiểu, xoè về +x */
+  _drawTailTuft(g, tip) {
+    const E = this.cfg, x = tip.x - 4, y = tip.y;
+    if (E.tail === 'crystal') {
+      g.fillStyle = css(E.fxColor, 0.95);
+      for (let k = 0; k < 4; k++) {
+        const a = (-0.5 + k * 0.33), len = 26 - Math.abs(k - 1.5) * 5;
+        g.save(); g.translate(x, y); g.rotate(a);
+        g.beginPath(); g.moveTo(0, -4); g.lineTo(len, 0); g.lineTo(0, 4); g.closePath(); g.fill();
+        g.restore();
+      }
+    } else if (E.tail === 'spark') {
+      g.strokeStyle = css(E.glow, 0.95); g.lineWidth = 2.5; g.lineCap = 'round';
+      for (let k = 0; k < 4; k++) {
+        const a = -0.45 + k * 0.3, len = 30 - Math.abs(k - 1.5) * 6;
+        g.save(); g.translate(x, y); g.rotate(a);
+        g.beginPath(); g.moveTo(0, 0); g.lineTo(len * 0.4, -4); g.lineTo(len * 0.7, 3); g.lineTo(len, -2); g.stroke();
+        g.restore();
+      }
+    } else if (E.tail === 'comet') {
+      g.strokeStyle = css(E.fxColor, 0.85); g.lineWidth = 3; g.lineCap = 'round';
+      for (let k = 0; k < 4; k++) {
+        const a = -0.4 + k * 0.27, len = 34 - Math.abs(k - 1.5) * 6;
+        g.save(); g.translate(x, y); g.rotate(a);
+        g.beginPath(); g.moveTo(0, 0); g.lineTo(len, 0); g.stroke();
+        g.restore();
+      }
+      g.fillStyle = css(E.fxColor, 0.95);
+      this._star4(g, x + 26, y - 8, 5);
+      this._star4(g, x + 34, y + 6, 3.5);
+    } else {
+      const kind = E.tail === 'fin' ? 'ribbon' : E.tail === 'feather' || E.tail === 'phoenix' ? 'feather' : E.tail === 'leaf' ? 'leaf' : 'flame';
+      const fill = E.tail === 'flame' || E.tail === 'phoenix' ? css(E.glow, 0.95) : E.tail === 'leaf' ? css(E.glow, 0.9) : css(E.fxColor, 0.9);
+      const len = E.tail === 'phoenix' ? 48 : 34;
+      for (let k = 0; k < 5; k++) this._tuft(g, x, y, -0.55 + k * 0.28, len - Math.abs(k - 2) * 6, 7 - Math.abs(k - 2), kind, fill);
+    }
+  }
+  /* sừng trên đỉnh đầu — mỗi nguyên tố 1 kiểu (sừng hươu / pha lê / tia sét / vây / lông vũ / sao / phượng / cành cây) */
+  _drawHorns(g) {
+    const E = this.cfg;
+    const hornStroke = css(this.colors.spikes); // sừng tương phản với thân
+    if (E.horn === 'crystal') {
+      g.fillStyle = css(E.fxColor, 0.95); g.strokeStyle = css(this.colors.black, 0.5); g.lineWidth = 1;
+      g.beginPath(); g.moveTo(2, -18); g.lineTo(10, -38); g.lineTo(16, -20); g.closePath(); g.fill(); g.stroke();
+      g.beginPath(); g.moveTo(-12, -16); g.lineTo(-8, -34); g.lineTo(-2, -18); g.closePath(); g.fill(); g.stroke();
+    } else if (E.horn === 'bolt') {
+      g.strokeStyle = css(E.glow, 0.95); g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(-4, -18); g.lineTo(4, -30); g.lineTo(-2, -36); g.lineTo(10, -50); g.stroke();
+      g.beginPath(); g.moveTo(-14, -16); g.lineTo(-10, -28); g.lineTo(-14, -32); g.lineTo(-6, -42); g.stroke();
+    } else if (E.horn === 'fin') {
+      g.fillStyle = css(E.fxColor, 0.9);
+      for (let k = 0; k < 3; k++) { g.beginPath(); g.ellipse(-12 + k * 10, -26 - k * 2, 4, 11, -0.3 + k * 0.25, 0, TAU); g.fill(); }
+    } else if (E.horn === 'feather') {
+      g.strokeStyle = css(E.fxColor, 0.95); g.lineWidth = 3; g.lineCap = 'round';
+      for (let k = 0; k < 3; k++) {
+        g.beginPath(); g.moveTo(-10 + k * 8, -18); g.quadraticCurveTo(-2 + k * 9, -34, 8 + k * 9, -44 - k * 2); g.stroke();
+      }
+    } else if (E.horn === 'star') {
+      g.strokeStyle = hornStroke; g.lineWidth = 4; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-6, -18); g.quadraticCurveTo(2, -32, 12, -42); g.stroke();
+      g.fillStyle = css(E.fxColor, 0.95); this._star4(g, 14, -44, 7);
+      g.beginPath(); g.moveTo(-14, -16); g.quadraticCurveTo(-10, -28, -4, -36); g.stroke();
+    } else if (E.horn === 'phoenix') {
+      g.strokeStyle = css(E.fxColor, 0.95); g.lineWidth = 3.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-6, -18); g.quadraticCurveTo(6, -36, 24, -46); g.stroke();
+      g.beginPath(); g.moveTo(-14, -16); g.quadraticCurveTo(-4, -32, 10, -42); g.stroke();
+      g.fillStyle = css(E.glow, 0.9);
+      g.beginPath(); g.ellipse(24, -46, 3, 6, 0.6, 0, TAU); g.fill();
+    } else if (E.horn === 'branch') {
+      g.strokeStyle = hornStroke; g.lineWidth = 3.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-6, -18); g.lineTo(2, -32); g.lineTo(12, -44); g.stroke();
+      g.beginPath(); g.moveTo(2, -32); g.lineTo(-6, -42); g.stroke();
+      g.beginPath(); g.moveTo(-14, -16); g.lineTo(-10, -30); g.lineTo(-18, -40); g.stroke();
+      g.fillStyle = css(E.glow, 0.95);
+      g.beginPath(); g.ellipse(12, -44, 3.5, 6, 0.6, 0, TAU); g.fill();
+      g.beginPath(); g.ellipse(-6, -42, 3.5, 6, -0.6, 0, TAU); g.fill();
+      g.beginPath(); g.ellipse(-18, -40, 3.5, 6, -0.6, 0, TAU); g.fill();
+    } else { // antler: sừng hươu 2 nhánh — nhánh chính cong về sau + 2 chạc
+      g.strokeStyle = hornStroke; g.lineWidth = 4.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-6, -18); g.bezierCurveTo(2, -32, 10, -42, 22, -48); g.stroke();
+      g.beginPath(); g.moveTo(4, -32); g.lineTo(12, -46); g.stroke();
+      g.beginPath(); g.moveTo(11, -40); g.lineTo(22, -50); g.stroke();
+      g.beginPath(); g.moveTo(-14, -16); g.bezierCurveTo(-10, -30, -4, -38, 4, -44); g.stroke();
+      g.beginPath(); g.moveTo(-9, -29); g.lineTo(-4, -42); g.stroke();
+    }
+  }
+  /* đầu rồng đông: sọ to + mõm dài hướng −x, mắt to, miệng hơi mở thấy răng nanh, râu dài bay ngược */
+  _drawHead(g) {
+    const s0 = this.segments[0];
+    const E = this.cfg, C = this.colors;
+    g.save();
+    g.translate(s0.x, s0.y);
+    g.rotate(-this.vySmooth * 0.12); // chúc/ngẩng nhẹ theo vy
+    /* bờm sau đầu (vẽ trước, nằm dưới sọ) — theo nguyên tố */
+    const maneKind = E.mane === 'flame' || E.mane === 'spark' ? 'flame' : E.mane === 'leaf' ? 'leaf' : E.mane === 'flow' || E.mane === 'frost' ? 'ribbon' : 'feather';
+    const maneFill = E.mane === 'flame' || E.mane === 'spark' || E.mane === 'phoenix' ? css(E.glow, 0.95) : css(E.fxColor, 0.9);
+    this._tuft(g, -2, -14, -0.5, 44, 10, maneKind, maneFill);
+    this._tuft(g, 0, -6, -0.15, 48, 9, maneKind, maneFill);
+    this._tuft(g, 2, 2, 0.15, 44, 9, maneKind, maneFill);
+    this._tuft(g, -4, 12, 0.45, 30, 8, maneKind, maneFill); // râu cằm
+    /* sọ + mõm */
+    g.fillStyle = css(C.body);
+    g.beginPath(); g.ellipse(-8, -2, 27, 22, 0, 0, TAU); g.fill();
+    g.beginPath();
+    g.moveTo(-24, -9);
+    g.bezierCurveTo(-36, -10, -46, -6, -48, 0);
+    g.bezierCurveTo(-46, 6, -36, 10, -24, 9);
+    g.closePath(); g.fill();
+    /* hàm dưới + miệng hơi mở */
+    g.fillStyle = css(C.wingArm);
+    g.beginPath();
+    g.moveTo(-44, 5); g.quadraticCurveTo(-20, 15, -4, 9); g.lineTo(-4, 4); g.quadraticCurveTo(-22, 9, -44, 5);
+    g.closePath(); g.fill();
+    g.strokeStyle = css(C.black); g.lineWidth = 1.5; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(-44, 4); g.quadraticCurveTo(-24, 8, -8, 7); g.stroke();
+    g.fillStyle = '#ffffff'; // 2 răng nanh nhỏ
+    g.beginPath(); g.moveTo(-38, 6); g.lineTo(-34, 6); g.lineTo(-36, 11); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(-28, 7); g.lineTo(-24, 7); g.lineTo(-26, 12); g.closePath(); g.fill();
+    /* mũi */
+    g.fillStyle = css(C.black);
+    g.beginPath(); g.ellipse(-42, -2, 1.8, 2.6, 0.3, 0, TAU); g.fill();
+    /* mắt to có thần + chân mày */
+    g.fillStyle = '#ffffff';
+    g.beginPath(); g.ellipse(-15, -10, 6.5, 7.5, 0, 0, TAU); g.fill();
+    g.fillStyle = css(C.black);
+    g.beginPath(); g.ellipse(-16, -10, 2.6, 4.2, 0, 0, TAU); g.fill();
+    g.fillStyle = '#ffffff';
+    g.beginPath(); g.arc(-17.5, -12, 1.3, 0, TAU); g.fill();
+    g.strokeStyle = css(C.black); g.lineWidth = 2; g.lineCap = 'round';
+    g.beginPath(); g.arc(-15, -11, 9, Math.PI * 1.05, Math.PI * 1.9); g.stroke();
+    /* vảy má */
+    g.strokeStyle = css(C.black, 0.35); g.lineWidth = 1;
+    g.beginPath(); g.arc(2, 4, 6, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+    g.beginPath(); g.arc(10, 0, 5, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
+    this._drawHorns(g);
+    /* râu dài bay ngược về phía thân (+x) */
+    g.strokeStyle = css(E.fxColor, 0.85); g.lineWidth = 2; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(-44, 2); g.bezierCurveTo(-20, 18, 10, 20, 46, 8); g.stroke();
+    g.beginPath(); g.moveTo(-42, -3); g.bezierCurveTo(-16, -14, 14, -16, 42, -22); g.stroke();
+    g.restore();
+  }
+  /* hạt hiệu ứng quanh thân — mỗi nguyên tố 1 hình hạt */
+  _drawFx(g) {
+    const E = this.cfg, S = this.segments, n = S.length;
+    for (const p of this._fx) {
+      const s = S[Math.max(0, Math.min(n - 1, Math.round(p.u * (n - 1))))];
+      const px = s.x + Math.sin(this.t * p.sp + p.ph) * 4;
+      const py = s.y + p.off * s.r + Math.cos(this.t * p.sp * 0.8 + p.ph) * 3;
+      const a = 0.45 + 0.35 * Math.sin(this.t * 2 + p.ph);
+      if (a <= 0.05) continue;
+      if (E.fx === 'ember') {
+        g.fillStyle = css(E.glow, a * 0.3);
+        g.beginPath(); g.arc(px, py, p.sz * 2, 0, TAU); g.fill();
+        g.fillStyle = css(E.fxColor, a);
+        g.beginPath(); g.arc(px, py, p.sz, 0, TAU); g.fill();
+      } else if (E.fx === 'frost') {
+        g.strokeStyle = css(E.fxColor, a); g.lineWidth = 1.5; g.lineCap = 'round';
+        g.beginPath();
+        g.moveTo(px - p.sz, py); g.lineTo(px + p.sz, py);
+        g.moveTo(px - p.sz * 0.7, py - p.sz * 0.7); g.lineTo(px + p.sz * 0.7, py + p.sz * 0.7);
+        g.moveTo(px - p.sz * 0.7, py + p.sz * 0.7); g.lineTo(px + p.sz * 0.7, py - p.sz * 0.7);
+        g.stroke();
+      } else if (E.fx === 'spark' || E.fx === 'star') {
+        g.fillStyle = css(E.fxColor, a);
+        this._star4(g, px, py, p.sz * 1.4);
+      } else if (E.fx === 'drop') {
+        g.fillStyle = css(E.fxColor, a);
+        g.beginPath(); g.arc(px, py, p.sz * 0.8, 0, TAU); g.fill();
+        g.beginPath(); g.moveTo(px, py - p.sz * 1.8); g.lineTo(px + p.sz * 0.6, py); g.lineTo(px - p.sz * 0.6, py); g.closePath(); g.fill();
+      } else if (E.fx === 'feather' || E.fx === 'plume') {
+        g.fillStyle = css(E.fxColor, a);
+        g.beginPath(); g.ellipse(px, py, p.sz * 1.3, p.sz * 0.55, p.ph, 0, TAU); g.fill();
+      } else { // leaf
+        g.fillStyle = css(E.glow, a);
+        g.beginPath(); g.ellipse(px, py, p.sz, p.sz * 0.55, p.ph, 0, TAU); g.fill();
+      }
+    }
+  }
+  /* Vẽ rồng vào context: đầu ở (0,0), thân trải về +x — cùng không gian local với CpDragon.draw. */
+  draw(g) {
+    const S = this.segments, C = this.colors, n = S.length;
+    g.save();
+    this._drawTailTuft(g, S[n - 1]);
+    /* thân trên (dải cong theo các đốt) */
+    g.fillStyle = css(C.body);
+    g.beginPath();
+    g.moveTo(S[0].x, S[0].y - S[0].r * 0.92);
+    for (let i = 1; i < n; i++) g.lineTo(S[i].x, S[i].y - S[i].r * 0.92);
+    for (let i = n - 1; i >= 0; i--) g.lineTo(S[i].x, S[i].y + S[i].r * 0.95);
+    g.closePath(); g.fill();
+    /* bụng nhạt hơn lưng */
+    g.fillStyle = css(C.wingLower);
+    g.beginPath();
+    g.moveTo(S[0].x, S[0].y + S[0].r * 0.25);
+    for (let i = 1; i < n; i++) g.lineTo(S[i].x, S[i].y + S[i].r * 0.25);
+    for (let i = n - 1; i >= 0; i--) g.lineTo(S[i].x, S[i].y + S[i].r * 0.95);
+    g.closePath(); g.fill();
+    /* vảy dọc thân */
+    for (let i = 3; i < n - 1; i += 3) this._drawScale(g, S[i], i);
+    /* mào sống lưng */
+    for (let i = 4; i < n - 2; i += 4) this._drawCrest(g, S[i]);
+    /* 4 chân nhỏ thu gọn dọc thân */
+    for (const u of [0.16, 0.30, 0.55, 0.70]) {
+      const s = S[Math.round(u * (n - 1))];
+      this._drawLeg(g, s, u < 0.5);
+    }
+    this._drawFx(g);
+    this._drawHead(g);
+    g.restore();
+  }
 }

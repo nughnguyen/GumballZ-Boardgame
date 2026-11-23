@@ -6,7 +6,7 @@
 import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=95';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
-import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=4'; /* 🐉 rồng bay khung avatar (patch -158: rồng CodePen canvas) */
+import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=5'; /* 🐉 rồng đông làm khung avatar (patch -184: EastDragon uốn theo vòng, đuổi ngọc trai) */
 import { bannerHTML42, initBanners } from './banner-render.js?v=3'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
 import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=3';
@@ -79,7 +79,7 @@ export function avatarHTML(size = 40, a = avatar()) {
   const inner = `<span class="pf-av${cls}" style="width:${in_}px;height:${in_}px;font-size:${Math.round(in_ * .56)}px;background:${ch ? (ring ? 'var(--card)' : 'transparent') : bg}${ring ? ';box-shadow:0 0 0 1.5px #fff' : ''}">${body}</span>`; /* nhân vật 3D: nền trong suốt */
   const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy, orbit = rồng/phụng bay vòng (::before/::after); khung động nào cũng thêm class fr-<id> để CSS vẽ trang trí riêng */
   const faCls = fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : fa ? ` fr-${fa}` : '';
-  const dr = (fa === 'dragon' || fa === 'dragon-edge') && a.f ? (FRAMES.find(x => x.id === a.f)?.dragon || []).map(([c1, c2], i, arr) => dragonSVG(c1, c2, 3, fa === 'dragon' ? 'orbit' : 'edge', arr.length > 1 ? i / arr.length : 0)).join('') : ''; /* 🐉 rồng SVG bay vòng số 8 qua avatar (dragon) hoặc tròn mép viền (dragon-edge) – nhiều rồng chia đều phase */
+  const dr = (fa === 'dragon' || fa === 'dragon-edge') && a.f ? (FRAMES.find(x => x.id === a.f)?.dragon || []).map(([c1, c2], i, arr) => dragonSVG(c1, c2, 3, 'edge', arr.length > 1 ? i / arr.length : 0, a.f, i)).join('') : ''; /* 🐉 rồng đông làm khung: thân uốn 300° quanh viền + đuổi ngọc trai, cả 2 mode đều bay viền (patch -184) – khung nhiều rồng: mỗi con 1 canvas, lệch phase, hiện lần lượt */
   return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}${dr}</span>` : inner;
 }
 /* 🎖️ huy hiệu huân chương 6 bậc (patch -142) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
@@ -106,7 +106,7 @@ export function profileCss() {
   import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=15', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=15'; }
+  try { l.href = new URL('../css/avatar.css?v=16', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=16'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
