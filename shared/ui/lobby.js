@@ -5,7 +5,7 @@ import { WS, auth, guestId, myName, myLevel } from '../net/api.js?v=29';
 export const LV_NAMES = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ']; /* trùng LEVELS trong stats.js */
 import { openLogin } from './account.js?v=53';
 import { promptBox, chooseBox } from './dialog.js?v=10';
-import { nameTextStyle, nameTextClass, frameAnim, FRAME_RING } from '../js/avatar-rewards.js?v=3'; /* ✨ đồ Nitro trong chat: màu + font + hiệu ứng tên, khung avatar (kể cả động) */
+import { nameTextStyle, nameTextClass, frameAnim, FRAME_RING } from '../js/avatar-rewards.js?v=4'; /* ✨ đồ Nitro trong chat: màu + font + hiệu ứng tên, khung avatar (kể cả động) */
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {}
 import { ensureSkCSS, skRooms, skChat } from './skeleton.js?v=1'; /* 💀 skeleton loading: phòng + tin nhắn hiện khối xám tới khi máy chủ gửi dữ liệu */

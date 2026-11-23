@@ -3,7 +3,7 @@
 // Số dư lưu trên máy này (localStorage 'gumballz-wallet'); ai đăng nhập thì sync.js đẩy lên tài khoản
 // (máy chủ giữ bản mới nhất theo thời gian, xem server/src/users.js P.wal).
 // Module này thuần logic + localStorage, KHÔNG import gì khác (để stats.js/sync.js/deck.js đều dùng được).
-import { readParts, grantGachaPart } from '../js/avatar-rewards.js?v=3'; /* 🧸 linh kiện nhân vật trúng rương: mở sớm hơn cấp (xem shared/js/avatar-rewards.js) */
+import { readParts, grantGachaPart } from '../js/avatar-rewards.js?v=4'; /* 🧸 linh kiện nhân vật trúng rương: mở sớm hơn cấp (xem shared/js/avatar-rewards.js) */
 const KEY = 'gumballz-wallet';
 export const START_XU = 100; /* số xu tài khoản mới nhận lúc mở ví lần đầu */
 export const WIN_XU = 10, PLAY_XU = 2; /* thắng / chơi 1 ván */

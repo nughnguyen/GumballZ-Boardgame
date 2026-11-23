@@ -202,6 +202,15 @@ export const FRAMES = [
   { id: 'samset', name: 'Sấm Sét', lock: 'w100', tier: 3, cat: 'task', theme: 'Thần Thoại' },
   { id: 'ronglua', name: 'Rồng Lửa', lock: 'w300', anim: 'dragon-edge', tier: 3, cat: 'task', theme: 'Thần Thoại', dragon: [['#ff6a1a', '#7a0d0d']] },
   { id: 'thienha', name: 'Thiên Hà', lock: 'w500', tier: 4, cat: 'task', theme: 'Vũ Trụ' },
+  /* 🔥 thêm (patch -185): 6 khung aura Dragon Ball — anim 'aura', aura = dạng biến hình
+     (renderer shared/ui/aura-frame.js). id chỉ dùng chữ thường [a-z]{2,14} theo regex
+     grant của máy chủ (server/src/users.js) nên không dùng 'ssj1' mà dùng 'ssjmot'... */
+  { id: 'ssjmot', name: 'Siêu Saiyan 1', lock: 'w100', anim: 'aura', aura: 'ssj1', tier: 3, cat: 'task', theme: 'Anime' },
+  { id: 'ssjhai', name: 'Siêu Saiyan 2', lock: 'w200', anim: 'aura', aura: 'ssj2', tier: 3, cat: 'task', theme: 'Anime' },
+  { id: 'ssjba', name: 'Siêu Saiyan 3', lock: 'w300', anim: 'aura', aura: 'ssj3', tier: 3, cat: 'task', theme: 'Anime' },
+  { id: 'ssjgod', name: 'Siêu Saiyan God', lock: 'w500', anim: 'aura', aura: 'god', tier: 4, cat: 'task', theme: 'Anime' },
+  { id: 'ssjblue', name: 'Siêu Saiyan Blue', lock: 'w1000', anim: 'aura', aura: 'blue', tier: 4, cat: 'task', theme: 'Anime' },
+  { id: 'ssjall', name: 'Siêu Saiyan Toàn Dạng', lock: 'vip5', anim: 'aura', aura: 'all', tier: 4, cat: 'vip', theme: 'Anime' },
 ];
 /* gradient của từng vòng khung (dùng làm background của .pf-fr trong shared/css/avatar.css) */
 export const FRAME_RING = {
@@ -221,6 +230,13 @@ export const FRAME_RING = {
   viphuyen: 'conic-gradient(#ffd84a,#ff3d5a,#b06bff,#3d8bff,#2ec5b6,#ffd84a,#fff2b3,#ffd84a)',
   /* 🖼️ -147: ring cho 47 khung mới */
   dacuoi: 'conic-gradient(#c9c5bd,#8e8a83,#d8d4cc,#77736c,#c9c5bd)', dong: 'conic-gradient(#f2b07a,#b36a2e,#f7c79c,#8a4a1c,#f2b07a)', kraft: 'linear-gradient(135deg,#d8b98a,#b89a6a)', maytrang: 'linear-gradient(135deg,#e6f1ff,#bcd8f5)', phan: 'linear-gradient(135deg,#ffb8d0,#ff8fbf)', camdao: 'conic-gradient(#ffc27a,#ff9a5a,#ffc27a,#ff8a4a,#ffc27a)', mongtim: 'conic-gradient(#c9b3ff,#9a7cf0,#c9b3ff,#8566e0,#c9b3ff)', xanhngoc: 'conic-gradient(#8fe8d8,#2bb8a0,#8fe8d8,#1c9a86,#8fe8d8)', vangdong: 'conic-gradient(#ffe9a0,#d9a21b,#ffe9a0,#b8860b,#ffe9a0)', luanho: 'conic-gradient(#ffe36b,#ff7a1a,#e11d1d,#ff7a1a,#ffe36b)', anhdaonhe: 'conic-gradient(#ffd0e4,#ff8fbf,#fff,#ff6fae,#ffd0e4)', songxanh: 'conic-gradient(#7ff0ff,#1c9fe0,#b6f6ff,#1170c0,#7ff0ff)', traitim: 'conic-gradient(#ff9ab8,#ff4d7a,#ff9ab8,#e0245e,#ff9ab8)', banco: 'repeating-conic-gradient(#222 0 15deg,#f4f4f4 15deg 30deg)', baitay: 'conic-gradient(#e0182d,#222,#e0182d,#222,#e0182d)', banggia: 'conic-gradient(#e6fbff,#7fd8ff,#fff,#4fb4f0,#e6fbff)', domdom: 'conic-gradient(#c8ff7a,#4a8a2a,#c8ff7a,#2a5a1a,#c8ff7a)', meono: 'conic-gradient(#ffd23c,#ff7a1a,#ffd23c,#222,#ffd23c)', masoi: 'conic-gradient(#e8e8ff,#6a6aa8,#e8e8ff,#2a2a58,#e8e8ff)', lacda: 'conic-gradient(#ffe1a0,#d9a050,#ffe1a0,#a8742c,#ffe1a0)', typhu: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', anhdaobay: 'conic-gradient(#ffd0e4,#ff8fbf,#fff,#ff6fae,#ffd0e4)', haiduong: 'conic-gradient(#9ff3ff,#1c9fe0,#0b5fa8,#4fe0ff,#9ff3ff)', thansam: 'conic-gradient(#fff,#ffe600,#7a4dff,#ffe600,#fff)', neoncyber: 'conic-gradient(#00f0ff,#ff2bd6,#00f0ff,#7a2bff,#00f0ff)', nhachoi: 'conic-gradient(#ff4d9a,#9a4dff,#4dc3ff,#4dff88,#ffd23c,#ff4d9a)', thanhlongbay: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', xichlongbay: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', banglongbay: 'conic-gradient(#e8fbff,#4fb4f0,#fff,#2f7fd0,#e8fbff)', phuonghoang: 'conic-gradient(#ffe27a,#ff7a1a,#e11d1d,#ff7a1a,#ffe27a)', thienthan: 'conic-gradient(#fffbe0,#ffd966,#fff,#f2b800,#fffbe0)', vutru: 'conic-gradient(#7a4dff,#4dc3ff,#2a1a7a,#ff4dc3,#7a4dff)', tetviet: 'conic-gradient(#ffd23c,#e11d1d,#ffd23c,#b30f0f,#ffd23c)', songlong: 'conic-gradient(#ffe27a,#ff5a3a,#ffe27a,#e0a020,#ffe27a)', tamlong: 'conic-gradient(#ff4d4d,#ffb84d,#f6ff4d,#4dff88,#4dc3ff,#9a4dff,#ff4de1,#ff4d4d)', longthienha: 'conic-gradient(#7a4dff,#ff4dc3,#4dc3ff,#2a1a7a,#7a4dff)', phuonglong: 'conic-gradient(#fff3a6,#ff7a1a,#e11d1d,#ffd23c,#fff3a6)', chusanh: 'conic-gradient(#ff4d4d,#ffb84d,#f6ff4d,#4dff88,#4dc3ff,#9a4dff,#ff4de1,#ff4d4d)', thanhlong: 'conic-gradient(#ffe27a,#2fbf71,#ffe27a,#1d8f55,#ffe27a)', xichlong: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', banglong: 'conic-gradient(#e8fbff,#4fb4f0,#fff,#2f7fd0,#e8fbff)', vuonhoa: 'conic-gradient(#7bd66a,#2e9a3c,#a8e68a,#1f7a34,#7bd66a)', halloween: 'conic-gradient(#ff9a1a,#6a1fa8,#ff9a1a,#2a0a45,#ff9a1a)', giangsinh: 'repeating-conic-gradient(#e0182d 0 12deg,#fff 12deg 24deg)', samset: 'conic-gradient(#fff,#ffe600,#6a4dff,#ffe600,#fff)', ronglua: 'conic-gradient(#ffd36b,#ff3b1a,#7a0d0d,#ff6a1a,#ffd36b)', thienha: 'conic-gradient(#7a4dff,#ff4dc3,#4dc3ff,#2a1a7a,#7a4dff)',
+  /* 🔥 -185: vòng màu 6 khung aura Dragon Ball */
+  ssjmot: 'conic-gradient(#FFF3C4,#FFD23C,#FF9A1F,#FFD23C,#FFF3C4)',
+  ssjhai: 'conic-gradient(#FFF,#FFE600,#FFD23C,#FF9A1F,#FFF)',
+  ssjba: 'conic-gradient(#FFFBE0,#FFD23C,#FF7A1A,#FFD23C,#FFFBE0)',
+  ssjgod: 'conic-gradient(#FFD9D0,#FF5A45,#D61F1F,#FF8A70,#FFD9D0)',
+  ssjblue: 'conic-gradient(#D8F1FF,#4DC3FF,#1F5FD6,#2EC5FF,#D8F1FF)',
+  ssjall: 'conic-gradient(#FFD23C,#FFE600,#FF7A1A,#FF5A45,#4DC3FF,#FFD23C)',
 };
 /* màu tên – đủ đậm để đọc được trên nền kem */
 export const NAME_COLORS = [

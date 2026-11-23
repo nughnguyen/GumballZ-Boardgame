@@ -71,6 +71,12 @@
 .pf-fr .dov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;pointer-events:none;z-index:4}
 @keyframes fr-dragon-glow{0%,100%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 9px 1px rgba(250,205,51,.18),0 0 4px rgba(184,134,11,.28)}50%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 16px 3px rgba(250,205,51,.30),0 0 6px rgba(184,134,11,.4)}}
 @media (prefers-reduced-motion:no-preference){.pf-fr.fr-dragon,.pf-fr.fr-dragon-edge{animation:fr-dragon-glow 3.4s ease-in-out infinite}}
+/* 🔥 khung aura Dragon Ball (patch -185): canvas aura phủ 180% như rồng, hào quang theo màu khung */
+.pf-fr.fr-aura{position:relative;container-type:size}
+.pf-fr .aov{position:absolute;left:-40cqw;top:-40cqw;width:180cqw;height:180cqw;pointer-events:none;z-index:4}
+@keyframes fr-aura-glow{0%,100%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 14px 1px rgba(255,210,60,.30)}50%{box-shadow:0 4px 10px -6px var(--sh-soft),0 0 26px 4px rgba(255,210,60,.50)}}
+@media (prefers-reduced-motion:no-preference){.pf-fr.fr-aura{animation:fr-aura-glow 2.6s ease-in-out infinite}}
+@media (prefers-reduced-motion:reduce){.pf-fr.fr-aura{animation:none}}
 .pf-banner{margin:-20px -18px 14px;height:76px;border-radius:24px 24px 0 0;background-size:200% auto;flex:none}
 .pf-banner.bn-anim{animation:nc-slide 6s linear infinite}
 /* 🎏 đầu Hồ sơ với banner hiệu ứng đầy đủ (patch -151): cao theo tỉ lệ 10/3 của banner, bo tròn theo hộp */

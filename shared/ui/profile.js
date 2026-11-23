@@ -7,9 +7,10 @@ import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifie
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=5'; /* 🐉 rồng đông làm khung avatar (patch -184: EastDragon uốn theo vòng, đuổi ngọc trai) */
+import { auraSVG, initFrameAuras } from './aura-frame.js?v=1'; /* 🔥 aura Dragon Ball khung avatar (patch -185) */
 import { bannerHTML42, initBanners } from './banner-render.js?v=3'; /* 🎏 render banner hồ sơ 55 mẫu (patch -151) */
 import { attachInfo } from './infopop.js?v=1'; /* ℹ️ chạm (mobile) / rê chuột (desktop) vào thành tích, danh hiệu để xem cách nhận */
-import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=3';
+import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAMES, NAME_COLORS, NAME_FONTS, NAME_EFFECTS, BANNERS, WIN_FX, isOpen, FRAME_RING, lockDesc, statsFromTotals, readAuthFlags, nameTextStyle, nameTextClass, bannerCss, bannerAnim, frameAnim, hasGachaPart, presetMinLevel, VIP_TIERS, vipProgress, tierName, CAT_LABEL, THEMES } from '../js/avatar-rewards.js?v=4';
 import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=8'; /* 🎖️ huân chương 6 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {} /* chạy khi profile.js được import (Hồ sơ/BXH/thành viên) để font kịp tải */
@@ -80,7 +81,8 @@ export function avatarHTML(size = 40, a = avatar()) {
   const fa = a.f && frameAnim(a.f); /* ✨ khung động: spin = viền conic xoay (::before), glow = phát sáng nhấp nháy, orbit = rồng/phụng bay vòng (::before/::after); khung động nào cũng thêm class fr-<id> để CSS vẽ trang trí riêng */
   const faCls = fa === 'spin' ? ' fr-anim' : fa === 'glow' ? ' fr-glow' : fa ? ` fr-${fa}` : '';
   const dr = (fa === 'dragon' || fa === 'dragon-edge') && a.f ? (FRAMES.find(x => x.id === a.f)?.dragon || []).map(([c1, c2], i, arr) => dragonSVG(c1, c2, 3, 'edge', arr.length > 1 ? i / arr.length : 0, a.f, i)).join('') : ''; /* 🐉 rồng đông làm khung: thân uốn 300° quanh viền + đuổi ngọc trai, cả 2 mode đều bay viền (patch -184) – khung nhiều rồng: mỗi con 1 canvas, lệch phase, hiện lần lượt */
-  return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}${dr}</span>` : inner;
+  const au = fa === 'aura' && a.f ? auraSVG(FRAMES.find(x => x.id === a.f)?.aura || 'ssj1') : ''; /* 🔥 aura khí Dragon Ball (patch -185) */
+  return ring ? `<span class="pf-fr${a.f === 'owner' ? ' own' : ''}${faCls}${fa ? ` fr-${a.f}` : ''}" style="width:${size}px;height:${size}px;padding:${pad}px;${fa === 'spin' ? `--ring:${ring}` : `background:${ring}`}">${inner}${dr}${au}</span>` : inner;
 }
 /* 🎖️ huy hiệu huân chương 6 bậc (patch -142) – markup + CSS ở shared/ui/badges.js + shared/css/badges.css; giữ tên export cũ để bảng xếp hạng dùng chung */
 export const ownerBadge = (on, size = 'xs') => on ? medalHTML('owner', size) : '';
@@ -106,7 +108,7 @@ export function profileCss() {
   import('./badges.js?v=8').then(m => m.ensureBadgesCSS()).catch(() => {}); /* 🎖️ huy hiệu 4 bậc (patch -95) */
   if (document.getElementById('pf-css')) return;
   const l = document.createElement('link'); l.id = 'pf-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('../css/avatar.css?v=16', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=16'; }
+  try { l.href = new URL('../css/avatar.css?v=17', import.meta.url).href; } catch (e) { l.href = '../css/avatar.css?v=17'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -156,14 +158,14 @@ function picker(a, st, tab, name, sub = 'pre', ff = { cat: 'all', theme: 'all', 
   else if (tab === 'frame') {
     /* 🔍 lọc khung (patch -147): mặc định hiện HẾT, sắp Cùi → VIP, toggle đã-sở-hữu TẮT (user dặn 2026-11-22 ~09:51) */
     let list = FRAMES.slice();
-    if (ff.owned) list = list.filter(x => !((x.lock && !isOpen(x.lock, st) && !owns(widOf('frame', x.id))) || (x.shop && !owns(widOf('frame', x.id))) || (x.chest && !owns(widOf('frame', x.id)))));
+    if (ff.owned) list = list.filter(x => !((x.lock && !isOpen(x.lock, st) && !owns(widOf('frame', x.id))) || (x.shop && !owns(widOf('frame', x.id))) || (x.chest && !owns(widOf('frame', x.id))) || (x.id === 'ssjall' && !['ssjmot', 'ssjhai', 'ssjba', 'ssjgod', 'ssjblue'].every(id => owns(widOf('frame', id))))));
     if (ff.cat !== 'all') list = list.filter(x => x.cat === ff.cat);
     if (ff.theme !== 'all') list = list.filter(x => x.theme === ff.theme);
     list = list.map((x, i) => [x, i]).sort((p, q) => { const d = (p[0].tier || 0) - (q[0].tier || 0); return ff.sort === 'vip-cui' ? -d || p[1] - q[1] : d || p[1] - q[1]; }).map(([x]) => x); /* sắp theo bậc, cùng bậc giữ thứ tự FRAMES gốc */
     body = `<div class="lk-filter"><div class="lk-frow">${['all', ...Object.keys(CAT_LABEL)].map(k => `<button type="button" class="lk-fbtn" data-fcat="${k}" aria-pressed="${ff.cat === k}">${k === 'all' ? 'Tất cả' : CAT_LABEL[k]}</button>`).join('')}</div>
       <div class="lk-frow"><select class="lk-fsel" data-fsel="theme" aria-label="Chủ đề"><option value="all">Tất cả chủ đề</option>${THEMES.map(t => `<option value="${esc(t)}"${ff.theme === t ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select><select class="lk-fsel" data-fsel="sort" aria-label="Sắp xếp"><option value="cui-vip"${ff.sort === 'cui-vip' ? ' selected' : ''}>Cùi → VIP</option><option value="vip-cui"${ff.sort === 'vip-cui' ? ' selected' : ''}>VIP → Cùi</option></select><button type="button" class="lk-fbtn" data-fowned="1" aria-pressed="${ff.owned}">✅ Chỉ khung đã sở hữu</button></div>
       <div class="lk-count">Hiển thị ${list.length} / ${FRAMES.length} khung</div></div>
-      <div class="lk-grid">${list.map(x => { const shopLk = x.shop && !owns(widOf('frame', x.id)), chestLk = x.chest && !owns(widOf('frame', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('frame', x.id))) || shopLk || chestLk; const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : lockDesc(x.lock); const tierCls = (x.tier || 0) >= 3 ? 'vip' : (x.tier || 0) === 2 ? 'hiem' : 'cui'; return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-f="${x.id}"`} aria-pressed="${(a.f || '') === x.id}">${avatarHTML(54, { ...a, f: x.id })}<span>${lk ? '🔒 ' : ''}${esc(x.name)}</span><small class="lk-meta"><b class="lk-tier ${tierCls}">${tierName(x.tier || 0)}</b> ${CAT_LABEL[x.cat] || ''}${x.theme ? ' · ' + esc(x.theme) : ''}</small>${lk ? `<small>${esc(lkTx)}</small>` : '<small>✅ Đã sở hữu</small>'}</button>`; }).join('')}</div>`;
+      <div class="lk-grid">${list.map(x => { const shopLk = x.shop && !owns(widOf('frame', x.id)), chestLk = x.chest && !owns(widOf('frame', x.id)), lk = (x.lock && !isOpen(x.lock, st) && !owns(widOf('frame', x.id))) || shopLk || chestLk || (x.id === 'ssjall' && !['ssjmot', 'ssjhai', 'ssjba', 'ssjgod', 'ssjblue'].every(id => owns(widOf('frame', id)))); const lkTx = x.shop ? `Mua ${x.shop} xu ở Cửa hàng` : x.chest ? 'Chỉ mở ra từ rương Gacha (100 xu/rương)' : (x.id === 'ssjall' ? lockDesc(x.lock) + ' + sở hữu đủ 5 khung Siêu Saiyan' : lockDesc(x.lock)); const tierCls = (x.tier || 0) >= 3 ? 'vip' : (x.tier || 0) === 2 ? 'hiem' : 'cui'; return `<button type="button" class="lk-card${lk ? ' lock' : ''}" ${lk ? `data-lock="${esc(lkTx)}"${x.shop ? ' data-shopgo="1"' : ''}` : `data-f="${x.id}"`} aria-pressed="${(a.f || '') === x.id}">${avatarHTML(54, { ...a, f: x.id })}<span>${lk ? '🔒 ' : ''}${esc(x.name)}</span><small class="lk-meta"><b class="lk-tier ${tierCls}">${tierName(x.tier || 0)}</b> ${CAT_LABEL[x.cat] || ''}${x.theme ? ' · ' + esc(x.theme) : ''}</small>${lk ? `<small>${esc(lkTx)}</small>` : '<small>✅ Đã sở hữu</small>'}</button>`; }).join('')}</div>`;
   }
   else if (tab === 'name') {
     /* ✍️ kiểu chữ (patch -154): xem trước tổ hợp đang chọn + 3 hàng chọn — Font / Màu / Hiệu ứng, trộn tự do */
@@ -423,6 +425,7 @@ function renderProfileInto(ov, isPage) {
     attachBadgeTilt(ov.querySelector('.bdg-row')); /* 🎖️ nghiêng 3D + vệt sáng theo con trỏ ở khu vực huy hiệu (patch -142) */
     try { initBanners(ov); } catch (e) {} /* 🎏 đăng ký canvas rồng + tắt animation banner ngoài màn hình (patch -151) */
     try { initFrameDragons(ov); } catch (e) {} /* 🐉 đăng ký canvas rồng khung avatar (patch -158) */
+    try { initFrameAuras(ov); } catch (e) {} /* 🔥 đăng ký canvas aura khung avatar (patch -185) */
   };
   ov.addEventListener('click', e => {
     if (e.target === ov || e.target.closest('.pf-x')) return close();
@@ -556,6 +559,7 @@ function renderMemberInto(ov, U) {
     attachBadgeTilt(ov.querySelector('.bdg-row'));
     try { initBanners(ov); } catch (e) {}
     try { initFrameDragons(ov); } catch (e) {}
+    try { initFrameAuras(ov); } catch (e) {} /* 🔥 đăng ký canvas aura khung avatar (patch -185) */
   };
   const loadRel = async () => {
     const m = me(); if (!m) return;
