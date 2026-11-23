@@ -4906,4 +4906,118 @@ function makeCamel(riv, root, o) {
   save('vuatiengviet', riv);
 }
 
+// ---- 94. lansau: LẶN SÂU — THỢ LẶN LẶN XUỐNG, ĐÁP ÁN HIẾM NHẤT SÁNG VÀNG (180f = 3s).
+// Bên trái: đồng hồ đo độ sâu (vạch + mực nước dâng theo thợ lặn) + thợ
+// lặn lặn từ mặt nước xuống đáy, bong bóng nổi lên. Bên phải: thanh câu
+// hỏi + 3 ô đáp án theo độ hiếm (chấm màu + số điểm 7 đoạn): 10 thường,
+// 60 hiếm, 100 hiếm nhất — ô 100 bật lớp vàng + tia sáng, sao vàng bật.
+// Nền biển sâu xanh đậm, vệt sáng mặt nước trên cùng.
+{
+  const { riv, ab, root } = newFile('lansau');
+  const D = 180;
+  const SEA = hex('#0B3D5C'); // biển sâu
+  const SEA_L = hex('#2E7FA8'); // mặt nước sáng
+  const SHAFT = hex('#7FB8D4'); // vệt sáng + vạch đo sâu
+  const TRACK = hex('#083049'); // rãnh đồng hồ đo sâu
+  const BUB = hex('#BFE3F2'); // bong bóng
+  // Sao vàng góc phải — add TRƯỚC (trên cùng).
+  const star = poly(riv, root, { name: 'Star', cx: 316, cy: 42, points: starPoints(316, 42, 12), color: GOLD, stroke: INK, strokeW: 2 });
+  // 4 tia sáng quanh ô hiếm nhất (100đ) — add trước lớp vàng/ô.
+  const rays = [
+    rect(riv, root, { name: 'RayT', x: 225, y: 128, w: 3, h: 10, color: GOLD }),
+    rect(riv, root, { name: 'RayB', x: 225, y: 176, w: 3, h: 10, color: GOLD }),
+    rect(riv, root, { name: 'RayL', x: 142, y: 152, w: 10, h: 3, color: GOLD }),
+    rect(riv, root, { name: 'RayR', x: 308, y: 152, w: 10, h: 3, color: GOLD }),
+  ];
+  // Lớp vàng phủ ô hiếm nhất — add trước ô đáp án (trên cùng).
+  const goldLay = rect(riv, root, { name: 'GoldLay', x: 225, y: 152, w: 150, h: 34, r: 6, color: GOLD, stroke: INK, strokeW: 2 });
+  // Số điểm 7 đoạn trên mỗi ô (10 / 60 / 100) — add trước nền ô.
+  const dig = (cx, cy, d) => digit7(riv, root, cx, cy, d, INK, 'D' + cx + '_' + d);
+  const d10 = [...dig(262, 72, 1), ...dig(282, 72, 0)];
+  const d60 = [...dig(262, 112, 6), ...dig(282, 112, 0)];
+  const d100 = [...dig(242, 152, 1), ...dig(262, 152, 0), ...dig(282, 152, 0)];
+  // Chấm màu độ hiếm — add trước nền ô.
+  const dots = [
+    ell(riv, root, { name: 'Dot10', x: 166, y: 72, w: 12, color: RED }),
+    ell(riv, root, { name: 'Dot60', x: 166, y: 112, w: 12, color: TEAL }),
+    ell(riv, root, { name: 'Dot100', x: 166, y: 152, w: 12, color: GOLD, stroke: INK, strokeW: 1 }),
+  ];
+  // Thợ lặn: mặt nạ + bình khí + thân + 2 chân nhái (mặt nạ add trước =
+  // trên cùng, chân nhái add sau = dưới thân).
+  const dv = (x, y) => {
+    const mask = ell(riv, root, { name: 'Mask', x, y: y - 14, w: 15, color: WHITE, stroke: INK, strokeW: 1.5 });
+    const tank = rect(riv, root, { name: 'Tank', x: x - 14, y: y + 4, w: 8, h: 22, r: 3, color: hex('#C9C4D6'), stroke: INK, strokeW: 1 });
+    const body = ell(riv, root, { name: 'Body', x, y: y + 4, w: 20, h: 28, color: TEAL, stroke: INK, strokeW: 1.5 });
+    const finL = poly(riv, root, { name: 'FinL', cx: x - 8, cy: y + 22, points: [[x - 12, y + 16], [x - 18, y + 30], [x - 2, y + 26]], color: YELLOW, stroke: INK, strokeW: 1 });
+    const finR = poly(riv, root, { name: 'FinR', cx: x + 8, cy: y + 22, points: [[x + 12, y + 16], [x + 18, y + 30], [x + 2, y + 26]], color: YELLOW, stroke: INK, strokeW: 1 });
+    return [mask, tank, body, finL, finR];
+  };
+  const diver = dv(128, 45);
+  // Bong bóng nổi lên cạnh thợ lặn.
+  const bubbles = [
+    ell(riv, root, { name: 'Bub1', x: 108, y: 130, w: 8, color: BUB }),
+    ell(riv, root, { name: 'Bub2', x: 146, y: 120, w: 6, color: BUB }),
+    ell(riv, root, { name: 'Bub3', x: 118, y: 145, w: 5, color: BUB }),
+  ];
+  // Đồng hồ đo sâu: vạch add trước mực nước (trên cùng), mực nước add
+  // trước rãnh (phủ lên giữa rãnh, chừa 2px viền mỗi bên).
+  const ticks = [45, 65, 85, 105, 125, 145].map((y) =>
+    rect(riv, root, { name: 'Tick', x: 95, y, w: 16, h: 2, color: SHAFT }));
+  const fill = rect(riv, root, { name: 'Fill', x: 95, y: 35, w: 6, h: 130, color: TEAL });
+  const track = rect(riv, root, { name: 'Track', x: 95, y: 100, w: 10, h: 130, color: TRACK, stroke: INK, strokeW: 1.5 });
+  // Thanh câu hỏi: 3 vạch chữ xám add trước nền thanh.
+  const qLines = [[180, 34], [210, 34], [240, 34]].map(([x, y], i) =>
+    rect(riv, root, { name: 'QL' + i, x, y, w: 28, h: 4, color: hex('#9DB8C4') }));
+  // 3 ô đáp án.
+  const cells = [[225, 72], [225, 112], [225, 152]].map(([x, y], i) =>
+    rect(riv, root, { name: 'Cell' + i, x, y, w: 150, h: 34, r: 6, color: CREAM, stroke: INK, strokeW: 2 }));
+  rect(riv, root, { name: 'QBar', x: 225, y: 34, w: 150, h: 22, r: 8, color: CREAM, stroke: INK, strokeW: 2 });
+  // Vệt sáng mặt nước + dải mặt nước — nền, add gần cuối (dưới nội dung).
+  const shaft1 = poly(riv, root, { name: 'Shaft1', cx: 170, cy: 40, points: rotRectPoints(170, 40, 14, 90, 0.3), color: SHAFT });
+  const shaft2 = poly(riv, root, { name: 'Shaft2', cx: 250, cy: 35, points: rotRectPoints(250, 35, 10, 80, -0.25), color: SHAFT });
+  rect(riv, root, { name: 'Surf', x: 200, y: 12, w: 404, h: 26, color: SEA_L });
+  bg(riv, root, SEA);
+  const an = riv.addLinearAnimation(ab, { name: 'loop', duration: D, fps: 60, loop: 'loop' });
+  // Bật lần lượt: thanh câu hỏi (0) + 3 ô đáp án (0/6/12), chấm màu cùng ô.
+  const pop = (parts, t0) => {
+    for (const p of parts) {
+      keys(riv, an, p.id, SX, [[0, 0], [t0, 0], [t0 + 8, 1.1], [t0 + 12, 1], [D, 1]]);
+      keys(riv, an, p.id, SY, [[0, 0], [t0, 0], [t0 + 8, 1.1], [t0 + 12, 1], [D, 1]]);
+    }
+  };
+  pop([...qLines, cells[0], dots[0]], 0);
+  pop([cells[1], dots[1]], 6);
+  pop([cells[2], dots[2]], 12);
+  // Số điểm bật theo từng ô (40 / 60 / 80).
+  pop(d10, 40);
+  pop(d60, 60);
+  pop(d100, 80);
+  // Thợ lặn lặn xuống 105px (10-70) + lắc nhẹ; giữ ở đáy tới hết vòng.
+  for (const p of diver) {
+    keys(riv, an, p.id, Y, [[0, p.y], [35, p.y + 45], [70, p.y + 105], [D, p.y + 105]]);
+    keys(riv, an, p.id, ROT, [[0, 0], [20, 0.05], [40, -0.05], [60, 0.05], [70, 0], [D, 0]]);
+  }
+  // Mực nước dâng theo thợ lặn: SY 0->1 + tâm Y trượt 35->100 (mép trên
+  // luôn ở y=35, mép dưới dâng tới y=165).
+  keys(riv, an, fill.id, SY, [[0, 0.01], [70, 1], [D, 1]]);
+  keys(riv, an, fill.id, Y, [[0, 35], [70, 100], [D, 100]]);
+  // Bong bóng nổi lên (20-160) rồi mờ đi để vòng lặp cắt sạch.
+  for (const b of bubbles) {
+    keys(riv, an, b.id, Y, [[20, b.y], [160, b.y - 95], [D, b.y - 95]]);
+    keys(riv, an, b.id, OPACITY, [[0, 0], [20, 0], [30, 1], [150, 1], [160, 0], [D, 0]], 'linear');
+  }
+  // Lớp vàng ô hiếm nhất hiện (100-115) rồi giữ nguyên.
+  keys(riv, an, goldLay.id, OPACITY, [[0, 0], [100, 0], [115, 1], [D, 1]], 'linear');
+  // 4 tia sáng bật (115-130).
+  for (const p of rays) {
+    keys(riv, an, p.id, SX, [[0, 0], [115, 0], [122, 1.2], [130, 1], [D, 1]]);
+    keys(riv, an, p.id, SY, [[0, 0], [115, 0], [122, 1.2], [130, 1], [D, 1]]);
+  }
+  // Sao vàng bật (135-150).
+  keys(riv, an, star.id, SX, [[0, 0], [135, 0], [143, 1.2], [150, 1], [D, 1]]);
+  keys(riv, an, star.id, SY, [[0, 0], [135, 0], [143, 1.2], [150, 1], [D, 1]]);
+  fadeEnds(riv, an, [star, ...rays, ...d10, ...d60, ...d100, ...dots, ...diver, ...cells, ...qLines], D);
+  save('lansau', riv);
+}
+
 console.log('done');
