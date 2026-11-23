@@ -27,6 +27,9 @@ const fmtT = ms => { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3
 const randSeed = () => 1 + Math.floor(Math.random() * 999999);
 
 const board = $('#board'), felt = $('#felt');
+// patch -178: #app fixed inset:0 chui dưới topbar site (sticky, z-50) nên cả header game bị che trên desktop — đẩy #app xuống đúng chiều cao topbar thật, đo lúc chạy (đổi theo màn hình/PWA safe-area). topbar.js nạp đồng bộ trước main.js nên header.nav đã có sẵn.
+function fitAppTop() { const nav = document.querySelector('header.nav'), app = document.getElementById('app'); if (app) app.style.top = (nav ? nav.getBoundingClientRect().height : 0) + 'px'; }
+fitAppTop();
 let G = null, V = null;          // ván hiện tại + biến thể
 let sel = null, busy = false, geo = null, finishMoves = null, drag = null;
 const cardEl = new Map(), slotEl = new Map();
@@ -195,7 +198,7 @@ function render() {
   }
 }
 function addBadge(x, y, text, cls) { const n = document.createElement('div'); n.className = 'badge ' + cls; n.textContent = text; n.style.left = x + 'px'; n.style.top = y + 'px'; board.appendChild(n); }
-let rz = 0; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => G && render()); });
+let rz = 0; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { fitAppTop(); G && render(); }); });
 
 function updateHead() {
   $('#v-name').textContent = V.vn; $('#v-opt').textContent = optsName(V, G.o); showScore();
@@ -492,9 +495,21 @@ modal.addEventListener('click', e => {
     solv: () => { ls.set('sol-solvable', solvOn() ? '0' : '1'); moreMenu(); render(); solvSchedule(); toast(solvOn() ? '🧠 Bật báo giải được hay không' : 'Tắt báo giải được hay không'); },
     theme: () => themeBox(), settheme: () => { pickTheme(b.dataset.t); themeBox(); },
     music: () => { fx.actx(); fx.musicToggle(); syncAudio(); moreMenu(); }, mute: () => { fx.toggleMute(); syncAudio(); moreMenu(); },
+    leave: () => { recordAbandon(); location.href = '../'; }, /* 🏠 rời ván về trang chủ (nút #btn-leave) */
+    leavebox: () => leaveBox(), /* mục Rời ván trong menu Thêm → mở hộp xác nhận, KHÔNG rời ngay */
     resetstats: () => { if (b.dataset.sure) { ls.put(STATS, {}); showStats(); toast('Đã xoá thống kê'); } else { b.dataset.sure = '1'; b.textContent = 'Chắc chưa? Bấm lần nữa để xoá'; } },
   }[a] || (() => {}))();
 });
+// 🏠 Rời ván về trang chủ (nút #btn-leave): game solo, không lobby/gamekit nên hộp
+// xác nhận dùng modal riêng của game thay vì dialog.js confirmBox. Ván đang chơi dở
+// tính là thua (recordAbandon — giống như bắt đầu ván mới giữa chừng). topbar-leave.js
+// tìm nút này qua LEAVE_BTNS và nhận biết "đang trong ván" qua #screen-game.active.
+function leaveBox() {
+  const mid = G && !G.won && G.idx > 0;
+  openModal(`<button class="close-x" data-close aria-label="Đóng">✕</button><h2>🏠 Rời ván?</h2>
+  <p class="muted">${mid ? 'Ván đang chơi dở sẽ tính là thua.' : 'Về trang chủ GumballZ.'}</p>
+  <div class="mrow"><button class="btn pri" data-act="leave">🏠 Rời ván</button><button class="btn" data-close>Ở lại</button></div>`);
+}
 function moreMenu() {
   openModal(`<button class="close-x" data-close aria-label="Đóng">✕</button><h2>☰ Thêm</h2>
   <div class="menu">
@@ -510,6 +525,7 @@ function moreMenu() {
     <button data-act="music" class="tg ${fx.musicIsOn() ? 'on' : ''}">🎵 Nhạc nền <em>${fx.musicIsOn() ? 'BẬT' : 'TẮT'}</em></button>
     <button data-act="mute" class="tg ${fx.isMuted() ? '' : 'on'}">🔊 Âm thanh <em>${fx.isMuted() ? 'TẮT' : 'BẬT'}</em></button>
     <button data-act="guide">📖 Hướng dẫn</button>
+    <button data-act="leavebox">🏠 Rời ván · về trang chủ</button>
   </div><p class="note">Bản fan-made phi thương mại · Chơi một mình, không cần mạng. Chuột phải lên bàn = đưa mọi lá lên được lên đích (y như Windows).</p>
   ${THEMES[getTheme()].credit ? `<p class="credit center">${THEMES[getTheme()].name.split(' ')[0]} ${THEMES[getTheme()].credit}.</p>` : ''}`);
 }
@@ -665,6 +681,7 @@ $('#btn-new').onclick = () => { if (busy) return; start(V.id, G.o); toast(`🆕 
 $('#btn-more').onclick = moreMenu; $('#btn-variant').onclick = () => optsBox(); $('#btn-deal').onclick = dealBox;
 $('#btn-finish').onclick = () => { if (finishMoves && !busy) playSeq(finishMoves, 95); };
 $('#btn-guide').onclick = () => openModal(guideHTML(V.id), 'wide');
+$('#btn-leave').onclick = leaveBox;
 
 $('#btn-music').onclick = () => { fx.actx(); fx.musicToggle(); syncAudio(); toast(fx.musicIsOn() ? '🎵 Bật nhạc chill' : '🎵 Tắt nhạc'); };
 $('#btn-mute').onclick = () => { fx.toggleMute(); syncAudio(); };

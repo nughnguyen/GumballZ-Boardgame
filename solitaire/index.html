@@ -28,6 +28,7 @@
 </head>
 <body>
 <script src="../shared/ui/topbar.js?v=8"></script>
+<section id="screen-game" class="screen active">
 <div id="app">
   <header class="top">
     <a class="back-hub gumballz-chip" href="../" aria-label="Về trang chủ GumballZ Boardgame" title="Về trang chủ GumballZ Boardgame"><img src="../favicon.svg?v=3" alt="" width="26" height="26"><span>GumballZ</span></a>
@@ -42,7 +43,7 @@
       <button class="chip ic" id="btn-music" title="Nhạc nền" aria-label="Nhạc nền">🎵</button>
       <button class="chip ic" id="btn-mute" title="Âm thanh" aria-label="Âm thanh">🔊</button>
       <button class="chip ic" id="btn-guide" title="Hướng dẫn" aria-label="Hướng dẫn">📖</button>
-      
+      <button class="chip ic" id="btn-leave" title="Rời ván · về trang chủ" aria-label="Rời ván, về trang chủ">🏠</button>
     </div>
   </header>
   <main id="felt"><div id="board" aria-label="Bàn xếp bài"></div></main>
@@ -57,10 +58,11 @@
     <button class="act" id="btn-more" title="Thêm"><i>☰</i><span>Thêm</span></button>
   </nav>
 </div>
+</section>
 <div class="modal" id="modal"><div class="modal-box" id="modal-box" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <canvas id="win-canvas" hidden></canvas>
-<script type="module" src="js/main.js?v=86"></script>
+<script type="module" src="js/main.js?v=87"></script>
 <script type="module" src="../shared/net/presence.js?v=26"></script>
 <script type="module" async src="../shared/ui/feel.js?v=54"></script>
 <script type="module" async src="../shared/ui/homesplit.js?v=1"></script>
