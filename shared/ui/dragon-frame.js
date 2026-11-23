@@ -793,13 +793,15 @@ export function eastBendPoint(x, y, R) {
   return { x: (r + y) * s, y: -r + (r + y) * co };
 }
 /* Tỉ lệ vẽ rồng đông làm khung (hàm thuần, test được bằng node):
-   vòng khung trên màn hình có bán kính R = 68 × (W/180) (68 = bán kính quỹ đạo edge,
+   vòng khung trên màn hình có bán kính R = 56 × (W/180) (56 = bán kính quỹ đạo edge,
    canvas .dov rộng W); chu vi C = 2πR. Thân dài EAST_BODY_LEN, uốn theo vòng, cần phủ
    300° = 5/6 chu vi → k = (5/6 × C) / EAST_BODY_LEN; 60° còn lại là khoảng trống
-   đầu–đuôi (ngọc trai ở giữa). k tỉ lệ tuyến tính theo W. */
+   đầu–đuôi (ngọc trai ở giữa). k tỉ lệ tuyến tính theo W.
+   (56 thay cho 68 ở -184: thân ôm sát mép khung — mép trong thân vừa chạm vòng vàng,
+   thay vì bay cách mép ~29px như quầng hào quang.) */
 export function eastRingScale(W) {
   const w = Math.max(1, +W || 0);
-  const R = 68 * w / 180;
+  const R = 56 * w / 180;
   const C = 2 * Math.PI * R;
   const k = (5 / 6 * C) / EAST_BODY_LEN;
   return { k, R, coverDeg: 300, gapDeg: 60 };
