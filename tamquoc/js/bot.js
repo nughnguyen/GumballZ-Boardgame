@@ -1,6 +1,6 @@
 // Bot Tam Quốc Sát: đoán phe qua "ấn tượng" công khai (s.lean), chơi theo vai trò, dùng kỹ năng.
-import { getPlayer, current, alivePlayers, top, distance, inRange, attackRange, hasSkill, weaponOf, armorOf, cardModes, activeSkills, responseOptions, useOptions, orderFrom, effSuit } from './engine.js?v=15';
-import { CARD_INFO, GENERALS, isRed, isBlack } from './cards.js?v=11';
+import { getPlayer, current, alivePlayers, top, distance, inRange, attackRange, hasSkill, weaponOf, armorOf, cardModes, activeSkills, responseOptions, useOptions, orderFrom, effSuit } from './engine.js?v=21';
+import { CARD_INFO, GENERALS, isRed, isBlack } from './cards.js?v=15';
 
 const R = () => Math.random();
 function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -36,6 +36,19 @@ export function relation(s, me, o) {
   if (alivePlayers(s).length === 2) return -1; // còn 2 người khác phe: đấu tới chết
   const lean = s.lean[o.id] || 0;
   const known = o.revealed ? o.role : null;
+  const mode = s.opts && s.opts.mode;
+  if (mode === 'duo' || mode === 'solo') return o.role === me.role ? 1 : -1;
+  if (mode === 'kd') {
+    /* Quốc Chiến: mình biết thế lực của mình; người khác chỉ biết khi đã lật */
+    if (me.role === 'yexin') return -1;
+    if (o.hidden) return 0;
+    if (o.role === 'yexin') return -1;
+    const mine = me.hidden ? me.kingdom : me.role;
+    if (o.role !== mine) return -1;
+    /* cùng thế lực nhưng mình còn úp: lật ra mà đủ người thì mình thành Dã tâm gia → chưa chắc là bạn */
+    if (me.hidden && s.players.filter(q => !q.hidden && q.role === mine).length >= (s.players.length === 9 ? 3 : Math.floor(s.players.length / 2))) return -1;
+    return 1;
+  }
   switch (me.role) {
     case 'lord': {
       if (known === 'loyal') return 1;
@@ -78,7 +91,7 @@ const isFriend = (s, me, o) => relation(s, me, o) > 0;
 // giá trị lá (giữ/bỏ)
 function value(s, me, c) {
   const base = { huogong: 4, tiesuo: 3, bingliang: 6, zhuque: 4, guding: 4, tengjia: 5, baiyin: 5, dao: 9, jiu: 5, ne: 6, wuxie: 6, sat: 5, wuzhong: 7, shunshou: 6, guohe: 5, juedou: 4, nanman: 5, wanjian: 5, lebu: 6, jiedao: 3, taoyuan: 3, wugu: 3, shandian: 1,
-    bagua: 6, renwang: 5, plus: 5, minus: 4, zhuge: 4, qinggang: 4, qinglong: 4, zhangba: 3, guanshi: 4, fangtian: 3, qilin: 3, cixiong: 3, hanbing: 3 }[c.type] || 2;
+    yuanjiao: 6, yiyi: 5, shuiyan: 5, sanjian: 4, mingguang: 5, bagua: 6, renwang: 5, plus: 5, minus: 4, zhuge: 4, qinggang: 4, qinglong: 4, zhangba: 3, guanshi: 4, fangtian: 3, qilin: 3, cixiong: 3, hanbing: 3 }[c.type] || 2;
   let v = base;
   if (c.type === 'sat' && me.hand.filter(x => x.type === 'sat').length > 2 && !(weaponOf(me) === 'zhuge' || hasSkill(me, 'baohao'))) v -= 2;
   if (CARD_INFO[c.type].kind === 'armor' && me.equip.armor) v -= 3;
@@ -96,6 +109,9 @@ export function botAction(s, pid) {
   if (!me || s.phase !== 'playing') return null;
   const t = top(s); const ask = t && t.ask;
   if (!ask || !ask.players.includes(pid)) return null;
+  /* Quốc Chiến: máy lật tướng ở pha ra bài (lượt đầu thường lật luôn; máu yếu thì lật để có kỹ năng) */
+  if (me.hidden && me.general && ask.type === 'play' && (me.hp <= 2 || s.turnCount > s.players.length || Math.random() < .55)) return { type: 'reveal' };
+  if (me.hidden && me.general && me.hp <= 1 && ask.type !== 'general' && ask.type !== 'nullify') return { type: 'reveal' };
   try { return decide(s, me, t, ask) || fallback(s, me, ask); }
   catch (e) { return fallback(s, me, ask); }
 }
@@ -103,6 +119,7 @@ function fallback(s, me, ask) {
   switch (ask.type) {
     case 'play': return { type: 'end' };
     case 'general': { const t = top(s); return { type: 'general', id: t.offers[me.id][0] }; }
+    case 'banpick': return banPick(s, me);
     case 'discard': return ask.optional ? { type: 'pass' } : { type: 'discard', ids: me.hand.slice(0, ask.n).map(c => c.id) };
     case 'pick': { const from = getPlayer(s, ask.from); if (from.hand.length && ask.zones.includes('h')) return { type: 'pick', zone: 'h' }; const e = Object.values(from.equip).find(Boolean); if (e && ask.zones.includes('e')) return { type: 'pick', id: e.id }; return { type: 'pick', id: from.judge[0].card.id }; }
     case 'guanxing': { const t = top(s); return { type: 'guanxing', top: t.hold.map(c => c.id), bottom: [] }; }
@@ -117,6 +134,7 @@ function fallback(s, me, ask) {
 function decide(s, me, t, ask) {
   switch (ask.type) {
     case 'general': return chooseGeneral(s, me, t.offers[me.id]);
+    case 'banpick': return banPick(s, me);
     case 'play': return playTurn(s, me);
     case 'card': return respondCard(s, me, t, ask);
     case 'nullify': return nullifyDecision(s, me, ask);
@@ -175,8 +193,14 @@ function decide(s, me, t, ask) {
   return null;
 }
 
+/* 🥊 Solo: cấm tướng mạnh nhất còn lại (đoán đối thủ sẽ lấy), chọn tướng mạnh nhất cho mình */
+function banPick(s, me) {
+  const B = s.bp, left = B.pool.filter(id => !B.ban.some(x => x.id === id) && !Object.values(B.pick).includes(id));
+  return { type: 'banpick', id: chooseGeneral(s, me, left).id };
+}
+const allCardsN = q => q.hand.length + Object.values(q.equip).filter(Boolean).length;
 function chooseGeneral(s, me, offers) {
-  const score = { zhangfei: 8, guanyu: 8, zhaoyun: 8, lvbu: 8, huanggai: 7, sunquan: 8, liubei: 7, caocao: 7, simayi: 7, guojia: 7, zhenji: 7, zhangliao: 8, zhugeliang: 6, huangyueying: 7, zhouyu: 7, huatuo: 8, diaochan: 7, machao: 7, xuchu: 6, ganning: 7, lvmeng: 6, luxun: 7, daqiao: 7, sunshangxiang: 6, xiahoudun: 7, xiahouyuan: 7, caoren: 7, dianwei: 7, xunyu: 7, huangzhong: 8, weiyan: 7, pangtong: 7, wolong: 8, xiaoqiao: 7, zhoutai: 7, taishici: 7, zhangjiao: 7, yuanshao: 8 };
+  const score = { caopi: 6, xuhuang: 6, caozhi: 6, yujin: 6, fazheng: 6, xushu: 6, masu: 6, guanping: 6, lingtong: 6, xusheng: 6, wuguotai: 6, chengpu: 6, yuji: 6, yanliang: 6, pangde: 6, gongsunzan: 6, zhangfei: 8, guanyu: 8, zhaoyun: 8, lvbu: 8, huanggai: 7, sunquan: 8, liubei: 7, caocao: 7, simayi: 7, guojia: 7, zhenji: 7, zhangliao: 8, zhugeliang: 6, huangyueying: 7, zhouyu: 7, huatuo: 8, diaochan: 7, machao: 7, xuchu: 6, ganning: 7, lvmeng: 6, luxun: 7, daqiao: 7, sunshangxiang: 6, xiahoudun: 7, xiahouyuan: 7, caoren: 7, dianwei: 7, xunyu: 7, huangzhong: 8, weiyan: 7, pangtong: 7, wolong: 8, xiaoqiao: 7, zhoutai: 7, taishici: 7, zhangjiao: 7, yuanshao: 8, zhanghe: 7, dengai: 7, jiangwei: 7, liushan: 6, menghuo: 7, zhurong: 7, sunjian: 7, lusu: 7, sunce: 8, dongzhuo: 7, jiaxu: 7 };
   const sorted = [...offers].sort((a, b) => (score[b] || 5) + R() * 3 - (score[a] || 5) - R() * 3);
   return { type: 'general', id: sorted[0] };
 }
@@ -211,8 +235,14 @@ function playTurn(s, me) {
   if (peaches.length && me.hp < me.maxHp && (me.hp <= 2 || peaches.length > 1 || me.hand.length > me.hp + 1)) return use(peaches[0], 'dao');
   // 3. rút bài
   let x = usable('wuzhong')[0]; if (x) return use(x, 'wuzhong');
+  x = usable('yiyi')[0]; if (x) return use(x, 'yiyi');
+  x = usable('yuanjiao')[0]; if (x) { const c = x.o.targets.map(id => getPlayer(s, id)); const tg = c.find(q => isFriend(s, me, q)) || c.filter(q => !isEnemy(s, me, q))[0] || c.sort((a, b) => b.hand.length - a.hand.length).pop(); if (tg) return use(x, 'yuanjiao', [tg.id]); }
   // 4. kỹ năng
   if (sk('khonhuc') && (me.hp >= 3 || (me.hp >= 2 && me.hand.some(c => c.type === 'dao'))) && (s.tf.khonhucN || 0) < 2) { s.tf.khonhucN = (s.tf.khonhucN || 0) + 1; return { type: 'skill', skill: 'khonhuc' }; }
+  if (sk('khieukhich')) { /* Khương Duy: thách kẻ địch nhiều bài nhất (ít Sát thì mất bài) */
+    const e = sk('khieukhich').targets.map(id => getPlayer(s, id)).filter(q => isEnemy(s, me, q) && allCardsN(q) > 0).sort((a, b) => allCardsN(b) - allCardsN(a))[0];
+    if (e && (me.hp >= 3 || me.hand.some(c => c.type === 'ne'))) return { type: 'skill', skill: 'khieukhich', targets: [e.id] };
+  }
   if (sk('thanhnang')) {
     const tg = [me, ...friends].filter(q => q.hp < q.maxHp).sort((a, b) => a.hp - b.hp)[0];
     if (tg && sk('thanhnang').targets.includes(tg.id)) { const c = worstFirst(s, me, me.hand)[0]; return { type: 'skill', skill: 'thanhnang', ids: [c.id], targets: [tg.id] }; }
@@ -251,7 +281,7 @@ function playTurn(s, me) {
     if (e) return { type: 'skill', skill: 'khuho', targets: [e.id] };
   }
   // 5. cẩm nang
-  const pickT = (targets, f = isEnemy) => targets.map(id => getPlayer(s, id)).filter(q => f(s, me, q)).sort((a, b) => a.hp - b.hp || armorScore(b) - armorScore(a))[0];
+  const pickT = (targets, f = isEnemy) => targets.map(id => getPlayer(s, id)).filter(q => f(s, me, q)).sort((a, b) => (a.hp - (a.cmd ? 2 : 0)) - (b.hp - (b.cmd ? 2 : 0)) || armorScore(b) - armorScore(a))[0];
   x = usable('lebu')[0]; if (x) { const tg = pickT(x.o.targets); if (tg) return use(x, 'lebu', [tg.id]); }
   x = usable('bingliang')[0]; if (x) { const tg = pickT(x.o.targets); if (tg) return use(x, 'bingliang', [tg.id]); }
   x = realFirst(usable('huogong'), 'huogong')[0];
@@ -266,6 +296,7 @@ function playTurn(s, me) {
   }
   x = usable('shunshou')[0]; if (x) { const tg = pickT(x.o.targets) || (x.o.targets.map(id => getPlayer(s, id)).find(q => q.judge.length && !isEnemy(s, me, q))); if (tg) return use(x, 'shunshou', [tg.id]); }
   x = realFirst(usable('guohe'), 'guohe')[0]; if (x) { const tg = pickT(x.o.targets) || x.o.targets.map(id => getPlayer(s, id)).find(q => isFriend(s, me, q) && q.judge.length); if (tg) return use(x, 'guohe', [tg.id]); }
+  x = usable('shuiyan')[0]; if (x) { const e = x.o.targets.map(id => getPlayer(s, id)).filter(q => isEnemy(s, me, q)).sort((a, b) => (Object.values(b.equip).filter(Boolean).length - Object.values(a.equip).filter(Boolean).length) || a.hp - b.hp)[0]; if (e && (Object.values(e.equip).filter(Boolean).length >= 1 || e.hp <= 2 || R() < .6)) return use(x, 'shuiyan', [e.id]); }
   x = usable('jiedao')[0];
   if (x) {
     for (const aid of x.o.targets) {
@@ -319,6 +350,7 @@ function playTurn(s, me) {
 function armorScore(q) { return (q.equip.armor ? 2 : 0) + (q.equip.plus ? 1 : 0); }
 function slashScore(s, me, q, c) {
   let v = 10 - q.hp * 2 - q.hand.length * .5;
+  if (q.cmd) v += 4; /* 3v3: Chủ soái (công khai) – hạ được là thắng */
   if (armorOf(q) === 'renwang' && isBlack(c) && weaponOf(me) !== 'qinggang') v -= 20;
   if (armorOf(q) === 'tengjia' && weaponOf(me) !== 'qinggang') v += c.el === 'fire' || weaponOf(me) === 'zhuque' ? 4 : c.el ? 0 : -20;
   if (q.flags.chained && c.el) v += 2;

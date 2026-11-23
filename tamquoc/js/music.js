@@ -1,8 +1,8 @@
 // Nhạc nền cổ phong tự tổng hợp – thang ngũ cung (Vũ điệu), dùng bộ phát chung shared/audio/bgm.js, không file nhạc.
 // Sảnh: đàn tranh rải + tiêu trầm · Trong trận: nhị hồ + đàn tranh + trống da · Gay cấn (hấp hối, quyết đấu, chúa công nguy):
 // trống trận dồn + tỳ bà vê + chiêng. Mặc định BẬT, ai tắt thì nhớ.
-import { actx } from './fx.js?v=12';
-import { createBGM } from '../../shared/audio/bgm.js?v=7';
+import { actx } from './fx.js?v=18';
+import { createBGM } from '../../shared/audio/bgm.js?v=11';
 let legacy = null; try { legacy = localStorage.getItem('tqs-music'); } catch (e) {}
 const bgm = createBGM({ game: 'tamquoc', ctx: actx, legacy, volKey: 'tqs-music-vol' });
 // -1 = sảnh, 0 = bình thường, 1–2 = căng

@@ -131,6 +131,16 @@ const W = {
     return s;
   })(),
   // Nhân vương thuẫn – khiên sơn son mặt thú
+  /* Tam tiêm lưỡng nhận đao: đao ba mũi, hai lưỡi bên (bản Quốc Chiến) */
+  sanjian: rot(-35, pole(30, 92) + butt(92) + collar(28, 50, 10)
+    + `<path d="M50 4 L55 26 L45 26 Z M37 8 C38 16 41 22 45 26 L41 27 C36 22 34 15 37 8 Z M63 8 C62 16 59 22 55 26 L59 27 C64 22 66 15 63 8 Z" fill="${STEEL}" ${S}/>`
+    + `<path d="M50 8 L50 24" stroke="${STEEL2}" stroke-width="1.2"/>` + tassel(46, 30)),
+  /* Minh quang khải: giáp ngực có hai tấm gương tròn sáng loáng */
+  mingguang: `<path d="M24 14 C36 8 64 8 76 14 L80 62 C74 80 62 90 50 94 C38 90 26 80 20 62 Z" fill="#8a2416" ${S}/>`
+    + `<path d="M28 60 L72 60 M30 70 L70 70 M34 80 L66 80" stroke="#3a0c06" stroke-width="1.2"/>`
+    + `<circle cx="36" cy="34" r="12" fill="${STEEL}" ${S}/><circle cx="64" cy="34" r="12" fill="${STEEL}" ${S}/>`
+    + `<path d="M30 30 C32 27 35 26 38 26 M58 30 C60 27 63 26 66 26" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`
+    + `<rect x="46" y="18" width="8" height="40" rx="2" fill="${BRZ}" ${S}/>`,
   renwang: `<path d="M50 5 C68 7 84 12 85 19 L81 68 C77 83 63 91 50 96 C37 91 23 83 19 68 L15 19 C16 12 32 7 50 5 Z" fill="#8a2416" ${S}/>`
     + `<path d="M50 11 C65 13 78 17 79 22 L75.5 66 C72 78 61 85 50 89 C39 85 28 78 24.5 66 L21 22 C22 17 35 13 50 11 Z" fill="none" stroke="${BRZ}" stroke-width="2.2"/>`
     + `<path d="M30 36 C34 28 44 28 46 36 M70 36 C66 28 56 28 54 36" fill="none" stroke="${BRZ}" stroke-width="2.6"/>`

@@ -1,22 +1,22 @@
 // Lớp mạng Tam Quốc Sát: host giữ state + chạy engine, client chỉ gửi action. Kết nối dùng chung ở shared/net/room.js
-import { createGame, applyAction, viewFor, top, getPlayer, NULL_TIME } from './engine.js?v=15';
-import { botAction } from './bot.js?v=15';
-import { coachHint } from './coach.js?v=15';
-import { S } from './fx.js?v=12';
+import { createGame, applyAction, viewFor, top, getPlayer, NULL_TIME } from './engine.js?v=21';
+import { botAction } from './bot.js?v=20';
+import { coachHint } from './coach.js?v=20';
+import { S } from './fx.js?v=18';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=1';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
 import { watch } from '../../shared/ui/stats.js?v=95';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
-export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30; // giây: hết giờ thì máy tự đánh thay (chống treo máy)
+export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30, BP_TIME = 60; /* cấm/chọn tướng Solo: 60 giây mỗi bước (người chơi xin 21/11/2026) */ // giây: hết giờ thì máy tự đánh thay (chống treo máy)
 // ⚙️ Luật mặc định khi tạo phòng mới (luat-mac-dinh.js ở gốc repo); tapChoi = khi bấm nút 🎓 Tập chơi
 const B2 = [true, false];
-const CFG = rulesFor('tamquoc', { exp: true, expGen: true, training: false, tapChoi: { exp: false, expGen: false } }, { exp: B2, expGen: B2, training: B2, tapChoi: { exp: B2, expGen: B2 } });
+const CFG = rulesFor('tamquoc', { exp: true, expGen: true, gen2: true, exp2: true, training: false, tapChoi: { exp: false, expGen: false } }, { exp: B2, expGen: B2, gen2: B2, exp2: B2, training: B2, tapChoi: { exp: B2, expGen: B2 } });
 export const TRAIN_OPTS = { ...CFG.tapChoi, training: true };
 const NS = 'gumballz-tamquoc', PREFIX = 'gumballz-tamquoc-', GAME = 'tamquoc';
 const SNAP = 'gumballz-hostsnap-' + GAME;
-export const MAX = 8, MIN = 2;
+export const MAX = 9, MIN = 2; /* 9 người chỉ dành cho Quốc Chiến (3 thế lực × 3) */
 export function loadSnapshot() { try { const d = JSON.parse(localStorage.getItem(SNAP)); return d && Date.now() - d.ts < 3 * 3600e3 ? d : null; } catch (e) { return null; } }
 export { session };
 // câu chọc kiểu Tam Quốc (bảng thả emoji – shared/ui/react.js), mỗi câu ≤ 24 ký tự
@@ -28,6 +28,7 @@ const BOT_NAMES = ['Xôi', 'Gấu Bông', 'Đậu', 'Nấm', 'Sữa', 'Kẹo', '
 function askTime(ask) {
   if (ask.type === 'play') return TURN_TIME * 1000;
   if (ask.type === 'nullify') return NULL_TIME * 1000;
+  if (ask.type === 'banpick') return BP_TIME * 1000;
   if (ask.type === 'general' || ask.type === 'guanxing') return PICK_TIME * 1000;
   return PROMPT_TIME * 1000;
 }
@@ -202,7 +203,7 @@ export class Host {
     for (const pid of [...t.ask.players]) {
       const p = this.players.find(x => x.id === pid); if (!p || p.isBot) continue;
       const tt = top(this.state); if (!tt || tt !== t || !tt.ask || !tt.ask.players.includes(pid)) break;
-      if (tt.ask.type === 'play' || tt.ask.type === 'general') p.afk = (p.afk || 0) + 1;
+      if (tt.ask.type === 'play' || tt.ask.type === 'general' || tt.ask.type === 'banpick') p.afk = (p.afk || 0) + 1;
       const a = tt.ask.type === 'play' && (p.afk || 0) < 2 ? { type: 'end' } : tt.ask.type === 'nullify' ? { type: 'pass' } : botAction(this.state, pid);
       if (a) applyAction(this.state, pid, a);
     }
@@ -248,7 +249,7 @@ export const srvMode = () => srvOn(GAME, SRV_DEFAULT);
 export class RemoteHost extends RemoteBase {
   constructor(name, handlers, code = null, ok = null) {
     super({ raw: handlers, local: (hh, r) => new Host(name, hh, true, r), game: GAME, ns: NS, prefix: PREFIX, h: watch(GAME, handlers, () => 'host'), name, code, ok, cmds: ['addBot', 'removePlayer', 'setOpts', 'start', 'restart'],
-      onFresh: send => { if (!CFG.exp || !CFG.expGen || CFG.training) send('setOpts', { exp: CFG.exp, expGen: CFG.expGen, training: CFG.training }); }, /* phòng mới: áp luật chọn sẵn của web lên máy chủ */
+      onFresh: send => { if (!CFG.exp || !CFG.expGen || CFG.gen2 === false || CFG.exp2 === false || CFG.training) send('setOpts', { exp: CFG.exp, exp2: CFG.exp2 !== false, expGen: CFG.expGen, gen2: CFG.gen2 !== false, training: CFG.training }); }, /* phòng mới: áp luật chọn sẵn của web lên máy chủ */
       onMsg: msg => { if (msg.t !== 'lobby') return false; this.n = (msg.players || []).filter(p => !p.isBot).length || 1; this.h.onLobby(msg.players, msg.code, msg.started, msg.opts); return true; } });
   }
   act(pid, a) { this.send({ t: 'action', a }); }

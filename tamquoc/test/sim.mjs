@@ -1,7 +1,7 @@
 // Mô phỏng hàng trăm ván toàn bot: đếm ván kẹt/lỗi, kiểm tra bảo toàn bài, thống kê phe thắng.
-// Chạy: node tamquoc/test/sim.mjs [số ván=400] [exp: on|off|mix=mix]
-import { createGame, applyAction, top, countCards, viewFor } from '../js/engine.js?v=15';
-import { botAction } from '../js/bot.js?v=15';
+// Chạy: node tamquoc/test/sim.mjs [số ván=400] [exp: on|off|mix=mix] [chế độ: id|duo|kd|solo=id]
+import { createGame, applyAction, top, countCards, viewFor } from '../js/engine.js?v=21';
+import { botAction } from '../js/bot.js?v=20';
 
 const GAMES = +(process.argv[2] || 400);
 const MAX_STEPS = 40000;
@@ -9,11 +9,12 @@ const wins = {}; const byN = {};
 let stuck = 0, errors = 0, lost = 0, totalTurns = 0, maxTurns = 0, done = 0;
 const rejects = {}; const askTypes = {}; const evc = {}; const genWins = {}; const genGames = {};
 for (let g = 0; g < GAMES; g++) {
-  const n = 2 + (g % 7);
+  const MODE = process.argv[4] || 'id';
+  const n = MODE === 'solo' ? 2 : MODE === 'duo' ? 4 : MODE === 'kd' ? 4 + (g % 5) : 2 + (g % 7);
   const players = Array.from({ length: n }, (_, i) => ({ id: 'p' + i, name: 'Bot' + i, isBot: true }));
   let s;
   const expMode = process.argv[3] || 'mix'; const exp = expMode === 'on' ? true : expMode === 'off' ? false : g % 2 === 0;
-  try { s = createGame(players, { exp, expGen: exp }); } catch (e) { errors++; console.log('Lỗi tạo ván', e); continue; }
+  try { s = createGame(players, { exp, expGen: exp, mode: MODE }); } catch (e) { errors++; console.log('Lỗi tạo ván', e); continue; }
   let steps = 0, fail = false;
   while (s.phase === 'playing' && steps < MAX_STEPS) {
     steps++;
@@ -44,7 +45,7 @@ for (let g = 0; g < GAMES; g++) {
   else {
     done++; wins[s.winner] = (wins[s.winner] || 0) + 1; byN[n] = byN[n] || {}; byN[n][s.winner] = (byN[n][s.winner] || 0) + 1;
     totalTurns += s.turnCount; maxTurns = Math.max(maxTurns, s.turnCount);
-    for (const p of s.players) { genGames[p.general] = (genGames[p.general] || 0) + 1; const won = s.winner === 'lord' ? (p.role === 'lord' || p.role === 'loyal') : p.role === s.winner; if (won) genWins[p.general] = (genWins[p.general] || 0) + 1; }
+    for (const p of s.players) { genGames[p.general] = (genGames[p.general] || 0) + 1; const won = s.winIds ? s.winIds.includes(p.id) : s.winner === 'lord' ? (p.role === 'lord' || p.role === 'loyal') : p.role === s.winner; if (won) genWins[p.general] = (genWins[p.general] || 0) + 1; }
   }
   // JSON round-trip được
   JSON.parse(JSON.stringify(s));

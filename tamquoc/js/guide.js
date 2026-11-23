@@ -1,11 +1,11 @@
 // Hướng dẫn luật Tam Quốc Sát (bản GumballZ) – soạn lại bằng lời của hội, rút gọn hợp lý cho bản web.
-import { CARD_INFO, GENERALS, SKILLS, KINGDOMS, ROLES, buildDeck, rolesFor, DECK_SIZE_BASE, DECK_SIZE_EXP, HORSE_NAMES, artKey } from './cards.js?v=11';
-import { cardHTML, portrait } from './art.js?v=12';
-import { IMG } from './images.js?v=12';
+import { CARD_INFO, GENERALS, SKILLS, KINGDOMS, ROLES, buildDeck, rolesFor, DECK_SIZE_BASE, DECK_SIZE_EXP, DECK_SIZE_EXP2, HORSE_NAMES, artKey } from './cards.js?v=15';
+import { cardHTML, portrait } from './art.js?v=19';
+import { IMG } from './images.js?v=14';
 import { gp, ill } from '../../shared/ui/guidepics.js?v=5';
 import { GI, GV } from './guide-img.js?v=1';
 
-const deck = buildDeck(true);
+const deck = buildDeck(true, true);
 const red = t => String(t).replace(/([♥♦])/g, '<span class="red">$1</span>');
 const COUNT = {}; for (const c of deck) { const k = artKey(c); COUNT[k] = (COUNT[k] || 0) + 1; }
 const sample = type => deck.find(c => artKey(c) === type);
@@ -40,13 +40,13 @@ export function guideHTML() {
   const delay = ['lebu', 'shandian'];
   const weapons = ['zhuge', 'cixiong', 'qinggang', 'hanbing', 'qinglong', 'zhangba', 'guanshi', 'fangtian', 'qilin'];
   const armor = ['bagua', 'renwang', 'plus', 'minus'];
-  const byK = (k, exp) => Object.keys(GENERALS).filter(id => GENERALS[id].kingdom === k && !!GENERALS[id].exp === exp);
+  const byK = (k, exp) => Object.keys(GENERALS).filter(id => GENERALS[id].kingdom === k && (exp === 'ls' ? !!GENERALS[id].ls : exp === 'g3' ? !!GENERALS[id].g3 : !GENERALS[id].ls && !GENERALS[id].g3 && !!GENERALS[id].exp === exp));
   const P = gp(GI, GV, '.gp-ill .qcard{flex:none}');
   const expCards = ['jiu', 'hoasat', 'loisat', 'huogong', 'tiesuo', 'bingliang', 'zhuque', 'guding', 'tengjia', 'baiyin'];
   return `
 <div class="g-head"><h2>📖 Luật Tam Quốc Sát</h2><button class="btn sm" id="g-close">Đóng ✕</button></div>
 <nav class="g-toc">
-  <a href="#g-goal">Vai trò</a><a href="#g-setup">Chuẩn bị</a><a href="#g-turn">Một lượt</a><a href="#g-dist">Khoảng cách</a><a href="#g-basic">Lá cơ bản</a>
+  <a href="#g-goal">Vai trò</a><a href="#g-modes">Đối kháng · Quốc Chiến</a><a href="#g-setup">Chuẩn bị</a><a href="#g-turn">Một lượt</a><a href="#g-dist">Khoảng cách</a><a href="#g-basic">Lá cơ bản</a>
   <a href="#g-trick">Cẩm nang</a><a href="#g-delay">Trì hoãn</a><a href="#g-equip">Trang bị</a><a href="#g-judge">Phán định</a><a href="#g-dying">Hấp hối</a><a href="#g-gens">Võ tướng</a><a href="#g-exp">Mở rộng</a><a href="#g-learn">🎓 Tập chơi</a><a href="#g-web">Chơi trên web</a><a href="#g-tips">Mẹo</a><a href="#g-art">Nguồn tranh</a>
 </nav>
 <div class="g-body">
@@ -59,7 +59,7 @@ ${P.quick([
   ['turn', 'Lượt của bạn: thanh 6 pha, khoảng cách, lá Sát trên tay, nút Kết thúc lượt', '① Pha hiện tại (Ra bài). ② Số = khoảng cách. ③ Chạm lá sáng để dùng. Xong thì ④ <b>Kết thúc lượt</b>.'],
 ])}
 <section id="g-goal"><h3>1. Thân phận và cách thắng</h3>
-<div class="g-roles">${Object.entries(ROLES).map(([k, r]) => `<div class="g-role r-${k}"><b>${r.icon} ${r.name}</b><p>${r.desc}</p></div>`).join('')}</div>
+<div class="g-roles">${Object.entries(ROLES).filter(([k]) => ['lord', 'loyal', 'rebel', 'spy'].includes(k)).map(([k, r]) => `<div class="g-role r-${k}"><b>${r.icon} ${r.name}</b><p>${r.desc}</p></div>`).join('')}</div>
 ${roleTable()}
 <ul>
 <li><b>Chúa công</b> lộ mặt ngay từ đầu, được <b>+1 máu tối đa</b> (từ 3 người trở lên) và đi lượt đầu tiên.</li>
@@ -68,6 +68,29 @@ ${roleTable()}
 <li><b>Nội gián</b> chỉ thắng khi là <b>người duy nhất còn sống</b>. Nếu Chúa công chết khi bàn còn người khác, Phản tặc thắng ngay.</li>
 <li>Thân phận người khác chỉ lật lên khi họ tử trận (hết ván thì lật tất cả).</li>
 </ul>${P.fig('role', 'Màn bốc thẻ thân phận: thẻ của bạn lật lên là Chúa công', 'Đầu ván bốc thẻ thân phận – chỉ mình bạn thấy (Chúa công thì cả bàn biết).')}</section>
+
+<section id="g-modes"><h3>⚔️ Chế độ Đối kháng (1v1 / 2v2 / 3v3) và 🏯 Quốc Chiến</h3>
+<p>Chủ phòng chọn ở mục <b>Chế độ</b> trong phòng chờ. Luật lá bài, kỹ năng giống hệt chế độ Thân phận; chỉ khác cách chia phe và cách thắng. Không có Chúa công nên kỹ năng Chúa không có tác dụng.</p>
+<p><b>⚔️ Đối kháng</b> – một chế độ, tự đổi theo số người: <b>2 người = 🥊 tay đôi 1v1</b>, <b>4 người = 2v2</b>, <b>6 người = 3v3</b>.</p><p><b>2v2</b> (4 người):</p><ul>
+<li>Chia ngẫu nhiên 2 đội <b>🔴 Phe Đỏ</b> và <b>🔵 Phe Lam</b>, lộ từ đầu, ngồi xen kẽ Đỏ – Lam – Đỏ – Lam (đồng đội ngồi đối diện).</li>
+<li>Ai cũng chọn 1 trong 5 võ tướng cùng lúc; người đi đầu ngẫu nhiên.</li>
+<li>Hạ cả 2 người đội bên kia là thắng. Đồng đội ngã xuống thì người còn lại được rút 1 lá.</li>
+<li>Cứu đồng đội bằng Đào, đưa bài cho nhau bằng kỹ năng – cứ bàn chiến thuật trong 💬 chat hoặc 🎙️ kênh thoại.</li>
+</ul>
+<p><b>⚔️ 3v3</b> (6 người): giống 2v2 nhưng mỗi đội 3 người, ngồi xen kẽ. Mỗi đội có 1 <b>⭐ Chủ soái</b> chọn ngẫu nhiên, lộ từ đầu, được +1 máu tối đa. <b>Hạ được Chủ soái đội kia là thắng ngay</b> – nên che chắn Chủ soái nhà mình!</p>
+<p><b>🥊 Tay đôi 1v1</b> (2 người):</p><ul>
+<li>Lật 10 võ tướng cho cả hai cùng xem. Lần lượt: Đỏ cấm → Lam cấm → Đỏ cấm → Lam cấm → Lam chọn → Đỏ chọn. Tướng bị cấm không ai lấy được.</li>
+<li>Đỏ (chọn sau) đi trước nhưng lượt đầu chỉ rút 1 lá; Lam được 5 lá đầu ván cho công bằng.</li>
+<li>Hạ đối thủ là thắng.</li>
+</ul>
+<p><b>🏯 Quốc Chiến</b> (4–8 người):</p><ul>
+<li>Phe của bạn là <b>thế lực của võ tướng</b> bạn chọn: Nguỵ, Thục, Ngô hay Quần. Hai người muốn cùng phe chỉ cần cùng chọn tướng một thế lực.</li>
+<li>Tướng chọn xong thì <b>úp</b>: người khác không biết bạn là ai, phe nào. Tướng úp vẫn có máu nhưng <b>chưa dùng được kỹ năng</b>.</li>
+<li>Bấm <b>🎴 Lật tướng</b> bất cứ lúc nào để lộ diện và dùng kỹ năng. Tử trận hay hạ được người khác thì tự lật.</li>
+<li>Mỗi thế lực tối đa <b>một nửa số người</b> (bàn 6 người thì 3). Thế lực đã đủ người mà bạn mới lật thì bạn thành <b>🐍 Dã tâm gia</b> – đánh một mình, phải là người sống sót cuối cùng.</li>
+<li>Hạ người phe khác: rút lá bằng số người của phe đó (Dã tâm gia: 1 lá). Hạ nhầm người cùng phe: bỏ hết bài trên tay và trang bị.</li>
+<li>Chỉ còn một thế lực sống sót (tính cả người còn úp) thì thế lực đó thắng.</li>
+</ul></section>
 
 <section id="g-setup"><h3>2. Chuẩn bị</h3><ul>
 <li>Bộ bài cơ bản ${DECK_SIZE_BASE} lá (bật bản mở rộng Quân Tranh: thêm ${DECK_SIZE_EXP} lá), mỗi lá có <b>chất</b> (♠ Bích, ♥ Cơ, ♣ Chuồn, ♦ Rô) và <b>số</b> (A–K) – dùng khi phán định.</li>
@@ -122,7 +145,7 @@ ${roleTable()}
 <li><b>Chúa công giết nhầm Trung thần</b>: Chúa phải bỏ hết bài trên tay và trang bị.</li>
 </ul></section>
 
-<section id="g-gens"><h3>11. Võ tướng cơ bản (${Object.keys(GENERALS).filter(k => !GENERALS[k].exp).length} tướng)</h3>
+<section id="g-gens"><h3>11. Võ tướng cơ bản (${Object.keys(GENERALS).filter(k => !GENERALS[k].exp && !GENERALS[k].ls && !GENERALS[k].g3).length} tướng)</h3>
 <p class="g-note">Kỹ năng ghi <b>(Chúa)</b> chỉ có tác dụng khi tướng đó là Chúa công. Kỹ năng chủ động hiện thành nút trong pha Ra bài; kỹ năng bị động tự kích hoạt.</p>
 ${Object.keys(KINGDOMS).map(k => `<h4 class="g-kd" style="--kc:${KINGDOMS[k].color}">${KINGDOMS[k].han} ${KINGDOMS[k].name}</h4><div class="g-gens">${byK(k, false).map(general).join('')}</div>`).join('')}
 </section>
@@ -138,6 +161,15 @@ ${Object.keys(KINGDOMS).map(k => `<h4 class="g-kd" style="--kc:${KINGDOMS[k].col
 <div class="g-grid">${expCards.map(row).join('')}</div>
 <h4>Tướng mở rộng</h4>
 ${Object.keys(KINGDOMS).map(k => byK(k, true).length ? `<h4 class="g-kd" style="--kc:${KINGDOMS[k].color}">${KINGDOMS[k].han} ${KINGDOMS[k].name}</h4><div class="g-gens">${byK(k, true).map(general).join('')}</div>` : '').join('')}
+<h4>🌲 Tướng Lâm – Sơn (${Object.keys(GENERALS).filter(k => GENERALS[k].ls).length} tướng)</h4>
+<p>Bật/tắt bằng ô <b>Tướng Lâm – Sơn</b> ở phòng chờ. Kỹ năng được GumballZ viết gọn lại cho dễ chơi trên web.</p>
+${Object.keys(KINGDOMS).map(k => byK(k, 'ls').length ? `<h4 class="g-kd" style="--kc:${KINGDOMS[k].color}">${KINGDOMS[k].han} ${KINGDOMS[k].name}</h4><div class="g-gens">${byK(k, 'ls').map(general).join('')}</div>` : '').join('')}
+<h4>🌟 Tướng Nhất Tướng Thành Danh (${Object.keys(GENERALS).filter(k => GENERALS[k].g3).length} tướng)</h4>
+<p>Bật/tắt bằng ô <b>Tướng Nhất Tướng Thành Danh</b> ở phòng chờ. Kỹ năng do GumballZ viết gọn và chỉnh độ mạnh bằng máy tự đấu.</p>
+${Object.keys(KINGDOMS).map(k => byK(k, 'g3').length ? `<h4 class="g-kd" style="--kc:${KINGDOMS[k].color}">${KINGDOMS[k].han} ${KINGDOMS[k].name}</h4><div class="g-gens">${byK(k, 'g3').map(general).join('')}</div>` : '').join('')}
+<h4>🏯 Lá bài bản Quốc Chiến (${DECK_SIZE_EXP2} lá)</h4>
+<p>Bật/tắt bằng ô <b>Lá bài Quốc Chiến</b> ở phòng chờ; dùng được ở mọi chế độ.</p>
+<div class="g-grid">${['yuanjiao', 'yiyi', 'shuiyan', 'sanjian', 'mingguang'].map(row).join('')}</div>
 <p class="g-note">Một số kỹ năng được GumballZ rút gọn cho bản web (VD Bất khuất: lật 1 lá làm vết sẹo, khác số mọi vết cũ thì hồi về 1 máu; Cứ thủ: lượt sau bị bỏ qua).</p>
 </section>
 

@@ -66,4 +66,24 @@ Binh khí/trang bị trên lá bài là hình SVG do GumballZ tự vẽ (`js/wea
 | g-zhoutai.jpg | Chân dung Chu Thái | [Zhou Tai Qing illustration.jpg](https://commons.wikimedia.org/wiki/File:Zhou_Tai_Qing_illustration.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
 | g-zhouyu.jpg | Chân dung Chu Du | [ZhouYu.jpg](https://commons.wikimedia.org/wiki/File:ZhouYu.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
 | g-zhugeliang.jpg | Chân dung Gia Cát Lượng | [ZhugeLiang1.jpg](https://commons.wikimedia.org/wiki/File:ZhugeLiang1.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-zhanghe.jpg | Chân dung Trương Cáp | [Zhang He Portrait.jpg](https://commons.wikimedia.org/wiki/File:Zhang_He_Portrait.jpg) | Không rõ tác giả (minh hoạ Tam Quốc diễn nghĩa) | Đời Thanh | Public domain |
+| g-dengai.jpg | Chân dung Đặng Ngải | [Deng Ai Qing portrait.jpg](https://commons.wikimedia.org/wiki/File:Deng_Ai_Qing_portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
+| g-jiangwei.jpg | Chân dung Khương Duy | [JiangWei.jpg](https://commons.wikimedia.org/wiki/File:JiangWei.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-liushan.jpg | Chân dung Lưu Thiện | [Liu Shan Qing illustration.jpg](https://commons.wikimedia.org/wiki/File:Liu_Shan_Qing_illustration.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
+| g-zhurong.jpg | Chân dung Chúc Dung | [ZhuRong.jpg](https://commons.wikimedia.org/wiki/File:ZhuRong.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-sunjian.jpg | Chân dung Tôn Kiên | [Sun Jian Qing dynasty illustration.jpg](https://commons.wikimedia.org/wiki/File:Sun_Jian_Qing_dynasty_illustration.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
+| g-lusu.jpg | Chân dung Lỗ Túc | [LuSu.jpg](https://commons.wikimedia.org/wiki/File:LuSu.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-sunce.jpg | Chân dung Tôn Sách | [Sun Ce Portrait.jpg](https://commons.wikimedia.org/wiki/File:Sun_Ce_Portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
+| g-dongzhuo.jpg | Chân dung Đổng Trác | [Dong Zhuo Qing Dynasty Illustration.jpg](https://commons.wikimedia.org/wiki/File:Dong_Zhuo_Qing_Dynasty_Illustration.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh (1906) | Public domain |
+| g-jiaxu.jpg | Chân dung Giả Hủ | [Jia Xu2.jpg](https://commons.wikimedia.org/wiki/File:Jia_Xu2.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-caopi.jpg | Chân dung Tào Phi | [CaoPiPortrait.jpg](https://commons.wikimedia.org/wiki/File:CaoPiPortrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-fazheng.jpg | Chân dung Pháp Chính | [FaZheng.jpg](https://commons.wikimedia.org/wiki/File:FaZheng.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-gongsunzan.jpg | Chân dung Công Tôn Toản | [Gongsun Zan Qing illustration.jpg](https://commons.wikimedia.org/wiki/File:Gongsun_Zan_Qing_illustration.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-masu.jpg | Chân dung Mã Tắc | [Ma Su Portrait.jpg](https://commons.wikimedia.org/wiki/File:Ma_Su_Portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-xushu.jpg | Chân dung Từ Thứ | [XuShu.jpg](https://commons.wikimedia.org/wiki/File:XuShu.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-xuhuang.jpg | Chân dung Từ Hoảng | [Xu Huang Portrait.jpg](https://commons.wikimedia.org/wiki/File:Xu_Huang_Portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-yanliang.jpg | Chân dung Nhan Lương | [Yan Liang Qing portrait.jpg](https://commons.wikimedia.org/wiki/File:Yan_Liang_Qing_portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-yujin.jpg | Chân dung Vu Cấm | [YuJin.jpg](https://commons.wikimedia.org/wiki/File:YuJin.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-yuji.jpg | Chân dung Vu Cát | [Yu Ji Qing portrait.jpg](https://commons.wikimedia.org/wiki/File:Yu_Ji_Qing_portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
+| g-guanping.jpg | Chân dung Quan Bình | [Guan Ping Qing portrait.jpg](https://commons.wikimedia.org/wiki/File:Guan_Ping_Qing_portrait.jpg) | Không rõ tác giả (hoạ sĩ minh hoạ đời Thanh) | Đời Thanh | Public domain |
 

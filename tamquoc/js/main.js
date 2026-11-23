@@ -1,20 +1,21 @@
 // Giao diện Tam Quốc Sát + nối với lớp mạng (host-authoritative). Mọi hình vẽ tự làm bằng CSS/SVG/emoji.
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
+import { confirmBox } from '../../shared/ui/dialog.js?v=10';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
-import { CARD_INFO, GENERALS, SKILLS, KINGDOMS, ROLES, SUIT_SYMBOL, SUIT_NAME, cardLabel, cardName, rankLabel, rolesFor, infoOf } from './cards.js?v=11';
-import { JUDGE_TEXT } from './engine.js?v=15';
+import { CARD_INFO, GENERALS, SKILLS, KINGDOMS, ROLES, SUIT_SYMBOL, SUIT_NAME, cardLabel, cardName, rankLabel, rolesFor, infoOf, MODES, modeOk, modeNeed, RELICS } from './cards.js?v=15';
+import { JUDGE_TEXT } from './engine.js?v=21';
+import { META, PHASE, STYLE, BP_TIPS } from './genmeta.js?v=1';
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, MAX, MIN, TQ_PHRASES, TRAIN_OPTS } from './net.js?v=66';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { netStatus } from '../../shared/ui/status.js';
-
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
-import { portrait, blankPortrait, cardHTML, backHTML, generalCardHTML, kindTag, iconsFor, emoOf } from './art.js?v=12';
-import * as fx from './fx.js?v=12';
-import { musicToggle, musicIsOn, musicVolume, musicResumeIfOn, musicIntensity, musicStinger } from './music.js?v=12';
-import { openGuide as guide } from './guide.js?v=14';
-import { SKILL_HELP, SKILL_TYPE } from './skillhelp.js?v=7';
-import { PHASE_HELP } from './coach.js?v=15';
+import { portrait, blankPortrait, cardHTML, backHTML, generalCardHTML, kindTag, iconsFor, emoOf } from './art.js?v=19';
+import * as fx from './fx.js?v=18';
+import { musicToggle, musicIsOn, musicVolume, musicResumeIfOn, musicIntensity, musicStinger } from './music.js?v=18';
+import { openGuide as guide } from './guide.js?v=24';
+import { SKILL_HELP, SKILL_TYPE } from './skillhelp.js?v=9';
+import { PHASE_HELP } from './coach.js?v=20';
 
 const GAME = 'tamquoc';
 const $ = s => document.querySelector(s);
@@ -81,6 +82,8 @@ $('#join-code').addEventListener('keydown', e => { if (e.key === 'Enter') $('#bt
 const qcode = linkCode(); if (qcode) $('#join-code').value = qcode;
 function linkJoin(code) { $('#join-code').value = code; joinByLink({ code, toast: m => toast(m), join: n => { $('#name').value = n; $('#btn-join').click(); }, abort: () => leave() }); }
 function leave() { reacts.setVisible(false); if (net) (net.leave ? net.leave() : net.destroy()); net = null; view = null; prev = null; lobby = []; closeModal(); history.replaceState(null, '', location.pathname); show('screen-home'); }
+/* Trang HTML cũ còn trong bộ nhớ đệm của điện thoại (thiếu nút mới như #opt-mode) mà script đã là bản mới → gắn nút vào null, cả trang đứng im (lỗi 20/11/2026). Tải lại một lần để lấy HTML mới. */
+if (!$('#opt-mode')) { let once = false; try { once = !sessionStorage.getItem('tq-stale'); sessionStorage.setItem('tq-stale', '1'); } catch (e) {} if (once) { location.reload(); throw new Error('bgvn-stale-html'); } }
 $('#btn-leave-lobby').onclick = leave;
 $('#btn-leave').onclick = () => {
   openModal(`<h2>Rời ván?</h2><p class="center-txt">${isHost ? 'Bạn là chủ phòng – rời đi sẽ kết thúc ván cho mọi người.' : 'Bot sẽ đánh thay bạn. Có thể vào lại bằng mã phòng.'}</p><div class="row"><button class="btn" id="m-stay">Ở lại</button><button class="btn red" id="m-leave">Rời ván</button></div>`);
@@ -88,10 +91,10 @@ $('#btn-leave').onclick = () => {
 };
 $('#btn-copy').onclick = () => { const url = inviteUrl($('#room-code').textContent); navigator.clipboard?.writeText(url).then(() => toast('Đã chép link mời 📋', 'ok'), () => toast(url)); };
 $('#btn-addbot').onclick = () => net && net.addBot && net.addBot();
-$('#opt-exp').onchange = $('#opt-gen').onchange = $('#opt-train').onchange = () => { if (isHost && net && net.setOpts) net.setOpts({ exp: $('#opt-exp').checked, expGen: $('#opt-gen').checked, training: $('#opt-train').checked }); };
+$('#opt-mode').onclick = e => { const b = e.target.closest('.mode'); if (!b || !isHost || !net || !net.setOpts) return; const o = { mode: b.dataset.m }; if (o.mode !== 'id') o.training = false; net.setOpts(o); };
+$('#opt-gen3').onchange = $('#opt-relic').onchange = $('#opt-exp').onchange = $('#opt-gen').onchange = $('#opt-gen2').onchange = $('#opt-exp2').onchange = $('#opt-train').onchange = () => { if (isHost && net && net.setOpts) net.setOpts({ exp: $('#opt-exp').checked, exp2: $('#opt-exp2').checked, expGen: $('#opt-gen').checked, gen2: $('#opt-gen2').checked, relic: $('#opt-relic').checked, gen3: $('#opt-gen3').checked, training: $('#opt-train').checked }); };
 $('#btn-start').onclick = () => { musicResumeIfOn(); net && net.start && net.start(); };
 $('#btn-guide-home').onclick = $('#btn-guide').onclick = $('#btn-guide2').onclick = openGuide;
-
 $('#btn-log').onclick = () => $('#log').classList.toggle('hidden');
 $('#btn-log-close').onclick = () => $('#log').classList.add('hidden');
 
@@ -135,14 +138,34 @@ function renderLobby() {
   });
   const n = lobby.length;
   $('#pcount').textContent = `${n}/${MAX}`;
-  const roles = rolesFor(Math.max(MIN, Math.min(MAX, n || MIN)));
-  $('#role-preview').innerHTML = (n >= MIN ? roles.map(r => `<span class="rchip r-${r}"><i class="seal">${SEAL[r]}</i>${ROLES[r].name}</span>`).join('') : '<span class="muted">Cần ít nhất 2 người.</span>')
-    + `<div class="role-desc">${[...new Set(roles)].map(r => `<p><b>${ROLES[r].icon} ${ROLES[r].name}:</b> ${ROLES[r].desc}</p>`).join('')}</div>`;
-  $('#opt-exp').checked = lobbyOpts.exp !== false; $('#opt-gen').checked = lobbyOpts.expGen !== false; $('#opt-train').checked = !!lobbyOpts.training;
-  $('#opt-exp').disabled = $('#opt-gen').disabled = $('#opt-train').disabled = !isHost;
+  const mode0 = lobbyOpts.mode === 'solo' ? 'duo' : MODES[lobbyOpts.mode] ? lobbyOpts.mode : 'id', mode = mode0 === 'duo' && n === 2 ? 'solo' : mode0, MD = MODES[mode];
+  $('#opt-mode').querySelectorAll('.mode').forEach(b => { const on = b.dataset.m === mode0; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); b.disabled = !isHost; });
+  if (mode === 'id') {
+    const roles = rolesFor(Math.max(MIN, Math.min(8, n || MIN)));
+    $('#role-preview').innerHTML = (n >= MIN ? roles.map(r => `<span class="rchip r-${r}"><i class="seal">${SEAL[r]}</i>${ROLES[r].name}</span>`).join('') : '<span class="muted">Cần ít nhất 2 người.</span>')
+      + `<div class="role-desc">${[...new Set(roles)].map(r => `<p><b>${ROLES[r].icon} ${ROLES[r].name}:</b> ${ROLES[r].desc}</p>`).join('')}</div>`;
+    $('#mode-note').textContent = 'Chúa công lộ mặt từ đầu và đi trước. Vai người khác chỉ lộ khi tử trận. Mỗi người chọn 1 trong 3 võ tướng (Chúa công chọn trước, có thêm 3 tướng Chúa).';
+  } else if (mode === 'solo') {
+    $('#role-preview').innerHTML = ['red', 'blue'].map(r => `<span class="rchip r-${r}"><i class="seal">${SEAL[r]}</i>${ROLES[r].name}</span>`).join('')
+      + `<div class="role-desc"><p><b>🥊 ${MD.name}:</b> ${MD.desc}</p><p><b>🚫 Cấm / chọn:</b> Đỏ cấm → Lam cấm → Đỏ cấm → Lam cấm → Lam chọn → Đỏ chọn. Cả hai thấy hết tướng của nhau.</p></div>`;
+    $('#mode-note').textContent = '2 người: 🥊 tay đôi. Thêm đủ 4 người là thành 2v2. Đỏ đi trước nhưng lượt đầu chỉ rút 1 lá; Lam được 5 lá đầu ván. Không có kỹ năng Chúa.';
+  } else if (mode === 'duo') {
+    $('#role-preview').innerHTML = (n === 6 ? ['red', 'blue', 'red', 'blue', 'red', 'blue'] : ['red', 'blue', 'red', 'blue']).map(r => `<span class="rchip r-${r}"><i class="seal">${SEAL[r]}</i>${ROLES[r].name}</span>`).join('')
+      + `<div class="role-desc"><p><b>⚔️ ${MD.name}:</b> ${MD.desc}</p><p><b>🤝 Đồng đội:</b> ${ROLES.red.desc}</p></div>`;
+    $('#mode-note').textContent = (n === 4 ? '' : n === 6 ? '⚔️ 3v3: mỗi đội có 1 ⭐ Chủ soái (+1 máu) – hạ được Chủ soái đội kia là thắng. ' : `⚠️ Đối kháng cần 2 (1v1), 4 (2v2) hoặc 6 người (3v3) – đang có ${n}. `) + 'Đội chia ngẫu nhiên khi bắt đầu, lộ từ đầu. Mỗi người chọn 1 trong 5 võ tướng, người đi đầu ngẫu nhiên. Không có kỹ năng Chúa.';
+  } else {
+    $('#role-preview').innerHTML = ['wei', 'shu', 'wu', 'qun', 'yexin'].map(r => `<span class="rchip r-${r}"><i class="seal">${SEAL[r]}</i>${ROLES[r].name}</span>`).join('')
+      + `<div class="role-desc"><p><b>🏯 ${MD.name}:</b> ${MD.desc}</p><p><b>🗡️ Hạ người:</b> hạ người phe khác được rút lá bằng số người phe đó; hạ nhầm người cùng phe thì mất hết bài trên tay và trang bị.</p></div>`;
+    $('#mode-note').textContent = `Mỗi người chọn 1 trong 5 võ tướng${n === 9 ? '.' : ' – muốn cùng phe với bạn mình thì cùng chọn một thế lực.'} ${n === 9 ? '9 người: bốc ngẫu nhiên 3 thế lực, mỗi thế lực đúng 3 người (mỗi người chỉ được mời tướng của 1 thế lực, giữ bí mật) – không có Dã tâm gia.' : `Tối đa ${Math.floor(Math.max(4, n) / 2)} người mỗi thế lực, ai lật sau thành 🐍 Dã tâm gia.`}`;
+  }
+  $('#opt-gen3').checked = lobbyOpts.gen3 !== false; $('#opt-gen3').disabled = !isHost;
+  $('#opt-relic').checked = lobbyOpts.relic !== false; $('#opt-relic').disabled = !isHost;
+  $('#opt-exp').checked = lobbyOpts.exp !== false; $('#opt-gen').checked = lobbyOpts.expGen !== false; $('#opt-gen2').checked = lobbyOpts.gen2 !== false; $('#opt-exp2').checked = lobbyOpts.exp2 !== false; $('#opt-train').checked = !!lobbyOpts.training;
+  $('#opt-exp').disabled = $('#opt-gen').disabled = $('#opt-gen2').disabled = $('#opt-exp2').disabled = !isHost; $('#opt-train').disabled = !isHost || mode !== 'id';
   $('#btn-addbot').style.display = isHost ? '' : 'none'; $('#btn-addbot').disabled = n >= MAX;
-  $('#btn-start').style.display = isHost ? '' : 'none'; $('#btn-start').disabled = n < MIN || n > MAX;
-  $('#wait-msg').textContent = isHost ? (n < MIN ? 'Thêm bot hoặc mời bạn bè (2–8 người).' : `Sẵn sàng! ${n} người – bấm Bắt đầu.`) : (n ? 'Đang chờ chủ phòng bắt đầu…' : 'Đang kết nối…');
+  $('#btn-start').style.display = isHost ? '' : 'none'; $('#btn-start').disabled = !modeOk(n, mode0);
+  const M0 = MODES[mode0], need = modeNeed(mode0).replace(/ người$/, '');
+  $('#wait-msg').textContent = isHost ? (!modeOk(n, mode0) ? `${M0.name} cần ${need} người – thêm bot, mời bạn bè${n > M0.max ? ' hoặc bớt người' : ''}.` : `Sẵn sàng! ${n} người – bấm Bắt đầu.`) : (n ? 'Đang chờ chủ phòng bắt đầu…' : 'Đang kết nối…');
   paintTitles($('#plist'), lobby); /* 🎖️ danh hiệu cạnh tên người chơi (patch -97) */
 }
 
@@ -204,11 +227,13 @@ const SEATS = { // ngang: % theo chiều kim đồng hồ từ trái-dưới lê
   1: [[50, 13]], 2: [[24, 16], [76, 16]], 3: [[9, 56], [50, 12], [91, 56]], 4: [[9, 62], [31, 13], [69, 13], [91, 62]],
   5: [[7, 68], [17, 22], [50, 11], [83, 22], [93, 68]], 6: [[6, 74], [11, 32], [34, 11], [66, 11], [89, 32], [94, 74]],
   7: [[6, 84], [8, 37], [26, 12], [50, 10], [74, 12], [92, 37], [94, 84]],
+  8: [[5, 86], [6, 50], [15, 17], [38, 10], [62, 10], [85, 17], [94, 50], [95, 86]],
 };
 const SEATS_P = { // dọc (điện thoại)
   1: [[50, 12]], 2: [[27, 13], [73, 13]], 3: [[15, 48], [50, 11], [85, 48]], 4: [[15, 64], [27, 13], [73, 13], [85, 64]],
   5: [[14, 74], [14, 40], [50, 10], [86, 40], [86, 74]], 6: [[14, 82], [14, 50], [28, 14], [72, 14], [86, 50], [86, 82]],
   7: [[13, 85], [13, 58], [15, 30], [50, 10], [85, 30], [87, 58], [87, 85]],
+  8: [[13, 86], [13, 62], [13, 38], [31, 12], [69, 12], [87, 38], [87, 62], [87, 86]],
 };
 function seatOrder() { const ps = view.players; const i = Math.max(0, ps.findIndex(p => p.id === myId)); return ps.slice(i).concat(ps.slice(0, i)); }
 const seatEl = pid => document.querySelector(`.seat[data-pid="${pid}"]`);
@@ -219,12 +244,12 @@ function hpBar(p, big = false) {
   let s = ''; for (let i = 0; i < p.maxHp; i++) s += `<i class="${i < p.hp ? 'on ' + c : ''}"></i>`;
   return `<div class="hp ${big ? 'big' : ''}">${s}</div>`;
 }
-const SEAL = { lord: '主', loyal: '忠', rebel: '反', spy: '內' };
+const SEAL = { lord: '主', loyal: '忠', rebel: '反', spy: '內', red: '紅', blue: '藍', wei: '魏', shu: '蜀', wu: '吳', qun: '群', yexin: '野', an: '?' };
 // cờ nước: chữ Hán + tên Việt (Ngụy/Thục/Ngô/Quần)
 const kflag = k => k && KINGDOMS[k] ? `<span class="kflag" title="Nước ${KINGDOMS[k].name}"><b>${KINGDOMS[k].han}</b>${KINGDOMS[k].name}</span>` : '';
 function roleChip(p) {
-  if (p.role) return `<span class="rchip r-${p.role}"><i class="seal">${SEAL[p.role]}</i>${ROLES[p.role].name}</span>`;
-  return '<span class="rchip r-hidden"><i class="seal">?</i>Chưa lộ</span>';
+  if (p.role) return `<span class="rchip r-${p.role}"><i class="seal">${SEAL[p.role]}</i>${ROLES[p.role].name}${p.cmd ? ' ⭐' : ''}</span>`;
+  return `<span class="rchip r-hidden"><i class="seal">?</i>${p.hidden ? 'Tướng úp' : 'Chưa lộ'}</span>`;
 }
 function equipIcons(p) {
   const out = [];
@@ -256,13 +281,13 @@ function renderSeats() {
   table.querySelectorAll('.seat').forEach(s => s.remove());
   const order = seatOrder(); const n = order.length - 1; if (n < 1) return;
   const portraitMode = table.clientWidth < table.clientHeight * 1.15;
-  const L = (portraitMode ? SEATS_P : SEATS)[Math.min(7, n)];
+  const L = (portraitMode ? SEATS_P : SEATS)[Math.min(8, n)];
   const cur = v.players[v.turn]; const a = v.ask;
   const waiting = a && a.type !== 'nullify' ? a.players : [];
   const ti = targetInfo();
   const TH = table.clientHeight, TW = table.clientWidth;
   // bàn thấp mà đông người: ghế gọn (chân dung nằm bên trái)
-  const side = portraitMode ? (n >= 7 ? 3 : n >= 5 ? 2 : 1) : (n >= 6 ? 2 : 1);
+  const side = portraitMode ? (n >= 8 ? 4 : n >= 7 ? 3 : n >= 5 ? 2 : 1) : (n >= 8 ? 3 : n >= 6 ? 2 : 1);
   const compact = (!portraitMode && innerHeight <= 500 && n >= 3) || TH / (side + (portraitMode ? .9 : .6)) < (innerWidth <= 760 ? 104 : 128);
   order.slice(1).forEach((p, k) => {
     const [x, y] = L[k] || [50, 10];
@@ -274,7 +299,7 @@ function renderSeats() {
     seat.style.left = Math.min(Math.max(x / 100 * TW, 40), TW - 40) + 'px'; seat.style.top = top + 'px';
     const conn = v.conn && v.conn[p.id];
     seat.innerHTML = `<div class="ava">${g ? portrait(p.general) : blankPortrait()}${p.distance != null && p.alive ? `<span class="dist${p.inRange ? ' in' : ''}" title="Khoảng cách từ bạn">${p.distance}</span>` : ''}${!p.alive ? '<span class="rip">☠</span>' : ''}${conn === 'off' ? '<span class="conn" title="Mất kết nối – bot đánh thay">📴</span>' : conn === 'afk' ? '<span class="conn" title="Treo máy – bot đánh thay">💤</span>' : ''}${p.flags && p.flags.luoyi ? '<span class="buff" title="Lỏa y">💪</span>' : ''}${statusBadges(p)}</div>
-      <div class="plate"><div class="pname">${esc(p.name)}</div><div class="gname">${g ? g.name : 'đang chọn…'}</div>${hpBar(p)}
+      <div class="plate"><div class="pname">${esc(p.name)}</div><div class="gname">${g ? g.name : p.hidden && p.picked ? '🎴 tướng úp' : 'đang chọn…'}</div>${hpBar(p)}
         <div class="meta">${kflag(p.kingdom)}<span class="hc" title="Lá trên tay"><i></i>${p.handCount}</span>${equipIcons(p)}${judgeIcons(p)}</div>${roleChip(p)}</div>`;
     if (ti) {
       if (ti.sel.includes(p.id)) seat.classList.add('selected');
@@ -431,7 +456,14 @@ function cardPrompt(a) {
   };
   return { t, s: suitify(S[a.purpose] || `Đánh ${want}.`), mine };
 }
-function winText(w) { return ({ lord: '👑 Chúa công và Trung thần thắng!', rebel: '🔥 Phản tặc thắng!', spy: '🎭 Nội gián thắng!' })[w] || ''; }
+function winText(w) {
+  if (/^yx:/.test(w || '')) return `🐍 Dã tâm gia ${esc(nameOf(w.slice(3)))} thắng!`;
+  if (w === 'red' || w === 'blue') return `${ROLES[w].icon} ${ROLES[w].name} thắng!`;
+  if (['wei', 'shu', 'wu', 'qun'].includes(w)) return `🏯 Thế lực ${ROLES[w].name} thống nhất thiên hạ!`;
+  return ({ lord: '👑 Chúa công và Trung thần thắng!', rebel: '🔥 Phản tặc thắng!', spy: '🎭 Nội gián thắng!' })[w] || '';
+}
+/* ai thắng: chế độ mới có sẵn danh sách winIds */
+function isWinner(v, pid) { if (v.winIds) return v.winIds.includes(pid); const p = v.players.find(q => q.id === pid); const side = r => r === 'lord' || r === 'loyal' ? 'lord' : r; return !!p && side(p.role) === v.winner; }
 function renderPrompt() {
   const p = $('#prompt'); const x = promptText();
   p.className = 'prompt' + (x.mine ? ' mine' : '') + (x.q ? ' quiet' : '') + (x.hint ? ' hint' : '');
@@ -505,6 +537,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let revealT = [];
 function maybeReveal(v) {
   if (!v || v.phase !== 'playing' || v.turnCount !== 0 || !v.gid) return;
+  if (v.opts && v.opts.mode && v.opts.mode !== 'id') return;
   const m = me(); if (!m || !m.role || m.general) return;
   if (ls.get('gumballz-tq-reveal') === v.gid) return; ls.set('gumballz-tq-reveal', v.gid);
   showReveal(v);
@@ -545,15 +578,16 @@ function renderMe() {
   const zoneSel = ui && ((ui.k === 'skill' && ui.opt.zones === 'he') || (ui.k === 'discard' && view.ask.zones === 'he') || (ui.k === 'liuli' && view.ask.purpose !== 'thienhuong'));
   const eq = ['weapon', 'armor', 'plus', 'minus'].map(k => m.equip[k] ? `<span class="eqc e-${k}${zoneSel && !(ui.k === 'discard' && k === 'weapon' && view.ask.purpose === 'guanshi') ? ' pickable' : ''}${selIds().includes(m.equip[k].id) ? ' sel' : ''}" data-cid="${m.equip[k].id}">${emoOf(m.equip[k].type)}<b>${esc(cardName(m.equip[k]))}</b><small class="${/[HD]/.test(m.equip[k].suit) ? 'red' : ''}">${SUIT_SYMBOL[m.equip[k].suit]}${rankLabel(m.equip[k].rank)}</small></span>` : '').join('');
   const jd = m.judge.map(j => `<span class="eqc jd" data-cid="${j.card.id}">${CARD_INFO[j.as].emo}<b>${CARD_INFO[j.as].name}</b></span>`).join('');
-  const sk = g ? g.skills.map(s => `<button class="skc${SKILLS[s].lord && m.role !== 'lord' ? ' off' : ''}" data-sk="${s}">${SKILLS[s].name}</button>`).join('') : '';
+  const sk = (g ? g.skills.map(s => `<button class="skc${(SKILLS[s].lord && m.role !== 'lord') || m.hidden ? ' off' : ''}" data-sk="${s}">${SKILLS[s].name}</button>`).join('') : '') + (m.relic && RELICS[m.relic] ? `<button class="skc relic${m.hidden ? ' off' : ''}" data-sk="${RELICS[m.relic].sk}" title="Bảo vật: ${RELICS[m.relic].name}">${RELICS[m.relic].emo} ${SKILLS[RELICS[m.relic].sk].name}</button>` : '');
   box.innerHTML = `<div class="me-ava">${g ? portrait(m.general) : blankPortrait()}${!m.alive ? '<span class="rip">☠</span>' : ''}</div>
-    <div class="me-id"><div class="pname">${esc(m.name)} <span class="gname">${g ? '· ' + g.name : ''}</span></div>${hpBar(m, true)}<div class="me-row">${kflag(m.kingdom)}${m.role ? roleChip(m) : ''}<span class="rng" title="Tầm đánh">🎯 ${m.range}</span>${statusBadges(m, true)}</div></div>
+    <div class="me-id"><div class="pname">${esc(m.name)} <span class="gname">${g ? '· ' + g.name : ''}</span></div>${hpBar(m, true)}<div class="me-row">${kflag(m.kingdom)}${m.role ? roleChip(m) : ''}<span class="rng" title="Tầm đánh">🎯 ${m.range}</span>${statusBadges(m, true)}${m.hidden && m.general && m.alive && v.phase === 'playing' ? '<button class="reveal-gen" id="btn-reveal" title="Lộ tướng cho cả bàn: biết bạn phe nào, dùng được kỹ năng">🎴 Lật tướng</button>' : ''}</div></div>
     <div class="me-zone">${eq || jd ? eq + jd : '<span class="muted small">Chưa có trang bị</span>'}</div>
     <div class="me-skills">${sk}</div>`;
   const ti = targetInfo(); const meAva = box.querySelector('.me-ava');
   if (ti && ti.can.includes(myId)) { meAva.classList.add('targetable'); if (ti.sel.includes(myId)) meAva.classList.add('selected'); meAva.title = 'Chọn chính mình'; meAva.onclick = () => clickSeat(myId); }
   else meAva.onclick = () => showIntro(true);
   box.querySelectorAll('.skc').forEach(b => { b.onclick = () => showSkill(b.dataset.sk); b.title = 'Bấm để xem chi tiết kỹ năng'; });
+  { const rb = box.querySelector('#btn-reveal'); if (rb) rb.onclick = async () => { const ok = await confirmBox(`Lật tướng ${g.name}? Cả bàn sẽ biết bạn phe ${KINGDOMS[m.kingdom].name}${v.players.filter(q => q.role === m.kingdom).length >= Math.floor(v.players.length / 2) ? ' – nhưng thế lực này đã đủ người nên bạn sẽ thành 🐍 Dã tâm gia' : ''}, và bạn dùng được kỹ năng.`, { title: '🎴 Lật tướng', ok: '🎴 Lật', cancel: 'Để sau' }); if (ok) send({ type: 'reveal' }); }; }
   box.querySelectorAll('.eqc').forEach(c => {
     const card = allMine().find(x => x.id === c.dataset.cid) || (m.judge.find(j => j.card.id === c.dataset.cid) || {}).card;
     if (c.classList.contains('pickable')) c.onclick = () => toggleSel(c.dataset.cid);
@@ -633,9 +667,9 @@ function showPlayer(p) {
   const g = p.general ? GENERALS[p.general] : null; const k = p.kingdom ? KINGDOMS[p.kingdom] : null;
   const eq = Object.values(p.equip).filter(Boolean).map(c => `<div class="eqrow">${cardHTML(c, 'xs')}<div><b>${esc(cardName(c))}</b><span>${suitify(CARD_INFO[c.type].desc)}</span></div></div>`).join('')
     + p.judge.map(j => `<div class="eqrow">${cardHTML(j.card, 'xs')}<div><b>${CARD_INFO[j.as].name} (phán định)</b><span>${suitify(CARD_INFO[j.as].desc)}</span></div></div>`).join('');
-  openModal(`<div class="pview" style="--kc:${k ? k.color : '#999'}"><div class="pv-ava">${g ? portrait(p.general) : blankPortrait()}</div><div class="pv-head"><h3>${esc(p.name)}</h3><div>${g ? `${g.name} · ${k.han} ${k.name} · ${g.gender === 'f' ? 'nữ' : 'nam'}` : 'Chưa chọn tướng'}</div>${hpBar(p, true)}${roleChip(p)}</div></div>
+  openModal(`<div class="pview" style="--kc:${k ? k.color : '#999'}"><div class="pv-ava">${g ? portrait(p.general) : blankPortrait()}</div><div class="pv-head"><h3>${esc(p.name)}</h3><div>${g ? `${g.name} · ${k.han} ${k.name} · ${g.gender === 'f' ? 'nữ' : 'nam'}` : p.hidden && p.picked ? '🎴 Tướng úp – chưa biết thế lực' : 'Chưa chọn tướng'}</div>${hpBar(p, true)}${roleChip(p)}</div></div>
     <div class="pv-stats"><div><b>${p.handCount}</b><small>lá trên tay</small></div><div><b>${p.range}</b><small>tầm đánh</small></div>${p.distance != null ? `<div><b>${p.distance}</b><small>cách bạn</small></div>` : ''}</div>
-    ${g ? `<div class="pv-box"><span class="lbl">Kỹ năng <small>(bấm tên để xem chi tiết)</small></span>${g.skills.map(s => `<p>${skLink(s)} ${SKILLS[s].desc}</p>`).join('')}</div>` : ''}
+    ${g ? `<div class="pv-box"><span class="lbl">Kỹ năng <small>(bấm tên để xem chi tiết)</small></span>${g.skills.map(s => `<p>${skLink(s)} ${SKILLS[s].desc}</p>`).join('')}</div>` : ''}${relicBox(p.relic)}
     <div class="pv-box"><span class="lbl">Trang bị & phán định</span>${eq || '<p class="muted">Trống trơn.</p>'}</div>
     <div class="row">${p.id !== myId && !p.isBot ? '<button class="btn" id="m-friend">🤝 Kết bạn / Nhắn tin</button>' : ''}<button class="btn" id="m-close">Đóng</button></div>`);
   $('#m-close').onclick = closeModal;
@@ -721,7 +755,7 @@ function skillHint(u) {
   if (o.tmax > 0) parts.push(o.tmax === 1 ? 'chọn 1 người' : `chọn ${o.tmin} người (người đầu Quyết đấu người sau)`);
   return (SKILLS[u.sk] ? SKILLS[u.sk].desc + ' — ' : 'Dùng 2 lá trên tay như 1 Sát — ') + parts.join(', ') + '.';
 }
-const SKILL_ICON = { cuongtap: '⚔️', khuho: '🐯', thiennghia: '🎯', loankich: '🏹', nhanduc: '🤝', chehanh: '⚖️', khonhuc: '🔥', phangian: '🎼', thanhnang: '🌿', ketnhan: '💞', ligian: '🌙', xamau: '🐍' };
+const SKILL_ICON = { khieukhich: '🗡️', cuongtap: '⚔️', khuho: '🐯', thiennghia: '🎯', loankich: '🏹', nhanduc: '🤝', chehanh: '⚖️', khonhuc: '🔥', phangian: '🎼', thanhnang: '🌿', ketnhan: '💞', ligian: '🌙', xamau: '🐍' };
 function renderActions() {
   const box = $('#actions'); box.innerHTML = ''; const v = view, a = v.ask, m = me();
   const add = (txt, cls, fn, dis = false) => { const b = el('button', 'btn ' + (cls || ''), txt); b.onclick = fn; b.disabled = dis; box.appendChild(b); return b; };
@@ -798,6 +832,7 @@ function renderActions() {
       const u = ui; add(`🌺 Chuyển Sát${u.cardId ? '' : ' (chọn 1 lá)'}${u.target ? ' → ' + esc(nameOf(u.target)) : ' (chọn người)'}`, 'pri', () => send({ type: 'liuli', cardId: u.cardId, target: u.target }), !(u.cardId && u.target));
       add('Thôi', 'ghost', () => send({ type: 'pass' })).dataset.act = 'pass'; return;
     }
+    case 'banpick': add(a.act === 'ban' ? '🚫 Cấm tướng' : '🎴 Chọn tướng', 'pri', () => { modalSig = ''; showBanPick(); }); return;
     case 'general': add('🎴 Chọn tướng', 'pri', () => { modalSig = ''; showGeneralPick(); }); return;
     case 'pick': add('Mở bảng chọn', 'pri', () => { modalSig = ''; showPick(); }); return;
     case 'guanxing': add('Mở bảng xếp', 'pri', () => { modalSig = ''; showGuanxing(); }); return;
@@ -817,6 +852,13 @@ function autoPassCheck() {
 // ---- hộp thoại tự mở theo câu hỏi ----
 function autoModal() {
   const a = view.ask;
+  /* 🥊 Solo: bảng cấm/chọn hiện cho cả hai bên (và người xem) suốt lúc cấm chọn */
+  if (view.bp && view.bp.step && view.phase === 'playing') {
+    const sig = 'bp:' + view.bp.i + ':' + (a && a.mine ? 1 : 0);
+    if (modalSig !== sig && (modalSig !== 'closed:' + sig || (a && a.mine)) && !(modalOpen() && modalSig === 'info')) showBanPick();
+    return;
+  }
+  if (modalSig && modalSig.startsWith('bp:')) { $('#modal').classList.add('hidden'); modalSig = ''; }
   if (!a || !a.mine) { if (modalSig && !modalSig.startsWith('closed:') && modalSig !== 'info') { $('#modal').classList.add('hidden'); modalSig = ''; } return; }
   const map = { general: showGeneralPick, pick: showPick, guanxing: showGuanxing, wugu: showWugu, suit: showSuit };
   if (!map[a.type]) { if (modalSig && !modalSig.startsWith('closed:') && modalSig !== 'info') { $('#modal').classList.add('hidden'); modalSig = ''; } return; }
@@ -824,11 +866,33 @@ function autoModal() {
   if (modalOpen() && modalSig === 'info') return; // đang xem thông tin khác: để nút trong lời nhắc
   map[a.type]();
 }
+function showBanPick() {
+  const B = view.bp; if (!B || !B.step) return;
+  const a = view.ask, mine = !!(a && a.type === 'banpick' && a.mine), act = B.step[1];
+  const banned = Object.fromEntries(B.ban.map(x => [x.id, x.by])), picked = Object.fromEntries(Object.entries(B.pick).map(([pid, g]) => [g, pid]));
+  const who = id => { const p = P(id); return p ? `<span class="rchip r-${p.role}">${ROLES[p.role].icon} ${esc(p.id === myId ? 'Bạn' : p.name)}</span>` : ''; };
+  const steps = B.seq.map(([pid, k], i) => { const p = P(pid); return `<span class="bp-st${i === B.i ? ' now' : i < B.i ? ' done' : ''} r-${p ? p.role : ''}">${k === 'ban' ? '🚫' : '🎴'}<small>${esc(p && p.id === myId ? 'Bạn' : p ? p.name : '')}</small></span>`; }).join('');
+  const head = mine ? (act === 'ban' ? '🚫 Tới lượt bạn <b>cấm</b> 1 tướng – đối thủ không được lấy tướng này' : '🎴 Tới lượt bạn <b>chọn</b> tướng của mình') : `⏳ ${who(B.step[0])} đang ${act === 'ban' ? 'cấm' : 'chọn'} tướng…`;
+  openModal(`<div class="bp"><h3>🥊 Cấm / chọn tướng</h3><div class="bp-seq">${steps}</div><p class="bp-head">${head}</p><div class="bp-time" id="bp-time"></div>
+    ${bpGuide(B.pool)}
+    <div class="gp-list bp-list">${B.pool.map(id => { const st = banned[id] ? 'ban' : picked[id] ? 'pick' : ''; const tag = st === 'ban' ? `<i class="bp-tag ban">🚫 ${esc(nameOf(banned[id]) || '')} cấm</i>` : st === 'pick' ? `<i class="bp-tag pick">🎴 ${esc(nameOf(picked[id]) || '')}</i>` : '';
+      return `<button class="gp-item bp-it${st ? ' ' + st : ''}" data-g="${id}" ${!mine || st ? 'aria-disabled="true"' : ''}>${tag}${generalCardHTML(id)}<div class="gp-sk">${GENERALS[id].skills.map(k => `<p>${skLink(k)} ${SKILLS[k].desc}</p>`).join('')}${relicOn() ? relicLine(id) : ''}${metaLine(id, B.pool)}</div></button>`; }).join('')}</div>
+    <p class="muted small center-txt">Bấm tên kỹ năng (chữ gạch chân) để xem chi tiết. Người chọn sau được đi trước.</p></div>`, 'wide');
+  modalSig = 'bp:' + B.i + ':' + (mine ? 1 : 0);
+  bindSkLinks(() => { modalSig = ''; showBanPick(); });
+  $('#modal-box').querySelectorAll('.bp-it:not([aria-disabled])').forEach(b => b.onclick = e => {
+    if (e.target.closest('.skl')) return;
+    if (b.classList.contains('arm')) { closeModal(); modalSig = 'bp-wait'; send({ type: 'banpick', id: b.dataset.g }); return; }
+    $('#modal-box').querySelectorAll('.bp-it.arm').forEach(x => { x.classList.remove('arm'); const q = x.querySelector('.bp-ok'); if (q) q.remove(); });
+    b.classList.add('arm'); b.insertAdjacentHTML('afterbegin', `<i class="bp-ok">${act === 'ban' ? '🚫 Bấm lần nữa' : '✅ Bấm lần nữa'}</i>`);
+  });
+}
 function showGeneralPick() {
   const a = view.ask; if (!a || a.type !== 'general' || !a.mine) return;
   const m = me();
-  openModal(`<div class="gpick"><div class="gp-role">${m.role ? `<span class="rchip big r-${m.role}">${ROLES[m.role].icon} Bạn là ${ROLES[m.role].name}</span><p>${roleGoal(m.role)}</p>` : ''}</div>
-    <h3>Chọn 1 võ tướng</h3><div class="gp-list">${(a.offers || []).map(id => `<button class="gp-item" data-g="${id}">${generalCardHTML(id)}<div class="gp-sk">${GENERALS[id].skills.map(s => `<p>${skLink(s)} ${SKILLS[s].desc}</p>`).join('')}</div></button>`).join('')}</div>${hintsActive() && view.hint && view.hint.steps[0] && view.hint.steps[0].a.type === 'general' ? `<p class="gp-hint">💡 Gợi ý: <b>${esc(GENERALS[view.hint.steps[0].a.id].name)}</b> – dễ chơi cho người mới. Bấm tên kỹ năng (chữ đỏ gạch chân) để xem chi tiết.</p>` : '<p class="muted small center-txt">Bấm tên kỹ năng (chữ gạch chân) để xem giải thích chi tiết.</p>'}</div>`, 'wide');
+  const kd = view.opts && view.opts.mode === 'kd';
+  openModal(`<div class="gpick"><div class="gp-role">${kd ? `<span class="rchip big r-an">🏯 Quốc Chiến</span><p>Thế lực của tướng bạn chọn (Nguỵ / Thục / Ngô / Quần) chính là phe của bạn. Tướng sẽ <b>úp</b> – chưa ai biết, cho tới khi bạn bấm 🎴 Lật tướng. Muốn cùng phe với bạn mình thì cùng chọn một thế lực.</p>` : m.role ? `<span class="rchip big r-${m.role}">${ROLES[m.role].icon} Bạn là ${ROLES[m.role].name}</span><p>${roleGoal(m.role)}</p>` : ''}</div>
+    <h3>Chọn 1 võ tướng</h3><div class="gp-list">${(a.offers || []).map(id => `<button class="gp-item" data-g="${id}">${generalCardHTML(id)}<div class="gp-sk">${GENERALS[id].skills.map(s => `<p>${skLink(s)} ${SKILLS[s].desc}</p>`).join('')}${relicOn() ? relicLine(id) : ''}${metaLine(id, a.offers)}</div></button>`).join('')}</div>${hintsActive() && view.hint && view.hint.steps[0] && view.hint.steps[0].a.type === 'general' ? `<p class="gp-hint">💡 Gợi ý: <b>${esc(GENERALS[view.hint.steps[0].a.id].name)}</b> – dễ chơi cho người mới. Bấm tên kỹ năng (chữ đỏ gạch chân) để xem chi tiết.</p>` : '<p class="muted small center-txt">Bấm tên kỹ năng (chữ gạch chân) để xem giải thích chi tiết.</p>'}</div>`, 'wide');
   modalSig = askSig;
   bindSkLinks(() => { modalSig = ''; showGeneralPick(); });
   const hg = view.hint && view.hint.steps[0] && view.hint.steps[0].a.type === 'general' && hintsActive() ? view.hint.steps[0].a.id : null;
@@ -877,6 +941,11 @@ function showGuanxing() {
 }
 function roleGoal(role) {
   const lord = view && view.players.find(p => p.role === 'lord'); const ln = lord ? (lord.id === myId ? 'bạn' : esc(lord.name)) : 'Chúa công';
+  if ((role === 'red' || role === 'blue') && view && view.opts && view.opts.mode === 'solo') { const foe = view.players.find(p => p.id !== myId); return `Tay đôi: hạ ${foe ? esc(foe.name) : 'đối thủ'} là thắng.`; }
+  if (role === 'red' || role === 'blue') { const mate = view && view.players.find(p => p.role === role && p.id !== myId); return `Cùng ${mate ? esc(mate.name) : 'đồng đội'} hạ cả 2 người ${role === 'red' ? 'phe Lam' : 'phe Đỏ'}. Đồng đội ngã thì bạn rút 1 lá.`; }
+  if (role === 'an') { const m = me(); const k = m && m.kingdom ? KINGDOMS[m.kingdom].name : ''; return `Tướng của bạn đang úp${k ? ` – bạn thuộc thế lực ${k}` : ''}. Chưa lật thì chưa dùng được kỹ năng, nhưng cũng chưa ai biết bạn phe nào. Lật bằng nút 🎴 Lật tướng.`; }
+  if (['wei', 'shu', 'wu', 'qun'].includes(role)) return `Cùng các tướng ${ROLES[role].name} khác dẹp mọi thế lực còn lại.`;
+  if (role === 'yexin') return 'Bạn đánh một mình: phải là người sống sót cuối cùng.';
   return ({ lord: 'Dẹp sạch Phản tặc và Nội gián. Cẩn thận đừng chém nhầm Trung thần!', loyal: `Bảo vệ Chúa công (${ln}) tới cùng, cùng diệt Phản tặc và Nội gián. Giữ kín thân phận.`,
     rebel: `Lật đổ Chúa công (${ln}). Các Phản tặc khác là đồng đội nhưng bạn không biết là ai.`, spy: `Phải là người sống sót cuối cùng: giúp diệt Phản tặc trước, cuối cùng một mình đấu Chúa công (${ln}).` })[role] || '';
 }
@@ -887,6 +956,7 @@ function showIntro(force) {
     <div class="intro-cards">${generalCardHTML(m.general)}<div class="role-card r-${m.role}"><span class="ri rseal">${SEAL[m.role]}</span><b>${ROLES[m.role].name}</b></div></div>
     <p class="goal">${roleGoal(m.role)}</p>
     <div class="pv-box"><span class="lbl">${g.name} · ${m.maxHp} máu</span>${g.skills.map(s => `<p>${skLink(s)} ${SKILLS[s].desc}${SKILLS[s].lord && m.role !== 'lord' ? ' <i class="muted">(không có tác dụng vì bạn không phải Chúa)</i>' : ''}</p>`).join('')}</div>
+    ${relicBox(m.relic)}
     <p class="muted small">💡 Bấm vào chân dung của bạn ở góc dưới để xem lại · bấm tên kỹ năng để xem chi tiết.</p>
     <div class="row"><button class="btn ghost" id="i-guide">📖 Xem luật</button><button class="btn pri" id="i-ok">Vào trận! ⚔️</button></div></div>`);
   modalSig = 'info';
@@ -894,10 +964,10 @@ function showIntro(force) {
 }
 function showResults() {
   const v = view; if (!v || v.phase !== 'ended') return;
-  const m = me(); const side = r => r === 'lord' || r === 'loyal' ? 'lord' : r;
-  const won = m && side(m.role) === v.winner;
+  const m = me();
+  const won = m && isWinner(v, myId);
   openModal(`<div class="results"><h2>${won ? '🏆 Thắng rồi!' : '😵 Thua mất rồi…'}</h2><p class="center-txt">${winText(v.winner)}</p>
-    <div class="res-list">${v.players.map(p => `<div class="res-row${side(p.role) === v.winner ? ' win' : ''}${!p.alive ? ' dead' : ''}"><div class="res-ava">${p.general ? portrait(p.general) : blankPortrait()}</div><div><b>${esc(p.name)}${p.id === myId ? ' (bạn)' : ''}</b><small>${p.general ? GENERALS[p.general].name : ''}${p.alive ? '' : ' · ☠ tử trận'}</small></div>${roleChip(p)}</div>`).join('')}</div>
+    <div class="res-list">${v.players.map(p => `<div class="res-row${isWinner(v, p.id) ? ' win' : ''}${!p.alive ? ' dead' : ''}"><div class="res-ava">${p.general ? portrait(p.general) : blankPortrait()}</div><div><b>${esc(p.name)}${p.id === myId ? ' (bạn)' : ''}</b><small>${p.general ? GENERALS[p.general].name : ''}${p.alive ? '' : ' · ☠ tử trận'}</small></div>${roleChip(p)}</div>`).join('')}</div>
     <div class="row">${isHost ? '<button class="btn pri" id="r-again">🔁 Về phòng chờ</button>' : ''}<button class="btn" id="r-close">Xem bàn</button></div></div>`);
   modalSig = 'info';
   $('#r-close').onclick = closeModal; if ($('#r-again')) $('#r-again').onclick = () => { closeModal(); net && net.restart(); };
@@ -923,6 +993,8 @@ function tick() {
   const who = mine ? 'Bạn' : tPids.length > 1 ? `${tPids.length} người` : (P(tPids[0]) || {}).name || '?';
   box.className = 'timer on' + (mine ? ' mine' : '') + (left <= 5 ? ' low' : '');
   box.innerHTML = `<span>⏳ ${esc(who)} <b>${left}s</b></span><i style="width:${Math.max(0, Math.min(100, (tEnd - Date.now()) / tTotal * 100))}%"></i>`;
+  const bt = document.getElementById('bp-time'); /* đồng hồ hiện ngay trong bảng cấm/chọn tướng */
+  if (bt) { bt.className = 'bp-time' + (left <= 10 ? ' low' : ''); bt.innerHTML = `⏳ ${tPids.includes(myId) ? 'Bạn còn' : 'Còn'} <b>${left}s</b>`; }
   if (mine && left <= 5 && left > 0 && left !== lastBeep) { lastBeep = left; fx.sfx.tick(); }
 }
 
@@ -930,6 +1002,23 @@ function tick() {
 const anchor = pid => pid === myId ? ($('#me-info .me-ava') || $('#hand')) : seatEl(pid);
 const handAnchor = pid => pid === myId ? $('#hand') : seatEl(pid);
 function bubbleAt(pid, html, cls = '') { const a = anchor(pid); if (a) fx.bubble(a, html, cls); }
+/* 🏺 khung bảo vật riêng (hồ sơ người chơi, giới thiệu đầu ván, chọn tướng) */
+function relicBox(gid, small) { const r = gid && RELICS[gid]; if (!r) return ''; return `<div class="pv-box relic-box"><span class="lbl">🏺 Bảo vật riêng</span><p><b>${r.emo} ${r.name}</b> → thêm kỹ năng ${skLink(r.sk)} ${small ? '' : SKILLS[r.sk].desc}</p><p class="muted small">💥 ${r.combo}</p></div>`; }
+// thông tin chiến thuật: nhãn lối chơi + khắc chế + combo (pool = bể tướng đang xét để tô đậm)
+function metaLine(gid, pool) {
+  const m = META[gid]; if (!m) return '';
+  const nm = id => GENERALS[id] ? (pool && pool.includes(id) ? `<b>${esc(GENERALS[id].name)}</b>` : esc(GENERALS[id].name)) : '';
+  const chips = [PHASE[m.ph], ...m.st.map(k => STYLE[k])].filter(Boolean).map(([e, t]) => `<i class="gm-c">${e} ${t}</i>`).join('');
+  return `<div class="gm"><p>${chips}</p>${m.beats.length ? `<p>💥 Khắc: ${m.beats.map(nm).join(', ')}</p>` : ''}${m.weak.length ? `<p>⚠️ Sợ: ${m.weak.map(nm).join(', ')}</p>` : ''}<p>🔗 ${esc(m.tip)}</p></div>`;
+}
+function bpGuide(pool) {
+  const pairs = []; for (const a of pool) for (const b of (META[a] ? META[a].beats : [])) if (pool.includes(b)) pairs.push(`<li><b>${esc(GENERALS[a].name)}</b> khắc <b>${esc(GENERALS[b].name)}</b></li>`);
+  return `<details class="bp-guide"><summary>📖 Hướng dẫn cấm / chọn</summary><ul>${BP_TIPS.map(t => `<li>${esc(t)}</li>`).join('')}<li>${Object.values(PHASE).concat(Object.values(STYLE)).map(([e, t]) => `<i class="gm-c">${e} ${t}</i>`).join('')}</li></ul>${pairs.length ? `<p><b>Khắc chế trong bể tướng này:</b></p><ul>${pairs.join('')}</ul>` : ''}</details>`;
+}
+function relicLine(gid) { const r = RELICS[gid]; return r ? `<p class="relic-ln">🏺 <b>${r.emo} ${r.name}</b> → ${skLink(r.sk)}</p>` : ''; }
+const relicOn = () => !view || !view.opts || view.opts.relic !== false;
+/* ✨ cut-in khi tướng chủ động dùng kỹ năng (ev có to) */
+function skillCut(e) { const p = view && view.players.find(x => x.id === e.p), g = p && p.general && GENERALS[p.general]; if (!g) return; const k = KINGDOMS[g.kingdom] || {}; fx.cutin(portrait(p.general), esc(g.name) + ' · ' + esc(p.name), esc(SKILLS[e.sk].name), k.color, k.han || ''); }
 const SKILL_SFX = { gianhung: 'skill', phandap: 'skill', cuonglie: 'bad', khonhuc: 'hit', liendoanh: 'draw', thietky: 'skill' };
 function playEvents(v) {
   markFresh();
@@ -991,6 +1080,7 @@ function playEvents(v) {
       }, e.nature === 'thunder' ? 350 : 120); t += step; break;
       case 'heal': at(() => { const a = anchor(e.p); fx.healFx(a); fx.floatText(a, `+${e.k}`, '#2f9e5b'); fx.flash(e.p === myId ? $('#me') : seatEl(e.p), 'flash-heal'); fx.sfx.heal(); }); t += step; break;
       case 'dying': at(() => { fx.stamp(anchor(e.p), 'HẤP HỐI', 'red'); fx.sfx.dying(); }); t += step; break;
+      case 'reveal': at(() => { fx.sfx.drum(); fx.banner(`🎴 ${esc(nameOf(e.p))} lật tướng: ${GENERALS[e.g] ? GENERALS[e.g].name : ''}`, `${ROLES[e.role].icon} ${e.role === 'yexin' ? 'Dã tâm gia – đánh một mình!' : 'Phe ' + ROLES[e.role].name}`); }, 100); t += step * 2; break;
       case 'death': at(() => { fx.sfx.death(); musicStinger('death'); fx.banner(`☠ ${esc(nameOf(e.p))} tử trận`, `${ROLES[e.role].icon} ${ROLES[e.role].name}`, 'dark'); }, 200); t += step * 2; break;
       case 'judge': at(() => { fx.sfx.judge(); fx.judgeFlip(cardHTML(e.card), $('#center'), (e.swap ? '🦊 Quỷ tài đổi: ' : '🔮 ') + (JUDGE_TEXT[e.why] || 'Phán định')); }); t += step * 3; break;
       case 'judgeRes': at(() => (e.hit === (e.why === 'lebu') ? fx.sfx.good : fx.sfx.bad)(), 0); break;
@@ -1008,9 +1098,9 @@ function playEvents(v) {
       case 'nullify': at(() => { fx.sfx.nullify(); bubbleAt(e.p, '<b>🚫 Vô giải!</b>'); if (e.tgt) fx.stamp(anchor(e.tgt), e.count % 2 ? 'VÔ GIẢI' : 'GIẢI LẠI', 'blue'); if (e.card) fx.fly(cardHTML(e.card, 'sm'), handAnchor(e.p), $('#discard'), { duration: 380 }); }); t += step; break;
       case 'canceled': at(() => fx.stamp(anchor(e.p), 'BỊ HUỶ', 'blue')); break;
       case 'wugu': at(() => fx.fly(cardHTML(e.card, 'sm'), $('#center'), handAnchor(e.p), { duration: 460 })); t += 80; break;
-      case 'skill': if (SKILLS[e.sk]) at(() => { bubbleAt(e.p, `<b>✨ ${SKILLS[e.sk].name}</b>`, 'skill'); (fx.sfx[SKILL_SFX[e.sk]] || fx.sfx.qin)(); }); else if (e.sk === 'qinglong' || e.sk === 'guanshi') at(() => { bubbleAt(e.p, `<b>${e.sk === 'qinglong' ? '🐉 Thanh long đao' : '🪓 Quán thạch phủ'}</b>`); fx.sfx.slash(); (e.to || []).forEach(id => fx.slashFx(anchor(id), 150)); }); t += 90; break;
+      case 'skill': if (SKILLS[e.sk]) at(() => { bubbleAt(e.p, `<b>✨ ${SKILLS[e.sk].name}</b>`, 'skill'); if (e.to) skillCut(e); (fx.sfx[SKILL_SFX[e.sk]] || fx.sfx.qin)(); }); else if (e.sk === 'qinglong' || e.sk === 'guanshi') at(() => { bubbleAt(e.p, `<b>${e.sk === 'qinglong' ? '🐉 Thanh long đao' : '🪓 Quán thạch phủ'}</b>`); fx.sfx.slash(); (e.to || []).forEach(id => fx.slashFx(anchor(id), 150)); }); t += 90; break;
       case 'win': at(() => {
-        const m = me(); const side = r => r === 'lord' || r === 'loyal' ? 'lord' : r; const won = m && side(m.role) === e.w;
+        const m = me(); const side = r => r === 'lord' || r === 'loyal' ? 'lord' : r; const won = m && (e.ids ? e.ids.includes(myId) : side(m.role) === e.w);
         fx.banner(won ? '🏆 Chiến thắng!' : '😵 Thất bại', winText(e.w)); if (won) { fx.sfx.win(); fx.confetti(); } else fx.sfx.lose(); musicStinger(won ? 'win' : 'lose');
       }, 600); break;
     }

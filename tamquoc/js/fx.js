@@ -1,5 +1,5 @@
 // Hiệu ứng: bài bay, chém, khiên, hồi máu, phán định lật bài, sét, rung; âm thanh tổng hợp WebAudio (không file).
-import { sfxVolStore } from '../../shared/audio/bgm.js?v=7';
+import { sfxVolStore } from '../../shared/audio/bgm.js?v=11';
 export const SPEEDS = { slow: { k: 1.8, name: 'Chậm' }, normal: { k: 1.25, name: 'Vừa' }, fast: { k: .8, name: 'Nhanh' } };
 const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 let speedKey = 'normal';
@@ -108,6 +108,16 @@ function nextBanner() {
   const n = document.createElement('div'); n.className = 'banner ' + item[2]; n.innerHTML = `<div>${item[0]}</div>${item[1] ? `<small>${item[1]}</small>` : ''}`;
   layer().appendChild(n); const show = 1150 * S();
   setTimeout(() => n.classList.add('out'), show); setTimeout(() => { n.remove(); nextBanner(); }, show + 400);
+}
+/* ✨ cut-in kỹ năng (bạn anh xin "hoạt ảnh nhân vật, kỹ năng" 21/11/2026): dải mực chéo màn hình, chân dung lướt vào, tên kỹ năng chữ lớn.
+   Chỉ transform/opacity. Tối đa 1 cái mỗi 2,2 giây (dồn thì bỏ – vẫn còn bong bóng tên kỹ năng trên ghế). */
+let cutT = 0;
+export function cutin(pic, who, skill, color = '#c8322a', han = '') {
+  const now = Date.now(); if (now - cutT < 2200 || S() < .2) return false; cutT = now;
+  const n = document.createElement('div'); n.className = 'cutin'; n.style.setProperty('--kc', color);
+  n.innerHTML = `<div class="ci-band"></div><div class="ci-pic">${pic}</div><div class="ci-txt"><small>${who}</small><b>${skill}</b></div>${han ? `<i class="ci-han">${han}</i>` : ''}`;
+  layer().appendChild(n); const ms = 1250 * Math.max(.5, S());
+  n.style.setProperty('--ci', ms + 'ms'); setTimeout(() => n.remove(), ms + 60); return true;
 }
 export function stamp(el, text, cls = '') {
   if (!el) return; const a = center(el);

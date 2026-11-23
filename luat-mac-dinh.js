@@ -133,10 +133,14 @@ export default {
   tamquoc: {
     exp: true, // Bản mở rộng Quân Tranh — Thêm Rượu, Hỏa Sát, Lôi Sát, Hỏa công, Đằng giáp… · Chọn: true = Bật | false = Tắt
     expGen: true, // Tướng mở rộng — Thêm 13 võ tướng mở rộng. · Chọn: true = Bật | false = Tắt
+    gen2: true, // Tướng Lâm – Sơn — Thêm 11 võ tướng Lâm – Sơn. · Chọn: true = Bật | false = Tắt
+    exp2: true, // Lá bài Quốc Chiến — Thêm 8 lá: Viễn giao cận công, Thủy yêm thất quân… · Chọn: true = Bật | false = Tắt
     training: false, // Tập chơi (có gợi ý) — Có "thầy" gợi ý lá nên đánh; online gấp đôi thời gian. · Chọn: true = Bật | false = Tắt
     tapChoi: { // 🎓 Khi bấm nút "Tập chơi" (chơi một mình với bot, luôn bật gợi ý)
       exp: false, // Nút 🎓 Tập chơi: bản mở rộng — Bản mở rộng khi bấm nút Tập chơi một mình. · Chọn: true = Bật | false = Tắt
       expGen: false, // Nút 🎓 Tập chơi: tướng mở rộng — Tướng mở rộng khi bấm nút Tập chơi một mình. · Chọn: true = Bật | false = Tắt
+      gen2: false, // Nút 🎓 Tập chơi: tướng Lâm – Sơn. · Chọn: true = Bật | false = Tắt
+      exp2: false, // Nút 🎓 Tập chơi: lá bài Quốc Chiến. · Chọn: true = Bật | false = Tắt
     },
   },
 

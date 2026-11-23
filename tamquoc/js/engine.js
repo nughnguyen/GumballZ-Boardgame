@@ -2,43 +2,100 @@
 // Mô hình: "ngăn xếp tác vụ" (s.stack). Mỗi tác vụ {k, stage, ...} được xử lý ở đỉnh ngăn xếp;
 // tác vụ cần người chơi quyết định thì gắn t.ask = {type, players:[...], ...} rồi chờ applyAction.
 // Tác vụ con trả kết quả qua s.ret cho tác vụ cha (cha đọc ngay khi được chạy lại).
-import { buildDeck, deckSize, CARD_INFO, GENERALS, LORD_IDS, SKILLS, ROLES, rolesFor, cardLabel, cardName, isRed, isBlack, SUIT_SYMBOL, SUIT_NAME, rankLabel, DECK_SIZE } from './cards.js?v=11';
+import { buildDeck, deckSize, CARD_INFO, GENERALS, LORD_IDS, SKILLS, ROLES, rolesFor, cardLabel, cardName, isRed, isBlack, SUIT_SYMBOL, SUIT_NAME, rankLabel, DECK_SIZE, MODES, modeOk, playMode, modeNeed, RELICS, KINGDOMS, genPool } from './cards.js?v=15';
 
 let rand = Math.random;
 export function setRandom(fn) { rand = fn; }
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function pick(a) { return a[Math.floor(rand() * a.length)]; }
+/* độ quý của lá khi kỹ năng tự động phải bỏ / tặng bớt (Xảo biến, Hảo thí): bỏ lá ít quý trước */
+function keepVal(c) { const t = c.type; return t === 'dao' ? 9 : t === 'wuxie' ? 7 : t === 'ne' ? 6 : t === 'sat' || t === 'hoasat' || t === 'loisat' ? 5 : t === 'jiu' ? 4 : (CARD_INFO[t] && CARD_INFO[t].kind === 'trick') ? 3 : 2; }
 export const NULL_TIME = 5; // giây cho cửa sổ Vô giải khả kích
 
 // ======================= KHỞI TẠO =======================
 export function createGame(playerList, opts = {}) {
   const n = playerList.length;
-  const roles = rolesFor(n);
-  if (!roles) throw new Error('Cần 2–8 người chơi');
-  shuffle(roles);
-  const o = { exp: opts.exp !== false, expGen: opts.expGen !== false, training: !!opts.training };
+  const mode0 = MODES[opts.mode] ? opts.mode : 'id';
+  if (!modeOk(n, mode0)) throw new Error(`${MODES[mode0].name} cần ${modeNeed(mode0)}`);
+  const mode = playMode(n, mode0); /* Đối kháng 2 người → luật Solo */
+  const o = { relic: opts.relic !== false, exp: opts.exp !== false, exp2: opts.exp2 !== false, expGen: opts.expGen !== false, gen2: opts.gen2 !== false, gen3: opts.gen3 !== false, training: mode === 'id' && !!opts.training, mode };
+  const roles = mode === 'id' ? shuffle(rolesFor(n)) : mode === 'duo' ? playerList.map((_, i) => i % 2 ? 'blue' : 'red') : mode === 'solo' ? ['red', 'blue'] : playerList.map(() => 'an');
   const s = {
-    opts: o, deckSize: deckSize(o.exp), gid: Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36),
-    phase: 'playing', players: [], deck: shuffle(buildDeck(o.exp)), discard: [], turn: 0, turnCount: 0, round: 0,
-    stack: [], log: [], ev: [], seq: 0, winner: null, lean: {}, ret: null, tf: {}, nRoles: rolesFor(n),
+    opts: o, deckSize: deckSize(o.exp, o.exp2), gid: Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36),
+    phase: 'playing', players: [], deck: shuffle(buildDeck(o.exp, o.exp2)), discard: [], turn: 0, turnCount: 0, round: 0,
+    stack: [], log: [], ev: [], seq: 0, winner: null, lean: {}, ret: null, tf: {}, nRoles: mode === 'id' ? rolesFor(n) : roles.slice(),
   };
-  playerList.forEach((pl, i) => {
+  /* 2v2: xáo chỗ ngồi để đội ngồi xen kẽ Đỏ – Lam – Đỏ – Lam */
+  const list = mode === 'duo' || mode === 'solo' ? shuffle([...playerList]) : playerList;
+  list.forEach((pl, i) => {
     s.players.push({ id: pl.id, name: pl.name, isBot: !!pl.isBot, role: roles[i], general: null, kingdom: null, gender: null,
       hp: 0, maxHp: 0, alive: true, hand: [], equip: { weapon: null, armor: null, plus: null, minus: null }, judge: [],
-      revealed: roles[i] === 'lord', flags: {} });
+      revealed: roles[i] === 'lord' || mode === 'duo' || mode === 'solo', hidden: mode === 'kd', flags: {} });
     s.lean[pl.id] = 0;
   });
+  if (mode === 'solo') {
+    /* 🥊 Solo 1v1: 10 tướng lật cho cả hai, A cấm – B cấm – A cấm – B cấm – B chọn – A chọn; A (chọn sau) đi trước */
+    const pool = shuffle(genPool(o)).slice(0, 10);
+    const [A, B] = s.players; s.turn = 0;
+    s.bp = { pool, ban: [], pick: {}, i: 0, seq: [[A.id, 'ban'], [B.id, 'ban'], [A.id, 'ban'], [B.id, 'ban'], [B.id, 'pick'], [A.id, 'pick']] };
+    log(s, `Ván mới 🥊 Solo 1v1: ${nm(A)} đấu ${nm(B)}. Lật 10 tướng – mỗi bên cấm 2 rồi chọn 1. ${nm(B)} chọn trước, ${nm(A)} đi trước.`);
+    s.stack.push({ k: 'choose', stage: 'bp', offers: {}, pool: [] });
+    run(s);
+    return s;
+  }
+  if (mode === 'duo' && n === 6) {
+    /* 3v3: mỗi đội 1 ⭐ Chủ soái ngẫu nhiên (+1 máu tối đa); mất Chủ soái là thua */
+    for (const team of ['red', 'blue']) { const ms = s.players.filter(p => p.role === team); pick(ms).cmd = true; }
+  }
+  if (mode !== 'id') {
+    /* 2v2 / Quốc Chiến: ai cũng chọn tướng cùng lúc (tướng chúa cũng vào kho, không có kỹ năng Chúa), người đi đầu ngẫu nhiên */
+    s.turn = Math.floor(rand() * n);
+    let pool = shuffle(genPool(o));
+    if (mode === 'kd' && n === 9) { /* 9 người: bốc 3 thế lực, chỉ chia tướng của 3 thế lực đó → 3 phe đều nhau */
+      s.kd3 = shuffle(['wei', 'shu', 'wu', 'qun']).slice(0, 3);
+      pool = pool.filter(id => s.kd3.includes(GENERALS[id].kingdom));
+    }
+    const offers = {};
+    if (s.kd3) { /* mỗi thế lực đúng 3 người: chia bí mật thế lực cho từng người, chỉ mời tướng của thế lực đó */
+      const deal = shuffle([...s.kd3, ...s.kd3, ...s.kd3]);
+      const byK = Object.fromEntries(s.kd3.map(k => [k, pool.filter(id => GENERALS[id].kingdom === k)]));
+      const k = Math.min(5, ...s.kd3.map(x => Math.floor(byK[x].length / 3)));
+      s.players.forEach((p, i) => { offers[p.id] = byK[deal[i]].splice(0, k); });
+    } else {
+      const k = Math.min(5, Math.floor(pool.length / n));
+      for (const p of s.players) offers[p.id] = pool.splice(0, k);
+    }
+    const tm = r => s.players.filter(p => p.role === r).map(p => (p.cmd ? '⭐' : '') + nm(p)).join(' & ');
+    log(s, mode === 'duo' ? `Ván mới ⚔️ Đối kháng ${n / 2}v${n / 2}: 🔴 ${tm('red')} đấu 🔵 ${tm('blue')}.${n === 6 ? ' ⭐ = Chủ soái, mất Chủ soái là thua.' : ''}`
+      : `Ván mới 🏯 Quốc Chiến ${n} người${s.kd3 ? ` – 3 thế lực ${s.kd3.map(k => KINGDOMS[k].name).join(', ')}` : ''}: tướng úp, lật tướng mới lộ thế lực. ${s.kd3 ? 'Mỗi thế lực đúng 3 người – tìm ra đồng minh của mình!' : `Thế lực nào quá ${cap(s)} người thì người lật sau thành 🐍 Dã tâm gia.`}`);
+    s.stack.push({ k: 'choose', stage: 'others', offers, pool });
+    run(s);
+    return s;
+  }
   const lord = s.players.find(p => p.role === 'lord');
   s.turn = s.players.indexOf(lord);
   // tướng: Chúa công chọn từ 3 tướng chúa + 2 tướng ngẫu nhiên; người khác 3 tướng ngẫu nhiên
-  const pool = shuffle(Object.keys(GENERALS).filter(k => !GENERALS[k].lord && (o.expGen || !GENERALS[k].exp)));
+  const pool = shuffle(genPool(o, false));
   const offers = {}; offers[lord.id] = [...LORD_IDS, ...pool.splice(0, 2)];
   log(s, `Ván mới ${n} người${o.exp ? ' · bản mở rộng Quân Tranh' : ''}${o.expGen ? ' · có tướng mở rộng' : ''}. ${lord.name} là Chúa công 👑.`);
   s.stack.push({ k: 'choose', stage: 'lord', offers, pool });
   run(s);
   return s;
 }
-
+/* ---- Quốc Chiến: lật tướng ---- */
+function cap(s) { return s.players.length === 9 ? 3 : Math.floor(s.players.length / 2); } /* 9 người: 3 thế lực × 3 */
+export function teamOf(p) { return p.role === 'yexin' ? 'yx:' + p.id : p.role; }
+/* phe "tạm" của người còn úp = thế lực tướng (dùng khi xét hết ván) */
+function tentTeam(p) { return p.hidden ? p.kingdom : teamOf(p); }
+function revealGen(s, p, why) {
+  if (!p.hidden) return;
+  p.hidden = false; p.revealed = true;
+  const same = s.players.filter(q => q !== p && !q.hidden && q.role === p.kingdom).length;
+  p.role = same >= cap(s) ? 'yexin' : p.kingdom;
+  const g = GENERALS[p.general];
+  log(s, `🎴 ${nm(p)} lật tướng: ${g.name} – ${p.role === 'yexin' ? `🐍 thế lực ${KINGDOMS[p.kingdom].name} đã đủ ${cap(s)} người, thành Dã tâm gia!` : `phe ${ROLES[p.role].name}`}${why ? ' (' + why + ')' : ''}.`);
+  ev(s, { t: 'reveal', p: p.id, g: p.general, role: p.role });
+}
 // ======================= TIỆN ÍCH =======================
 function log(s, msg) { s.log.push(msg); if (s.log.length > 250) s.log.shift(); }
 function ev(s, e) { e.n = ++s.seq; s.ev.push(e); if (s.ev.length > 80) s.ev.shift(); }
@@ -49,8 +106,8 @@ export function alivePlayers(s) { return s.players.filter(p => p.alive); }
 export function top(s) { return s.stack.length ? s.stack[s.stack.length - 1] : null; }
 export function topAsk(s) { const t = top(s); return t && t.ask ? t.ask : null; }
 export function hasSkill(p, sk) {
-  if (!p || !p.general || !p.alive) return false;
-  if (!GENERALS[p.general].skills.includes(sk)) return false;
+  if (!p || !p.general || !p.alive || p.hidden) return false;
+  if (!GENERALS[p.general].skills.includes(sk)) return !!(p.relic && RELICS[p.relic] && RELICS[p.relic].sk === sk); /* 🏺 kỹ năng do bảo vật cho */
   return !SKILLS[sk].lord || p.role === 'lord';
 }
 export function weaponOf(p) { return p.equip.weapon ? p.equip.weapon.type : null; }
@@ -70,6 +127,8 @@ export function distance(s, a, b) {
   if (b.equip.plus) d++;
   if (a.equip.minus) d--;
   if (hasSkill(a, 'mathuat')) d--;
+  if (hasSkill(a, 'nghiatong') && a.hp > 2) d--; /* Công Tôn Toản: máu > 2 như ngựa −1, máu ≤ 2 như ngựa +1 */
+  if (hasSkill(b, 'nghiatong') && b.hp <= 2) d++;
   return Math.max(1, d);
 }
 export function inRange(s, a, b) { return a !== b && b.alive && distance(s, a, b) <= attackRange(a); }
@@ -106,6 +165,7 @@ function takeOut(s, p, cardId) {
 function afterLose(s, p, zone) {
   if (!p.alive) return;
   if (zone === 'h' && p.hand.length === 0 && hasSkill(p, 'liendoanh')) { log(s, `${nm(p)} [Liên doanh] mất lá cuối, rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'liendoanh' }); draw(s, p, 1); }
+  if (zone === 'e' && hasSkill(p, 'toanphong')) { const cur = current(s); if (cur && cur !== p && cur.alive && cur.hand.length) { const c = pick(cur.hand); const cs = discardIds(s, cur, [c.id]); ev(s, { t: 'discard', p: cur.id, cards: cs }); ev(s, { t: 'skill', p: p.id, sk: 'toanphong', to: [cur.id] }); log(s, `🌪️ ${nm(p)} [Toàn phong] mất trang bị: ${nm(cur)} mất ${cardLabel(c)}.`); } }
   if (zone === 'e' && hasSkill(p, 'kieuco')) { log(s, `${nm(p)} [Kiêu cơ] mất trang bị, rút 2 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'kieuco' }); draw(s, p, 2); }
 }
 function lostEquip(s, p, c) {
@@ -115,8 +175,14 @@ function discardIds(s, p, ids) { const out = []; for (const id of ids) { const c
 function gainCard(s, p, c) { if (c) p.hand.push(c); }
 function heal(s, p, k = 1, by = null) {
   const before = p.hp; p.hp = Math.min(p.maxHp, p.hp + k);
-  if (p.hp > before) { ev(s, { t: 'heal', p: p.id, k: p.hp - before }); if (by) friendly(s, by, p); }
+  if (p.hp > before) { ev(s, { t: 'heal', p: p.id, k: p.hp - before }); if (by) friendly(s, by, p); healHooks(s, p, by); }
   return p.hp - before;
+}
+/* sau khi được hồi máu: Ân oán (người cứu rút 1), Cam lộ (tự rút 1) */
+function healHooks(s, p, by) {
+  if (!p.alive) return;
+  if (by && by !== p && by.alive && hasSkill(p, 'anoan')) { log(s, `🤝 ${nm(p)} [Ân oán] đền ơn: ${nm(by)} rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'anoan', to: [by.id] }); draw(s, by, 1); }
+  if (hasSkill(p, 'camlo')) { log(s, `🍯 ${nm(p)} [Cam lộ] rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'camlo' }); draw(s, p, 1); }
 }
 function setTurnFlag(s, k, v) { s.tf[k] = v; }
 
@@ -150,6 +216,11 @@ function run(s) {
 
 export function applyAction(s, pid, a) {
   if (s.phase !== 'playing') return { ok: false, reason: 'Ván đã kết thúc.' };
+  if (a && a.type === 'reveal') {
+    const p = getPlayer(s, pid);
+    if (!p || !p.alive || !p.hidden || !p.general) return { ok: false, reason: 'Không lật tướng được.' };
+    revealGen(s, p); checkWin(s); run(s); return { ok: true };
+  }
   const t = top(s);
   if (!t || !t.ask) return { ok: false, reason: 'Không có gì để làm.' };
   if (!t.ask.players.includes(pid)) return { ok: false, reason: 'Chưa tới lượt bạn.' };
@@ -171,13 +242,42 @@ function push(s, t) { s.stack.push(t); }
 // ======================= THẮNG / THUA =======================
 function kill(s, p, killer) {
   if (!p.alive) return;
+  const hadHuyle = hasSkill(p, 'huyle'); /* Huy lệ: xét trước khi tử trận — hasSkill trả false với người đã chết (sửa lỗi live: hook này không bao giờ nổ) */
+  revealGen(s, p, 'tử trận');
   p.alive = false; p.hp = 0; p.revealed = true;
   log(s, `☠️ ${nm(p)} (${GENERALS[p.general].name}) tử trận! Thân phận: ${ROLES[p.role].icon} ${ROLES[p.role].name}.`);
-  ev(s, { t: 'death', p: p.id, role: p.role });
+  ev(s, { t: 'death', p: p.id, role: p.role, by: killer && killer.id }); /* by: ai hạ (thành tích Tá đao sát nhân) */
+  if (killer && killer.alive && killer !== p && hadHuyle) {
+    const lost = [...killer.hand, ...equipList(killer)]; killer.hand = []; killer.equip = { weapon: null, armor: null, plus: null, minus: null };
+    s.discard.push(...lost); log(s, `😭 ${nm(p)} [Huy lệ]: ${nm(killer)} phải bỏ hết bài trên tay và trang bị!`); ev(s, { t: 'skill', p: p.id, sk: 'huyle', to: [killer.id] });
+  }
+  const heir = orderFrom(s, current(s), true).find(q => q !== p && q.alive && hasSkill(q, 'hanhthuong'));
+  if (heir && (p.hand.length || equipList(p).length)) {
+    const got = [...p.hand, ...equipList(p)]; heir.hand.push(...got); p.hand = []; p.equip = { weapon: null, armor: null, plus: null, minus: null };
+    log(s, `👑 ${nm(heir)} [Hành thương] thu ${got.length} lá của ${nm(p)}.`); ev(s, { t: 'skill', p: heir.id, sk: 'hanhthuong' }); ev(s, { t: 'move', from: p.id, to: heir.id, k: got.length, priv: [heir.id] });
+  }
   const cards = [...p.hand, ...equipList(p), ...p.judge.map(j => j.card), ...(p.scars || [])];
   p.hand = []; p.equip = { weapon: null, armor: null, plus: null, minus: null }; p.judge = []; p.scars = []; p.flags.chained = false;
   s.discard.push(...cards);
   checkWin(s); if (s.phase !== 'playing') return;
+  if (s.opts.mode === 'duo' || s.opts.mode === 'solo') {
+    for (const q of s.players) if (q.alive && q.role === p.role) { log(s, `${nm(q)} mất đồng đội, rút 1 lá.`); draw(s, q, 1); }
+    return;
+  }
+  if (s.opts.mode === 'kd') {
+    if (killer && killer.alive && killer !== p) {
+      revealGen(s, killer, 'ra tay hạ người');
+      if (teamOf(killer) === teamOf(p)) {
+        const lost = [...killer.hand, ...equipList(killer)]; killer.hand = []; killer.equip = { weapon: null, armor: null, plus: null, minus: null };
+        s.discard.push(...lost); log(s, `😱 ${nm(killer)} hạ nhầm người cùng phe, phải bỏ hết bài trên tay và trang bị!`);
+      } else {
+        const k = p.role === 'yexin' ? 1 : s.players.filter(q => q.role === p.role).length;
+        log(s, `${nm(killer)} hạ người phe ${ROLES[p.role].name}, thưởng rút ${k} lá.`); draw(s, killer, k);
+      }
+      checkWin(s);
+    }
+    return;
+  }
   if (killer && killer.alive && killer !== p) {
     if (p.role === 'rebel') { log(s, `${nm(killer)} diệt Phản tặc, thưởng rút 3 lá.`); draw(s, killer, 3); }
     if (killer.role === 'lord' && p.role === 'loyal') {
@@ -188,6 +288,26 @@ function kill(s, p, killer) {
 }
 function checkWin(s) {
   const al = alivePlayers(s);
+  if (s.opts.mode === 'solo') { const w = al[0]; if (al.length <= 1 && w) endGame(s, w.role, `🥊 ${nm(w)} thắng trận tay đôi!`); return; }
+  if (s.opts.mode === 'duo') {
+    for (const team of ['red', 'blue']) {
+      const w = team === 'red' ? 'blue' : 'red';
+      if (!al.some(p => p.role === team)) { endGame(s, w, `Cả đội ${ROLES[team].name} đã ngã. ${ROLES[w].icon} ${ROLES[w].name} thắng!`); return; }
+      const c = s.players.find(p => p.role === team && p.cmd);
+      if (c && !c.alive) { endGame(s, w, `⭐ Chủ soái ${nm(c)} của đội ${ROLES[team].name} đã ngã. ${ROLES[w].icon} ${ROLES[w].name} thắng!`); return; }
+    }
+    return;
+  }
+  if (s.opts.mode === 'kd') {
+    if (new Set(al.map(tentTeam)).size > 1) return;
+    /* chỉ còn một thế lực (tính cả người còn úp): lật hết xem có ai thành Dã tâm gia không */
+    for (const p of al) revealGen(s, p, 'chỉ còn một thế lực');
+    const teams = new Set(al.map(teamOf));
+    if (teams.size > 1) return;
+    const w = [...teams][0], who = al[0];
+    endGame(s, w, who.role === 'yexin' ? `🐍 Dã tâm gia ${nm(who)} là người sống sót cuối cùng!` : `Thế lực ${ROLES[w].name} thống nhất thiên hạ!`);
+    return;
+  }
   const lord = s.players.find(p => p.role === 'lord');
   if (!lord.alive) {
     if (al.length === 1 && al[0].role === 'spy') endGame(s, 'spy', 'Nội gián là người sống sót cuối cùng! Cáo già thắng!');
@@ -201,14 +321,28 @@ function endGame(s, winner, msg) {
   // trả các lá đang "lơ lửng" (lá phán định, ngũ cốc, quan tinh) về chồng bỏ để bảo toàn bộ bài
   for (const t of s.stack) if (t.hold && t.hold.length) { s.discard.push(...t.hold); t.hold = []; }
   s.stack = [];
-  for (const p of s.players) p.revealed = true;
-  log(s, `🏆 ${msg}`); ev(s, { t: 'win', w: winner });
+  for (const p of s.players) { if (p.hidden) { p.hidden = false; p.role = p.kingdom; } p.revealed = true; }
+  s.winIds = s.players.filter(p => (s.opts.mode === 'kd' ? teamOf(p) : sideOf(p.role)) === winner).map(p => p.id);
+  log(s, `🏆 ${msg}`); ev(s, { t: 'win', w: winner, ids: s.winIds });
 }
 export function sideOf(role) { return role === 'lord' || role === 'loyal' ? 'lord' : role; }
 
 // ======================= LỰA CHỌN KHI RA BÀI =======================
 // Lá (ids) dùng như `as` có hợp lệ không; trả {ok, targets, min, max, second?}
 export function useOptions(s, p, ids, as) {
+  const o = useOptions0(s, p, ids, as);
+  /* Giả Hủ [Duy mạc]: cẩm nang đen không chọn được người có Duy mạc */
+  const info = CARD_INFO[as];
+  if (o.ok && o.targets && o.targets.length && info && (info.kind === 'trick' || info.kind === 'delay')) {
+    const cs = ids.map(id => p.hand.find(c => c.id === id)).filter(Boolean);
+    if (colorOf(cs) === 'black') {
+      const tg = o.targets.filter(id => id === p.id || !hasSkill(getPlayer(s, id), 'duymac'));
+      if (tg.length !== o.targets.length) { if (!tg.length && o.min > 0) return bad('Không có mục tiêu hợp lệ (Duy mạc).'); return { ...o, targets: tg }; }
+    }
+  }
+  return o;
+}
+function useOptions0(s, p, ids, as) {
   if (!Array.isArray(ids) || !ids.length) return bad('Chưa chọn lá.');
   const cards = ids.map(id => p.hand.find(c => c.id === id));
   if (cards.some(c => !c) || new Set(ids).size !== ids.length) return bad('Lá không có trên tay.');
@@ -223,7 +357,11 @@ export function useOptions(s, p, ids, as) {
         || (as === 'lebu' && hasSkill(p, 'quocsac') && c.suit === 'D')
         || (as === 'hoasat' && weaponOf(p) === 'zhuque' && c.type === 'sat' && !c.el)
         || (as === 'tiesuo' && hasSkill(p, 'lienhoan') && c.suit === 'C')
-        || (as === 'huogong' && hasSkill(p, 'hoake') && isRed(c));
+        || (as === 'huogong' && hasSkill(p, 'hoake') && isRed(c))
+        || (as === 'jiu' && hasSkill(p, 'tuutri') && c.suit === 'S')
+        || (as === 'hoasat' && hasSkill(p, 'lieuhoa') && c.type === 'sat' && !c.el)
+        || (as === 'bingliang' && hasSkill(p, 'doanluong') && isBlack(c) && ['basic', 'weapon', 'armor', 'plus', 'minus'].includes(CARD_INFO[c.type].kind))
+        || (as === 'juedou' && hasSkill(p, 'songhung') && isBlack(c) && !s.tf.songhung);
       if (!ok) return bad('Lá này không dùng như vậy được.');
     }
   } else return bad('Số lá không hợp lệ.');
@@ -247,8 +385,9 @@ export function useOptions(s, p, ids, as) {
     case 'jiu':
       if (s.tf.jiu) return bad('Mỗi lượt chỉ uống 1 Rượu.');
       return { ok: true, targets: [], min: 0, max: 0 };
-    case 'wuzhong': case 'nanman': case 'wanjian': case 'taoyuan': case 'wugu':
+    case 'wuzhong': case 'nanman': case 'wanjian': case 'taoyuan': case 'wugu': case 'yiyi':
       return { ok: true, targets: [], min: 0, max: 0 };
+    case 'yuanjiao': case 'shuiyan': { const targets = others.filter(q => !kongcheng(q) || as === 'yuanjiao').map(q => q.id); return targets.length ? { ok: true, targets, min: 1, max: 1 } : bad('Không có ai để chọn.'); }
     case 'guohe': {
       const targets = others.filter(q => cardCount(q) > 0).map(q => q.id);
       return targets.length ? { ok: true, targets, min: 1, max: 1 } : bad('Không ai có bài để phá.');
@@ -284,7 +423,7 @@ export function useOptions(s, p, ids, as) {
     }
     case 'tiesuo': return { ok: true, targets: alivePlayers(s).map(q => q.id), min: 0, max: 2, recast: true };
     case 'bingliang': {
-      const targets = others.filter(q => !q.judge.some(j => j.as === 'bingliang') && (hasSkill(p, 'kytai') || distance(s, p, q) <= 1)).map(q => q.id);
+      const targets = others.filter(q => !q.judge.some(j => j.as === 'bingliang') && (hasSkill(p, 'kytai') || distance(s, p, q) <= (hasSkill(p, 'doanluong') ? 2 : 1))).map(q => q.id);
       return targets.length ? { ok: true, targets, min: 1, max: 1 } : bad('Không ai cách bạn 1 để cắt lương.');
     }
     default:
@@ -298,9 +437,12 @@ export function cardModes(s, p, c) {
   if (c.type !== 'sat' && ((hasSkill(p, 'vothanh') && isRed(c)) || (hasSkill(p, 'longdam') && c.type === 'ne'))) modes.push('sat');
   if (c.type !== 'guohe' && hasSkill(p, 'kytap') && isBlack(c)) modes.push('guohe');
   if (c.type !== 'lebu' && hasSkill(p, 'quocsac') && c.suit === 'D') modes.push('lebu');
-  if (c.type === 'sat' && !c.el && weaponOf(p) === 'zhuque') modes.push('hoasat');
+  if (c.type === 'sat' && !c.el && (weaponOf(p) === 'zhuque' || hasSkill(p, 'lieuhoa'))) modes.push('hoasat');
+  if (c.type !== 'bingliang' && hasSkill(p, 'doanluong') && isBlack(c) && ['basic', 'weapon', 'armor', 'plus', 'minus'].includes(CARD_INFO[c.type].kind)) modes.push('bingliang');
+  if (c.type !== 'juedou' && hasSkill(p, 'songhung') && isBlack(c) && !s.tf.songhung) modes.push('juedou');
   if (c.type !== 'tiesuo' && hasSkill(p, 'lienhoan') && c.suit === 'C') modes.push('tiesuo');
   if (c.type !== 'huogong' && hasSkill(p, 'hoake') && isRed(c)) modes.push('huogong');
+  if (c.type !== 'jiu' && hasSkill(p, 'tuutri') && c.suit === 'S') modes.push('jiu');
   return modes.map(as => ({ as, ...useOptions(s, p, [c.id], as) }));
 }
 // kỹ năng chủ động khả dụng
@@ -317,6 +459,7 @@ export function activeSkills(s, p) {
   if (hasSkill(p, 'khuho') && !tf.khuho && p.hand.length) { const tg = others.filter(q => q.hp > p.hp && q.hand.length).map(q => q.id); if (tg.length) out.push({ sk: 'khuho', cards: [0, 0], targets: tg, tmin: 1, tmax: 1 }); }
   if (hasSkill(p, 'thiennghia') && !tf.thiennghia && p.hand.length) { const tg = others.filter(q => q.hand.length).map(q => q.id); if (tg.length) out.push({ sk: 'thiennghia', cards: [0, 0], targets: tg, tmin: 1, tmax: 1 }); }
   if (hasSkill(p, 'loankich') && p.hand.length >= 2) { const by = {}; for (const c of p.hand) by[c.suit] = (by[c.suit] || 0) + 1; if (Object.values(by).some(x => x >= 2) && others.length) out.push({ sk: 'loankich', cards: [2, 2], zones: 'h', targets: [], tmin: 0, tmax: 0, sameSuit: true }); }
+  if (hasSkill(p, 'khieukhich') && !tf.khieukhich && !kongcheng(p)) { const tg = others.filter(q => inRange(s, q, p)).map(q => q.id); if (tg.length) out.push({ sk: 'khieukhich', cards: [0, 0], targets: tg, tmin: 1, tmax: 1 }); }
   if (weaponOf(p) === 'zhangba' && p.hand.length >= 2) { const o = useOptionsXamau(s, p); if (o.ok) out.push({ sk: 'xamau', cards: [2, 2], zones: 'h', targets: o.targets, tmin: 1, tmax: 1 }); }
   return out;
 }
@@ -367,6 +510,19 @@ const TASKS = {};
 // ---- Chọn tướng ----
 TASKS.choose = (s, t, inp) => {
   const lord = s.players.find(p => p.role === 'lord');
+  if (t.stage === 'bp') {
+    const B = s.bp, step = B.seq[B.i];
+    if (inp) {
+      if (inp.a.type !== 'banpick') return bad('Hãy cấm hoặc chọn tướng.');
+      const id = inp.a.id, p = inp.p;
+      if (!step || step[0] !== p.id) return bad('Chưa tới lượt bạn.');
+      if (!B.pool.includes(id) || B.ban.some(x => x.id === id) || Object.values(B.pick).includes(id)) return bad('Tướng này không chọn được nữa.');
+      if (step[1] === 'ban') { B.ban.push({ id, by: p.id }); log(s, `🚫 ${nm(p)} cấm ${GENERALS[id].name}.`); ev(s, { t: 'ban', p: p.id, g: id }); }
+      else { B.pick[p.id] = id; setGeneral(s, p, id); }
+      B.i++; delete t.ask; return { ok: true };
+    }
+    if (step) { t.ask = { type: 'banpick', players: [step[0]], act: step[1] }; return; }
+  }
   if (inp) {
     if (inp.a.type !== 'general') return bad('Hãy chọn tướng.');
     const id = inp.a.id; const p = inp.p;
@@ -385,14 +541,16 @@ TASKS.choose = (s, t, inp) => {
   if (pending.length) { t.ask = { type: 'general', players: pending }; return; }
   // xong: chia bài, bắt đầu từ Chúa công
   done(s, t);
-  for (const p of s.players) draw(s, p, 4);
-  log(s, 'Mỗi người nhận 4 lá. Chúa công đi trước!');
+  /* Solo: người đi sau thêm 1 lá đầu ván + người đi trước lượt đầu rút bớt 1 (máy đấu máy: không bù thì đi trước thắng ~58%) */
+  for (const p of s.players) draw(s, p, s.opts.mode === 'solo' && p !== current(s) ? 5 : 4);
+  log(s, s.opts.mode === 'id' ? 'Mỗi người nhận 4 lá. Chúa công đi trước!' : `Mỗi người nhận 4 lá. ${nm(current(s))} đi trước!`);
   push(s, { k: 'nextTurn', first: true });
 };
 function setGeneral(s, p, id) {
   const g = GENERALS[id];
-  p.general = id; p.kingdom = g.kingdom; p.gender = g.gender;
-  p.maxHp = g.hp + (p.role === 'lord' && s.players.length > 2 ? 1 : 0); p.hp = p.maxHp;
+  p.general = id; p.kingdom = g.kingdom; p.gender = g.gender; p.relic = s.opts.relic && RELICS[id] ? id : null;
+  p.maxHp = g.hp + ((p.role === 'lord' && s.players.length > 2) || p.cmd ? 1 : 0); p.hp = p.maxHp;
+  if (p.hidden) { log(s, `${nm(p)} đã chọn tướng (úp).`); ev(s, { t: 'general', p: p.id, g: null, priv: [p.id] }); return; }
   log(s, `${nm(p)} chọn tướng ${g.name}${p.role === 'lord' ? '' : ''}.`);
   ev(s, { t: 'general', p: p.id, g: id });
 }
@@ -477,6 +635,12 @@ TASKS.ph_judge = (s, t, inp) => {
   if (t.stage === 'begin' && p.alive && hasSkill(p, 'thantoc')) {
     const cands = alivePlayers(s).filter(q => q !== p && !kongcheng(q)).map(q => q.id);
     if (cands.length) { t.cands = cands; t.ask = t.lastAsk = { type: 'targets', players: [p.id], candidates: cands, min: 0, max: 1, purpose: 'thantoc' }; return; }
+  }
+  if ((t.stage === 'begin' || t.stage === 'begin2') && p.alive && hasSkill(p, 'xaobien') && p.hand.length && p.judge.some(j => j.as === 'lebu' || j.as === 'bingliang')) {
+    const c = [...p.hand].sort((a, b) => keepVal(a) - keepVal(b))[0];
+    const cs = discardIds(s, p, [c.id]); ev(s, { t: 'discard', p: p.id, cards: cs });
+    const gone = p.judge.filter(j => j.as === 'lebu' || j.as === 'bingliang'); p.judge = p.judge.filter(j => !gone.includes(j)); s.discard.push(...gone.map(j => j.card));
+    log(s, `🔀 ${nm(p)} [Xảo biến] bỏ ${cardLabel(c)}, dẹp ${gone.map(j => CARD_INFO[j.as].name).join(', ')}.`); ev(s, { t: 'skill', p: p.id, sk: 'xaobien' });
   }
   if (t.stage === 'begin' || t.stage === 'begin2') { t.left = p.judge.length; t.stage = 'next'; }
   if (t.stage === 'next') {
@@ -563,10 +727,30 @@ TASKS.ph_draw = (s, t, inp) => {
     if (cand.length) { t.stage = 'tuxi'; t.ask = { type: 'targets', players: [p.id], candidates: cand, min: 0, max: 2, purpose: 'duttap' }; return; }
   }
   if (hasSkill(p, 'loay')) { t.stage = 'luoyi'; t.ask = { type: 'yesno', players: [p.id], purpose: 'loay' }; return; }
-  normalDraw(s, p, hasSkill(p, 'anhtu') ? 3 : 2);
+  const lost = p.maxHp - p.hp;
+  if (hasSkill(p, 'taikhoi') && lost >= 2) { normalDraw(s, p, 1); heal(s, p, 1); log(s, `🐘 ${nm(p)} [Tái khởi] hồi 1 máu.`); ev(s, { t: 'skill', p: p.id, sk: 'taikhoi' }); return done(s, t); }
+  let k = hasSkill(p, 'anhtu') ? 3 : 2;
+  if (hasSkill(p, 'anhhon') && lost > 0) { k += Math.min(2, lost); log(s, `🐅 ${nm(p)} [Anh hồn] rút thêm ${Math.min(2, lost)} lá.`); ev(s, { t: 'skill', p: p.id, sk: 'anhhon' }); }
+  if (hasSkill(p, 'haothi')) k += 2;
+  if (hasSkill(p, 'tamchien') && p.hand.length < p.hp) { k++; log(s, `🧠 ${nm(p)} [Tâm chiến] rút thêm 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'tamchien' }); }
+  normalDraw(s, p, k);
+  if (hasSkill(p, 'haothi') && p.hand.length > 5) {
+    const mode = s.opts.mode;
+    /* 2v2: tặng đồng đội (nếu còn); Solo 1v1: không có ai để tặng nên bỏ đi một nửa */
+    const others = alivePlayers(s).filter(q => q !== p && (mode !== 'duo' || q.role === p.role || !alivePlayers(s).some(x => x !== p && x.role === p.role)));
+    const min = Math.min(...others.map(q => q.hand.length));
+    const q = mode === 'solo' ? null : pick(others.filter(x => x.hand.length === min));
+    if (mode === 'solo') { const n = Math.floor(p.hand.length / 2); const cs = discardIds(s, p, [...p.hand].sort((a, b) => keepVal(a) - keepVal(b)).slice(0, n).map(c => c.id)); ev(s, { t: 'discard', p: p.id, cards: cs }); log(s, `🎁 ${nm(p)} [Hảo thí] bỏ ${n} lá.`); }
+    if (q) {
+      const n = Math.floor(p.hand.length / 2); const give = [...p.hand].sort((a, b) => keepVal(a) - keepVal(b)).slice(0, n);
+      for (const c of give) q.hand.push(takeOut(s, p, c.id));
+      ev(s, { t: 'move', from: p.id, to: q.id, k: n, priv: [p.id, q.id] }); ev(s, { t: 'skill', p: p.id, sk: 'haothi', to: [q.id] });
+      log(s, `🎁 ${nm(p)} [Hảo thí] tặng ${nm(q)} ${n} lá.`); friendly(s, p, q, .5);
+    }
+  }
   done(s, t);
 };
-function normalDraw(s, p, k) { const g = draw(s, p, k); log(s, `${nm(p)} rút ${g} lá.`); }
+function normalDraw(s, p, k) { if (s.opts.mode === 'solo' && s.turnCount === 1) k = Math.max(1, k - 1); /* Solo: lượt đầu của người đi trước chỉ rút bớt 1 */ const g = draw(s, p, k); log(s, `${nm(p)} rút ${g} lá.`); }
 
 TASKS.ph_play = (s, t, inp) => {
   const p = current(s);
@@ -590,6 +774,7 @@ TASKS.ph_discard = (s, t, inp) => {
     const ids = inp.a.ids || [];
     if (ids.length !== t.ask.n || new Set(ids).size !== ids.length || !ids.every(id => p.hand.some(c => c.id === id))) return bad(`Chọn đúng ${t.ask.n} lá trên tay.`);
     const cs = discardIds(s, p, ids); log(s, `${nm(p)} bỏ ${cs.length} lá.`); ev(s, { t: 'discard', p: p.id, cards: cs });
+    lacAnh(s, p, cs);
     delete t.ask; return done(s, t);
   }
   if (hasSkill(p, 'khacky') && !s.tf.slashed) { if (p.hand.length > p.hp) { log(s, `${nm(p)} [Khắc kỷ] không Sát lượt này: giữ nguyên bài.`); ev(s, { t: 'skill', p: p.id, sk: 'khacky' }); } return done(s, t); }
@@ -597,6 +782,14 @@ TASKS.ph_discard = (s, t, inp) => {
   if (ex <= 0) return done(s, t);
   t.ask = { type: 'discard', players: [p.id], n: ex, purpose: 'phase' };
 };
+
+/* Tào Thực [Lạc anh]: lá ♣ người khác bỏ ở pha bỏ bài về tay Tào Thực */
+function lacAnh(s, p, cs) {
+  const q = orderFrom(s, p, false).find(x => x.alive && hasSkill(x, 'lacanh')); if (!q) return;
+  const clubs = cs.filter(c => c.suit === 'C'); if (!clubs.length) return;
+  for (const c of clubs) { const i = s.discard.findIndex(x => x.id === c.id); if (i >= 0) q.hand.push(s.discard.splice(i, 1)[0]); }
+  log(s, `🌸 ${nm(q)} [Lạc anh] nhặt ${clubs.map(cardLabel).join(', ')}.`); ev(s, { t: 'skill', p: q.id, sk: 'lacanh' }); ev(s, { t: 'move', from: p.id, to: q.id, k: clubs.length });
+}
 
 TASKS.ph_end = (s, t, inp) => {
   const p = current(s);
@@ -609,11 +802,34 @@ TASKS.ph_end = (s, t, inp) => {
   if (t.stage === 'begin' && p.alive && hasSkill(p, 'cuthu') && !p.flags.flipped) { t.ask = { type: 'yesno', players: [p.id], purpose: 'cuthu' }; return; }
   done(s, t);
   if (p.flags.drunk) { p.flags.drunk = false; log(s, `${nm(p)} tỉnh rượu.`); }
+  if (p.alive && hasSkill(p, 'tieudao') && !s.tf.slashed) { log(s, `🍵 ${nm(p)} [Tiêu dao] rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'tieudao' }); draw(s, p, 1); }
+  if (p.alive && hasSkill(p, 'banghoai') && alivePlayers(s).some(q => q.hp < p.hp)) {
+    ev(s, { t: 'skill', p: p.id, sk: 'banghoai' });
+    if (p.hp < p.maxHp) { p.maxHp--; log(s, `🍖 ${nm(p)} [Băng hoại] mất 1 máu tối đa (còn ${p.maxHp}).`); }
+    else { log(s, `🍖 ${nm(p)} [Băng hoại] mất 1 máu.`); push(s, { k: 'loseHp', who: p.id, n: 1, stage: 'begin' }); }
+  }
+  if (p.alive && hasSkill(p, 'cuhien') && alivePlayers(s).every(q => q.hp >= p.hp)) { log(s, `📚 ${nm(p)} [Cử hiền] máu thấp nhất bàn: rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'cuhien' }); draw(s, p, 1); }
+  if (p.alive && hasSkill(p, 'cohoac')) {
+    const c = drawCard(s);
+    if (c) {
+      ev(s, { t: 'skill', p: p.id, sk: 'cohoac' }); ev(s, { t: 'judge', p: p.id, card: c, why: 'cohoac' });
+      if (c.suit === 'H' && p.hp < p.maxHp) { s.discard.push(c); heal(s, p, 1); log(s, `🔮 ${nm(p)} [Cổ hoặc] lật ${cardLabel(c)}: hồi 1 máu.`); }
+      else if (c.suit !== 'S') { p.hand.push(c); log(s, `🔮 ${nm(p)} [Cổ hoặc] lật ${cardLabel(c)}: nhận lá đó.`); }
+      else { s.discard.push(c); log(s, `🔮 ${nm(p)} [Cổ hoặc] lật ${cardLabel(c)}: không được gì.`); }
+    }
+  }
   if (p.alive && hasSkill(p, 'benguyet')) { log(s, `${nm(p)} [Bế nguyệt] rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'benguyet' }); draw(s, p, 1); }
   p.flags.luoyi = false;
 };
 
 // ---- Dùng lá trong pha ra bài ----
+// kỹ năng biến lá vừa dùng (để hiện bong bóng + tiếng kỹ năng)
+function convSkill(p, cs, as) {
+  if (!cs || cs.length !== 1) return null; const c = cs[0]; if (!c || c.type === as) return null;
+  const M = { sat: c.type === 'ne' ? 'longdam' : 'vothanh', ne: c.type === 'sat' ? 'longdam' : 'khuynhquoc', guohe: 'kytap', lebu: 'quocsac', tiesuo: 'lienhoan', huogong: 'hoake', jiu: 'tuutri', hoasat: 'lieuhoa', bingliang: 'doanluong', juedou: 'songhung', wuxie: 'khanpha', dao: 'capcuu' };
+  const k = M[as]; return k && hasSkill(p, k) ? k : null;
+}
+function convEv(s, p, cs, as) { const k = convSkill(p, cs, as); if (k) ev(s, { t: 'skill', p: p.id, sk: k }); }
 function doUse(s, p, a) {
   const ids = a.ids, as = a.as;
   const o = useOptions(s, p, ids, as);
@@ -627,6 +843,7 @@ function doUse(s, p, a) {
   const real = ids.map(id => p.hand.find(c => c.id === id));
   const tg = targets.map(id => getPlayer(s, id));
   const conv = real.length > 1 || real[0].type !== as;
+  if (conv) convEv(s, p, real, as);
   const label = conv ? `${info.name} (${real.map(cardLabel).join(' + ')})` : cardLabel(real[0]);
   // lá trì hoãn & trang bị: đặt lên bàn
   if (info.kind === 'delay') {
@@ -647,9 +864,12 @@ function doUse(s, p, a) {
   const cs = discardIds(s, p, ids);
   ev(s, { t: 'use', p: p.id, card: cs[0], cards: cs, as, to: targets });
   if (info.kind === 'trick') tapTri(s, p);
+  if (as === 'juedou' && cs[0].type !== 'juedou' && hasSkill(p, 'songhung')) { s.tf.songhung = true; ev(s, { t: 'skill', p: p.id, sk: 'songhung', to: targets }); log(s, `⚔️ ${nm(p)} [Song hùng] dùng ${cardLabel(cs[0])} như Quyết đấu.`); }
+  if (as === 'juedou' || ((as === 'sat' || as === 'hoasat') && colorOf(cs) === 'red')) for (const q of [p, ...tg]) if (q.alive && hasSkill(q, 'kichngang')) { log(s, `🦁 ${nm(q)} [Kích ngang] rút 1 lá.`); ev(s, { t: 'skill', p: q.id, sk: 'kichngang' }); draw(s, q, 1); }
   switch (as) {
     case 'sat': case 'hoasat': {
-      s.tf.slashes = (s.tf.slashes || 0) + 1; s.tf.slashed = true;
+      if (hasSkill(p, 'longngam') && colorOf(cs) === 'red') { log(s, `🐲 ${nm(p)} [Long ngâm]: Sát đỏ không tính lượt.`); ev(s, { t: 'skill', p: p.id, sk: 'longngam' }); } else { if ((s.tf.slashes || 0) >= 1 + (s.tf.tnWin ? 1 : 0) && hasSkill(p, 'baohao') && weaponOf(p) !== 'zhuge') ev(s, { t: 'skill', p: p.id, sk: 'baohao' }); s.tf.slashes = (s.tf.slashes || 0) + 1; }
+      s.tf.slashed = true;
       const drunk = !!p.flags.drunk; p.flags.drunk = false;
       const ex = { ...(drunk ? { drunk: true } : {}), ...(as === 'hoasat' ? { nature: 'fire' } : {}) };
       log(s, `${nm(p)} ${as === 'hoasat' ? '🔥 Hỏa Sát [Chu tước]' : '⚔️ Sát'} ${tg.map(nm).join(', ')} bằng ${label}${drunk ? ' 🍶 (say rượu: +1 sát thương)' : ''}.`);
@@ -667,7 +887,8 @@ function doUse(s, p, a) {
     case 'jiu': s.tf.jiu = true; p.flags.drunk = true; log(s, `🍶 ${nm(p)} nốc một bình Rượu – Sát kế tiếp lượt này +1 sát thương!`); return { ok: true };
     case 'dao': heal(s, p, 1); log(s, `${nm(p)} ăn 🍑 Đào, hồi 1 máu.`); return { ok: true };
     case 'wuzhong': log(s, `${nm(p)} dùng ✨ Vô trung sinh hữu.`); push(s, { k: 'trick', trick: 'wuzhong', src: p.id, tgt: p.id, cards: cs, stage: 'begin' }); return { ok: true };
-    case 'guohe': case 'shunshou': case 'juedou':
+    case 'yiyi': log(s, `${nm(p)} dùng 🍵 Dĩ dật đãi lao.`); push(s, { k: 'trick', trick: 'yiyi', src: p.id, tgt: p.id, cards: cs, stage: 'begin' }); return { ok: true };
+    case 'guohe': case 'shunshou': case 'juedou': case 'yuanjiao': case 'shuiyan':
       log(s, `${nm(p)} dùng ${info.emo} ${info.name} lên ${nm(tg[0])}${conv ? ' (' + label + ')' : ''}.`);
       push(s, { k: 'trick', trick: as, src: p.id, tgt: tg[0].id, cards: cs, stage: 'begin' }); return { ok: true };
     case 'jiedao':
@@ -770,11 +991,23 @@ function doSkill(s, p, a) {
       return { ok: true };
     }
     case 'khuho': s.tf.khuho = true; log(s, `🐯 ${nm(p)} [Khu hổ] thách ${nm(tg[0])} đọ bài!`); hostile(s, p, tg[0], .4); push(s, { k: 'khuho', a: p.id, b: tg[0].id, stage: 'begin' }); return { ok: true };
+    case 'khieukhich': s.tf.khieukhich = true; log(s, `🗡️ ${nm(p)} [Khiêu khích] thách ${nm(tg[0])}: Sát ta đi, không thì mất bài!`); hostile(s, p, tg[0], .4); push(s, { k: 'khieu', src: p.id, tgt: tg[0].id, stage: 'begin' }); return { ok: true };
     case 'thiennghia': s.tf.thiennghia = true; log(s, `🎯 ${nm(p)} [Thiên nghĩa] thách ${nm(tg[0])} đọ bài!`); push(s, { k: 'thiennghia', a: p.id, b: tg[0].id, stage: 'begin' }); return { ok: true };
   }
   return bad('Kỹ năng lạ.');
 }
 
+TASKS.khieu = (s, t) => {
+  const p = getPlayer(s, t.src), q = getPlayer(s, t.tgt);
+  if (t.stage === 'begin') {
+    if (!p.alive || !q.alive) return done(s, t);
+    t.stage = 'res'; push(s, { k: 'askCard', who: q.id, want: 'sat', src: p.id, purpose: 'khieukhich', stage: 'begin' }); return;
+  }
+  const r = s.ret; done(s, t);
+  if (!p.alive || !q.alive) return;
+  if (r && r.ok) { log(s, `${nm(q)} nhận lời, Sát ${nm(p)}!`); push(s, slashTask(q, p, (r.cards || []).filter(c => c && typeof c === 'object'))); return; }
+  if (allCards(q).length) { log(s, `${nm(q)} không dám Sát – ${nm(p)} phá 1 lá.`); push(s, { k: 'pick', chooser: p.id, from: q.id, mode: 'discard', zones: 'he', stage: 'begin' }); }
+};
 // ---- Mất máu (không phải sát thương) ----
 TASKS.loseHp = (s, t) => {
   const p = getPlayer(s, t.who);
@@ -855,6 +1088,11 @@ TASKS.slash = (s, t, inp) => {
   switch (t.stage) {
     case 'begin': {
       hostile(s, src, tgt);
+      if (hasSkill(tgt, 'anlac') && src.alive && src !== tgt && !t.anlac) {
+        t.anlac = true; ev(s, { t: 'skill', p: tgt.id, sk: 'anlac' });
+        if (!src.hand.length) { log(s, `🍵 ${nm(tgt)} [An lạc]: ${nm(src)} hết bài trên tay – Sát vô hiệu.`); ev(s, { t: 'block', p: tgt.id }); return done(s, t); }
+        const c = pick(src.hand); const cs = discardIds(s, src, [c.id]); ev(s, { t: 'discard', p: src.id, cards: cs }); log(s, `🍵 ${nm(tgt)} [An lạc]: ${nm(src)} phải bỏ ${cardLabel(c)}.`);
+      }
       if (!t.redirected && hasSkill(tgt, 'luuly') && allCards(tgt).length) {
         const cand = alivePlayers(s).filter(q => q !== tgt && q !== src && inRange(s, tgt, q) && !kongcheng(q)).map(q => q.id);
         if (cand.length) { t.stage = 'liuliAns'; t.ask = { type: 'liuli', players: [tgt.id], candidates: cand, src: src.id }; return; }
@@ -880,6 +1118,9 @@ TASKS.slash = (s, t, inp) => {
     }
     case 'armor': {
       const ignore = src.alive && weaponOf(src) === 'qinggang';
+      if (!ignore && !tgt.equip.armor && hasSkill(tgt, 'nghitrong') && t.color === 'black') {
+        log(s, `🛡️ ${nm(tgt)} [Nghị trọng] không đeo giáp: Sát đen vô hiệu!`); ev(s, { t: 'skill', p: tgt.id, sk: 'nghitrong' }); ev(s, { t: 'block', p: tgt.id }); return done(s, t);
+      }
       if (!ignore && armorOf(tgt) === 'renwang' && t.color === 'black') {
         log(s, `🛡️ Nhân vương thuẫn của ${nm(tgt)} chặn Sát đen!`); ev(s, { t: 'block', p: tgt.id }); return done(s, t);
       }
@@ -903,6 +1144,7 @@ TASKS.slash = (s, t, inp) => {
     case 'dodged': {
       ev(s, { t: 'dodge', p: tgt.id });
       if (!src.alive) return done(s, t);
+      if (hasSkill(src, 'manhtien') && tgt.alive && allCards(tgt).length && !t.mt) { t.mt = true; const c = pick(allCards(tgt)); const cs = discardIds(s, tgt, [c.id]); if (!cs.length) { for (const k of Object.keys(tgt.equip)) if (tgt.equip[k] === c) { tgt.equip[k] = null; s.discard.push(c); lostEquip(s, tgt, c); afterLose(s, tgt, 'e'); } } ev(s, { t: 'discard', p: tgt.id, cards: [c] }); ev(s, { t: 'skill', p: src.id, sk: 'manhtien', to: [tgt.id] }); log(s, `🐎 ${nm(src)} [Mãnh tiến]: ${nm(tgt)} né được nhưng mất ${cardLabel(c)}.`); }
       if (weaponOf(src) === 'qinglong' && responseOptions(s, src, 'sat').length) {
         t.stage = 'qinglongRes';
         push(s, { k: 'askCard', who: src.id, want: 'sat', src: tgt.id, optional: true, purpose: 'qinglong', stage: 'begin' }); return;
@@ -934,7 +1176,7 @@ TASKS.slash = (s, t, inp) => {
       const gd = src.alive && weaponOf(src) === 'guding' && tgt.hand.length === 0;
       if (gd) { log(s, `🗡️ Cổ đĩnh đao: ${nm(tgt)} hết bài trên tay, Sát +1 sát thương!`); ev(s, { t: 'skill', p: src.id, sk: 'guding', to: [tgt.id] }); }
       const n = 1 + (src.flags.luoyi ? 1 : 0) + (t.drunk ? 1 : 0) + (gd ? 1 : 0);
-      push(s, { k: 'damage', tgt: tgt.id, src: src.id, n, cards: t.cards, stage: 'begin', drunk: !!t.drunk, nature: t.nature || 'normal', ignoreArmor: !!t.ignore });
+      push(s, { k: 'damage', tgt: tgt.id, src: src.id, n, cards: t.cards, stage: 'begin', slash: true, red: t.color === 'red', drunk: !!t.drunk, nature: t.nature || 'normal', ignoreArmor: !!t.ignore });
       return;
     }
   }
@@ -961,7 +1203,7 @@ TASKS.askCard = (s, t, inp) => {
     if (!ids) return bad('Lá này không dùng được.');
     delete t.ask;
     const cs = discardIds(s, p, ids);
-    playedLog(s, p, cs, t.want);
+    playedLog(s, p, cs, t.want); convEv(s, p, cs, t.want);
     if (t.want === 'sat' && p === current(s)) s.tf.slashed = true;
     return finishAsk(s, t, p, { ok: true, cards: cs }), { ok: true };
   }
@@ -992,6 +1234,7 @@ TASKS.askCard = (s, t, inp) => {
 };
 // đáp trả xong; Trương Giác đánh Né thì kích hoạt Lôi kích trước khi trả kết quả
 function finishAsk(s, t, p, res) {
+  if (t.want === 'ne' && res && res.ok && hasSkill(p, 'dondien') && current(s) !== p) { log(s, `⛏️ ${nm(p)} [Đồn điền] rút 1 lá.`); ev(s, { t: 'skill', p: p.id, sk: 'dondien' }); draw(s, p, 1); }
   if (t.want === 'ne' && hasSkill(p, 'loikich') && alivePlayers(s).length > 1) { t.result = res; t.stage = 'lj'; push(s, { k: 'leiji', who: p.id, stage: 'ask' }); return; }
   done(s, t, res);
 }
@@ -1031,7 +1274,7 @@ TASKS.delegate = (s, t, inp) => {
     const ids = matchResponse(s, h, t.want, a.ids);
     if (!ids) return bad('Lá này không dùng được.');
     delete t.ask;
-    const cs = discardIds(s, h, ids); playedLog(s, h, cs, t.want);
+    const cs = discardIds(s, h, ids); playedLog(s, h, cs, t.want); convEv(s, h, cs, t.want);
     log(s, `${nm(h)} đánh hộ ${nm(forP)}!`); friendly(s, h, forP);
     return done(s, t, { ok: true, cards: cs }), { ok: true };
   }
@@ -1063,7 +1306,7 @@ function judgeHit(why, c0, who) {
   }
   return false;
 }
-export const JUDGE_TEXT = { bingliang: 'Binh lương: ra ♣ thì thoát', leiji: 'Lôi kích: ra ♠ thì sét đánh 2', lebu: 'Lạc bất: ra ♥ thì thoát', shandian: 'Thiểm điện: ♠2–9 thì sét đánh', bagua: 'Bát quái: ra đỏ = Né', tieqi: 'Thiết kỵ: ra đỏ thì không Né được', cuonglie: 'Cương liệt: không ra ♥ thì phạt', luoshen: 'Lạc thần: ra đen thì nhận lá' };
+export const JUDGE_TEXT = { cohoac: 'Cổ hoặc: ♥ hồi máu, ♦/♣ nhận lá', bingliang: 'Binh lương: ra ♣ thì thoát', leiji: 'Lôi kích: ra ♠ thì sét đánh 2', lebu: 'Lạc bất: ra ♥ thì thoát', shandian: 'Thiểm điện: ♠2–9 thì sét đánh', bagua: 'Bát quái: ra đỏ = Né', tieqi: 'Thiết kỵ: ra đỏ thì không Né được', cuonglie: 'Cương liệt: không ra ♥ thì phạt', luoshen: 'Lạc thần: ra đen thì nhận lá' };
 TASKS.judge = (s, t, inp) => {
   const who = getPlayer(s, t.who);
   if (inp) { // Quỷ tài
@@ -1124,6 +1367,8 @@ TASKS.damage = (s, t, inp) => {
   }
   if (t.stage === 'apply') {
     let n = t.n;
+    if (t.trick && hasSkill(tgt, 'vongon')) { log(s, `🤐 ${nm(tgt)} [Vô ngôn]: cẩm nang không gây sát thương.`); ev(s, { t: 'skill', p: tgt.id, sk: 'vongon' }); ev(s, { t: 'block', p: tgt.id }); return done(s, t); }
+    if (!t.ignoreArmor && armorOf(tgt) === 'mingguang' && nature === 'fire') { log(s, `🪞 Minh quang khải của ${nm(tgt)} chặn lửa!`); ev(s, { t: 'block', p: tgt.id }); return done(s, t); }
     if (!t.ignoreArmor && armorOf(tgt) === 'tengjia' && nature === 'fire') { n++; log(s, `🪵🔥 Đằng giáp của ${nm(tgt)} bén lửa: +1 sát thương!`); }
     if (!t.ignoreArmor && armorOf(tgt) === 'baiyin' && n > 1) { n = 1; log(s, `🦁 Bạch ngân sư tử giảm sát thương xuống 1.`); ev(s, { t: 'block', p: tgt.id }); }
     t.dealt = n;
@@ -1153,6 +1398,24 @@ TASKS.damage = (s, t, inp) => {
     for (const id of t.cards || []) { const i = s.discard.findIndex(c => c.id === id); if (i >= 0) got.push(s.discard.splice(i, 1)[0]); }
     if (got.length) { tgt.hand.push(...got); log(s, `🏯 ${nm(tgt)} [Gian hùng] thu ${got.map(cardLabel).join(', ')} về tay.`); ev(s, { t: 'skill', p: tgt.id, sk: 'gianhung' }); }
   }
+  if (t.slash && src && src.alive && src !== tgt && weaponOf(src) === 'sanjian' && tgt.alive && tgt.hand.length) { const c = pick(tgt.hand); const cs = discardIds(s, tgt, [c.id]); ev(s, { t: 'discard', p: tgt.id, cards: cs }); log(s, `🔱 Tam tiêm lưỡng nhận đao: ${nm(tgt)} mất thêm ${cardLabel(c)}.`); }
+  if (t.slash && src && src.alive && src !== tgt && hasSkill(src, 'lietnhan') && tgt.alive && tgt.hand.length) { const c = pick(tgt.hand); src.hand.push(takeOut(s, tgt, c.id)); ev(s, { t: 'move', from: tgt.id, to: src.id, k: 1, priv: [src.id, tgt.id] }); ev(s, { t: 'skill', p: src.id, sk: 'lietnhan', to: [tgt.id] }); log(s, `🪃 ${nm(src)} [Liệt nhận] cướp 1 lá trên tay ${nm(tgt)}.`); }
+  if (t.slash && src && src.alive && src !== tgt && hasSkill(src, 'phaquan') && tgt.alive && allCards(tgt).length) {
+    const eq = equipList(tgt); const c = eq.length ? pick(eq) : pick(tgt.hand);
+    if (eq.length) { for (const k of Object.keys(tgt.equip)) if (tgt.equip[k] === c) tgt.equip[k] = null; s.discard.push(c); lostEquip(s, tgt, c); afterLose(s, tgt, 'e'); } else discardIds(s, tgt, [c.id]);
+    ev(s, { t: 'discard', p: tgt.id, cards: [c] }); ev(s, { t: 'skill', p: src.id, sk: 'phaquan', to: [tgt.id] }); log(s, `💥 ${nm(src)} [Phá quân]: ${nm(tgt)} mất ${cardLabel(c)}.`);
+  }
+  if (src && src.alive && src !== tgt && tgt.alive && hasSkill(tgt, 'phongtruc') && !src.flags.flipped) {
+    const k = 1; src.flags.flipped = true; draw(s, src, k);
+    log(s, `📜 ${nm(tgt)} [Phóng trục] đày ${nm(src)}: rút ${k} lá nhưng lật úp tướng (bỏ lượt sau).`); ev(s, { t: 'skill', p: tgt.id, sk: 'phongtruc', to: [src.id] }); ev(s, { t: 'flip', p: src.id, on: true });
+  }
+  if (src && src.alive && src !== tgt && hasSkill(tgt, 'anoan')) {
+    const h = src.hand.filter(c => c.suit === 'H').sort((a, b) => keepVal(a) - keepVal(b))[0];
+    ev(s, { t: 'skill', p: tgt.id, sk: 'anoan', to: [src.id] });
+    if (h) { const cs = discardIds(s, src, [h.id]); ev(s, { t: 'discard', p: src.id, cards: cs }); log(s, `🗡️ ${nm(tgt)} [Ân oán] báo thù: ${nm(src)} bỏ ${cardLabel(h)}.`); }
+    else { log(s, `🗡️ ${nm(tgt)} [Ân oán] báo thù: ${nm(src)} không có lá ♥, mất 1 máu.`); after.push({ k: 'loseHp', who: src.id, n: 1, stage: 'begin' }); }
+  }
+  if (t.slash && src && src.alive && src !== tgt && ((hasSkill(src, 'lieuhoa') && t.nature === 'fire') || (hasSkill(src, 'longngam') && t.red))) { const sk = hasSkill(src, 'lieuhoa') && t.nature === 'fire' ? 'lieuhoa' : 'longngam'; log(s, `${nm(src)} [${SKILLS[sk].name}] rút 1 lá.`); ev(s, { t: 'skill', p: src.id, sk }); draw(s, src, 1); }
   if (hasSkill(tgt, 'dike')) { log(s, `🍷 ${nm(tgt)} [Di kế] rút ${2 * t.n} lá.`); ev(s, { t: 'skill', p: tgt.id, sk: 'dike' }); draw(s, tgt, 2 * t.n); }
   if (src && src.alive && src !== tgt && hasSkill(tgt, 'phandap') && allCards(src).length) after.push({ k: 'pick', chooser: tgt.id, from: src.id, mode: 'take', zones: 'he', stage: 'begin', skill: 'phandap' });
   if (src && src.alive && src !== tgt && hasSkill(tgt, 'cuonglie')) after.push({ k: 'cuonglie', who: tgt.id, src: src.id, stage: 'begin' });
@@ -1220,18 +1483,27 @@ TASKS.dying = (s, t, inp) => {
     delete t.ask;
     const cs = discardIds(s, h, ids);
     let k = 1; const wine = h === p && cs[0].type === 'jiu';
-    if (!wine && hasSkill(p, 'cuuvien') && h !== p && h.kingdom === 'wu') k = 2;
+    convEv(s, h, cs, wine || (h === p && cs[0].suit === 'S' && hasSkill(h, 'tuutri') && cs[0].type !== 'dao') ? 'jiu' : 'dao');
+    if (!wine && hasSkill(p, 'cuuvien') && h !== p && h.kingdom === 'wu') { k = 2; ev(s, { t: 'skill', p: p.id, sk: 'cuuvien' }); }
     p.hp = Math.min(p.maxHp, p.hp + k);
     if (wine) log(s, `🍶 ${nm(p)} nốc Rượu gượng dậy (còn ${p.hp} máu).`);
     else log(s, `🍑 ${nm(h)} ${h === p ? 'tự ăn Đào' : 'cứu ' + nm(p) + ' bằng Đào'}${cs[0].type !== 'dao' ? ' [Cấp cứu]' : ''}${k > 1 ? ' [Cứu viện +1]' : ''} (còn ${p.hp} máu).`);
-    ev(s, { t: 'play', p: h.id, as: wine ? 'jiu' : 'dao', cards: cs, card: cs[0] }); ev(s, { t: 'heal', p: p.id, k });
+    ev(s, { t: 'play', p: h.id, as: wine ? 'jiu' : 'dao', cards: cs, card: cs[0] }); ev(s, { t: 'heal', p: p.id, k }); healHooks(s, p, h);
     friendly(s, h, p, 1.5);
     return { ok: true };
+  }
+  if (t.stage === 'begin' && !t.boich && p.alive && p.hp <= 0) {
+    t.boich = true;
+    /* Ngô Quốc Thái [Bổ ích]: người hấp hối là mình hoặc đồng đội đã rõ (2v2 / Quốc Chiến đã lật) – bỏ 1 lá không phải cơ bản trên tay họ, hồi 1 máu */
+    const wq = alivePlayers(s).find(q => hasSkill(q, 'boich') && (q === p || ((s.opts.mode === 'duo' || s.opts.mode === 'solo') && q.role === p.role) || (s.opts.mode === 'kd' && !q.hidden && !p.hidden && teamOf(q) === teamOf(p))));
+    const c = wq && p.hand.filter(x => CARD_INFO[x.type].kind !== 'basic').sort((a, b) => keepVal(a) - keepVal(b))[0];
+    if (c) { const cs = discardIds(s, p, [c.id]); ev(s, { t: 'discard', p: p.id, cards: cs }); ev(s, { t: 'skill', p: wq.id, sk: 'boich', to: wq === p ? undefined : [p.id] }); p.hp = Math.min(p.maxHp, p.hp + 1); ev(s, { t: 'heal', p: p.id, k: 1 }); log(s, `🌿 ${nm(wq)} [Bổ ích]: ${nm(p)} bỏ ${cardLabel(c)}, hồi 1 máu (còn ${p.hp}).`); if (p.hp > 0) return done(s, t, { saved: true }); }
   }
   if (t.stage === 'begin' && p.alive && hasSkill(p, 'nietban') && !p.flags.nirvana) { t.stage = 'nb'; t.ask = { type: 'yesno', players: [p.id], purpose: 'nietban' }; return; }
   if (t.stage === 'begin' || t.stage === 'begin2') {
     t.order = orderFrom(s, current(s).alive ? current(s) : p, true).map(q => q.id);
     if (!t.order.includes(p.id)) t.order.push(p.id);
+    { const c = current(s); if (c.alive && c !== p && hasSkill(c, 'hoansat')) { t.order = t.order.filter(id => id === c.id || id === p.id); log(s, `☠️ ${nm(c)} [Hoàn sát]: chỉ ${nm(c)} hoặc ${nm(p)} được dùng Đào.`); ev(s, { t: 'skill', p: c.id, sk: 'hoansat' }); } }
     t.i = 0; t.stage = 'loop';
     log(s, `🆘 ${nm(p)} hấp hối! Cần ${1 - p.hp} quả Đào.`); ev(s, { t: 'dying', p: p.id });
   }
@@ -1323,6 +1595,8 @@ TASKS.trick = (s, t) => {
   const src = getPlayer(s, t.src), tgt = getPlayer(s, t.tgt);
   if (t.stage === 'begin') {
     if (!tgt.alive) return done(s, t);
+    if (t.trick === 'nanman' && hasSkill(tgt, 'hoathu')) { log(s, `🐘 ${nm(tgt)} [Họa thủ]: Nam man không làm gì được.`); ev(s, { t: 'block', p: tgt.id }); return done(s, t); }
+    if (tgt !== src && hasSkill(tgt, 'duymac') && Array.isArray(t.cards) && colorOf(t.cards.filter(c => c && typeof c === 'object')) === 'black') { log(s, `☠️ ${nm(tgt)} [Duy mạc]: cẩm nang đen vô hiệu.`); ev(s, { t: 'block', p: tgt.id }); return done(s, t); }
     t.stage = 'res'; push(s, { k: 'nullify', trick: t.trick, src: t.src, tgt: t.tgt, count: 0, passed: [] }); return;
   }
   if (t.stage !== 'res') return done(s, t);
@@ -1332,7 +1606,15 @@ TASKS.trick = (s, t) => {
   if (canceled) { ev(s, { t: 'canceled', p: tgt.id, trick: t.trick }); return; }
   switch (t.trick) {
     case 'wuzhong': draw(s, tgt, 2); log(s, `${nm(tgt)} rút 2 lá.`); return;
-    case 'tiesuo': tgt.flags.chained = !tgt.flags.chained; log(s, `⛓️ ${nm(tgt)} ${tgt.flags.chained ? 'bị xích lại' : 'được gỡ xích'}.`); ev(s, { t: 'chain', p: tgt.id, on: tgt.flags.chained }); if (tgt.flags.chained && src !== tgt) hostile(s, src, tgt, .4); return;
+    case 'yuanjiao': draw(s, tgt, 1); if (src.alive) draw(s, src, 3); log(s, `🤝 ${nm(tgt)} rút 1 lá, ${nm(src)} rút 3 lá.`); friendly(s, src, tgt, .3); return;
+    case 'yiyi': { const team = alivePlayers(s).filter(q => q === src || (!q.hidden && !src.hidden && q.kingdom === src.kingdom && s.opts.mode !== 'solo')); for (const q of team) draw(s, q, 1); log(s, `🍵 ${team.map(nm).join(', ')} mỗi người rút 1 lá.`); return; }
+    case 'shuiyan': {
+      const eq = equipList(tgt);
+      if (eq.length) { for (const c of eq) { const k = Object.keys(tgt.equip).find(x => tgt.equip[x] === c); tgt.equip[k] = null; s.discard.push(c); lostEquip(s, tgt, c); } afterLose(s, tgt, 'e'); ev(s, { t: 'discard', p: tgt.id, cards: eq }); log(s, `🌊 Nước cuốn trôi ${eq.length} trang bị của ${nm(tgt)}.`); }
+      else push(s, { k: 'damage', tgt: tgt.id, src: src.alive ? src.id : null, n: 1, cards: [], stage: 'begin', trick: true });
+      hostile(s, src, tgt); return;
+    }
+    case 'tiesuo': if (!tgt.flags.chained && armorOf(tgt) === 'mingguang') { log(s, `🪞 Minh quang khải: ${nm(tgt)} không bị xích.`); ev(s, { t: 'block', p: tgt.id }); return; } tgt.flags.chained = !tgt.flags.chained; log(s, `⛓️ ${nm(tgt)} ${tgt.flags.chained ? 'bị xích lại' : 'được gỡ xích'}.`); ev(s, { t: 'chain', p: tgt.id, on: tgt.flags.chained }); if (tgt.flags.chained && src !== tgt) hostile(s, src, tgt, .4); return;
     case 'huogong': if (tgt.hand.length) push(s, { k: 'huogong', src: src.id, tgt: tgt.id, stage: 'show' }); return;
     case 'taoyuan': heal(s, tgt, 1, src.id === tgt.id ? null : src); return;
     case 'guohe': if (src.alive) push(s, { k: 'pick', chooser: src.id, from: tgt.id, mode: 'discard', zones: 'hej', stage: 'begin' }); return;
@@ -1375,7 +1657,7 @@ TASKS.aoe = (s, t) => {
     push(s, { k: 'askCard', who: tgt.id, want: t.trick === 'nanman' ? 'sat' : 'ne', src: src.id, bagua: t.trick === 'wanjian', purpose: t.trick, stage: 'begin' }); return;
   }
   const r = s.ret; done(s, t);
-  if (!(r && r.ok) && tgt.alive) push(s, { k: 'damage', tgt: tgt.id, src: src.alive ? src.id : null, n: 1, cards: t.cards, stage: 'begin' });
+  if (!(r && r.ok) && tgt.alive) push(s, { k: 'damage', tgt: tgt.id, src: src.alive ? src.id : null, n: 1, cards: t.cards, stage: 'begin', trick: true });
 };
 TASKS.huogong = (s, t, inp) => {
   const src = getPlayer(s, t.src), tgt = getPlayer(s, t.tgt);
@@ -1395,7 +1677,7 @@ TASKS.huogong = (s, t, inp) => {
       if (a.type !== 'discard' || !c || effSuit(src, c) !== t.suit) { t.ask = t.lastAsk; return bad('Bỏ 1 lá cùng chất, hoặc bỏ qua.'); }
       const cs = discardIds(s, src, [c.id]); ev(s, { t: 'discard', p: src.id, cards: cs });
       log(s, `🔥 ${nm(src)} bỏ ${cardLabel(c)} – lửa bén vào ${nm(tgt)}!`);
-      done(s, t); push(s, { k: 'damage', tgt: tgt.id, src: src.id, n: 1, cards: [], nature: 'fire', stage: 'begin' }); return { ok: true };
+      done(s, t); push(s, { k: 'damage', tgt: tgt.id, src: src.id, n: 1, cards: [], nature: 'fire', stage: 'begin', trick: true }); return { ok: true };
     }
     return bad('Hành động không hợp lệ.');
   }
@@ -1469,7 +1751,7 @@ TASKS.duel = (s, t) => {
     if (!resp.alive) return;
     log(s, `${nm(resp)} thua Quyết đấu!`);
     const n = 1 + (opp === a && opp.flags.luoyi && !t.ligian ? 1 : 0);
-    push(s, { k: 'damage', tgt: resp.id, src: opp.alive ? opp.id : null, n, cards: t.cards || [], stage: 'begin' });
+    push(s, { k: 'damage', tgt: resp.id, src: opp.alive ? opp.id : null, n, cards: t.cards || [], stage: 'begin', trick: true });
   }
 };
 TASKS.wugu = (s, t, inp) => {
@@ -1506,13 +1788,15 @@ export function viewFor(s, pid) {
     stage: t ? t.k : null,
     ph: (() => { for (let i = s.stack.length - 1; i >= 0; i--) if (/^ph_/.test(s.stack[i].k)) return s.stack[i].k.slice(3); return null; })(),
     skipPlay: !!s.tf.skipPlay,
-    players: s.players.map(p => ({
-      id: p.id, name: p.name, isBot: p.isBot, general: p.general, kingdom: p.kingdom, gender: p.gender, hp: p.hp, maxHp: p.maxHp, alive: p.alive,
+    winIds: s.winIds || null, bp: s.bp ? { pool: s.bp.pool, ban: s.bp.ban, pick: s.bp.pick, i: s.bp.i, step: s.bp.seq[s.bp.i] || null, seq: s.bp.seq } : null,
+    players: s.players.map(p => { const hide = p.hidden && p !== me && s.phase !== 'ended'; return {
+      id: p.id, name: p.name, isBot: p.isBot, general: hide ? null : p.general, relic: hide ? null : p.relic || null, kingdom: hide ? null : p.kingdom, gender: hide ? null : p.gender, hp: p.hp, maxHp: p.maxHp, alive: p.alive,
+      hidden: !!p.hidden, picked: !!p.general, cmd: !!p.cmd,
       role: (p.revealed || p === me || s.phase === 'ended') ? p.role : null,
       hand: p === me ? p.hand : null, handCount: p.hand.length, equip: p.equip, judge: p.judge, flags: p.flags, scars: p.scars || [],
       distance: me && me.alive && p.alive && p !== me && p.general && me.general ? distance(s, me, p) : null,
       range: attackRange(p), inRange: !!(me && me.alive && p.alive && p !== me && me.general && inRange(s, me, p)),
-    })),
+    }; }),
     ev: s.ev.map(e => sanitizeEv(e, pid)),
     ask: ask ? sanitizeAsk(s, t, ask, pid) : null,
     tf: { slashes: s.tf.slashes || 0 },

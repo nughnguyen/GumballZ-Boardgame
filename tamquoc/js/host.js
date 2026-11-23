@@ -1,13 +1,14 @@
 // Lõi chủ phòng Tam Quốc Sát – KHÔNG phụ thuộc trình duyệt: kết nối, lưu trữ, thống kê, tốc độ hoạt ảnh… truyền vào qua `env`.
 // Trình duyệt dùng qua net.js (RoomHost thật + localStorage); máy chủ (server/src/srvhost.js, Durable Object) dùng lại đúng lớp này để giữ ván.
-import { createGame, applyAction, viewFor, top, getPlayer, NULL_TIME } from './engine.js?v=14';
+import { createGame, applyAction, viewFor, top, getPlayer, NULL_TIME } from './engine.js?v=21';
 import { titleById, myTitleId } from '../../shared/titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97) */
-import { botAction } from './bot.js?v=13';
-import { coachHint } from './coach.js?v=13';
-export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30; // giây: hết giờ thì máy tự đánh thay (chống treo máy)
+import { botAction } from './bot.js?v=20';
+import { MODES, modeOk, modeNeed } from './cards.js?v=15';
+import { coachHint } from './coach.js?v=20';
+export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30, BP_TIME = 60; /* cấm/chọn tướng Solo: 60 giây mỗi bước (người chơi xin 21/11/2026) */ // giây: hết giờ thì máy tự đánh thay (chống treo máy)
 export const NS = 'gumballz-tamquoc', PREFIX = 'gumballz-tamquoc-', GAME = 'tamquoc', SNAP = 'gumballz-hostsnap-' + GAME;
-export const MAX = 8, MIN = 2;
-export const BASE_CFG = { exp: true, expGen: true, training: false };
+export const MAX = 9, MIN = 2; /* 9 người chỉ dành cho Quốc Chiến (3 thế lực × 3) */
+export const BASE_CFG = { exp: true, exp2: true, expGen: true, gen2: true, training: false };
 // câu chọc kiểu Tam Quốc (bảng thả emoji – shared/ui/react.js), mỗi câu ≤ 24 ký tự
 export const TQ_PHRASES = ['Ngươi dám!', 'Đỡ chiêu!', 'Xin tha mạng', 'Phản tặc là ngươi!', 'Trung thần đây 🛡️', 'Cứu giá!', 'Ta nhớ mặt ngươi'];
 const BOT_POOLS = { attack: ['Đỡ chiêu!', 'Ngươi dám!'], hurt: ['Xin tha mạng', 'Ta nhớ mặt ngươi', 'Cứu giá!'], win: ['Trung thần đây 🛡️'], reply: ['Phản tặc là ngươi!', 'Ngươi dám!'] };
@@ -17,6 +18,7 @@ const BOT_NAMES = ['Xôi', 'Gấu Bông', 'Đậu', 'Nấm', 'Sữa', 'Kẹo', '
 function askTime(ask) {
   if (ask.type === 'play') return TURN_TIME * 1000;
   if (ask.type === 'nullify') return NULL_TIME * 1000;
+  if (ask.type === 'banpick') return BP_TIME * 1000;
   if (ask.type === 'general' || ask.type === 'guanxing') return PICK_TIME * 1000;
   return PROMPT_TIME * 1000;
 }
@@ -30,7 +32,7 @@ class Host {
   constructor(name, handlers, offline = false, restore = null) {
     this.h = watch(GAME, handlers, () => 'host'); this.offline = offline;
     this.players = [{ id: 'host', title: titleById(myTitleId()), name, isBot: false, token: token(), conn: null, connected: !remote }];
-    this.opts = { exp: CFG.exp, expGen: CFG.expGen, training: CFG.training };
+    this.opts = { exp: CFG.exp, expGen: CFG.expGen, gen2: CFG.gen2 !== false, exp2: CFG.exp2 !== false, training: CFG.training };
     this.hintCache = {}; this.lim = hostLimiter(); this.botReactAt = 0;
     this.state = null; this.conns = new Map(); this.botTimer = null; this.dlTimer = null; this.deadline = null;
     if (restore) {
@@ -119,11 +121,12 @@ class Host {
     const c = this.hintCache[pid]; if (c && c.key === key) return c.hint;
     const hint = coachHint(s, pid); this.hintCache[pid] = { key, hint }; return hint;
   }
-  setOpts(o) { if (this.state) return; this.opts = { ...this.opts, ...o }; this.pushLobby(); }
+  setOpts(o) { if (this.state) return; o = { ...o }; if ('mode' in o && !MODES[o.mode]) delete o.mode; if (o.mode === 'solo') o.mode = 'duo'; /* Solo đã gộp vào Đối kháng */ this.opts = { ...this.opts, ...o }; this.pushLobby(); }
   start() {
     { const n = this.players.length; this.players = this.players.filter(p => p.id === 'host' || p.isBot || p.local || p.connected); if (this.players.length !== n) this.pushLobby(); } /* người đã thoát / rớt mạng không được chia bài: ghế ma làm cả bàn phải chờ từng lượt */
     const seated = this.players.slice(0, MAX);
     if (seated.length < MIN) { this.h.onError(`Cần ${MIN}–${MAX} người chơi.`); return; }
+    { const m = MODES[this.opts.mode] || MODES.id; if (!modeOk(seated.length, this.opts.mode)) { this.h.onError(`${m.name} cần ${modeNeed(this.opts.mode)}.`); return; } }
     this.state = createGame(seated.map(p => ({ id: p.id, name: p.name, isBot: p.isBot })), this.opts);
     this.graceUntil = Date.now() + 2500 * S();
     this.pushLobby(); this.broadcast(); this.scheduleBots();
@@ -169,7 +172,7 @@ class Host {
     const humans = who.filter(p => !autos.includes(p));
     if (autos.length) {
       const p = autos[0]; const pid = p.id;
-      const base = ask.type === 'nullify' ? 500 + Math.random() * 500 : ask.type === 'general' ? 380 : ask.type === 'play' ? 1150 : 900; /* bot đi chậm lại chút cho người chơi kịp nhìn */
+      const base = ask.type === 'nullify' ? 500 + Math.random() * 500 : ask.type === 'general' ? 380 : ask.type === 'banpick' ? 900 : ask.type === 'play' ? 1150 : 900; /* bot đi chậm lại chút cho người chơi kịp nhìn */
       const wait = p.isBot ? Math.max(Math.round(base * S() * (this.opts.training ? 1.5 : 1)), (this.graceUntil || 0) - Date.now()) : p.afk >= 2 && p.connected ? 2500 : 5000;
       this.botTimer = setTimeout(() => {
         if (!this.state) return;
@@ -198,7 +201,7 @@ class Host {
     for (const pid of [...t.ask.players]) {
       const p = this.players.find(x => x.id === pid); if (!p || p.isBot) continue;
       const tt = top(this.state); if (!tt || tt !== t || !tt.ask || !tt.ask.players.includes(pid)) break;
-      if (tt.ask.type === 'play' || tt.ask.type === 'general') p.afk = (p.afk || 0) + 1;
+      if (tt.ask.type === 'play' || tt.ask.type === 'general' || tt.ask.type === 'banpick') p.afk = (p.afk || 0) + 1;
       const a = tt.ask.type === 'play' && (p.afk || 0) < 2 ? { type: 'end' } : tt.ask.type === 'nullify' ? { type: 'pass' } : botAction(this.state, pid);
       if (a) applyAction(this.state, pid, a);
     }

@@ -1,8 +1,8 @@
 // "Thầy đồ" cho người mới: chủ phòng tính gợi ý cho người chơi (bản sao state, không đụng ván thật) bằng chính bộ não bot,
 // rồi giải thích bằng lời: nên đánh lá nào, vào ai, vì sao. Chỉ dùng thông tin công khai + vai của chính người được gợi ý.
-import { botAction, relation } from './bot.js?v=14';
-import { getPlayer, top, inRange, distance, alivePlayers, applyAction, armorOf, weaponOf, hasSkill, responseOptions } from './engine.js?v=15';
-import { CARD_INFO, SKILLS, ROLES, GENERALS, SUIT_SYMBOL, SUIT_NAME, rankLabel, cardName } from './cards.js?v=11';
+import { botAction, relation } from './bot.js?v=20';
+import { getPlayer, top, inRange, distance, alivePlayers, applyAction, armorOf, weaponOf, hasSkill, responseOptions } from './engine.js?v=21';
+import { CARD_INFO, SKILLS, ROLES, GENERALS, SUIT_SYMBOL, SUIT_NAME, rankLabel, cardName } from './cards.js?v=15';
 
 const clean = n => String(n || '?').replace(/ 🤖$/, '');
 const lbl = c => (c ? `${cardName(c)} ${SUIT_SYMBOL[c.suit]}${rankLabel(c.rank)}` : '?');

@@ -846,3 +846,63 @@ input#name,.join-row input{background:#fbf5e6;border-color:#b89a62;border-radius
 .qcard.xs{--cw:48px}
 .qcard.xs .cname{display:none}
 .qcard.xs .art{margin:calc(var(--cw)*.06)}
+
+/* ⚔️ 2v2 + 🏯 Quốc Chiến (19/11/2026) */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.mode{display:grid;gap:2px;padding:9px 6px;border-radius:8px;border:1px solid #d6c29a;background:#efe2c4;color:#3a2a14;cursor:pointer;font:inherit;text-align:center;min-height:44px}
+.mode b{font-size:14px;line-height:1.2}.mode small{font-size:12px;opacity:.75}
+.mode.on{background:linear-gradient(180deg,#a8291b,#7c1c12);color:#fff3dc;border-color:#5a140c;box-shadow:0 2px 0 #4a0f08}
+.mode:disabled{cursor:default}.mode:disabled:not(.on){opacity:.55}
+@media (max-width:420px){.mode b{font-size:13px}}
+.r-red{background:#f6c9c2;color:#8e1a12}.r-blue{background:#c9dbf6;color:#14407e}
+.r-wei{background:#cbd9f2;color:#1d3f80}.r-shu{background:#f6cfc6;color:#8a1f1a}.r-wu{background:#cdeedb;color:#175c33}.r-qun{background:#dfe0e6;color:#3a3c45}
+.r-yexin{background:#e3d2f2;color:#4a2370}.r-an{background:#e9e0c8;color:#5a4a28}
+.slip-f.sf.r-red{--rc:#a8291b}.slip-f.sf.r-blue{--rc:#1f4f9a}
+.rv-me.r-red b{color:#ff8f73}.rv-me.r-blue b{color:#8fb8ff}
+.reveal-gen{margin-left:auto;padding:6px 12px;border-radius:8px;border:0;background:linear-gradient(180deg,#d9a21b,#a8791a);color:#2a1a04;font:700 13px/1.2 inherit;cursor:pointer;box-shadow:0 2px 0 #6a4a0a;min-height:36px}
+/* 🥊 Solo – cấm / chọn tướng */
+@media (max-width:560px){.modes{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:561px){.modes{grid-template-columns:repeat(4,1fr)}}
+.bp-seq{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:4px 0 8px}
+.bp-st{display:flex;flex-direction:column;align-items:center;min-width:44px;padding:3px 4px;border-radius:10px;border:2px solid transparent;background:rgba(0,0,0,.06);font-size:18px;opacity:.55}
+.bp-st small{font-size:11px;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp-st.done{opacity:.85}.bp-st.now{opacity:1;border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.18)}
+.bp-st.r-blue.now{border-color:#2f6fd0;box-shadow:0 0 0 3px rgba(47,111,208,.2)}
+.bp-head{text-align:center;margin:0 0 8px;font-size:15px}
+.bp-it{position:relative}
+.bp-it[aria-disabled]{cursor:default}
+.bp-it.ban{filter:grayscale(1);opacity:.5}
+.bp-it.pick{outline:3px solid #d4a017;outline-offset:-3px}
+.bp-it.arm{outline:3px solid #c0392b;outline-offset:-3px}
+.bp-tag,.bp-ok{position:absolute;top:6px;left:6px;right:6px;z-index:2;font-style:normal;font-weight:800;font-size:13px;padding:3px 6px;border-radius:8px;text-align:center}
+.bp-tag.ban{background:#2a2340;color:#fff}.bp-tag.pick{background:#d4a017;color:#2a2340}
+.bp-ok{background:#c0392b;color:#fff}
+
+/* ✨ cut-in kỹ năng */
+.cutin{position:fixed;left:0;right:0;top:34%;height:clamp(92px,20vw,140px);pointer-events:none;z-index:60;--kc:#c8322a}
+.cutin .ci-band{position:absolute;inset:0;background:linear-gradient(90deg,transparent,#1b0f0acc 12%,#1b0f0aee 50%,#1b0f0acc 88%,transparent);border-top:2px solid var(--kc);border-bottom:2px solid var(--kc);transform:skewY(-4deg) scaleX(0);transform-origin:left;animation:ci-band var(--ci) cubic-bezier(.2,.9,.2,1) forwards}
+.cutin .ci-pic{position:absolute;left:6%;top:50%;width:clamp(96px,22vw,150px);aspect-ratio:1;margin-top:calc(clamp(96px,22vw,150px)/-2);border-radius:14px;overflow:hidden;box-shadow:0 0 0 3px var(--kc),0 12px 30px -8px #000c;opacity:0;animation:ci-pic var(--ci) cubic-bezier(.2,.9,.2,1) forwards}
+.cutin .ci-pic .portrait,.cutin .ci-pic svg,.cutin .ci-pic img{width:100%;height:100%;display:block}
+.cutin .ci-txt{position:absolute;left:calc(6% + clamp(110px,25vw,170px));right:4%;top:50%;transform:translateY(-50%);color:#f6e3a8;opacity:0;animation:ci-txt var(--ci) cubic-bezier(.2,.9,.2,1) forwards}
+.cutin .ci-txt small{display:block;font:700 clamp(12px,3.2vw,15px)/1.2 'Noto Serif',serif;color:#f6e3a8b3;letter-spacing:.5px}
+.cutin .ci-txt b{display:block;font:900 clamp(30px,9vw,54px)/1.05 'Noto Serif',serif;color:#fff;text-shadow:0 0 18px var(--kc),0 3px 0 #000a;letter-spacing:1px}
+.cutin .ci-han{position:absolute;right:5%;top:50%;font:900 clamp(60px,16vw,110px)/1 'LXGW WenKai TC','Noto Serif',serif;font-style:normal;color:var(--kc);opacity:0;transform:translateY(-50%);animation:ci-han var(--ci) ease-out forwards}
+@keyframes ci-band{0%{transform:skewY(-4deg) scaleX(0)}18%{transform:skewY(-4deg) scaleX(1)}82%{transform:skewY(-4deg) scaleX(1);opacity:1}100%{transform:skewY(-4deg) scaleX(1);opacity:0}}
+@keyframes ci-pic{0%{opacity:0;transform:translateX(-60px) scale(.9)}20%{opacity:1;transform:none}80%{opacity:1;transform:translateX(10px)}100%{opacity:0;transform:translateX(40px)}}
+@keyframes ci-txt{0%,10%{opacity:0;transform:translate(40px,-50%)}28%{opacity:1;transform:translate(0,-50%)}80%{opacity:1;transform:translate(-8px,-50%)}100%{opacity:0;transform:translate(-30px,-50%)}}
+@keyframes ci-han{0%,15%{opacity:0;transform:translateY(-50%) scale(1.6)}32%{opacity:.35;transform:translateY(-50%) scale(1)}85%{opacity:.35}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cutin{display:none}}
+/* 🏺 bảo vật riêng của tướng */
+.skc.relic{background:linear-gradient(135deg,#f6dc8a,#e0a93a);color:#4a2a08;border-color:#b07a1c}
+.relic-box{border-color:#d9a84a;background:linear-gradient(135deg,#fff6dc,#fbe9bd)}
+.relic-ln{margin:4px 0 0;padding-top:4px;border-top:1px dashed #d9b77a;color:#7a4e10;font-size:12.5px}
+/* ⏳ đồng hồ trong bảng cấm/chọn tướng */
+.bp-time{position:relative;margin:4px auto 8px;max-width:260px;height:26px;border-radius:13px;background:#f1e4c8;border:1.5px solid #c9a76a;overflow:hidden;text-align:center;font:700 14px/24px Nunito,sans-serif;color:#5a3a12}
+.bp-time b{font-size:16px}
+.bp-time i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#e8b75a,#d9963a);opacity:.35;z-index:0;transition:width .25s linear}
+.bp-time.low{color:#b0281c;border-color:#b0281c}.bp-time.low i{background:#e0503c}
+/* thông tin chiến thuật tướng (bảng chọn / cấm-chọn) */
+.gm{margin-top:4px;font-size:11.5px;line-height:1.35;text-align:left}.gm p{margin:2px 0}
+.gm-c{display:inline-block;font-style:normal;font-size:10.5px;padding:1px 6px;margin:0 3px 3px 0;border-radius:999px;background:rgba(120,80,40,.12);border:1px solid rgba(120,80,40,.25);white-space:nowrap}
+.bp-guide{margin:6px auto 8px;max-width:640px;text-align:left;font-size:13px;background:rgba(255,248,230,.7);border:1px solid rgba(120,80,40,.25);border-radius:10px;padding:6px 10px}
+.bp-guide summary{cursor:pointer;font-weight:700}.bp-guide ul{margin:4px 0 4px 18px;padding:0}.bp-guide li{margin:2px 0}
