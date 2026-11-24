@@ -1,7 +1,7 @@
 // node typhu/test/teams.mjs – chơi theo đội: ván phải kết thúc với đội thắng, đồng đội không thu tiền thuê của nhau.
 import './load.mjs';
-import { createGame, applyAction, actorOf, setRandom, P, mates } from '../js/engine.js?v=65';
-import { botAction } from '../js/bot.js?v=64';
+import { createGame, applyAction, actorOf, setRandom, P, mates } from '../js/engine.js?v=66';
+import { botAction } from '../js/bot.js?v=66';
 let seed = 777; setRandom(() => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; });
 const st = { games: 0, team0: 0, team1: 0, reasons: {}, mateVisits: 0 };
 for (let g = 0; g < 200; g++) {
