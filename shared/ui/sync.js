@@ -9,7 +9,7 @@
 // Khách (không đăng nhập) không gửi gì – hồ sơ vẫn nằm trên máy như cũ.
 // Hồ sơ máy chủ tải về được lưu vào 'gumballz-stats-server' để trang hồ sơ hiện "đã kiểm chứng" riêng với "chỉ trên máy này" (chưa đồng bộ).
 import { auth, API } from '../net/api.js?v=29';
-import { load, ACHS, totals, saveServerSnapshot } from './stats.js?v=95';
+import { load, ACHS, totals, mergeAch, saveServerSnapshot } from './stats.js?v=96';
 import { snapshot, adoptServer, resetWallet } from './wallet.js?v=7'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
 import { readParts, writeParts } from '../js/avatar-rewards.js?v=4'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
@@ -77,7 +77,8 @@ async function runSync(u, tok) {
        thì nhận số mới, KHÔNG lấy max với số cũ trên máy — không thì số cũ trên máy đẩy ngược lên lại. */
     const adoptBest = P.bestAt && num(P.bestAt) > num(m.at);
     if (!m.replace) { for (const k in now.ach) if (!out.ach[k]) out.ach[k] = now.ach[k]; if (!adoptBest) out.best = Math.max(out.best, num(now.best)); }
-    const t = totals(out); for (const a of ACHS) if (!out.ach[a.id] && a.ok(t)) out.ach[a.id] = Date.now(); /* tổng mới có thể đủ điều kiện thành tích */
+    if (m.replace) { const t = totals(out); for (const a of ACHS) if (!out.ach[a.id] && a.ok(t)) out.ach[a.id] = Date.now(); } /* chế độ replace (đổi tài khoản / lần đồng bộ đầu sau bản nới lỏng): chỉ ghi mở, KHÔNG trả xu — tránh trả bù thành tựu đã mở trước patch */
+    else mergeAch(out); /* 💰 tổng mới có thể đủ điều kiện thành tích — id vừa mở được thưởng xu 1 lần (mergeAch), id đã mở thì không trả lại */
     ls.set(STATS, JSON.stringify(out));
     const base = {}; for (const g in P.g || {}) base[g] = { p: num(P.g[g].p), w: num(P.g[g].w) };
     ls.set(META, JSON.stringify({ uid: u.id, base, at: Date.now() }));

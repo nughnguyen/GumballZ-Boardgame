@@ -10,6 +10,7 @@ function css() {
 .ap-ic{flex:none;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 35% 30%,#fff6c8,#ffb23d);box-shadow:0 0 0 3px #fff3,0 0 22px #ffd84a99;animation:ap-pop .6s .15s cubic-bezier(.2,1.6,.4,1) both}
 .ap-t{min-width:0}.ap-t small{display:block;font:800 11.5px Nunito,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#ffd84a}
 .ap-t b{display:block;font:800 17px/1.2 "Baloo 2",Nunito,sans-serif;overflow-wrap:anywhere}.ap-t span{display:block;color:#e4dcff;font-size:12.5px;margin-top:1px}
+.ap-xu{display:block;color:#ffd84a;font-size:13.5px;font-weight:800;margin-top:2px}
 @keyframes ap-pop{0%{transform:scale(.2) rotate(-25deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.ap-box,.ap-ic{transition:opacity .2s;animation:none}}`;
   document.head.append(st);
@@ -17,7 +18,7 @@ function css() {
 function next() {
   if (busy || !Q.length) return; busy = true; css();
   const a = Q.shift(), d = document.createElement('div'); d.className = 'ap-box'; d.setAttribute('role', 'status');
-  d.innerHTML = `<div class="ap-ic">${esc(a.icon || '🏅')}</div><div class="ap-t"><small>🔓 Mở khoá thành tích</small><b>${esc(a.name)}</b>${a.desc ? `<span>${esc(a.desc)}</span>` : ''}</div>`;
+  d.innerHTML = `<div class="ap-ic">${esc(a.icon || '🏅')}</div><div class="ap-t"><small>🔓 Mở khoá thành tích</small><b>${esc(a.name)}</b>${a.desc ? `<span>${esc(a.desc)}</span>` : ''}${a.xu ? `<span class="ap-xu">🪙 +${a.xu} xu</span>` : ''}</div>`;
   document.body.append(d);
   try { navigator.vibrate && navigator.vibrate([30, 40, 60]); } catch (e) {}
   requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add('in')));

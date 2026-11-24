@@ -2,7 +2,7 @@
 // Mỗi net.js bọc handlers: this.h = watch(GAME, handlers, () => this.id) → tự đếm ván đã chơi / thắng khi ván kết thúc.
 // Thêm game mới: thêm 1 dòng vào bảng OVER bên dưới (trả null khi ván CHƯA xong; { won: true/false/null } khi xong).
 import { questWin } from '../js/daily.js?v=3'; /* 📅 Thử thách hôm nay: ghi ván thắng vào 2 việc thắng-ván của ngày */
-import { earnGame } from './wallet.js?v=7'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu (xem shared/ui/wallet.js) */
+import { earnGame, addXu } from './wallet.js?v=7'; /* 💰 Ví xu chung toàn web: thắng +10 xu, chơi +2 xu; thành tựu mở khoá +10/25/50/100 xu (xem shared/ui/wallet.js) */
 import { LOCKED_PARTS, itemLabel } from '../js/avatar-rewards.js?v=4'; /* 🧸 Linh kiện mở theo cấp: lên cấp thì tự mở (xem record() bên dưới) */
 import { gameXp, xpAdjOf } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ · ✏️ xpAdj: XP do Quản trị sửa tay (patch -167) */
 const KEY = 'gumballz-stats';
@@ -129,142 +129,142 @@ export function verifiedTotals(P = loadServer()) {
 export function serverAch(P = loadServer()) { if (!P) return []; return [...new Set([...Object.keys(P.ach || {}), ...Object.keys((P.v && P.v.ach) || {})])]; }
 export function verifiedAch(P = loadServer()) { return P && P.v ? Object.keys(P.v.ach || {}) : []; }
 export const ACHS = [
-  { id: 'first', icon: '🎲', name: 'Ván Đầu Tiên', desc: 'Chơi xong 1 ván', ok: t => t.p >= 1 },
-  { id: 'p10', icon: '🎮', name: 'Dân Chơi', desc: 'Chơi 10 ván', ok: t => t.p >= 10, of: t => [t.p, 10] },
-  { id: 'p50', icon: '🔥', name: 'Cày Cuốc', desc: 'Chơi 50 ván', ok: t => t.p >= 50, of: t => [t.p, 50] },
-  { id: 'p200', icon: '👑', name: 'Huyền Thoại Sảnh', desc: 'Chơi 200 ván', ok: t => t.p >= 200, of: t => [t.p, 200] },
-  { id: 'w1', icon: '🏆', name: 'Thắng Đầu Tay', desc: 'Thắng 1 ván', ok: t => t.w >= 1 },
-  { id: 'w10', icon: '🥇', name: 'Cao Thủ', desc: 'Thắng 10 ván', ok: t => t.w >= 10, of: t => [t.w, 10] },
-  { id: 'w50', icon: '💎', name: 'Trùm Cuối', desc: 'Thắng 50 ván', ok: t => t.w >= 50, of: t => [t.w, 50] },
-  { id: 's3', icon: '⚡', name: 'Vào Guồng', desc: 'Thắng 3 ván liên tiếp', ok: t => t.best >= 3, of: t => [t.best, 3] },
-  { id: 's5', icon: '🚀', name: 'Không Thể Cản', desc: 'Thắng 5 ván liên tiếp', ok: t => t.best >= 5, of: t => [t.best, 5] },
-  { id: 'k5', icon: '🧭', name: 'Thử Cho Biết', desc: 'Chơi 5 game khác nhau', ok: t => t.kinds >= 5, of: t => [t.kinds, 5] },
-  { id: 'k10', icon: '🍱', name: 'Nếm Đủ Vị', desc: 'Chơi 10 game khác nhau', ok: t => t.kinds >= 10, of: t => [t.kinds, 10] },
-  { id: 'k15', icon: '🗂️', name: 'Sưu Tầm', desc: 'Chơi 15 game khác nhau', ok: t => t.kinds >= 15, of: t => [t.kinds, 15] },
-  { id: 'm10', icon: '🎓', name: 'Chuyên Gia', desc: 'Thắng 10 ván cùng một game', ok: t => t.top >= 10, of: t => [t.top, 10] },
-  { id: 'd3', icon: '☕', name: 'Khách Quen', desc: 'Chơi vào 3 ngày khác nhau', ok: t => t.days >= 3, of: t => [t.days, 3] },
-  { id: 'd7', icon: '🏠', name: 'Người Nhà', desc: 'Chơi vào 7 ngày khác nhau', ok: t => t.days >= 7, of: t => [t.days, 7] },
-  { id: 'night', icon: '🦉', name: 'Cú Đêm', desc: 'Chơi xong một ván lúc nửa đêm (0h–5h)', ok: t => t.night },
+  { id: 'first', icon: '🎲', name: 'Ván Đầu Tiên', desc: 'Chơi xong 1 ván', xu: 10, ok: t => t.p >= 1 },
+  { id: 'p10', icon: '🎮', name: 'Dân Chơi', desc: 'Chơi 10 ván', xu: 25, ok: t => t.p >= 10, of: t => [t.p, 10] },
+  { id: 'p50', icon: '🔥', name: 'Cày Cuốc', desc: 'Chơi 50 ván', xu: 50, ok: t => t.p >= 50, of: t => [t.p, 50] },
+  { id: 'p200', icon: '👑', name: 'Huyền Thoại Sảnh', desc: 'Chơi 200 ván', xu: 50, ok: t => t.p >= 200, of: t => [t.p, 200] },
+  { id: 'w1', icon: '🏆', name: 'Thắng Đầu Tay', desc: 'Thắng 1 ván', xu: 10, ok: t => t.w >= 1 },
+  { id: 'w10', icon: '🥇', name: 'Cao Thủ', desc: 'Thắng 10 ván', xu: 25, ok: t => t.w >= 10, of: t => [t.w, 10] },
+  { id: 'w50', icon: '💎', name: 'Trùm Cuối', desc: 'Thắng 50 ván', xu: 50, ok: t => t.w >= 50, of: t => [t.w, 50] },
+  { id: 's3', icon: '⚡', name: 'Vào Guồng', desc: 'Thắng 3 ván liên tiếp', xu: 10, ok: t => t.best >= 3, of: t => [t.best, 3] },
+  { id: 's5', icon: '🚀', name: 'Không Thể Cản', desc: 'Thắng 5 ván liên tiếp', xu: 25, ok: t => t.best >= 5, of: t => [t.best, 5] },
+  { id: 'k5', icon: '🧭', name: 'Thử Cho Biết', desc: 'Chơi 5 game khác nhau', xu: 10, ok: t => t.kinds >= 5, of: t => [t.kinds, 5] },
+  { id: 'k10', icon: '🍱', name: 'Nếm Đủ Vị', desc: 'Chơi 10 game khác nhau', xu: 25, ok: t => t.kinds >= 10, of: t => [t.kinds, 10] },
+  { id: 'k15', icon: '🗂️', name: 'Sưu Tầm', desc: 'Chơi 15 game khác nhau', xu: 25, ok: t => t.kinds >= 15, of: t => [t.kinds, 15] },
+  { id: 'm10', icon: '🎓', name: 'Chuyên Gia', desc: 'Thắng 10 ván cùng một game', xu: 25, ok: t => t.top >= 10, of: t => [t.top, 10] },
+  { id: 'd3', icon: '☕', name: 'Khách Quen', desc: 'Chơi vào 3 ngày khác nhau', xu: 10, ok: t => t.days >= 3, of: t => [t.days, 3] },
+  { id: 'd7', icon: '🏠', name: 'Người Nhà', desc: 'Chơi vào 7 ngày khác nhau', xu: 25, ok: t => t.days >= 7, of: t => [t.days, 7] },
+  { id: 'night', icon: '🦉', name: 'Cú Đêm', desc: 'Chơi xong một ván lúc nửa đêm (0h–5h)', xu: 10, ok: t => t.night },
   /* --- thêm 20261116-14: mở rộng thành tựu --- */
-  { id: 'p25', icon: '🕹️', name: 'Quen Tay', desc: 'Chơi 25 ván', ok: t => t.p >= 25, of: t => [t.p, 25] },
-  { id: 'p100', icon: '💯', name: 'Trăm Ván', desc: 'Chơi 100 ván', ok: t => t.p >= 100, of: t => [t.p, 100] },
-  { id: 'w25', icon: '🎖️', name: 'Thắng 25 Ván Sảnh', desc: 'Thắng 25 ván', ok: t => t.w >= 25, of: t => [t.w, 25] },
-  { id: 'w100', icon: '💠', name: 'Thắng 100 Ván Sảnh', desc: 'Thắng 100 ván', ok: t => t.w >= 100, of: t => [t.w, 100] },
-  { id: 's7', icon: '🌪️', name: 'Chuỗi 7', desc: 'Thắng 7 ván liên tiếp', ok: t => t.best >= 7, of: t => [t.best, 7] },
-  { id: 's10', icon: '💥', name: 'Chuỗi 10', desc: 'Thắng 10 ván liên tiếp', ok: t => t.best >= 10, of: t => [t.best, 10] },
-  { id: 'k20', icon: '🧳', name: 'Đi Khắp Sảnh', desc: 'Chơi 20 game khác nhau', ok: t => t.kinds >= 20, of: t => [t.kinds, 20] },
-  { id: 'k24', icon: '🌍', name: 'Chơi Hết Mọi Game Sảnh', desc: 'Chơi cả 24 game', ok: t => t.kinds >= 24, of: t => [t.kinds, 24] },
-  { id: 'k25', icon: '🪀', name: 'Đủ 25 Game Sảnh', desc: 'Chơi cả 25 game', ok: t => t.kinds >= 25, of: t => [t.kinds, 25] },
-  { id: 'd14', icon: '📅', name: 'Nửa Tháng Sảnh', desc: 'Chơi vào 14 ngày khác nhau', ok: t => t.days >= 14, of: t => [t.days, 14] },
-  { id: 'd30', icon: '🗓️', name: 'Cả Tháng Sảnh', desc: 'Chơi vào 30 ngày khác nhau', ok: t => t.days >= 30, of: t => [t.days, 30] },
-  { id: 'lv5', icon: '⭐', name: 'Cấp 5 Sảnh', desc: 'Đạt cấp 5', ok: t => level(t).lv >= 5, of: t => [level(t).lv, 5] },
-  { id: 'lv10', icon: '🌟', name: 'Cấp 10 Sảnh', desc: 'Đạt cấp 10', ok: t => level(t).lv >= 10, of: t => [level(t).lv, 10] },
+  { id: 'p25', icon: '🕹️', name: 'Quen Tay', desc: 'Chơi 25 ván', xu: 25, ok: t => t.p >= 25, of: t => [t.p, 25] },
+  { id: 'p100', icon: '💯', name: 'Trăm Ván', desc: 'Chơi 100 ván', xu: 50, ok: t => t.p >= 100, of: t => [t.p, 100] },
+  { id: 'w25', icon: '🎖️', name: 'Thắng 25 Ván Sảnh', desc: 'Thắng 25 ván', xu: 50, ok: t => t.w >= 25, of: t => [t.w, 25] },
+  { id: 'w100', icon: '💠', name: 'Thắng 100 Ván Sảnh', desc: 'Thắng 100 ván', xu: 100, ok: t => t.w >= 100, of: t => [t.w, 100] },
+  { id: 's7', icon: '🌪️', name: 'Chuỗi 7', desc: 'Thắng 7 ván liên tiếp', xu: 50, ok: t => t.best >= 7, of: t => [t.best, 7] },
+  { id: 's10', icon: '💥', name: 'Chuỗi 10', desc: 'Thắng 10 ván liên tiếp', xu: 50, ok: t => t.best >= 10, of: t => [t.best, 10] },
+  { id: 'k20', icon: '🧳', name: 'Đi Khắp Sảnh', desc: 'Chơi 20 game khác nhau', xu: 25, ok: t => t.kinds >= 20, of: t => [t.kinds, 20] },
+  { id: 'k24', icon: '🌍', name: 'Chơi Hết Mọi Game Sảnh', desc: 'Chơi cả 24 game', xu: 50, ok: t => t.kinds >= 24, of: t => [t.kinds, 24] },
+  { id: 'k25', icon: '🪀', name: 'Đủ 25 Game Sảnh', desc: 'Chơi cả 25 game', xu: 50, ok: t => t.kinds >= 25, of: t => [t.kinds, 25] },
+  { id: 'd14', icon: '📅', name: 'Nửa Tháng Sảnh', desc: 'Chơi vào 14 ngày khác nhau', xu: 25, ok: t => t.days >= 14, of: t => [t.days, 14] },
+  { id: 'd30', icon: '🗓️', name: 'Cả Tháng Sảnh', desc: 'Chơi vào 30 ngày khác nhau', xu: 50, ok: t => t.days >= 30, of: t => [t.days, 30] },
+  { id: 'lv5', icon: '⭐', name: 'Cấp 5 Sảnh', desc: 'Đạt cấp 5', xu: 25, ok: t => level(t).lv >= 5, of: t => [level(t).lv, 5] },
+  { id: 'lv10', icon: '🌟', name: 'Cấp 10 Sảnh', desc: 'Đạt cấp 10', xu: 50, ok: t => level(t).lv >= 10, of: t => [level(t).lv, 10] },
   /* Bắn Tàu: mở khóa từ sự kiện trong ván (recordEvent), xem totals().ev.bt */
-  { id: 'bt_sink1', icon: '🚢', name: 'Thợ Săn Tàu', desc: 'Đánh chìm tàu đầu tiên ở Bắn Tàu', ok: t => (t.ev.bt?.sinks || 0) >= 1, of: t => [t.ev.bt?.sinks || 0, 1] },
-  { id: 'bt_sink2', icon: '💥', name: 'Song Sát', desc: 'Đánh chìm 2 tàu trong 1 ván Bắn Tàu', ok: t => (t.ev.bt?.sinkMax || 0) >= 2, of: t => [t.ev.bt?.sinkMax || 0, 2] },
-  { id: 'bt_sink5', icon: '🌊', name: 'Làm Chủ Mặt Biển', desc: 'Đánh chìm cả 5 tàu trong 1 ván Bắn Tàu', ok: t => (t.ev.bt?.sinkMax || 0) >= 5, of: t => [t.ev.bt?.sinkMax || 0, 5] },
-  { id: 'bt_streak3', icon: '🎯', name: 'Bắn Đâu Trúng Đó', desc: 'Chuỗi 3 phát trúng liên tiếp ở Bắn Tàu', ok: t => (t.ev.bt?.hitStreak || 0) >= 3, of: t => [t.ev.bt?.hitStreak || 0, 3] },
-  { id: 'bt_streak5', icon: '🧨', name: 'Xạ Thủ Cừ Khôi', desc: 'Chuỗi 5 phát trúng liên tiếp ở Bắn Tàu', ok: t => (t.ev.bt?.hitStreak || 0) >= 5, of: t => [t.ev.bt?.hitStreak || 0, 5] },
-  { id: 'bt_items', icon: '🎒', name: 'Đủ Đồ Chơi', desc: 'Dùng đủ 3 loại vật phẩm ở Bắn Tàu (Bẫy, Radar, Bom)', ok: t => ['trap', 'radar', 'nuke'].every(k => t.ev.bt?.items?.[k]), of: t => [['trap', 'radar', 'nuke'].filter(k => t.ev.bt?.items?.[k]).length, 3] },
-  { id: 'bt_flawless', icon: '🛡️', name: 'Hạm Đội Bất Bại', desc: 'Thắng 1 ván Bắn Tàu mà không mất tàu nào', ok: t => (t.ev.bt?.flawless || 0) >= 1 },
-  { id: 'bt_trap', icon: '🪤', name: 'Bẫy Sập', desc: 'Bẫy của bạn vô hiệu hoá 1 phát bắn của địch', ok: t => (t.ev.bt?.trap || 0) >= 1 },
-  { id: 'bt_radar', icon: '📡', name: 'Radar Bắt Sóng', desc: 'Radar quét trúng vùng có tàu', ok: t => (t.ev.bt?.radarHit || 0) >= 1 },
-  { id: 'bt_nukesink', icon: '☢️', name: 'Bom Chìm Tàu', desc: 'Bom hạt nhân đánh chìm 1 tàu', ok: t => (t.ev.bt?.nukeSink || 0) >= 1 },
+  { id: 'bt_sink1', icon: '🚢', name: 'Thợ Săn Tàu', desc: 'Đánh chìm tàu đầu tiên ở Bắn Tàu', xu: 10, ok: t => (t.ev.bt?.sinks || 0) >= 1, of: t => [t.ev.bt?.sinks || 0, 1] },
+  { id: 'bt_sink2', icon: '💥', name: 'Song Sát', desc: 'Đánh chìm 2 tàu trong 1 ván Bắn Tàu', xu: 25, ok: t => (t.ev.bt?.sinkMax || 0) >= 2, of: t => [t.ev.bt?.sinkMax || 0, 2] },
+  { id: 'bt_sink5', icon: '🌊', name: 'Làm Chủ Mặt Biển', desc: 'Đánh chìm cả 5 tàu trong 1 ván Bắn Tàu', xu: 50, ok: t => (t.ev.bt?.sinkMax || 0) >= 5, of: t => [t.ev.bt?.sinkMax || 0, 5] },
+  { id: 'bt_streak3', icon: '🎯', name: 'Bắn Đâu Trúng Đó', desc: 'Chuỗi 3 phát trúng liên tiếp ở Bắn Tàu', xu: 10, ok: t => (t.ev.bt?.hitStreak || 0) >= 3, of: t => [t.ev.bt?.hitStreak || 0, 3] },
+  { id: 'bt_streak5', icon: '🧨', name: 'Xạ Thủ Cừ Khôi', desc: 'Chuỗi 5 phát trúng liên tiếp ở Bắn Tàu', xu: 25, ok: t => (t.ev.bt?.hitStreak || 0) >= 5, of: t => [t.ev.bt?.hitStreak || 0, 5] },
+  { id: 'bt_items', icon: '🎒', name: 'Đủ Đồ Chơi', desc: 'Dùng đủ 3 loại vật phẩm ở Bắn Tàu (Bẫy, Radar, Bom)', xu: 25, ok: t => ['trap', 'radar', 'nuke'].every(k => t.ev.bt?.items?.[k]), of: t => [['trap', 'radar', 'nuke'].filter(k => t.ev.bt?.items?.[k]).length, 3] },
+  { id: 'bt_flawless', icon: '🛡️', name: 'Hạm Đội Bất Bại', desc: 'Thắng 1 ván Bắn Tàu mà không mất tàu nào', xu: 50, ok: t => (t.ev.bt?.flawless || 0) >= 1 },
+  { id: 'bt_trap', icon: '🪤', name: 'Bẫy Sập', desc: 'Bẫy của bạn vô hiệu hoá 1 phát bắn của địch', xu: 10, ok: t => (t.ev.bt?.trap || 0) >= 1 },
+  { id: 'bt_radar', icon: '📡', name: 'Radar Bắt Sóng', desc: 'Radar quét trúng vùng có tàu', xu: 10, ok: t => (t.ev.bt?.radarHit || 0) >= 1 },
+  { id: 'bt_nukesink', icon: '☢️', name: 'Bom Chìm Tàu', desc: 'Bom hạt nhân đánh chìm 1 tàu', xu: 25, ok: t => (t.ev.bt?.nukeSink || 0) >= 1 },
   /* Ô Ăn Quan: mở khóa từ sự kiện trong ván (recordEvent), xem totals().ev.oq */
-  { id: 'oq_quan1', icon: '👑', name: 'Ăn Quan Đầu Tiên', desc: 'Ăn 1 quân Quan ở Ô Ăn Quan', ok: t => (t.ev.oq?.quan || 0) >= 1, of: t => [t.ev.oq?.quan || 0, 1] },
-  { id: 'oq_chain3', icon: '🔗', name: 'Ăn Dây 3 Ô', desc: 'Ăn dây 3 ô trở lên trong 1 nước ở Ô Ăn Quan', ok: t => (t.ev.oq?.chainMax || 0) >= 3, of: t => [t.ev.oq?.chainMax || 0, 3] },
-  { id: 'oq_rescue', icon: '🛟', name: 'Cứu Dân Thành Công', desc: 'Cứu dân 1 lần ở Ô Ăn Quan', ok: t => (t.ev.oq?.rescues || 0) >= 1, of: t => [t.ev.oq?.rescues || 0, 1] },
-  { id: 'oq_flawless', icon: '🛡️', name: 'Toàn Vẹn Đôi Quan', desc: 'Thắng 1 ván Ô Ăn Quan mà đối phương không ăn được Quan nào', ok: t => (t.ev.oq?.flawless || 0) >= 1 },
-  { id: 'oq_bothquan', icon: '👑', name: 'Ăn Cả 2 Quan', desc: 'Ăn cả 2 quân Quan trong 1 ván Ô Ăn Quan', ok: t => (t.ev.oq?.bothQuan || 0) >= 1 },
-  { id: 'oq_comeback', icon: '🌊', name: 'Lội Ngược Dòng', desc: 'Thắng 1 ván Ô Ăn Quan sau khi đã phải cứu dân', ok: t => (t.ev.oq?.comeback || 0) >= 1 },
+  { id: 'oq_quan1', icon: '👑', name: 'Ăn Quan Đầu Tiên', desc: 'Ăn 1 quân Quan ở Ô Ăn Quan', xu: 10, ok: t => (t.ev.oq?.quan || 0) >= 1, of: t => [t.ev.oq?.quan || 0, 1] },
+  { id: 'oq_chain3', icon: '🔗', name: 'Ăn Dây 3 Ô', desc: 'Ăn dây 3 ô trở lên trong 1 nước ở Ô Ăn Quan', xu: 25, ok: t => (t.ev.oq?.chainMax || 0) >= 3, of: t => [t.ev.oq?.chainMax || 0, 3] },
+  { id: 'oq_rescue', icon: '🛟', name: 'Cứu Dân Thành Công', desc: 'Cứu dân 1 lần ở Ô Ăn Quan', xu: 10, ok: t => (t.ev.oq?.rescues || 0) >= 1, of: t => [t.ev.oq?.rescues || 0, 1] },
+  { id: 'oq_flawless', icon: '🛡️', name: 'Toàn Vẹn Đôi Quan', desc: 'Thắng 1 ván Ô Ăn Quan mà đối phương không ăn được Quan nào', xu: 50, ok: t => (t.ev.oq?.flawless || 0) >= 1 },
+  { id: 'oq_bothquan', icon: '👑', name: 'Ăn Cả 2 Quan', desc: 'Ăn cả 2 quân Quan trong 1 ván Ô Ăn Quan', xu: 50, ok: t => (t.ev.oq?.bothQuan || 0) >= 1 },
+  { id: 'oq_comeback', icon: '🌊', name: 'Lội Ngược Dòng', desc: 'Thắng 1 ván Ô Ăn Quan sau khi đã phải cứu dân', xu: 25, ok: t => (t.ev.oq?.comeback || 0) >= 1 },
   /* Cờ Caro: chuỗi thắng theo từng game (record() giữ g.st) + thắng nhanh (recordEvent 'end', data.moves) */
-  { id: 'caro_streak3', icon: '✖️', name: 'Chuỗi Caro', desc: 'Thắng 3 ván Cờ Caro liên tiếp', ok: t => (t.g.caro?.st || 0) >= 3, of: t => [t.g.caro?.st || 0, 3] },
-  { id: 'caro_win_fast', icon: '⚡', name: 'Thắng Nhanh', desc: 'Thắng 1 ván Cờ Caro dưới 30 nước', ok: t => (t.ev.cr?.fast || 0) >= 1 },
+  { id: 'caro_streak3', icon: '✖️', name: 'Chuỗi Caro', desc: 'Thắng 3 ván Cờ Caro liên tiếp', xu: 10, ok: t => (t.g.caro?.st || 0) >= 3, of: t => [t.g.caro?.st || 0, 3] },
+  { id: 'caro_win_fast', icon: '⚡', name: 'Thắng Nhanh', desc: 'Thắng 1 ván Cờ Caro dưới 30 nước', xu: 25, ok: t => (t.ev.cr?.fast || 0) >= 1 },
   /* TicTacToe: chuỗi thắng theo từng game (record() giữ g.st) + hòa máy Khó (recordEvent 'end') */
-  { id: 'tictactoe_streak3', icon: '❌', name: 'Chuỗi TicTacToe', desc: 'Thắng 3 ván TicTacToe liên tiếp', ok: t => (t.g.tictactoe?.st || 0) >= 3, of: t => [t.g.tictactoe?.st || 0, 3] },
-  { id: 'tictactoe_draw_hard', icon: '🤝', name: 'Hoà Máy Khó', desc: 'Hòa 1 ván TicTacToe với Máy Khó (minimax không thể thắng được)', ok: t => (t.ev.tt?.drawHard || 0) >= 1 },
+  { id: 'tictactoe_streak3', icon: '❌', name: 'Chuỗi TicTacToe', desc: 'Thắng 3 ván TicTacToe liên tiếp', xu: 10, ok: t => (t.g.tictactoe?.st || 0) >= 3, of: t => [t.g.tictactoe?.st || 0, 3] },
+  { id: 'tictactoe_draw_hard', icon: '🤝', name: 'Hoà Máy Khó', desc: 'Hòa 1 ván TicTacToe với Máy Khó (minimax không thể thắng được)', xu: 50, ok: t => (t.ev.tt?.drawHard || 0) >= 1 },
   /* Memory: chuỗi thắng theo từng game (record() giữ g.st) + hoàn hảo / xong nhanh ở chơi đơn mức Vừa (recordEvent 'end', data.solo) */
-  { id: 'memory_streak3', icon: '🃏', name: 'Chuỗi Memory', desc: 'Thắng 3 ván Memory liên tiếp', ok: t => (t.g.memory?.st || 0) >= 3, of: t => [t.g.memory?.st || 0, 3] },
-  { id: 'memory_perfect', icon: '🧠', name: 'Trí Nhớ Hoàn Hảo', desc: 'Thắng chơi đơn Memory mức Vừa mà không lật trượt lần nào', ok: t => (t.ev.mm?.perfect || 0) >= 1 },
-  { id: 'memory_fast', icon: '⏱️', name: 'Nhớ Siêu Tốc', desc: 'Xong bàn Memory 16 lá (mức Vừa) dưới 60 giây ở chơi đơn', ok: t => (t.ev.mm?.fast || 0) >= 1 },
+  { id: 'memory_streak3', icon: '🃏', name: 'Chuỗi Memory', desc: 'Thắng 3 ván Memory liên tiếp', xu: 10, ok: t => (t.g.memory?.st || 0) >= 3, of: t => [t.g.memory?.st || 0, 3] },
+  { id: 'memory_perfect', icon: '🧠', name: 'Trí Nhớ Hoàn Hảo', desc: 'Thắng chơi đơn Memory mức Vừa mà không lật trượt lần nào', xu: 50, ok: t => (t.ev.mm?.perfect || 0) >= 1 },
+  { id: 'memory_fast', icon: '⏱️', name: 'Nhớ Siêu Tốc', desc: 'Xong bàn Memory 16 lá (mức Vừa) dưới 60 giây ở chơi đơn', xu: 25, ok: t => (t.ev.mm?.fast || 0) >= 1 },
   /* Cờ Vây: chuỗi thắng theo từng game (record() giữ g.st) + thắng bàn 19×19 / thắng cách biệt 20 điểm (recordEvent 'end', data.size/margin) */
-  { id: 'covay_streak3', icon: '⚫', name: 'Chuỗi Cờ Vây', desc: 'Thắng 3 ván Cờ Vây liên tiếp', ok: t => (t.g.covay?.st || 0) >= 3, of: t => [t.g.covay?.st || 0, 3] },
-  { id: 'covay_win19', icon: '🏯', name: 'Đại Bàn 19×19', desc: 'Thắng 1 ván Cờ Vây bàn 19×19', ok: t => (t.ev.cv?.win19 || 0) >= 1 },
-  { id: 'covay_bigwin', icon: '🌊', name: 'Thắng Áp Đảo', desc: 'Thắng 1 ván Cờ Vây cách biệt từ 20 điểm trở lên', ok: t => (t.ev.cv?.bigwin || 0) >= 1 },
+  { id: 'covay_streak3', icon: '⚫', name: 'Chuỗi Cờ Vây', desc: 'Thắng 3 ván Cờ Vây liên tiếp', xu: 10, ok: t => (t.g.covay?.st || 0) >= 3, of: t => [t.g.covay?.st || 0, 3] },
+  { id: 'covay_win19', icon: '🏯', name: 'Đại Bàn 19×19', desc: 'Thắng 1 ván Cờ Vây bàn 19×19', xu: 50, ok: t => (t.ev.cv?.win19 || 0) >= 1 },
+  { id: 'covay_bigwin', icon: '🌊', name: 'Thắng Áp Đảo', desc: 'Thắng 1 ván Cờ Vây cách biệt từ 20 điểm trở lên', xu: 50, ok: t => (t.ev.cv?.bigwin || 0) >= 1 },
   /* Cờ Thú: chuỗi thắng theo từng game (record() giữ g.st) + Chuột ăn Voi / thắng bằng vào hang (recordEvent) */
-  { id: 'cothu_streak3', icon: '🦁', name: 'Chuỗi Cờ Thú', desc: 'Thắng 3 ván Cờ Thú liên tiếp', ok: t => (t.g.cothu?.st || 0) >= 3, of: t => [t.g.cothu?.st || 0, 3] },
-  { id: 'cothu_rat_elephant', icon: '🐀', name: 'Chuột Ăn Voi', desc: 'Dùng Chuột ăn được Voi ở Cờ Thú', ok: t => (t.ev.ct?.ratElephant || 0) >= 1 },
-  { id: 'cothu_den_win', icon: '🚩', name: 'Vào Hang Thắng', desc: 'Thắng 1 ván Cờ Thú bằng cách vào hang địch', ok: t => (t.ev.ct?.denWin || 0) >= 1 },
+  { id: 'cothu_streak3', icon: '🦁', name: 'Chuỗi Cờ Thú', desc: 'Thắng 3 ván Cờ Thú liên tiếp', xu: 10, ok: t => (t.g.cothu?.st || 0) >= 3, of: t => [t.g.cothu?.st || 0, 3] },
+  { id: 'cothu_rat_elephant', icon: '🐀', name: 'Chuột Ăn Voi', desc: 'Dùng Chuột ăn được Voi ở Cờ Thú', xu: 25, ok: t => (t.ev.ct?.ratElephant || 0) >= 1 },
+  { id: 'cothu_den_win', icon: '🚩', name: 'Vào Hang Thắng', desc: 'Thắng 1 ván Cờ Thú bằng cách vào hang địch', xu: 25, ok: t => (t.ev.ct?.denWin || 0) >= 1 },
   /* Rắn và Thang: chuỗi thắng theo từng game (record() giữ g.st) + leo thang lớn / trượt rắn lớn (recordEvent) */
-  { id: 'rt_streak3', icon: '🎲', name: 'Chuỗi Rắn Và Thang', desc: 'Thắng 3 ván Rắn và Thang liên tiếp', ok: t => (t.g.ranvathang?.st || 0) >= 3, of: t => [t.g.ranvathang?.st || 0, 3] },
-  { id: 'rt_ladder28', icon: '🪜', name: 'Thang Lớn 28→84', desc: 'Leo thang từ ô 28 lên ô 84 ở Rắn và Thang', ok: t => (t.ev.rt?.ladder28 || 0) >= 1 },
-  { id: 'rt_snake87', icon: '🐍', name: 'Trượt Rắn', desc: 'Trượt rắn từ ô 87 xuống ô 24 ở Rắn và Thang', ok: t => (t.ev.rt?.snake87 || 0) >= 1 },
+  { id: 'rt_streak3', icon: '🎲', name: 'Chuỗi Rắn Và Thang', desc: 'Thắng 3 ván Rắn và Thang liên tiếp', xu: 10, ok: t => (t.g.ranvathang?.st || 0) >= 3, of: t => [t.g.ranvathang?.st || 0, 3] },
+  { id: 'rt_ladder28', icon: '🪜', name: 'Thang Lớn 28→84', desc: 'Leo thang từ ô 28 lên ô 84 ở Rắn và Thang', xu: 25, ok: t => (t.ev.rt?.ladder28 || 0) >= 1 },
+  { id: 'rt_snake87', icon: '🐍', name: 'Trượt Rắn', desc: 'Trượt rắn từ ô 87 xuống ô 24 ở Rắn và Thang', xu: 10, ok: t => (t.ev.rt?.snake87 || 0) >= 1 },
   /* --- thêm 20261118: thành tựu chung vui (tên/mô tả giữ nguyên, thương hiệu cũ → GumballZ Boardgame) ---
      Bỏ qua 5 cái: c-friend / c-friends5 (repo này không có danh sách bạn lưu local để đối chiếu), c-dress10 (không có bộ đếm đổi avatar),
      c-days30 (trùng điều kiện với d30 'Cả tháng' đã có), c-streak10 (trùng điều kiện với s10 'Chuỗi 10' đã có). */
-  { id: 'c-lose5', icon: '🥲', name: 'Mai Thắng Bù', desc: 'Thua 5 ván liên tiếp', ok: t => (t.ls || 0) >= 5, of: t => [Math.min(t.ls || 0, 5), 5] },
-  { id: 'c-comeback', icon: '🏆', name: 'Lội Ngược Dòng', desc: 'Thắng ngay sau chuỗi thua 5 ván', ok: t => !!(t.marks || {})['c-comeback'] },
-  { id: 'c-day20', icon: '🧟', name: 'Cày Cả Ngày', desc: 'Chơi 20 ván trong một ngày', ok: t => (t.dd.n || 0) >= 20, of: t => [Math.min(t.dd.n || 0, 20), 20] },
-  { id: 'c-day3g', icon: '🍠', name: 'Lang Thang', desc: 'Chơi 3 game khác nhau trong một ngày', ok: t => (t.dd.k || []).length >= 3, of: t => [Math.min((t.dd.k || []).length, 3), 3] },
-  { id: 'c-dawn', icon: '🦉', name: 'Thức Khuya', desc: 'Thắng một ván lúc 0h–5h', ok: t => !!(t.marks || {})['c-dawn'] },
-  { id: 'c-lose100', icon: '🎰', name: 'Thua 100 Ván Vẫn Cười', desc: 'Thua tổng cộng 100 ván', ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 100, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 100), 100] },
-  { id: 'c-allgames', icon: '🧭', name: 'Nhà Thám Hiểm Sảnh', desc: 'Chơi đủ mọi game của GumballZ Boardgame', ok: t => t.kinds >= Object.keys(GAME_NAMES).length, of: t => [t.kinds, Object.keys(GAME_NAMES).length] },
-  { id: 'c-win3g', icon: '🎯', name: 'Đa Năng', desc: 'Thắng 3 game khác nhau trong một ngày', ok: t => (t.dd.w || []).length >= 3, of: t => [Math.min((t.dd.w || []).length, 3), 3] },
-  { id: 'c-play500', icon: '🎖️', name: 'Cày 500 Ván Sảnh', desc: 'Chơi tổng cộng 500 ván', ok: t => t.p >= 500, of: t => [t.p, 500] },
-  { id: 'c-back', icon: '👋', name: 'Trở Lại', desc: 'Quay lại chơi sau 30 ngày vắng mặt', ok: t => !!(t.marks || {})['c-back'] },
-  { id: 'c-weekend', icon: '🛋️', name: 'Cuối Tuần', desc: 'Chơi cả thứ Bảy lẫn Chủ nhật trong cùng một tuần', ok: t => !!(t.marks || {})['c-weekend'] },
-  { id: 'c-quick', icon: '⚡', name: 'Tia Chớp Sảnh', desc: 'Thắng một ván chưa tới 2 phút', ok: t => !!(t.marks || {})['c-quick'] },
-  { id: 'c-long', icon: '🕰️', name: 'Ván Dài Nhất Sảnh', desc: 'Một ván kéo dài hơn 1 tiếng', ok: t => !!(t.marks || {})['c-long'] },
-  { id: 'c-crowd', icon: '🎪', name: 'Phòng Đông', desc: 'Chơi trong phòng từ 8 người trở lên', ok: t => !!(t.marks || {})['c-crowd'] },
-  { id: 'c-firstloss', icon: '🫠', name: 'Khởi Đầu Hơi Xui', desc: 'Thua ván đầu tiên trên GumballZ Boardgame', ok: t => !!(t.marks || {})['c-firstloss'] },
-  { id: 'c-w50', icon: '🥇', name: 'Trùm Cuối', desc: 'Thắng 50 ván một game bất kỳ', ok: t => t.top >= 50, of: t => [t.top, 50] },
-  { id: 'c-win10g', icon: '🌈', name: 'Vạn Năng', desc: 'Thắng ít nhất 1 ván ở 10 game khác nhau', ok: t => Object.values(t.g).filter(x => (x.w || 0) >= 1).length >= 10, of: t => [Object.values(t.g).filter(x => (x.w || 0) >= 1).length, 10] },
-  { id: 'c-newyear', icon: '🎆', name: 'Giao Thừa', desc: 'Chơi lúc đúng giao thừa (0h ngày 1/1)', ok: t => !!(t.marks || {})['c-newyear'] },
+  { id: 'c-lose5', icon: '🥲', name: 'Mai Thắng Bù', desc: 'Thua 5 ván liên tiếp', xu: 10, ok: t => (t.ls || 0) >= 5, of: t => [Math.min(t.ls || 0, 5), 5] },
+  { id: 'c-comeback', icon: '🏆', name: 'Lội Ngược Dòng', desc: 'Thắng ngay sau chuỗi thua 5 ván', xu: 25, ok: t => !!(t.marks || {})['c-comeback'] },
+  { id: 'c-day20', icon: '🧟', name: 'Cày Cả Ngày', desc: 'Chơi 20 ván trong một ngày', xu: 25, ok: t => (t.dd.n || 0) >= 20, of: t => [Math.min(t.dd.n || 0, 20), 20] },
+  { id: 'c-day3g', icon: '🍠', name: 'Lang Thang', desc: 'Chơi 3 game khác nhau trong một ngày', xu: 10, ok: t => (t.dd.k || []).length >= 3, of: t => [Math.min((t.dd.k || []).length, 3), 3] },
+  { id: 'c-dawn', icon: '🦉', name: 'Thức Khuya', desc: 'Thắng một ván lúc 0h–5h', xu: 10, ok: t => !!(t.marks || {})['c-dawn'] },
+  { id: 'c-lose100', icon: '🎰', name: 'Thua 100 Ván Vẫn Cười', desc: 'Thua tổng cộng 100 ván', xu: 25, ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 100, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 100), 100] },
+  { id: 'c-allgames', icon: '🧭', name: 'Nhà Thám Hiểm Sảnh', desc: 'Chơi đủ mọi game của GumballZ Boardgame', xu: 100, ok: t => t.kinds >= Object.keys(GAME_NAMES).length, of: t => [t.kinds, Object.keys(GAME_NAMES).length] },
+  { id: 'c-win3g', icon: '🎯', name: 'Đa Năng', desc: 'Thắng 3 game khác nhau trong một ngày', xu: 10, ok: t => (t.dd.w || []).length >= 3, of: t => [Math.min((t.dd.w || []).length, 3), 3] },
+  { id: 'c-play500', icon: '🎖️', name: 'Cày 500 Ván Sảnh', desc: 'Chơi tổng cộng 500 ván', xu: 50, ok: t => t.p >= 500, of: t => [t.p, 500] },
+  { id: 'c-back', icon: '👋', name: 'Trở Lại', desc: 'Quay lại chơi sau 30 ngày vắng mặt', xu: 25, ok: t => !!(t.marks || {})['c-back'] },
+  { id: 'c-weekend', icon: '🛋️', name: 'Cuối Tuần', desc: 'Chơi cả thứ Bảy lẫn Chủ nhật trong cùng một tuần', xu: 10, ok: t => !!(t.marks || {})['c-weekend'] },
+  { id: 'c-quick', icon: '⚡', name: 'Tia Chớp Sảnh', desc: 'Thắng một ván chưa tới 2 phút', xu: 10, ok: t => !!(t.marks || {})['c-quick'] },
+  { id: 'c-long', icon: '🕰️', name: 'Ván Dài Nhất Sảnh', desc: 'Một ván kéo dài hơn 1 tiếng', xu: 25, ok: t => !!(t.marks || {})['c-long'] },
+  { id: 'c-crowd', icon: '🎪', name: 'Phòng Đông', desc: 'Chơi trong phòng từ 8 người trở lên', xu: 25, ok: t => !!(t.marks || {})['c-crowd'] },
+  { id: 'c-firstloss', icon: '🫠', name: 'Khởi Đầu Hơi Xui', desc: 'Thua ván đầu tiên trên GumballZ Boardgame', xu: 10, ok: t => !!(t.marks || {})['c-firstloss'] },
+  { id: 'c-w50', icon: '🥇', name: 'Trùm Cuối', desc: 'Thắng 50 ván một game bất kỳ', xu: 50, ok: t => t.top >= 50, of: t => [t.top, 50] },
+  { id: 'c-win10g', icon: '🌈', name: 'Vạn Năng', desc: 'Thắng ít nhất 1 ván ở 10 game khác nhau', xu: 25, ok: t => Object.values(t.g).filter(x => (x.w || 0) >= 1).length >= 10, of: t => [Object.values(t.g).filter(x => (x.w || 0) >= 1).length, 10] },
+  { id: 'c-newyear', icon: '🎆', name: 'Giao Thừa', desc: 'Chơi lúc đúng giao thừa (0h ngày 1/1)', xu: 25, ok: t => !!(t.marks || {})['c-newyear'] },
   /* --- thêm 20261118-17: bậc khó hơn (Nguyễn: thêm thành tựu + nâng độ khó; CHỈ THÊM id mới, không đổi ngưỡng
      cũ nên không thu hồi unlock nào — ai đã đủ điều kiện thì lần chơi/đồng bộ sau tự mở) --- */
-  { id: 'p1000', icon: '🏯', name: 'Cày 1000 Ván Sảnh', desc: 'Chơi 1000 ván', ok: t => t.p >= 1000, of: t => [t.p, 1000] },
-  { id: 'w200', icon: '🏆', name: 'Thắng 200 Ván Sảnh', desc: 'Thắng 200 ván', ok: t => t.w >= 200, of: t => [t.w, 200] },
-  { id: 'w500', icon: '👑', name: 'Thắng 500 Ván Sảnh', desc: 'Thắng 500 ván', ok: t => t.w >= 500, of: t => [t.w, 500] },
-  { id: 's15', icon: '🔥', name: 'Chuỗi 15', desc: 'Thắng 15 ván liên tiếp', ok: t => t.best >= 15, of: t => [t.best, 15] },
-  { id: 's20', icon: '🌋', name: 'Chuỗi 20', desc: 'Thắng 20 ván liên tiếp', ok: t => t.best >= 20, of: t => [t.best, 20] },
-  { id: 'k30', icon: '🗺️', name: 'Khám Phá 30 Game', desc: 'Chơi 30 game khác nhau', ok: t => t.kinds >= 30, of: t => [t.kinds, 30] },
-  { id: 'k35', icon: '🧭', name: 'Khám Phá 35 Game', desc: 'Chơi 35 game khác nhau', ok: t => t.kinds >= 35, of: t => [t.kinds, 35] },
-  { id: 'd60', icon: '🗓️', name: '60 Ngày Sảnh', desc: 'Chơi vào 60 ngày khác nhau', ok: t => t.days >= 60, of: t => [t.days, 60] },
-  { id: 'd100', icon: '📆', name: '100 Ngày Sảnh', desc: 'Chơi vào 100 ngày khác nhau', ok: t => t.days >= 100, of: t => [t.days, 100] },
-  { id: 'm25', icon: '🎖️', name: 'Thắng 25 Ván Một Game', desc: 'Thắng 25 ván cùng một game', ok: t => t.top >= 25, of: t => [t.top, 25] },
-  { id: 'c-play1000', icon: '🏰', name: 'Ở Luôn Sảnh', desc: 'Chơi tổng cộng 1000 ván', ok: t => t.p >= 1000, of: t => [t.p, 1000] },
-  { id: 'c-day50', icon: '🤖', name: 'Cày 50 Ván Một Ngày', desc: 'Chơi 50 ván trong một ngày', ok: t => (t.dd.n || 0) >= 50, of: t => [Math.min(t.dd.n || 0, 50), 50] },
-  { id: 'c-win25g', icon: '🌟', name: 'Đa Năng Toàn Diện', desc: 'Thắng ít nhất 1 ván ở 25 game khác nhau', ok: t => Object.values(t.g).filter(x => (x.w || 0) >= 1).length >= 25, of: t => [Object.values(t.g).filter(x => (x.w || 0) >= 1).length, 25] },
-  { id: 'c-lose500', icon: '🎲', name: 'Thua 500 Ván Vẫn Cười', desc: 'Thua tổng cộng 500 ván', ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 500, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 500), 500] },
+  { id: 'p1000', icon: '🏯', name: 'Cày 1000 Ván Sảnh', desc: 'Chơi 1000 ván', xu: 100, ok: t => t.p >= 1000, of: t => [t.p, 1000] },
+  { id: 'w200', icon: '🏆', name: 'Thắng 200 Ván Sảnh', desc: 'Thắng 200 ván', xu: 100, ok: t => t.w >= 200, of: t => [t.w, 200] },
+  { id: 'w500', icon: '👑', name: 'Thắng 500 Ván Sảnh', desc: 'Thắng 500 ván', xu: 100, ok: t => t.w >= 500, of: t => [t.w, 500] },
+  { id: 's15', icon: '🔥', name: 'Chuỗi 15', desc: 'Thắng 15 ván liên tiếp', xu: 100, ok: t => t.best >= 15, of: t => [t.best, 15] },
+  { id: 's20', icon: '🌋', name: 'Chuỗi 20', desc: 'Thắng 20 ván liên tiếp', xu: 100, ok: t => t.best >= 20, of: t => [t.best, 20] },
+  { id: 'k30', icon: '🗺️', name: 'Khám Phá 30 Game', desc: 'Chơi 30 game khác nhau', xu: 50, ok: t => t.kinds >= 30, of: t => [t.kinds, 30] },
+  { id: 'k35', icon: '🧭', name: 'Khám Phá 35 Game', desc: 'Chơi 35 game khác nhau', xu: 50, ok: t => t.kinds >= 35, of: t => [t.kinds, 35] },
+  { id: 'd60', icon: '🗓️', name: '60 Ngày Sảnh', desc: 'Chơi vào 60 ngày khác nhau', xu: 50, ok: t => t.days >= 60, of: t => [t.days, 60] },
+  { id: 'd100', icon: '📆', name: '100 Ngày Sảnh', desc: 'Chơi vào 100 ngày khác nhau', xu: 100, ok: t => t.days >= 100, of: t => [t.days, 100] },
+  { id: 'm25', icon: '🎖️', name: 'Thắng 25 Ván Một Game', desc: 'Thắng 25 ván cùng một game', xu: 50, ok: t => t.top >= 25, of: t => [t.top, 25] },
+  { id: 'c-play1000', icon: '🏰', name: 'Ở Luôn Sảnh', desc: 'Chơi tổng cộng 1000 ván', xu: 100, ok: t => t.p >= 1000, of: t => [t.p, 1000] },
+  { id: 'c-day50', icon: '🤖', name: 'Cày 50 Ván Một Ngày', desc: 'Chơi 50 ván trong một ngày', xu: 50, ok: t => (t.dd.n || 0) >= 50, of: t => [Math.min(t.dd.n || 0, 50), 50] },
+  { id: 'c-win25g', icon: '🌟', name: 'Đa Năng Toàn Diện', desc: 'Thắng ít nhất 1 ván ở 25 game khác nhau', xu: 50, ok: t => Object.values(t.g).filter(x => (x.w || 0) >= 1).length >= 25, of: t => [Object.values(t.g).filter(x => (x.w || 0) >= 1).length, 25] },
+  { id: 'c-lose500', icon: '🎲', name: 'Thua 500 Ván Vẫn Cười', desc: 'Thua tổng cộng 500 ván', xu: 50, ok: t => Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0) >= 500, of: t => [Math.min(Object.values(t.g).reduce((n, x) => n + (x.l || 0), 0), 500), 500] },
 ];
 /* thành tích theo từng game: thắng đầu tiên + 10 ván thắng; game không tính thắng thua thì chơi đầu tiên + 10 ván */
 export const GAME_ICON = { bang: '🤠', uno: '🃏', typhu: '🏙️', scribble: '🎨', meono: '💣', tamquoc: '⚔️', masoi: '🐺', camel: '🐪', cangua: '🐴', tienlen: '🐷', catte: '🂡', bacao: '👑', xidach: '🃏', poker: '♠️', solitaire: '🃏', cotuong: '♟️', thathaythach: '🎯', baitan: '🃏', loto: '🎪', covua: '♟️', tala: '🀄', cholon: '🏮', tusac: '🀄', bantau: '🚢', oanquan: '🪨', caro: '✖️', tictactoe: '❌', memory: '🃏', covay: '⚫', cothu: '🦁', ranvathang: '🐍', sam: '🃏', baucua: '🎲', noitu: '🔤', xuyenviet: '🚂', khaihoang: '🏝️', daochinh: '🎭', cuuho: '🦸', xiecthu: '🎪', giandiep: '🕵️', codam: '🔴', lieng: '🎴', maubinh: '🀄', xito: '♣️', colat: '🔄', domino: '🎲', connect4: '🔴', matthu: '🔐', avalon: '🛡️', spyfall: '🕵️', sudoku: '🔢', wordle: '🟩', domi: '🧨', s2048: '2️⃣', matchu: '🀅', loveletter: '💌', sushigo: '🍣', lay6: '🐂', saboteur: '⛏️', skull: '💀', hanabi: '🎆', chan: '🀄', totom: '👴', carcassonne: '🏰', azul: '🎨', splendor: '💎', conhay: '⭐', backgammon: '🎲', rummikub: '🧩', quoridor: '🧱', blokus: '🟦', scrabble: '🔤', mastermind: '🧠', ailatrieuphu: '💰', haithat1gia: '🤥', doanhdong: '🎭', wavelength: '🌈', resistance: '🕶️', vetruyentin: '🖌️', tetris: '🟪', ransanmoi: '🍎', xepkeo: '🍬', banbong: '🏓', nonogram: '⬛', ghephinh: '🖼️', nhen: '🕷️', bida8: '🎱', dapenalty: '⚽', phitieu: '🎯', keobuabao: '✌️', dovui: '❓', hoisanquai: '🐾', lansau: '🤿', vuatiengviet: '👑' };
 for (const [g, name] of Object.entries(GAME_NAMES)) {
   const ic = GAME_ICON[g] || '🎲';
   if (g === 'thathaythach') {
-    ACHS.push({ id: 'p1_' + g, icon: ic, name, desc: `Chơi ván đầu tiên ở ${name}`, ok: t => (t.g[g]?.p || 0) >= 1 });
-    ACHS.push({ id: 'p10_' + g, icon: ic, name, desc: `Chơi 10 ván ở ${name}`, ok: t => (t.g[g]?.p || 0) >= 10, of: t => [t.g[g]?.p || 0, 10] });
+    ACHS.push({ id: 'p1_' + g, icon: ic, name, desc: `Chơi ván đầu tiên ở ${name}`, xu: 10, ok: t => (t.g[g]?.p || 0) >= 1 });
+    ACHS.push({ id: 'p10_' + g, icon: ic, name, desc: `Chơi 10 ván ở ${name}`, xu: 25, ok: t => (t.g[g]?.p || 0) >= 10, of: t => [t.g[g]?.p || 0, 10] });
   } else {
-    ACHS.push({ id: 'w1_' + g, icon: ic, name, desc: `Thắng ván đầu tiên ở ${name}`, ok: t => (t.g[g]?.w || 0) >= 1 });
-    ACHS.push({ id: 'w10_' + g, icon: ic, name, desc: `Thắng 10 ván ở ${name}`, ok: t => (t.g[g]?.w || 0) >= 10, of: t => [t.g[g]?.w || 0, 10] });
+    ACHS.push({ id: 'w1_' + g, icon: ic, name, desc: `Thắng ván đầu tiên ở ${name}`, xu: 10, ok: t => (t.g[g]?.w || 0) >= 1 });
+    ACHS.push({ id: 'w10_' + g, icon: ic, name, desc: `Thắng 10 ván ở ${name}`, xu: 25, ok: t => (t.g[g]?.w || 0) >= 10, of: t => [t.g[g]?.w || 0, 10] });
   }
 }
 /* --- thêm 20261118: mẫu thành tựu theo từng game (5 mẫu × mỗi game; tên hiện = tên mẫu + tên game) ---
    Thêm 20261118-17: 3 mẫu bậc khó (g-w50, g-w100, g-p50) — Nguyễn: thêm thành tựu + nâng độ khó.
    Thật hay Thách không có thắng thua nên chỉ lấy mẫu không cần thắng (nw: 1); các mẫu còn lại không bao giờ mở được ở game đó nên không thêm (tránh thẻ khóa vĩnh viễn). */
 const TPL = [
-  { id: 'g-first', icon: '🎮', name: 'Khởi Đầu Huyền Thoại', desc: 'Chơi xong ván đầu tiên', ok: g => g.p >= 1, nw: 1 },
-  { id: 'g-w5', icon: '😆', name: 'Ngũ Liên Thắng', desc: 'Thắng 5 ván', ok: g => g.w >= 5, of: g => [g.w, 5] },
-  { id: 'g-w25', icon: '📈', name: 'Thăng Cấp Thần Tốc', desc: 'Thắng 25 ván', ok: g => g.w >= 25, of: g => [g.w, 25] },
-  { id: 'g-w50', icon: '🏆', name: 'Cao Thủ Sảnh', desc: 'Thắng 50 ván', ok: g => g.w >= 50, of: g => [g.w, 50] },
-  { id: 'g-w100', icon: '👑', name: 'Vô Địch', desc: 'Thắng 100 ván', ok: g => g.w >= 100, of: g => [g.w, 100] },
-  { id: 'g-l10', icon: '💀', name: 'Thập Tử Nhất Sinh', desc: 'Thua 10 ván (vẫn chơi tiếp)', ok: g => (g.l || 0) >= 10, of: g => [g.l || 0, 10] },
-  { id: 'g-s3', icon: '🔥', name: 'Tam Liên Thắng', desc: 'Thắng 3 ván liên tiếp', ok: g => (g.bs || 0) >= 3, of: g => [g.bs || 0, 3] },
-  { id: 'g-p50', icon: '🕹️', name: 'Chơi Hoài Không Chán', desc: 'Chơi 50 ván', ok: g => g.p >= 50, of: g => [g.p, 50], nw: 1 },
+  { id: 'g-first', icon: '🎮', name: 'Khởi Đầu Huyền Thoại', desc: 'Chơi xong ván đầu tiên', xu: 10, ok: g => g.p >= 1, nw: 1 },
+  { id: 'g-w5', icon: '😆', name: 'Ngũ Liên Thắng', desc: 'Thắng 5 ván', xu: 25, ok: g => g.w >= 5, of: g => [g.w, 5] },
+  { id: 'g-w25', icon: '📈', name: 'Thăng Cấp Thần Tốc', desc: 'Thắng 25 ván', xu: 50, ok: g => g.w >= 25, of: g => [g.w, 25] },
+  { id: 'g-w50', icon: '🏆', name: 'Cao Thủ Sảnh', desc: 'Thắng 50 ván', xu: 50, ok: g => g.w >= 50, of: g => [g.w, 50] },
+  { id: 'g-w100', icon: '👑', name: 'Vô Địch', desc: 'Thắng 100 ván', xu: 100, ok: g => g.w >= 100, of: g => [g.w, 100] },
+  { id: 'g-l10', icon: '💀', name: 'Thập Tử Nhất Sinh', desc: 'Thua 10 ván (vẫn chơi tiếp)', xu: 25, ok: g => (g.l || 0) >= 10, of: g => [g.l || 0, 10] },
+  { id: 'g-s3', icon: '🔥', name: 'Tam Liên Thắng', desc: 'Thắng 3 ván liên tiếp', xu: 10, ok: g => (g.bs || 0) >= 3, of: g => [g.bs || 0, 3] },
+  { id: 'g-p50', icon: '🕹️', name: 'Chơi Hoài Không Chán', desc: 'Chơi 50 ván', xu: 50, ok: g => g.p >= 50, of: g => [g.p, 50], nw: 1 },
 ];
 for (const [g, name] of Object.entries(GAME_NAMES)) {
   const ts = g === 'thathaythach' ? TPL.filter(t => t.nw) : TPL;
-  for (const tp of ts) ACHS.push({ id: `${tp.id}-${g}`, icon: tp.icon, name: `${tp.name} ${name}`, desc: tp.desc, ok: t => tp.ok(t.g[g] || {}), ...(tp.of ? { of: t => tp.of(t.g[g] || {}) } : {}) });
+  for (const tp of ts) ACHS.push({ id: `${tp.id}-${g}`, icon: tp.icon, name: `${tp.name} ${name}`, desc: tp.desc, xu: tp.xu, ok: t => tp.ok(t.g[g] || {}), ...(tp.of ? { of: t => tp.of(t.g[g] || {}) } : {}) });
 }
 /* --- thêm 20261118: thành tựu riêng từng game (chỉ những cái phát hiện được từ dữ liệu/view) ---
    ok: () => false = không suy ra được từ tổng, chỉ mở khóa trực tiếp lúc hết ván qua SP.end/tick bên dưới (SPECIAL không nằm trong ACHS mà mở bằng id).
@@ -616,14 +616,29 @@ const SPECIAL = [
   { id: 'dl-7', icon: '🎁', name: 'Điểm Danh 7 Ngày', desc: 'Điểm danh 7 ngày liên tiếp', ok: t => (t.dlStreak || 0) >= 7, of: t => [t.dlStreak || 0, 7] },
   { id: 'dl-30', icon: '📅', name: 'Điểm Danh 30 Ngày', desc: 'Điểm danh tổng cộng 30 ngày', ok: t => (t.dlTotal || 0) >= 30, of: t => [t.dlTotal || 0, 30] },
 ];
-for (const a of SPECIAL) ACHS.push(a);
+/* 💰 thưởng xu thành tựu (patch -191): SPECIAL mặc định 25 xu; feat hiếm/hoàn hảo/dọn sạch/điểm tối đa/ván đông người = 50 xu;
+   feat dễ/trivial (thua/chết đầu tiên, bị chặt, móm…) = 10 xu. Thành tựu soon:true vẫn có bậc xu (để Hồ sơ hiện thưởng) nhưng không bao giờ được trả (record() chặn + ok() luôn false). */
+const SPECIAL_HARD = new Set('uno-perfect meo-last2 tqs-spy ms-wolfwin gd-spywin gd-perfect cd-kings3 cd-endgame3 lg-sap mb-dragon mb-sweep mb-quads mb-special xt-sf xt-quads cl-margin40 cl-corners cl-comeback dm-double6 dm-sweep dm-comeback mt-clean mt-lastcard mt-comeback av-merlin av-assassin av-q4 sf-spyguess sf-survive su-clean su-hard su-expert su-nohint wd-quick wd-clean dm-clean dm-medium dm-hard t4-1024 t4-2048 t4-score mc-clean mc-noshuffle mc-noundo ll-sweep l6-clean l6-crowd l6-tight sb-rich sb-crowd sk-clean sk-survivor hb-perfect hb-clean ch-thap tt-phu az-color sp-rich chn-jump chn-fast chn-crowd bg-backgammon rk-rush rk-sweep qd-fast qd-saver qd-spent bk-perfect bk-full bk-clean sc-bingo sc-big mm-fast mm-sharp mm-comeback al-150 al-race ht-perfect ht-streak5 ht-uncaught dd-actor wl-master rs-spy-win rs-win7 rs-clean vt-keep5 vt-guess3 tt-tetris2 tt-sprint-win rs-fast xc-big-move xc-cascade10 bb-clean bb-score500 ng-clean ng-hard15 gh-fast5 gh-nopeek nh-hard4 nh-noundo bd-clean bd-sharp dp-clean5 dp-comeback dp-streak5 ph-180 ph-ton3 kbb-comeback dv-perfect dv-champ ls-perfect ls-rare ls-deep vtv-perfect vtv-champ hsq-rainbow hsq-win4 hsq-flawless tl-trang bacao-sap bacao-nine3 xd-xiban xd-ngulinh xidach-bj ct-fast cotuong-horse cotuong-rook thathaythach-party8 baitan-solo4 cv-fast covua-knight bantau-fast oanquan-big cothu-flawless sam-trang sam-quad bc-triple baucua-double baucua-allin noitu-last5 noitu-chain20 xv-long xuyenviet-ticket5 xuyenviet-six kh-both khaihoang-city4 khaihoang-mono5 dc-bluff3 daochinh-clean daochinh-catch3 ch-hard ch-close cuuho-nobreak xiecthu-big15 dl-30'.split(' '));
+const SPECIAL_EASY = new Set('bang-firstdie uno-forgot typhu-broke1 meo-firstboom tqs-firstdie ms-night1 tl-cong tienlen-chopped bacao-bu bacao-lose5 xd-quac thathaythach-skip3 bt-last loto-wait covua-stalemate tala-mom bantau-miss10 oaq-borrow oanquan-noquan caro-fastloss cothu-elephant sam-chan sam-thoi2 bc-broke nt-timeout noitu-out1 xv-fail dc-caught cuuho-nocard catte-win3 baitan-win3 tusac-win3 sam-win3'.split(' '));
+for (const a of SPECIAL) ACHS.push({ ...a, xu: SPECIAL_HARD.has(a.id) ? 50 : SPECIAL_EASY.has(a.id) ? 10 : 25 });
 const ACH_BY_ID = new Map(ACHS.map(a => [a.id, a]));
 // cấp độ: mỗi ván +10 điểm, thắng +20 nữa
 export const LEVELS = ['Tân binh', 'Tập sự', 'Dân chơi', 'Tay chơi', 'Cao thủ', 'Đại cao thủ', 'Bậc thầy', 'Tông sư', 'Huyền thoại', 'Truyền kỳ'];
 export function level(t = totals()) { const xp = t.xp != null ? t.xp : t.p * 10 + t.w * 20, lv = Math.min(LEVELS.length, Math.floor(Math.sqrt(xp / 50)) + 1), need = n => 50 * (n - 1) * (n - 1); return { xp, lv, name: LEVELS[lv - 1], from: need(lv), to: lv >= LEVELS.length ? null : need(lv + 1) }; }
 
 /* kiểm tra thành tích mới từ tổng hiện tại, ghi dấu mở khóa, trả về danh sách mới mở */
-const checkFresh = s => { const t = totals(s), fresh = ACHS.filter(a => !s.ach[a.id] && a.ok(t)); fresh.forEach(a => { s.ach[a.id] = Date.now(); }); return fresh; };
+/* 💰 thưởng xu thành tựu (patch -191): chỉ trả khi id vừa chuyển khoá → mở; id đã mở từ trước KHÔNG trả lại, không trả bù
+   (ai đã mở thành tựu trước patch này thì không nhận xu cho các thành tựu đó — tránh phát 1 cục lớn ngày đầu).
+   Dùng chung cho cả 3 đường mở: checkFresh (record/recordEvent), record() extra (SPECIAL) và sync merge (sync.js gọi mergeAch). */
+export function awardAch(a) { try { if (a && a.xu > 0) { addXu(a.xu); return a.xu; } } catch (e) {} return 0; }
+/* mở mọi thành tựu vừa đủ điều kiện trong 1 object stats + thưởng xu 1 lần cho mỗi id mới mở; award=false thì chỉ ghi mở, không trả xu
+   (sync.js dùng award=false khi ở chế độ replace — đổi tài khoản / lần đồng bộ đầu sau bản nới lỏng — để xu của tài khoản cũ không rò sang). */
+export function mergeAch(out, award = true) {
+  const t = totals(out), fresh = [];
+  for (const a of ACHS) if (!out.ach[a.id] && a.ok(t)) { out.ach[a.id] = Date.now(); fresh.push(a); if (award) awardAch(a); }
+  return fresh;
+}
+const checkFresh = s => mergeAch(s);
 /* bộ đếm cộng dồn giữa các ván (vd. số lần chọn Thách, số ván 9 nút liên tiếp) */
 function counter(s) { s.cnt = s.cnt || {}; return (k, add) => { if (add != null) s.cnt[k] = (s.cnt[k] || 0) + add; return s.cnt[k] || 0; }; }
 const dayAfter = x => { const dt = new Date(x + 'T12:00:00'); dt.setDate(dt.getDate() + 1); return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0'); };
@@ -1321,13 +1336,13 @@ export function record(game, won, extra = [], info = {}) {
   if ((info.n || 0) >= 8) mk('c-crowd');
   if (s.days.some(x => { const dt = new Date(x + 'T12:00:00'); return dt.getDay() === 6 && s.days.includes(dayAfter(x)); })) mk('c-weekend');
   const t = totals(s), fresh = checkFresh(s);
-  for (const id of extra || []) { const a = ACH_BY_ID.get(id); if (a && a.soon) continue; /* thành tựu soon:true (chưa có cách phát hiện) không được record */ if (!s.ach[id]) { s.ach[id] = Date.now(); if (a) fresh.push({ ...a, id }); } } /* thành tựu riêng từng game do SP.end/tick phát hiện */
+  for (const id of extra || []) { const a = ACH_BY_ID.get(id); if (a && a.soon) continue; /* thành tựu soon:true (chưa có cách phát hiện) không được record */ if (!s.ach[id]) { s.ach[id] = Date.now(); if (a) { awardAch(a); fresh.push({ ...a, id }); } } } /* thành tựu riêng từng game do SP.end/tick phát hiện */
   save(s);
   let xuEarned = 0; try { xuEarned = earnGame(won); } catch (e) {} /* 💰 ví xu chung toàn web */
   try { dispatchEvent(new CustomEvent('gumballz-stats', { detail: { game, won, fresh } })); } catch (e) {}
-  const up = level(t); const msgs = []; if (up.lv > before) { msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`); for (const p of LOCKED_PARTS.filter(x => x.lv > before && x.lv <= up.lv)) msgs.push(`🔓 Mở khóa ${itemLabel(p.k, p.v)}`); } /* 🧸 linh kiện mở theo cấp: cấp suy ra từ XP nên không cần lưu riêng — đủ cấp là mở, kể cả khi lên nhiều cấp cùng lúc */
-  if (xuEarned > 0) msgs.push(`🪙 +${xuEarned} xu vào ví`);
-  if (fresh.length) setTimeout(() => import('./achpop.js?v=1').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
+  const up = level(t); const achXu = fresh.reduce((n, a) => n + (a.xu || 0), 0); /* 💰 tổng xu thành tựu vừa mở ở ván này (đã trả trong checkFresh/extra ở trên) */ const msgs = []; if (up.lv > before) { msgs.push(`⭐ Lên cấp ${up.lv}: ${up.name}`); for (const p of LOCKED_PARTS.filter(x => x.lv > before && x.lv <= up.lv)) msgs.push(`🔓 Mở khóa ${itemLabel(p.k, p.v)}`); } /* 🧸 linh kiện mở theo cấp: cấp suy ra từ XP nên không cần lưu riêng — đủ cấp là mở, kể cả khi lên nhiều cấp cùng lúc */
+  if (xuEarned > 0 || achXu > 0) msgs.push(`🪙 +${xuEarned + achXu} xu vào ví${achXu > 0 ? ` (gồm +${achXu} xu thành tựu)` : ''}`);
+  if (fresh.length) setTimeout(() => import('./achpop.js?v=2').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
   if (msgs.length) import('./dialog.js?v=10').then(m => msgs.forEach((x, i) => setTimeout(() => m.toast(x, 3600), 1800 + i * 3800))).catch(() => {});
   return fresh;
 }
@@ -1391,7 +1406,7 @@ export function recordEvent(game, type, data = {}) {
   const fresh = checkFresh(s);
   save(s);
   try { dispatchEvent(new CustomEvent('gumballz-stats', { detail: { game, won: null, fresh } })); } catch (e) {}
-  if (fresh.length) setTimeout(() => import('./achpop.js?v=1').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
+  if (fresh.length) setTimeout(() => import('./achpop.js?v=2').then(m => m.achPopup(fresh)).catch(() => {}), 1600); /* popup mở khoá thành tựu */
   return fresh;
 }
 const live = {};
@@ -1428,7 +1443,7 @@ export function watch(game, handlers, getId) {
 }
 // ☁️ có đăng nhập thì nạp phần đồng bộ hồ sơ theo tài khoản (khách không nạp gì thêm)
 const hasAuth = () => { try { return !!JSON.parse(ls.get('gumballz-auth') || 'null'); } catch (e) { return false; } };
-let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=50').catch(() => { syncOn = false; }); };
+let syncOn = false; const startSync = () => { if (syncOn || !hasAuth()) return; syncOn = true; import('./sync.js?v=51').catch(() => { syncOn = false; }); };
 try { startSync(); addEventListener('gumballz-auth', startSync); } catch (e) {}
 // 📸 nút "Khoe kết quả" sau ván thắng (shared/ui/brag.js)
 try { if (typeof document !== 'undefined') import('./brag.js?v=36').catch(() => {}); } catch (e) {}

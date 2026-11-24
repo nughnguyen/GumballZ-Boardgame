@@ -12,7 +12,7 @@ import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
-import { recordEvent } from '../../shared/ui/stats.js?v=95';
+import { recordEvent } from '../../shared/ui/stats.js?v=96';
 
 const SNAKE_COLORS = ['#e84393', '#6c5ce7', '#00b894', '#e17055', '#0984e3', '#fdcb6e', '#d63031', '#00cec9', '#a29bfe', '#fd79a8'];
 

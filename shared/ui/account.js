@@ -2,7 +2,7 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=53'; mountAccount(element)
 import { auth } from '../net/api.js?v=29';
 import { promptBox, formBox } from './dialog.js?v=10';
-import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=63';
+import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=64';
 
 const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */
 .ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink2);font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
@@ -155,7 +155,7 @@ export function mountAccount(el) {
   const syncBdg = () => { const d = el.querySelector('.ac-btn .ac-bdg'); if (d) d.textContent = frCount ? (frCount > 9 ? '9+' : frCount) : ''; };
   addEventListener('gumballz-friends', e => { frCount = (e.detail && e.detail.count) || 0; syncBdg(); });
   profileCss(); draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
-  import('./stats.js?v=95').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
+  import('./stats.js?v=96').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
   addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google
   import('./friends.js?v=37').then(m => { frCount = m.unreadCount(); syncBdg(); m.mountFriendsPoll(); }).catch(() => {});

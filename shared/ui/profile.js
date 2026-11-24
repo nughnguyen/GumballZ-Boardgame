@@ -2,8 +2,8 @@
 // lộ trình thưởng / khung / màu tên / hiệu ứng thắng (shared/js/avatar-rewards.js), thống kê từng game, thành tích.
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
-// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=63'
-import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=95';
+// import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=64'
+import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=96';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=5'; /* 🐉 rồng đông làm khung avatar (patch -184: EastDragon uốn theo vòng, đuổi ngọc trai) */
@@ -255,20 +255,21 @@ export function openCharSetup() {
 const achCard = (x, ok, of, ver = null) => {
   const prog = of ? ` (${Math.min(of[0], of[1])}/${of[1]})` : '';
   const verTx = ok && ver === true ? ' · ✅ đã kiểm chứng' : ok && ver === false ? ' · 💻 chỉ ở máy này' : '';
-  const how = x.desc + prog + (x.soon ? ' · sắp có' : '') + (ok ? verTx : ' — chưa mở, chơi tiếp để mở');
+  const xuTx = x.xu ? ` · 🪙 +${x.xu} xu${ok ? ' (đã nhận)' : ''}` : ''; /* 💰 thưởng xu thành tựu: chưa mở thì hiện mức thưởng, đã mở thì ghi đã nhận */
+  const how = x.desc + prog + (x.soon ? ' · sắp có' : '') + xuTx + (ok ? verTx : ' — chưa mở, chơi tiếp để mở');
   const state = ok ? '✅ Đã mở' : (x.soon ? '🔒 Sắp có' : '🔒 Chưa mở');
-  return `<div class="pf-a ${ok ? 'yes' : 'no'}${x.soon ? ' soon' : ''}" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(how)}" data-istate="${esc(state)}"><i>${x.icon}</i><span><b>${esc(x.name)}</b><small>${esc(x.desc)}${of ? ` (${Math.min(of[0], of[1])}/${of[1]})` : ''}${x.soon ? ' · sắp có' : ''}${ok && ver === true ? ' · ✅ đã kiểm chứng' : ok && ver === false ? ' · 💻 chỉ ở máy này' : ''}</small></span></div>`;
+  return `<div class="pf-a ${ok ? 'yes' : 'no'}${x.soon ? ' soon' : ''}" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(how)}" data-istate="${esc(state)}"><i>${x.icon}</i><span><b>${esc(x.name)}</b><small>${esc(x.desc)}${of ? ` (${Math.min(of[0], of[1])}/${of[1]})` : ''}${x.soon ? ' · sắp có' : ''}${x.xu ? ` · 🪙 +${x.xu} xu${ok ? ' ✓' : ''}` : ''}${ok && ver === true ? ' · ✅ đã kiểm chứng' : ok && ver === false ? ' · 💻 chỉ ở máy này' : ''}</small></span></div>`;
 };
 /* 5 mẫu thành tích theo game (stats.js TPL, id `<mẫu>-<game>`): gộp thành 1 thẻ mỗi mẫu ở mục chung, ghi đạt ở mấy game */
 const TPL5 = [
-  { id: 'g-first', icon: '🎮', name: 'Khởi Đầu Huyền Thoại', desc: 'Chơi xong ván đầu tiên' },
-  { id: 'g-w5', icon: '😆', name: 'Ngũ Liên Thắng', desc: 'Thắng 5 ván' },
-  { id: 'g-w25', icon: '📈', name: 'Thăng Cấp Thần Tốc', desc: 'Thắng 25 ván' },
-  { id: 'g-w50', icon: '🏆', name: 'Cao Thủ Sảnh', desc: 'Thắng 50 ván' },
-  { id: 'g-w100', icon: '👑', name: 'Vô Địch', desc: 'Thắng 100 ván' },
-  { id: 'g-l10', icon: '💀', name: 'Thập Tử Nhất Sinh', desc: 'Thua 10 ván (vẫn chơi tiếp)' },
-  { id: 'g-s3', icon: '🔥', name: 'Tam Liên Thắng', desc: 'Thắng 3 ván liên tiếp' },
-  { id: 'g-p50', icon: '🕹️', name: 'Chơi Hoài Không Chán', desc: 'Chơi 50 ván' },
+  { id: 'g-first', icon: '🎮', name: 'Khởi Đầu Huyền Thoại', desc: 'Chơi xong ván đầu tiên', xu: 10 },
+  { id: 'g-w5', icon: '😆', name: 'Ngũ Liên Thắng', desc: 'Thắng 5 ván', xu: 25 },
+  { id: 'g-w25', icon: '📈', name: 'Thăng Cấp Thần Tốc', desc: 'Thắng 25 ván', xu: 50 },
+  { id: 'g-w50', icon: '🏆', name: 'Cao Thủ Sảnh', desc: 'Thắng 50 ván', xu: 50 },
+  { id: 'g-w100', icon: '👑', name: 'Vô Địch', desc: 'Thắng 100 ván', xu: 100 },
+  { id: 'g-l10', icon: '💀', name: 'Thập Tử Nhất Sinh', desc: 'Thua 10 ván (vẫn chơi tiếp)', xu: 25 },
+  { id: 'g-s3', icon: '🔥', name: 'Tam Liên Thắng', desc: 'Thắng 3 ván liên tiếp', xu: 10 },
+  { id: 'g-p50', icon: '🕹️', name: 'Chơi Hoài Không Chán', desc: 'Chơi 50 ván', xu: 50 },
 ];
 const isTpl = x => TPL5.some(t => x.id.startsWith(t.id + '-'));
 
@@ -369,9 +370,9 @@ function renderProfileInto(ov, isPage) {
     const lvNames = nextLv ? LOCKED_PARTS.filter(p => p.lv === nextLv).map(p => partNm(p.k, p.v)).join(' · ') : ''; /* dùng chung pct + lv.to đã tính ở trên (dòng 341) */
     const trackNext = nextLv ? `<div class="pf2-tracknext"><div><b>Mốc cấp ${nextLv}: ${esc(lvNames)}</b><small>${xpNow} / ${lv.to} điểm</small></div><div class="pf-bar"><i style="width:${pct}%"></i></div></div>` : `<div class="pf2-tracknext"><b>Đã nhận hết phần thưởng 🎉</b><small>${xpNow} điểm kinh nghiệm</small></div>`;
     /* 🏅 Thành tựu dạng dòng thanh tiến trình (patch -158): cùng tập dữ liệu như trước, chỉ đổi kiểu hiển thị */
-    const achRow = r => { const pc = Math.min(100, Math.round(r.x / r.y * 100)); const how = r.desc + ` (${r.x}/${r.y})` + (r.ver === true ? ' · ✅ đã kiểm chứng' : r.ver === false ? ' · 💻 chỉ ở máy này' : ''); return `<div class="pf2-achrow" tabindex="0" role="button" data-iicon="${esc(r.icon)}" data-iname="${esc(r.name)}" data-ihow="${esc(how)}" data-istate="✅ Đã mở"><div class="pf2-achtop"><span><i>${r.icon}</i> <b>${esc(r.name)}</b></span><small>${r.x}/${r.y}</small></div><div class="pf2-achbar"><i style="width:${pc}%"></i></div></div>`; };
-    const tplRows = TPL5.map(tp => { const gs = Object.keys(GAME_NAMES).filter(g => s.ach[`${tp.id}-${g}`]); return gs.length ? achRow({ icon: tp.icon, name: tp.name, x: gs.length, y: Object.keys(GAME_NAMES).length, desc: `${tp.desc} ở một game · đạt ở ${gs.length} game: ${gs.slice(0, 4).map(g => GAME_NAMES[g]).join(', ')}${gs.length > 4 ? '…' : ''}`, ver: srvA ? gs.some(g => srvA.has(`${tp.id}-${g}`)) : null }) : ''; }).join('');
-    const sharedRows = ACHS.filter(x => !isTpl(x) && !isSpecial(x) && s.ach[x.id]).map(x => achRow({ icon: x.icon, name: x.name, x: 1, y: 1, desc: x.desc, ver: srvA ? srvA.has(x.id) : null })).join('');
+    const achRow = r => { const pc = Math.min(100, Math.round(r.x / r.y * 100)); const how = r.desc + ` (${r.x}/${r.y})` + (r.xu ? ` · 🪙 +${r.xu} xu${r.xuPer ? ' mỗi game' : ' (đã nhận)'}` : '') + (r.ver === true ? ' · ✅ đã kiểm chứng' : r.ver === false ? ' · 💻 chỉ ở máy này' : ''); return `<div class="pf2-achrow" tabindex="0" role="button" data-iicon="${esc(r.icon)}" data-iname="${esc(r.name)}" data-ihow="${esc(how)}" data-istate="✅ Đã mở"><div class="pf2-achtop"><span><i>${r.icon}</i> <b>${esc(r.name)}</b></span><small>${r.x}/${r.y}${r.xu ? ` · 🪙 +${r.xu} xu` : ''}</small></div><div class="pf2-achbar"><i style="width:${pc}%"></i></div></div>`; };
+    const tplRows = TPL5.map(tp => { const gs = Object.keys(GAME_NAMES).filter(g => s.ach[`${tp.id}-${g}`]); return gs.length ? achRow({ icon: tp.icon, name: tp.name, x: gs.length, y: Object.keys(GAME_NAMES).length, xu: tp.xu, xuPer: true, desc: `${tp.desc} ở một game · đạt ở ${gs.length} game: ${gs.slice(0, 4).map(g => GAME_NAMES[g]).join(', ')}${gs.length > 4 ? '…' : ''}`, ver: srvA ? gs.some(g => srvA.has(`${tp.id}-${g}`)) : null }) : ''; }).join('');
+    const sharedRows = ACHS.filter(x => !isTpl(x) && !isSpecial(x) && s.ach[x.id]).map(x => achRow({ icon: x.icon, name: x.name, x: 1, y: 1, xu: x.xu, desc: x.desc, ver: srvA ? srvA.has(x.id) : null })).join('');
     /* 🎖️ Danh hiệu + 👑 VIP — nội dung tab Tuỳ chỉnh (patch -158) */
     const titlesBody = `<div class="pf-tts">${tts.map(x => `<button type="button" class="pf-tt" data-tt="${x.id}" aria-pressed="${!!cur && cur.id === x.id}" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.game ? `Thắng ${GAME_WINS} ván ${GAME_NAMES[x.game] || x.game}` : x.desc)}" data-istate="✅ Đã đạt">${x.icon} ${esc(x.name)}</button>`).join('')}</div>
       ${locked.length ? `<details style="margin:8px 0 0"><summary style="cursor:pointer;font-weight:800;color:var(--muted);padding:4px 0">🔒 ${locked.length} danh hiệu chưa đạt — chạm để xem</summary><div class="pf-tts" style="margin-top:6px">${locked.map(x => `<span class="pf-tt no" tabindex="0" role="button" data-iicon="${esc(x.icon)}" data-iname="${esc(x.name)}" data-ihow="${esc(x.desc)}" data-istate="🔒 Chưa đạt"><i>${x.icon}</i> ${esc(x.name)}</span>`).join('')}</div></details>` : ''}
@@ -436,7 +437,7 @@ function renderProfileInto(ov, isPage) {
     if (b.dataset.a === 'rename') { renameFlow(); return; }
     /* 🔄 Đặt lại / 💾 Lưu thay đổi (patch -158): chọn món là áp dụng ngay nên "Lưu" chỉ xác nhận + đẩy đồng bộ; "Đặt lại" khôi phục ngoại hình lúc mở hồ sơ — KHÔNG chuyển sang chế độ sửa dàn rồi mới lưu */
     if (b.dataset.a === 'reset') { if (savedLook) setAv({ ...savedLook }); draw(); import('./dialog.js?v=10').then(m => m.toast('Đã đặt lại ngoại hình ✨')).catch(() => {}); return; }
-    if (b.dataset.a === 'save') { import('./dialog.js?v=10').then(m => m.toast('Đã lưu ✓', 2200)).catch(() => {}); import('./sync.js?v=50').then(m => m.syncNow().catch(() => {})).catch(() => {}); return; }
+    if (b.dataset.a === 'save') { import('./dialog.js?v=10').then(m => m.toast('Đã lưu ✓', 2200)).catch(() => {}); import('./sync.js?v=51').then(m => m.syncNow().catch(() => {})).catch(() => {}); return; }
     if (b.dataset.tt) { selectTitle(b.dataset.tt); return; }
     if (b.dataset.a === 'rank') { location.href = rankURL(); return; } /* 🏆 sang trang BXH riêng /xephang/ (patch -150) */
     if (b.dataset.a === 'shop') { close(); location.href = shopURL(); return; } /* 🛍️ Cửa hàng */
