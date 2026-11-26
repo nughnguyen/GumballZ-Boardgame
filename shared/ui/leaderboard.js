@@ -8,7 +8,7 @@
 // Công thức cấp/XP thật: XP = ván chơi × 10 + ván thắng × 20; cấp = floor(sqrt(xp/50)) + 1;
 // XP cần để lên cấp L = 50×(L−1)² (cấp 2: 50, cấp 3: 200, cấp 4: 450, cấp 5: 800).
 import { auth, friends, leaderboard } from '../net/api.js?v=29';
-import { GAME_NAMES } from './stats.js?v=97';
+import { GAME_NAMES } from './stats.js?v=98';
 import { AVATARS, avatarHTML, avatar, safeAv, nameStyle, nameClass, ownerBadge, adminBadge, modBadge, supporterBadge, vipBadge, devBadge, ownName } from './profile.js?v=64';
 import { openLogin } from './account.js?v=53';
 import { syncNow } from './sync.js?v=51';

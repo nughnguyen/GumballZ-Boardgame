@@ -3,7 +3,7 @@
 // Dữ liệu ở shared/ui/stats.js (lưu trên máy này). Thành tích mẫu gộp thành 1 thẻ mỗi mẫu, thành tựu riêng
 // từng game hiện trong mục gập theo game, thành tựu chưa mở chỉ đếm số (ẩn tới khi mở).
 // import { openProfile, avatarHTML } from '…/shared/ui/profile.js?v=64'
-import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=97';
+import { load, totals, level, ACHS, GAME_NAMES, GAME_ICON, serverTotals, verifiedTotals, serverAch, loadServer } from './stats.js?v=98';
 import { statOf, titlesOf, pickTitle, ALL_TITLES, GAME_WINS } from '../titles.js?v=7';
 import { loadWallet, fmt, owns, widOf, shopURL } from './wallet.js?v=7'; /* 💰 Ví xu */
 import { dragonSVG, initFrameDragons } from './dragon-frame.js?v=5'; /* 🐉 rồng đông làm khung avatar (patch -184: EastDragon uốn theo vòng, đuổi ngọc trai) */
