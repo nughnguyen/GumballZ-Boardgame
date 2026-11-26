@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/games-96-2EC5B6?style=flat-square" alt="96 game">
+  <img src="https://img.shields.io/badge/games-97-2EC5B6?style=flat-square" alt="97 game">
   <img src="https://img.shields.io/badge/achievements-1341-FF5A60?style=flat-square" alt="1341 thành tựu">
   <img src="https://img.shields.io/badge/titles-114-B9A6FF?style=flat-square" alt="114 danh hiệu">
   <img src="https://img.shields.io/badge/frames-83-FACD33?style=flat-square" alt="83 khung avatar">
@@ -24,7 +24,7 @@
 
 | | |
 |---|---|
-| 🎮 **96 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
+| 🎮 **97 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
 | 🪙 **Ví xu chung** | Thắng +10 xu, chơi +2 xu, tài khoản mới bắt đầu 100 xu. Xu dùng chung cho mọi game. |
 | 🎁 **Shop + Rương Gacha** | Mở rương 100 xu/lượt: khung, màu tên, banner, hiệu ứng thắng. |
 | 🖼️ **Sưu tầm** | 83 khung avatar (có khung rồng bay), 59 banner (có rồng canvas), 29 màu tên, 6 hiệu ứng thắng. |
@@ -41,12 +41,12 @@ Chi tiết đầy đủ (luật từng game, vật phẩm, tỉ lệ Gacha…): 
 
 ---
 
-## 🎮 Danh sách game — 96 game
+## 🎮 Danh sách game — 97 game
 
 <details>
-<summary><b>♟️ Cờ bàn — 30 game</b></summary>
+<summary><b>♟️ Cờ bàn — 31 game</b></summary>
 
-[Cờ Tỷ Phú (Monopoly) Sài Gòn 3D](https://gumballzgames.vercel.app/typhu/) · [Đua Lạc Đà](https://gumballzgames.vercel.app/camel/) · [Cờ cá ngựa](https://gumballzgames.vercel.app/cangua/) · [Cờ tướng](https://gumballzgames.vercel.app/cotuong/) · [Cờ vua](https://gumballzgames.vercel.app/covua/) · [Chợ Lớn (Chinatown)](https://gumballzgames.vercel.app/cholon/) · [Bắn Tàu (Battleship)](https://gumballzgames.vercel.app/bantau/) · [Ô Ăn Quan](https://gumballzgames.vercel.app/oanquan/) · [Cờ Caro](https://gumballzgames.vercel.app/caro/) · [TicTacToe](https://gumballzgames.vercel.app/tictactoe/) · [Cờ Vây](https://gumballzgames.vercel.app/covay/) · [Cờ Thú](https://gumballzgames.vercel.app/cothu/) · [Rắn và Thang](https://gumballzgames.vercel.app/ranvathang/) · [Đội Cứu Hộ](https://gumballzgames.vercel.app/cuuho/) · [Đảo Khai Hoang (Catan)](https://gumballzgames.vercel.app/khaihoang/) · [Tàu Xuyên Việt (Ticket to Ride)](https://gumballzgames.vercel.app/xuyenviet/) · [Cờ Đam](https://gumballzgames.vercel.app/codam/) · [Cờ Lật](https://gumballzgames.vercel.app/colat/) · [Domino](https://gumballzgames.vercel.app/domino/) · [Connect 4](https://gumballzgames.vercel.app/connect4/) · [Carcassonne](https://gumballzgames.vercel.app/carcassonne/) · [Azul](https://gumballzgames.vercel.app/azul/) · [Splendor](https://gumballzgames.vercel.app/splendor/) · [Cờ Nhảy](https://gumballzgames.vercel.app/conhay/) · [Backgammon](https://gumballzgames.vercel.app/backgammon/) · [Rummikub](https://gumballzgames.vercel.app/rummikub/) · [Quoridor](https://gumballzgames.vercel.app/quoridor/) · [Blokus](https://gumballzgames.vercel.app/blokus/) · [Scrabble](https://gumballzgames.vercel.app/scrabble/) · [Mastermind](https://gumballzgames.vercel.app/mastermind/)
+[Cờ Tỷ Phú (Monopoly) Sài Gòn 3D](https://gumballzgames.vercel.app/typhu/) · [Đua Lạc Đà](https://gumballzgames.vercel.app/camel/) · [Cờ cá ngựa](https://gumballzgames.vercel.app/cangua/) · [Cờ tướng](https://gumballzgames.vercel.app/cotuong/) · [Cờ vua](https://gumballzgames.vercel.app/covua/) · [Chợ Lớn (Chinatown)](https://gumballzgames.vercel.app/cholon/) · [Bắn Tàu (Battleship)](https://gumballzgames.vercel.app/bantau/) · [Ô Ăn Quan](https://gumballzgames.vercel.app/oanquan/) · [Cờ Caro](https://gumballzgames.vercel.app/caro/) · [TicTacToe](https://gumballzgames.vercel.app/tictactoe/) · [Cờ Vây](https://gumballzgames.vercel.app/covay/) · [Cờ Thú](https://gumballzgames.vercel.app/cothu/) · [Rắn và Thang](https://gumballzgames.vercel.app/ranvathang/) · [Đội Cứu Hộ](https://gumballzgames.vercel.app/cuuho/) · [Đảo Khai Hoang (Catan)](https://gumballzgames.vercel.app/khaihoang/) · [Tàu Xuyên Việt (Ticket to Ride)](https://gumballzgames.vercel.app/xuyenviet/) · [Cờ Đam](https://gumballzgames.vercel.app/codam/) · [Cờ Lật](https://gumballzgames.vercel.app/colat/) · [Domino](https://gumballzgames.vercel.app/domino/) · [Connect 4](https://gumballzgames.vercel.app/connect4/) · [Carcassonne](https://gumballzgames.vercel.app/carcassonne/) · [Azul](https://gumballzgames.vercel.app/azul/) · [Splendor](https://gumballzgames.vercel.app/splendor/) · [Cờ Nhảy](https://gumballzgames.vercel.app/conhay/) · [Backgammon](https://gumballzgames.vercel.app/backgammon/) · [Rummikub](https://gumballzgames.vercel.app/rummikub/) · [Quoridor](https://gumballzgames.vercel.app/quoridor/) · [Blokus](https://gumballzgames.vercel.app/blokus/) · [Scrabble](https://gumballzgames.vercel.app/scrabble/) · [Mastermind](https://gumballzgames.vercel.app/mastermind/) · [Săn Thú Ngân Hà](https://gumballzgames.vercel.app/nganha/)
 
 </details>
 
@@ -92,7 +92,7 @@ cd server && npx wrangler deploy
 ## 🗂️ Cấu trúc
 
 ```
-index.html            Trang chủ: 96 game, tìm kiếm, lọc theo nhóm
+index.html            Trang chủ: 97 game, tìm kiếm, lọc theo nhóm
 <game>/               Mỗi game một thư mục (luật + bot + online riêng)
 sanh/                 Sảnh chung: tìm phòng, chat thế giới
 shop/                 Cửa hàng + Rương Gacha

@@ -1266,5 +1266,9 @@ export const TUT = {
  "honkem": {
   "name": "Hơn Hay Kém (Higher or Lower)",
   "steps": []
+ },
+ "nganha": {
+  "name": "Săn Thú Ngân Hà (Siêu Thú Ngân Hà)",
+  "steps": []
  }
 };

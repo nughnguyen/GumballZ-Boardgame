@@ -6,7 +6,7 @@ import { S } from './fx.js?v=18';
 import { RoomHost, RoomClient, token, session } from '../../shared/net/room.js?v=54';
 import { RemoteBase, srvOn, takeOwnership } from '../../shared/net/remotehost.js?v=2';
 import { specBanner } from '../../shared/ui/spectate.js?v=8';
-import { watch } from '../../shared/ui/stats.js?v=98';
+import { watch } from '../../shared/ui/stats.js?v=99';
 import { isReact, hostLimiter, pickReact } from '../../shared/ui/react.js?v=6';
 import { rulesFor } from '../../shared/rules.js?v=2';
 export const TURN_TIME = 60, PROMPT_TIME = 30, PICK_TIME = 30, BP_TIME = 60; /* cấm/chọn tướng Solo: 60 giây mỗi bước (người chơi xin 21/11/2026) */ // giây: hết giờ thì máy tự đánh thay (chống treo máy)

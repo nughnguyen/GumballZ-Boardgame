@@ -5,7 +5,7 @@
 //   • host: ui.net.raw.gotoGame(gameId) — gọi khi chủ phòng chốt game mới.
 //   • client: handler onGoto(game, code) trong gamekit.js → showGotoNotice().
 //   Nếu gotoGame chưa có, bấm chọn chỉ toast báo (không crash, không chuyển nhầm).
-import { GAME_CATALOG, gameById, classify, needFor, extraFor } from './game-catalog.js?v=3';
+import { GAME_CATALOG, gameById, classify, needFor, extraFor } from './game-catalog.js?v=4';
 import { confirmBox } from './dialog.js?v=10';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
