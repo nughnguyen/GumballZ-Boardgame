@@ -5,7 +5,7 @@
 // const ui = gameKit({ game, net, onLobby(info, ui), onState(view, prev, ui), offline(net) })
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../net/joinlink.js?v=7';
 import '../audio/volume.js?v=1'; /* âm lượng chung nhạc nền / hiệu ứng (gumballz-vol-*) */
-import { netStatus } from './status.js';
+import { netStatus } from './status.js?v=1';
 import { confirmBox } from './dialog.js?v=10';
 import { showGotoNotice, mountGotoButtons, syncGotoButtons } from './goto-picker.js?v=2'; /* 🔄 Đổi game trong phòng (patch goto): bảng chọn + nút, chỉ chủ phòng thấy */
 import { ensureSkCSS, skPlayers } from './skeleton.js?v=1'; /* 💀 skeleton loading: danh sách người chơi trong phòng chờ */

@@ -2,7 +2,11 @@
 // Dùng: import { mountAccount, openLogin } from '…/shared/ui/account.js?v=53'; mountAccount(element)
 import { auth } from '../net/api.js?v=29';
 import { promptBox, formBox } from './dialog.js?v=10';
-import { avatarHTML, profileCss, openProfile, openCharSetup } from './profile.js?v=64';
+/* profile.js (76 KB + dragon-frame/aura) chỉ nạp khi cần (patch -195): mở Hồ sơ /
+   tạo nhân vật / avatar topbar. Nạp 1 lần rồi cache ở profMod; chưa nạp xong thì
+   topbar hiện avatar tạm 👤 rồi tự đổi sang avatar thật. */
+let profMod = null, profPromise = null;
+function loadProfile() { return profPromise || (profPromise = import('./profile.js?v=64').then(m => { profMod = m; return m; })); }
 
 const CSS = `/* patch -113: form kiểu spotty-goose (Uiverse) với bảng màu web; overlay chấm lưới 55px */
 .ac-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink2);font:800 14px Nunito,system-ui,sans-serif;cursor:pointer;max-width:220px}
@@ -43,7 +47,7 @@ function loadGsi() { return gsi || (gsi = new Promise((res, rej) => { const s = 
 // không thì toast — One Tap không có hộp nên không được chạm vào biến box.
 async function onGoogleCredential(resp) {
   const r = await auth.google(resp.credential);
-  if (r.ok) { closeModal(); if (r.new) { openCharSetup(); return; } toast(`Chào ${r.user.name} 👋`); return; }
+  if (r.ok) { closeModal(); if (r.new) { loadProfile().then(m => m.openCharSetup()); return; } toast(`Chào ${r.user.name} 👋`); return; }
   const errEl = document.querySelector('#ac-e');
   if (errEl) errEl.textContent = r.msg || 'Không đăng nhập được bằng Google';
   else toast(r.msg || 'Không đăng nhập được bằng Google');
@@ -100,7 +104,7 @@ export async function openLogin(mode = 'login') {
     let ts = ''; if (mode === 'register') { const { humanToken } = await import('./turnstile.js?v=1').catch(() => ({})); if (humanToken) ts = await humanToken('register'); } /* 🛡️ Turnstile: chống bơm tài khoản rác (chưa cài khoá thì rỗng, máy chủ bỏ qua) */
     const r = mode === 'register' ? await auth.register(u, p, box.querySelector('#ac-name').value.trim(), ts) : await auth.login(u, p);
     go.disabled = false;
-    if (r.ok) { closeModal(); if (mode === 'register') openCharSetup(); else toast(`Chào ${r.user.name} 👋`); } else err.textContent = r.msg || 'Có lỗi, thử lại nha';
+    if (r.ok) { closeModal(); if (mode === 'register') loadProfile().then(m => m.openCharSetup()); else toast(`Chào ${r.user.name} 👋`); } else err.textContent = r.msg || 'Có lỗi, thử lại nha';
   };
   // Google (nếu chủ web đã bật)
   const g = await initGoogle();
@@ -134,7 +138,7 @@ function menu(anchor) {
     if (a === 'out') { await auth.logout(); toast('Đã đăng xuất'); }
     if (a === 'admin') location.href = new URL('../../quantri/', import.meta.url).href;
     if (a === 'friends') import('./friends.js?v=37').then(m => m.openFriends());
-    if (a === 'prof') openProfile();
+    if (a === 'prof') loadProfile().then(m => m.openProfile());
     if (a === 'set') import('./settings.js?v=48').then(m => m.openSettings());
     if (a === 'name') { const n = await promptBox('Tên này hiện khi bạn vào phòng và chat (2–20 ký tự).', { title: '✏️ Đổi tên hiển thị', value: u.name, maxlength: 20, ok: 'Đổi tên', required: true }); if (n) { const r = await auth.rename(n); toast(r.ok ? 'Đổi tên rồi nè ✨' : r.msg); } }
     if (a === 'pw') {
@@ -148,13 +152,14 @@ export function mountAccount(el) {
   css();
   let lv = 1, stMod = null; /* cấp người chơi — nạp stats.js động như topbar.js (tránh vòng lặp import); Lv mặc định 1 cho tới khi nạp xong */
   const draw = u => {
+    if (u && !profMod) loadProfile().then(m => { m.profileCss(); draw(auth.user()); }).catch(() => {}); /* chỉ nạp profile.js khi có người đăng nhập cần avatar */
     const b = u && frCount ? `<b class="ac-bdg">${frCount > 9 ? '9+' : frCount}</b>` : `<b class="ac-bdg"></b>`;
-    el.innerHTML = u ? `<button class="ac-btn" type="button" aria-haspopup="menu" style="padding-left:5px">${avatarHTML(30)} <span class="ac-lv">Lv ${lv}</span><span>${esc(u.name)}</span> <b class="v" title="Đã đăng nhập">✓</b>${b}</button>` : `<button class="ac-btn" type="button">👤 <span>Đăng nhập</span></button>`;
+    el.innerHTML = u ? `<button class="ac-btn" type="button" aria-haspopup="menu" style="padding-left:5px">${profMod ? profMod.avatarHTML(30) : '<span class="pf-av" style="width:30px;height:30px;font-size:17px">👤</span>'} <span class="ac-lv">Lv ${lv}</span><span>${esc(u.name)}</span> <b class="v" title="Đã đăng nhập">✓</b>${b}</button>` : `<button class="ac-btn" type="button">👤 <span>Đăng nhập</span></button>`;
     el.firstElementChild.onclick = e => u ? menu(e.currentTarget) : openLogin();
   };
   const syncBdg = () => { const d = el.querySelector('.ac-btn .ac-bdg'); if (d) d.textContent = frCount ? (frCount > 9 ? '9+' : frCount) : ''; };
   addEventListener('gumballz-friends', e => { frCount = (e.detail && e.detail.count) || 0; syncBdg(); });
-  profileCss(); draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
+  draw(auth.user()); auth.onChange(draw); addEventListener('gumballz-avatar', () => draw(auth.user()));
   import('./stats.js?v=99').then(m => { stMod = m; lv = m.level().lv; draw(auth.user()); }).catch(() => {});
   addEventListener('gumballz-stats', () => { if (stMod) { lv = stMod.level().lv; draw(auth.user()); } });
   maybeOneTap(); // chưa đăng nhập thì hiện khung đăng nhập nhanh One Tap của Google

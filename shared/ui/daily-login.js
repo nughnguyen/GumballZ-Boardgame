@@ -114,7 +114,7 @@ const RIV_BASE = location.pathname.startsWith('/sanh/') || location.pathname.sta
 async function ensureRive() {
   if (window.rive) return true;
   try {
-    await new Promise((res, rej) => { const s = document.createElement('script'); s.src = RIV_BASE + 'shared/js/rive/rive.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    await new Promise((res, rej) => { const s = document.createElement('script'); s.src = RIV_BASE + 'shared/js/rive/rive.js?v=1'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   } catch (e) { return false; }
   return !!window.rive;
 }
@@ -125,7 +125,7 @@ async function mountLoginRiv() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { if (wrap) wrap.hidden = true; return; } /* như rive-tiles.js: tôn trọng cài đặt giảm chuyển động */
   if (!(await ensureRive())) { if (wrap) wrap.hidden = true; return; } /* Sảnh chưa nạp runtime sẵn → tự nạp; nạp lỗi thì ẩn khung banner */
   try {
-    window.rive.RuntimeLoader.setWasmUrl(RIV_BASE + 'shared/js/rive/rive.wasm');
+    window.rive.RuntimeLoader.setWasmUrl(RIV_BASE + 'shared/js/rive/rive.wasm?v=1');
     loginAnim = new window.rive.Rive({
       src: RIV_BASE + 'shared/rive/login.riv?v=1', canvas: cv, autoplay: true,
       layout: new window.rive.Layout({ fit: window.rive.Fit.Cover, alignment: window.rive.Alignment.Center }),

@@ -14,7 +14,7 @@ import { cleanLook, charOpen, charLock, TRACK, LOCKED_PARTS, xpLevel, xpOf, FRAM
 import { medalHTML, attachBadgeTilt, uid6 } from './badges.js?v=8'; /* 🎖️ huân chương 6 bậc (patch -142); uid6: id hiển thị 6 số (patch -108, dùng ở hồ sơ người khác -162) */
 import { ensureNameFonts } from './name-fonts.js?v=1'; /* ✍️ nạp font chữ tên hiển thị (patch -154) */
 try { ensureNameFonts(); } catch (e) {} /* chạy khi profile.js được import (Hồ sơ/BXH/thành viên) để font kịp tải */
-import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js';
+import { OPTIONS, PRESETS, GROUPS, cleanChar, adminOnly, FUR } from '../js/avatar-opts.js?v=12';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 /* link tới trang một game (dùng trong mục "Trận gần đây") – tính từ URL của module nên đúng ở mọi trang */
 const gameURL = g => { try { return new URL('../../' + g + '/', import.meta.url).href; } catch (e) { return g + '/'; } };

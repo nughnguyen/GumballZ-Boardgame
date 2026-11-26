@@ -1,8 +1,8 @@
 // Đường đua sa mạc 3D bằng Three.js – mọi mô hình (đường đua, kim tự tháp, lạc đà, xúc xắc, thảm) dựng bằng code.
 // Hiệu năng điện thoại: KHÔNG thêm/bớt đèn lúc chạy (đèn dựng sẵn, chỉ đổi cường độ), hạt dùng pool có giới hạn,
 // hình học / vật liệu / texture dùng chung, thảm sa mạc + xúc xắc dựng sẵn rồi chỉ bật/tắt.
-import * as THREE from '../../shared/lib/three.module.min.js';
-import { OrbitControls } from '../../shared/lib/OrbitControls.js';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
+import { OrbitControls } from '../../shared/lib/OrbitControls.js?v=1';
 import { CAMEL, RACERS, CRAZY, TRACK } from './engine.js?v=1';
 
 export const QUALITY = { low: { aa: false, pr: 1, shadow: 0, deco: 0.4 }, med: { aa: true, pr: 1.5, shadow: 1024, deco: 0.75 }, high: { aa: true, pr: 2, shadow: 2048, deco: 1 } };

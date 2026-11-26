@@ -1,7 +1,7 @@
 // 💌 Góp ý / báo lỗi + ☕ Ủng hộ chủ web – dùng chung cho trang chủ và các game.
 // Góp ý gửi tới máy chủ GumballZ trên Cloudflare (POST /feedback, chủ web đọc ở trang Quản trị).
 // Không tới được Cloudflare thì gửi dự phòng vào Firebase: feedback/<id>.
-import { FIREBASE } from '../net/fbrelay.js';
+import { FIREBASE } from '../net/fbrelay.js?v=1';
 import { cfHttp } from '../net/cfrelay.js?v=16';
 const apiBase = () => cfHttp();
 

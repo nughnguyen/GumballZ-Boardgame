@@ -40,8 +40,8 @@ export const BADGE_RIV = {
   mod: new URL('../rive/badge-mod.riv?v=1', import.meta.url).href,
   sup: new URL('../rive/badge-sup.riv?v=1', import.meta.url).href,
 };
-const BADGE_RIVE_JS = new URL('../js/rive/rive.js', import.meta.url).href;
-const BADGE_RIVE_WASM = new URL('../js/rive/rive.wasm', import.meta.url).href;
+const BADGE_RIVE_JS = new URL('../js/rive/rive.js?v=1', import.meta.url).href;
+const BADGE_RIVE_WASM = new URL('../js/rive/rive.wasm?v=1', import.meta.url).href;
 export function badgeTierOf(pill) {
   if (!pill || !pill.classList || typeof pill.classList.contains !== 'function') return '';
   for (const t of ['own', 'adm', 'staff', 'sup', 'vip', 'dev']) if (pill.classList.contains('bdg-' + t)) return t;

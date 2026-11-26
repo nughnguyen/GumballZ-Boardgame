@@ -1,6 +1,6 @@
 // Gọi máy chủ GumballZ (Cloudflare): tài khoản, sảnh chung. Đăng nhập là TUỲ CHỌN – khách vẫn chơi bình thường.
 import { cfHttp, cfProbe } from './cfrelay.js?v=16';
-import { XP_K } from '../titles.js'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
+import { XP_K } from '../titles.js?v=7'; /* XP cân theo game: poker/xidach/bacao ¼, catte ½ */
 
 export const API = () => cfHttp();
 export const WS = () => cfHttp().replace(/^http/, 'ws');

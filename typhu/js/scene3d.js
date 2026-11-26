@@ -1,7 +1,7 @@
 // Bàn cờ 3D 40 ô bằng Three.js – mọi mô hình (bàn, ô, nhà, landmark, xúc xắc, quân cờ, thành phố) đều dựng bằng code.
-import * as THREE from '../../shared/lib/three.module.min.js';
-import { OrbitControls } from '../../shared/lib/OrbitControls.js';
-import { buildAvatar } from '../../shared/js/avatar3d.js';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
+import { OrbitControls } from '../../shared/lib/OrbitControls.js?v=1';
+import { buildAvatar } from '../../shared/js/avatar3d.js?v=2';
 import { buildCity } from './city.js?v=49';
 
 export const FONT = '"Be Vietnam Pro", system-ui, sans-serif', TITLE = '"Baloo 2", "Be Vietnam Pro", system-ui, sans-serif';

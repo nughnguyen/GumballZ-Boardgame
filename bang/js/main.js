@@ -6,7 +6,7 @@ import { CARD_INFO, CHARACTERS, ROLES, SUIT_SYMBOL, rankLabel, cardLabel, suitif
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, BANG_PHRASES } from './net.js?v=68';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 import { confirmBox } from '../../shared/ui/dialog.js?v=10';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 import { imgTag, avatarTag } from './images.js';

@@ -2,7 +2,7 @@
 // Tiền ảo, không nạp, không rút, không tiền thật. Mọi giá và tỉ lệ rơi lấy từ shared/ui/wallet.js.
 import { loadWallet, balance, fmt, spend, grantCosmetic, owns, widOf, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=7';
 import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=64';
-import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js';
+import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js?v=4';
 import { totals } from '../../shared/ui/stats.js?v=99'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
 import { toast } from '../../shared/ui/dialog.js?v=10';

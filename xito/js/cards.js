@@ -1,5 +1,5 @@
 // 🃏 Xì Tố — vẽ bài (dùng bộ bài vẽ chung shared/ui/deck/deck.js).
-import { faceSVG, backSVG } from '../../shared/ui/deck/deck.js';
+import { faceSVG, backSVG } from '../../shared/ui/deck/deck.js?v=5';
 import { RANK_SHORT } from './engine.js';
 
 export function cardHTML(c) {

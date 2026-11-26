@@ -2,7 +2,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, maxPlayers, loadSnapshot, sessi
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 import { Board, buildToolbar, opsToCanvas, W, H } from './draw.js?v=5';
 import { CATS, CAT_KEYS, DEFAULT_CATS, buildPool, randomPrompt, parseCustom } from './words.js?v=7';
 import { REACTS, GMODES, GMODE_KEYS, buildPlan, groupSizes, frameCount, REVEAL_AUTO, FRAMES_ANIM, FRAMES_SOLO, GSIZE, cleanTease, TEASE_MAX, leaksAny } from './engine.js?v=13';

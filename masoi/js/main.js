@@ -2,7 +2,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, MIN, loadSnapshot, session, MS_
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 import { ROLES, ROLE_ORDER, STEP_TEXT, TEAM_NAME, roleList, presetRoles, suggestRoles, HUNTER_PIN, isWolfRole, DEFAULT_OPTS } from './engine.js?v=11';
 import { openReplay, replayFollowUpdate } from './replay.js?v=11';
 import { coachCheck, coachHide, coachTipEnd } from './coach.js?v=11';

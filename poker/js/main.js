@@ -2,7 +2,7 @@ import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, setSpeed
 import { hintsAllowed, lockToggle, BOT_ONLY_NOTE } from '../../shared/ui/botonly.js?v=1';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 
 import { OPT_CHOICES } from './engine.js?v=2';

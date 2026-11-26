@@ -3,7 +3,11 @@
 // Thuần logic, không đụng DOM – dùng chung cho trang đổi đồ (shared/avatar-sample.html),
 // Hồ sơ (shared/ui/profile.js – xem GHI CHÚ NỐI DÂY ở cuối file) và máy chủ (kiểm nhân vật người khác gửi lên).
 // Nhân vật lưu dạng cấu hình { kind, skin, hair, hairColor, hat, outfit, acc, horns, color } (OPTIONS ở shared/js/avatar-opts.js).
-import { cleanChar, OPTIONS } from './avatar-opts.js';
+import { cleanChar } from './avatar-opts.js?v=12';
+/* Phần nhẹ (mở linh kiện theo cấp + nhãn món) tách sang avatar-parts.js (patch -195)
+   — import + re-export để code cũ (trình duyệt và máy chủ) không đổi. */
+import { xpOf, xpLevel, LOCKED_PARTS, partId, PART_IDS, isKnownPart, levelLockOf, readParts, writeParts, hasGachaPart, grantGachaPart, partOpen, itemLabel } from './avatar-parts.js?v=1';
+export { xpOf, xpLevel, LOCKED_PARTS, partId, PART_IDS, isKnownPart, levelLockOf, readParts, writeParts, hasGachaPart, grantGachaPart, partOpen, itemLabel };
 
 /* ---------- điều kiện mở khoá (st = statsFromTotals(...) / statsFromLoad(...)) ----------
    st = { p: tổng ván đã chơi, w: tổng ván thắng, best: chuỗi thắng dài nhất, kinds: số game khác nhau đã chơi,
@@ -427,40 +431,12 @@ export const TRACK = [
   ['acc', 'guitar'], ['outfit', 'ninja'], ['hat', 'pirate'], ['outfit', 'pirate'], ['acc', 'sword'], ['outfit', 'cape'], ['hat', 'wizard'], ['outfit', 'robe'],
   ['acc', 'flag'], ['outfit', 'astronaut'], ['hat', 'astro'], ['outfit', 'knight'], ['outfit', 'dino'],
 ].map(([k, v], i) => ({ k, v, xp: Math.round(30 * (i + 1) + 2.2 * i * i) }));
-export const xpOf = s => (s ? (s.xp != null ? +s.xp || 0 : (+s.p || 0) * 10 + (+s.w || 0) * 20) : 0);
 TRACK.forEach((r, i) => { UNLOCK['r' + i] = { desc: `Mốc thưởng ${i + 1} (${r.xp} điểm kinh nghiệm)`, ok: s => xpOf(s) >= r.xp }; });
 
-/* ---------- mở khoá linh kiện theo CẤP (2026-11-21, Nguyễn dặn: lên cấp tự mở linh kiện) ----------
-   Cấp từ XP: lv = floor(sqrt(xp/50)) + 1 (cùng công thức level() ở stats.js) → cấp 2: 50 XP, 3: 200, 4: 450,
-   5: 800, 6: 1250, 7: 1800, 8: 2450, 9: 3200, 10: 4050. Mỗi cấp mở 1–2 món, rải đều tóc → nón/đồ → phụ kiện/sừng.
-   Món cơ bản (kiểu Người, tóc ngắn, áo thun, không nón/phụ kiện/sừng, toàn bộ màu tóc/màu chủ đạo/màu da) KHÔNG khoá.
-   Linh kiện trúng từ rương Gacha mở SỚM hơn cấp (xem gachaParts bên dưới) — tới cấp thì vẫn tự mở đúng món. */
-export const xpLevel = xp => Math.min(10, Math.floor(Math.sqrt(Math.max(0, +xp || 0) / 50)) + 1);
-export const LOCKED_PARTS = [
-  { k: 'hair', v: 'spiky', lv: 2 }, { k: 'hair', v: 'ponytail', lv: 2 },
-  { k: 'hat', v: 'cap', lv: 3 }, { k: 'acc', v: 'scarf', lv: 3 },
-  { k: 'outfit', v: 'jersey', lv: 4 }, { k: 'hair', v: 'wavy', lv: 4 },
-  { k: 'hat', v: 'cowboy', lv: 5 }, { k: 'acc', v: 'backpack', lv: 5 },
-  { k: 'outfit', v: 'aodai', lv: 6 }, { k: 'kind', v: 'fox', lv: 6 },
-  { k: 'hat', v: 'crown', lv: 7 }, { k: 'acc', v: 'moneybag', lv: 7 },
-  { k: 'outfit', v: 'mecha', lv: 8 }, { k: 'hair', v: 'quiff', lv: 8 },
-  { k: 'kind', v: 'frog', lv: 9 }, { k: 'horns', v: 'bull', lv: 9 },
-  { k: 'acc', v: 'foxtails', lv: 10 }, { k: 'horns', v: 'devil', lv: 10 },
-];
-export const partId = (k, v) => k + ':' + v;
-export const PART_IDS = new Set(LOCKED_PARTS.map(p => partId(p.k, p.v)));
-export const isKnownPart = id => PART_IDS.has(id);
-export const levelLockOf = (k, v) => { const p = LOCKED_PARTS.find(x => x.k === k && x.v === v); return p ? p.lv : 0; };
+/* Mở khoá linh kiện theo cấp — định nghĩa gốc đã chuyển sang shared/js/avatar-parts.js
+   (patch -195, tối ưu tải trang game); các symbol được re-export ở đầu file để code cũ không đổi. */
 for (let lv = 2; lv <= 10; lv++) UNLOCK['lv' + lv] = { desc: 'Đạt cấp ' + lv, ok: s => xpLevel(xpOf(s)) >= lv };
-/* linh kiện trúng từ rương Gacha (mở sớm hơn cấp): lưu ở 'gumballz-parts', đồng bộ lên tài khoản (P.parts).
-   Chỉ id trong LOCKED_PARTS mới được lưu — id lạ bị loại ở đây và ở máy chủ. */
-const PARTS_KEY = 'gumballz-parts';
-export function readParts() { try { if (typeof localStorage === 'undefined') return []; const a = JSON.parse(localStorage.getItem(PARTS_KEY)); return Array.isArray(a) ? [...new Set(a.filter(x => typeof x === 'string' && isKnownPart(x)))] : []; } catch (e) { return []; } }
-export function writeParts(list) { try { if (typeof localStorage === 'undefined') return; localStorage.setItem(PARTS_KEY, JSON.stringify([...new Set((list || []).filter(x => typeof x === 'string' && isKnownPart(x)))])); } catch (e) {} }
-export function hasGachaPart(k, v) { return readParts().includes(partId(k, v)); }
-export function grantGachaPart(id) { if (!isKnownPart(id)) return false; const cur = readParts(); if (cur.includes(id)) return false; writeParts([...cur, id]); try { if (typeof dispatchEvent !== 'undefined') dispatchEvent(new CustomEvent('gumballz-parts')); } catch (e) {} return true; }
-/* món đã mở chưa: không khoá theo cấp → mở; đủ cấp → mở; trúng rương → mở sớm */
-export function partOpen(id, xp, parts) { const p = LOCKED_PARTS.find(x => partId(x.k, x.v) === id); if (!p) return true; if (xpLevel(xp) >= p.lv) return true; const set = parts || readParts(); return set.includes(id); }
+/* (readParts/writeParts/hasGachaPart/grantGachaPart/partOpen đã chuyển sang avatar-parts.js) */
 /* cấp thấp nhất để dùng được 1 mẫu dựng sẵn (mẫu có món khoá theo cấp / mốc thưởng thì cần cấp tương ứng) */
 export function presetMinLevel(cfg) {
   let need = 1;
@@ -476,11 +452,6 @@ export function presetMinLevel(cfg) {
 export const charLock = (k, v) => (CHAR_LOCKS[k] && CHAR_LOCKS[k][v]) || (() => { const lv = levelLockOf(k, v); if (lv) return 'lv' + lv; const i = TRACK.findIndex(r => r.k === k && r.v === v); return i < 0 ? '' : 'r' + i; })();
 
 /* ---------- tiện ích cho giao diện ---------- */
-const KIND_LABEL = { kind: '🐾 Nhân vật', hair: '💇 Tóc', hat: '🎩 Nón', outfit: '👕 Trang phục', acc: '🎒 Phụ kiện' };
-export const itemLabel = (k, v) => {
-  const list = OPTIONS[k] || []; const hit = list.find(o => Array.isArray(o) ? o[0] === v : o === v);
-  return (KIND_LABEL[k] || k) + ' · ' + (Array.isArray(hit) ? hit[1] : (hit || v));
-};
 /* tiến độ lộ trình: { xp, opened: số mốc đã mở, next: mốc tiếp theo (null nếu mở hết), items: [{i,k,v,xp,open,label}] } */
 export function trackProgress(st) {
   const xp = xpOf(st); let opened = 0;

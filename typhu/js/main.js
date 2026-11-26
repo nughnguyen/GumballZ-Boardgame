@@ -11,10 +11,10 @@ import {
 import { Board3D, THEMES } from './scene3d.js?v=57';
 import * as fx from './fx.js?v=55';
 import { guideHTML } from './guide.js?v=64';
-import { OPTIONS, PRESETS, buildAvatar, portrait } from '../../shared/js/avatar3d.js';
-import * as THREE from '../../shared/lib/three.module.min.js';
-import { OrbitControls } from '../../shared/lib/OrbitControls.js';
-import { netStatus } from '../../shared/ui/status.js';
+import { OPTIONS, PRESETS, buildAvatar, portrait } from '../../shared/js/avatar3d.js?v=2';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
+import { OrbitControls } from '../../shared/lib/OrbitControls.js?v=1';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 
 import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=4';
 

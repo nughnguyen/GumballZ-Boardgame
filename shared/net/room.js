@@ -4,9 +4,9 @@
 //   3) PeerJS (nối thẳng máy với máy)
 //   4) MQTT công cộng (dự phòng cuối)
 // Tin nhắn là object JSON; game tự xử lý nội dung, lớp này chỉ lo kết nối, vào lại, báo trạng thái.
-import { peerOptions, keepAlive } from './ice.js';
-import { RelayHost, relayConnect } from './relay.js';
-import { FbHost, fbConnect, fbEnabled } from './fbrelay.js';
+import { peerOptions, keepAlive } from './ice.js?v=1';
+import { RelayHost, relayConnect } from './relay.js?v=1';
+import { FbHost, fbConnect, fbEnabled } from './fbrelay.js?v=1';
 import { CfHost, cfConnect, cfEnabled, cfClaim } from './cfrelay.js?v=16';
 import { announceRoom, auth, myLevel, API } from './api.js?v=29';
 import { unthrottleTimers } from './bgtimers.js?v=1'; /* ⏱️ hẹn giờ qua Web Worker để chủ phòng chuyển tab không làm bàn giật */
@@ -127,7 +127,7 @@ export class RoomHost {
       c.on('close', del); c.on('error', del); this.chatHook(c); inner(c);
     } };
     this.chatLog = []; this.chatN = 0; chatBuf.length = 0;
-    import('../../server/src/filter.js').then(m => { this.chatClean = m.clean; }).catch(() => {}); /* dùng chung bộ lọc từ tục với chat Sảnh */
+    import('../../server/src/filter.js?v=1').then(m => { this.chatClean = m.clean; }).catch(() => {}); /* dùng chung bộ lọc từ tục với chat Sảnh */
     if (chatOn(opts.ns)) chatUi({ game: gameOf(opts.ns), host: true, send: t => this.chatSay(null, t), history: () => chatBuf.slice(), alive: () => !this.dead });
     try { window.__gumballzRoom = { game: gameOf(opts.ns), code: () => this.code, alive: () => !this.dead, myId: () => 'host', kick: pid => this.kick(pid) }; } catch (e) {}
     this.banned = new Set(); /* token người bị chủ phòng mời ra – không cho vào lại phòng này */

@@ -80,7 +80,7 @@ function init() {
   if (ls.get('gumballz-tut-' + GAME) || navigator.webdriver || /[?&]room=/.test(location.search)) return;
   let played = !!ls.get('gumballz-session-' + GAME); try { played = played || (ls.get('gumballz-stats') || '').includes('"' + GAME + '"'); } catch (e) {}
   if (played) { ls.set('gumballz-tut-' + GAME, '1'); return; }
-  import('../tutorials.js?v=27').then(m => { const T = m.TUT[GAME]; if (T && T.steps[0]) preload(T.steps[0].img); }).catch(() => {}); /* tải trước ảnh bước 1 trong lúc chờ */
+  import('../tutorials.js?v=28').then(m => { const T = m.TUT[GAME]; if (T && T.steps[0]) preload(T.steps[0].img); }).catch(() => {}); /* tải trước ảnh bước 1 trong lúc chờ */
   setTimeout(() => {
     const home = $('#screen-home'); if (home && !home.classList.contains('active')) return;
     const shown = e => { const c = getComputedStyle(e); return c.display !== 'none' && c.visibility !== 'hidden' && c.opacity !== '0' && c.pointerEvents !== 'none' && e.getBoundingClientRect().width > 0; };

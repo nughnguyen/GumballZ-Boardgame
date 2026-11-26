@@ -1,6 +1,6 @@
 // Phông nền Sài Gòn low-poly, tự dựng bằng khối hình (không dùng ảnh):
 // Nhà thờ Đức Bà, Bưu điện TP, Nhà hát TP, UBND TP, Chợ Bến Thành, chùa Bà Thiên Hậu, Bitexco, Landmark 81, sông Sài Gòn + cầu Thủ Thiêm.
-import * as THREE from '../../shared/lib/three.module.min.js';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
 
 const C = c => new THREE.Color(c);
 const mats = new Map();

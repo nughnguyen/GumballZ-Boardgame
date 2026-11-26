@@ -12,7 +12,7 @@ import { auth, API } from '../net/api.js?v=29';
 import { load, ACHS, totals, mergeAch, saveServerSnapshot } from './stats.js?v=99';
 import { snapshot, adoptServer, resetWallet } from './wallet.js?v=7'; /* 💰 Ví xu: đẩy số dư + đồ đã mua lên tài khoản cùng hồ sơ */
 import { cleanAvatar, avatarUsable } from '../avatar-sync.js?v=1'; /* 🧸 Nhân vật: gửi đủ nhân vật 3D lên tài khoản, chỉ nhận bản đủ từ máy chủ */
-import { readParts, writeParts } from '../js/avatar-rewards.js?v=4'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp */
+import { readParts, writeParts } from '../js/avatar-parts.js?v=1'; /* 🧸 Linh kiện trúng rương (mở sớm hơn cấp): gửi danh sách lên tài khoản, nhận về thì gộp — file nhẹ, không kéo avatar-rewards.js */
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 const META = 'gumballz-stats-sync', STATS = 'gumballz-stats', AV = 'gumballz-avatar', LOGIN = 'gumballz-login';
 const meta = () => { try { return JSON.parse(ls.get(META)) || null; } catch (e) { return null; } };

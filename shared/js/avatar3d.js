@@ -1,7 +1,7 @@
 // Nhân vật chibi 3D low-poly dựng bằng code – dùng chung cho mọi game (quân cờ, avatar).
-import * as THREE from '../lib/three.module.min.js';
+import * as THREE from '../lib/three.module.min.js?v=1';
 
-import { OPTIONS, PRESETS, furOf } from './avatar-opts.js';
+import { OPTIONS, PRESETS, furOf } from './avatar-opts.js?v=12';
 export { OPTIONS, PRESETS };
 const M = (c, o = {}) => new THREE.MeshStandardMaterial({ color: new THREE.Color(c), roughness: 0.6, ...o });
 const shadeHex = (c, f) => '#' + new THREE.Color(c).multiplyScalar(f).getHexString();

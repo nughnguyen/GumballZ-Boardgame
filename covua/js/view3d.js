@@ -1,7 +1,7 @@
 // 🧊 Bàn cờ vua 3D (three.js) – quân cờ tự dựng bằng hình tròn xoay, không dùng mô hình hay hình ảnh của phần mềm nào khác.
 // main.js vẫn giữ toàn bộ luật + trạng thái; file này chỉ vẽ và báo lại "người chơi vừa chạm ô nào".
-import * as THREE from '../../shared/lib/three.module.min.js';
-import { OrbitControls } from '../../shared/lib/OrbitControls.js';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
+import { OrbitControls } from '../../shared/lib/OrbitControls.js?v=1';
 
 const V2 = (x, y) => new THREE.Vector2(x, y);
 const lathe = pts => new THREE.LatheGeometry(pts.map(p => V2(p[0], p[1])), 40);

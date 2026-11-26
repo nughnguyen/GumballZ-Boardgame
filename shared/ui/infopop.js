@@ -7,7 +7,7 @@ let cssOn = false, tipEl = null, sheetOv = null, curEl = null;
 export function infoCss() {
   if (cssOn || document.getElementById('ip-css')) { cssOn = true; return; }
   cssOn = true; const l = document.createElement('link'); l.id = 'ip-css'; l.rel = 'stylesheet';
-  try { l.href = new URL('./infopop.css', import.meta.url).href; } catch (e) { l.href = './infopop.css'; }
+  try { l.href = new URL('./infopop.css?v=1', import.meta.url).href; } catch (e) { l.href = './infopop.css?v=1'; }
   document.head.append(l);
 }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

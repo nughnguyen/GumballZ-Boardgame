@@ -1,7 +1,7 @@
 import { Host, Client, RemoteHost, srvMode, MAX, loadSnapshot, session, XD_PHRASES, setSpeedFn } from './net.js?v=55';
 import { linkCode, clearLinkCode, inviteUrl, joinByLink } from '../../shared/net/joinlink.js?v=7';
 import { paintTitles } from '../../shared/ui/titlepill.js?v=2'; /* 🎖️ pill danh hiệu cạnh tên người chơi (patch -97) */
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 import { createReactions } from '../../shared/ui/react.js?v=6';
 
 import { KIND_NAME, OPT_CHOICES, DEFAULT_OPTS, MAX_CARDS } from './engine.js?v=2';

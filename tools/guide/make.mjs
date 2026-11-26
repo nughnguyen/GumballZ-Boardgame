@@ -99,7 +99,7 @@ const FOOT = `<footer class=\"gmf\">\n<style>\n.gmf{margin:40px 0 0;background:#
 <p class="gp-lead">${esc(meta.desc)}</p>
 <p><a class="gp-cta" href="../">▶ Chơi ${esc(name)} ngay – miễn phí, không cần cài đặt</a></p>
 <article class="gp-body">
-<figure class="gp-card"><img src="../../shared/img/guide/${g}.png" alt="Hướng dẫn chơi ${esc(name)}" loading="lazy"></figure>
+<figure class="gp-card"><img src="../../shared/img/guide/${g}.webp" alt="Hướng dẫn chơi ${esc(name)}" loading="lazy"></figure>
 ${body}
 </article>
 <p><a class="gp-cta" href="../">▶ Vào chơi ${esc(name)}</a></p>

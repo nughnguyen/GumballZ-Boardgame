@@ -7,7 +7,7 @@ import { COLOR_NAMES, GATE, HOME0, exitOk } from './engine.js?v=4';
 import { Board3D } from './scene3d.js?v=6';
 import * as fx from './fx.js?v=8';
 import { guideHTML } from './guide.js?v=8';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 
 import { createDiceView, playDiceRattle } from '../../shared/js/dice3d-gl.js?v=4';
 

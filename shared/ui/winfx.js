@@ -5,8 +5,7 @@
 // lên một canvas phủ màn hình, không chặn bấm. Hiệu ứng có khoá (WIN_FX trong avatar-rewards.js) chỉ chạy khi
 // máy này đã mở; chưa mở thì dùng pháo giấy. KHÔNG cần sửa stats.js để nối dây: chỉ cần file này được nạp
 // (xem GHI CHÚ NỐI DÂY ở cuối file).
-import { WIN_FX, isOpen, statsFromTotals, readAuthFlags } from '../js/avatar-rewards.js?v=4';
-import { load, totals } from './stats.js';
+import { load, totals } from './stats.js?v=99';
 const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } } };
 const COLORS = ['#ff4d6a', '#ff7a45', '#ffb23d', '#2fc76f', '#3d8bff', '#8a5cff', '#ff5fa2'];
 const ICON = { sao: ['⭐', '✨', '🌟'], tim: ['💖', '💗', '💕'], xu: ['🪙'] };
@@ -14,6 +13,8 @@ let running = null;
 
 export function playWin(id, preview = false) {
   if (!id || id === 'off') return;
+  /* avatar-rewards.js (73 KB) chỉ nạp khi thật sự có hiệu ứng thắng (patch -195) */
+  return import('../js/avatar-rewards.js?v=4').then(({ WIN_FX, isOpen, statsFromTotals, readAuthFlags }) => {
   const fx = WIN_FX.find(x => x.id === id) || WIN_FX[0];
   if (!preview && fx.lock) { const fl = readAuthFlags(); if (!isOpen(fx.lock, statsFromTotals(totals(load()), { admin: fl.admin }))) return playWin('giay'); }
   if (running) running.stop();
@@ -42,6 +43,7 @@ export function playWin(id, preview = false) {
     raf = requestAnimationFrame(frame);
   };
   raf = requestAnimationFrame(frame); running = { stop };
+  }).catch(() => {});
 }
 try {
   addEventListener('gumballz-stats', e => { const d = e.detail || {}; if (d.won === true) setTimeout(() => playWin(ls.get('gumballz-winfx') || 'giay'), 350); });

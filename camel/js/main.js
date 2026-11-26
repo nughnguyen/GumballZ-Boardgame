@@ -9,7 +9,7 @@ import { simLeg } from './bot.js?v=1';
 import { Board3D, DIE_COLORS } from './scene3d.js?v=2';
 import * as fx from './fx.js?v=7';
 import { guideHTML } from './guide.js?v=5';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 
 
 const GAME = 'camel';

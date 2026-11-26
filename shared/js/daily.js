@@ -59,7 +59,7 @@ export function ensureDailyCss() {
     if (typeof document === 'undefined') return;
     if (document.querySelector('link[data-daily-css]')) return;
     const l = document.createElement('link'); l.rel = 'stylesheet'; l.setAttribute('data-daily-css', '');
-    l.href = new URL('../css/daily.css', import.meta.url).href; document.head.appendChild(l);
+    l.href = new URL('../css/daily.css?v=1', import.meta.url).href; document.head.appendChild(l);
   } catch (e) {}
 }
 /* Vẽ thẻ Thử thách hôm nay vào phần tử `el` (thẻ <div class="daily" id="daily"> ở trang chủ).

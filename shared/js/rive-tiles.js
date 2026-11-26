@@ -15,7 +15,11 @@
 // Chạy SAU khi module chính của trang chủ đã chuyển thẻ vào từng .shelf (thẻ module này đặt
 // sau module đó trong index.html nên thứ tự chạy được đảm bảo; dù thẻ chưa chuyển thì canvas
 // vẫn nằm trong thẻ nên đi theo thẻ vào kệ).
-// - Runtime Rive nạp bằng thẻ <script src="shared/js/rive/rive.js"> trước module này;
+// - Runtime Rive nạp lười (patch -195): file rive.js là UMD nên KHÔNG dùng
+//   được dynamic import() (import() chạy ở module scope, `this` là undefined
+//   → UMD gán root["rive"] lỗi "Cannot set properties of undefined") — nạp
+//   bằng thẻ <script> chèn động (classic, chạy sau first paint, không chặn
+//   render) rồi mới boot; tải lỗi thì giữ icon SVG cũ.
 //   phải gọi setWasmUrl TRƯỚC khi tạo instance đầu tiên.
 // - KHÔNG truyền tên animation (tên ghi sai key trong file .riv — truyền tên sẽ không chạy),
 //   chỉ dùng autoplay: true.
@@ -40,8 +44,9 @@
   var RIV_VER = { uno: 8, xiecthu: 7 };
   function rivSrc(g) { return 'shared/rive/' + g + '.riv?v=' + (RIV_VER[g] || 6); }
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function boot() {
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') return;
-  try { window.rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm'); } catch (e) { return; }
+  try { window.rive.RuntimeLoader.setWasmUrl('shared/js/rive/rive.wasm?v=1'); } catch (e) { return; }
   var fitCover = (window.rive.Fit && window.rive.Fit.Cover) || 'cover';
   /* v6: runtime Rive KHÔNG đọc option `fit:` ở top-level của constructor —
      Rive chỉ đọc `params.layout` (mặc định Layout mới = Fit.Contain). Vì
@@ -234,5 +239,14 @@
         });
       });
     }).observe(hotRow, { childList: true });
+  }
+  }
+  if (window.rive && window.rive.RuntimeLoader && typeof window.rive.Rive === 'function') boot();
+  else {
+    var rs = document.createElement('script');
+    rs.src = 'shared/js/rive/rive.js?v=1';
+    rs.onload = boot;
+    rs.onerror = function () {}; /* tải lỗi → giữ icon SVG cũ */
+    document.head.appendChild(rs);
   }
 })();

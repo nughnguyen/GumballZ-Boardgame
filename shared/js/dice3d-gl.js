@@ -19,8 +19,8 @@
 //
 // Face mapping của model (right-handed): +Y=1, -Y=6, +Z=2, -Z=5, +X=3, -X=4.
 // rollTo() CHỈ đổi cách hiện — số hiện ra luôn bằng đúng số engine đã đổ.
-import * as THREE from '../lib/three.module.min.js';
-import { GLTFLoader } from '../lib/GLTFLoader.js';
+import * as THREE from '../lib/three.module.min.js?v=1';
+import { GLTFLoader } from '../lib/GLTFLoader.js?v=1';
 import '../audio/volume.js?v=1'; /* chỉ để chặn AudioNode.connect: tiếng xúc xắc nối ra loa sẽ đi qua nút âm lượng SFX chung (gumballz-vol-sfx) ở ⚙️ Cài đặt */
 
 export const FACE_NORMAL = {

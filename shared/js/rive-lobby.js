@@ -16,7 +16,7 @@
   if (!window.rive || !window.rive.RuntimeLoader || typeof window.rive.Rive !== 'function') { wrap.remove(); return; }
   var CSS = '.riv-lobby-wrap{width:100%;aspect-ratio:2/1;max-height:220px;border:2px solid #241A38;border-radius:16px;overflow:hidden;box-shadow:4px 4px 0 #241A38;background:#FFF8EE;margin:0 0 12px}.riv-lobby{display:block;width:100%;height:100%}';
   var st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  try { window.rive.RuntimeLoader.setWasmUrl('../shared/js/rive/rive.wasm'); } catch (e) { wrap.remove(); return; }
+  try { window.rive.RuntimeLoader.setWasmUrl('../shared/js/rive/rive.wasm?v=1'); } catch (e) { wrap.remove(); return; }
   var fitCover = (window.rive.Fit && window.rive.Fit.Cover) || 'cover';
   /* v6: runtime Rive KHÔNG đọc option `fit:` ở top-level — Rive chỉ đọc
      `params.layout` (mặc định = Fit.Contain) nên `fit: 'cover'` bị bỏ qua,

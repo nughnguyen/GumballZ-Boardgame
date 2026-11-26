@@ -1,7 +1,7 @@
 // 🛡️ Cloudflare Turnstile (miễn phí): chứng minh "người thật" trước khi đăng ký, gửi góp ý, gửi từ mới của Nối từ – chống bơm rác.
 // Chưa cài khoá (Worker chưa có secret TURNSTILE_SECRET) thì humanToken() trả '' và máy chủ cũng bỏ qua bước kiểm → web chạy như cũ.
 // Widget đặt kiểu "chỉ hiện khi cần" (appearance: interaction-only): đa số người không thấy gì; nghi ngờ thì hiện ô bấm nhỏ ở cuối màn hình.
-import { cfHttp } from '../net/cfrelay.js?v=15';
+import { cfHttp } from '../net/cfrelay.js?v=16';
 let key, loading = null;
 async function siteKey() {
   if (key !== undefined) return key;

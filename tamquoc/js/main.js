@@ -8,7 +8,7 @@ import { JUDGE_TEXT } from './engine.js?v=21';
 import { META, PHASE, STYLE, BP_TIPS } from './genmeta.js?v=1';
 import { Host, Client, RemoteHost, srvMode, loadSnapshot, session, MAX, MIN, TQ_PHRASES, TRAIN_OPTS } from './net.js?v=66';
 import { createReactions } from '../../shared/ui/react.js?v=6';
-import { netStatus } from '../../shared/ui/status.js';
+import { netStatus } from '../../shared/ui/status.js?v=1';
 import { syncPick, endPick, pickActive } from '../../shared/ui/seatpick.js?v=5';
 import { portrait, blankPortrait, cardHTML, backHTML, generalCardHTML, kindTag, iconsFor, emoOf } from './art.js?v=19';
 import * as fx from './fx.js?v=18';

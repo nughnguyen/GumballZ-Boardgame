@@ -1,8 +1,8 @@
 // Bàn cờ cá ngựa 3D bằng Three.js – mọi mô hình (bàn, ô, bậc đích, chuồng, ngựa, cúp) dựng bằng code.
 // Hiệu năng điện thoại: KHÔNG thêm/bớt đèn lúc chạy (đèn dựng sẵn, chỉ đổi cường độ), hạt dùng pool có giới hạn,
 // vật liệu / hình học dùng chung.
-import * as THREE from '../../shared/lib/three.module.min.js';
-import { OrbitControls } from '../../shared/lib/OrbitControls.js';
+import * as THREE from '../../shared/lib/three.module.min.js?v=1';
+import { OrbitControls } from '../../shared/lib/OrbitControls.js?v=1';
 import { COLORS, GATE, HOME0, onTrack, absSq, SAFE, PORTAL, TP } from './engine.js?v=3';
 
 export const QUALITY = { low: { aa: false, pr: 1, shadow: 0, tex: 1024 }, med: { aa: true, pr: 1.5, shadow: 1024, tex: 1536 }, high: { aa: true, pr: 2, shadow: 2048, tex: 2048 } };
