@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/games-94-2EC5B6?style=flat-square" alt="94 game">
+  <img src="https://img.shields.io/badge/games-95-2EC5B6?style=flat-square" alt="95 game">
   <img src="https://img.shields.io/badge/achievements-1341-FF5A60?style=flat-square" alt="1341 thành tựu">
   <img src="https://img.shields.io/badge/titles-114-B9A6FF?style=flat-square" alt="114 danh hiệu">
   <img src="https://img.shields.io/badge/frames-83-FACD33?style=flat-square" alt="83 khung avatar">
@@ -24,7 +24,7 @@
 
 | | |
 |---|---|
-| 🎮 **94 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
+| 🎮 **95 game** | Cờ bàn, game bài, tụ tập, kiểu khác — chơi online với bạn qua mã phòng 5 ký tự, hoặc đấu bot. |
 | 🪙 **Ví xu chung** | Thắng +10 xu, chơi +2 xu, tài khoản mới bắt đầu 100 xu. Xu dùng chung cho mọi game. |
 | 🎁 **Shop + Rương Gacha** | Mở rương 100 xu/lượt: khung, màu tên, banner, hiệu ứng thắng. |
 | 🖼️ **Sưu tầm** | 83 khung avatar (có khung rồng bay), 59 banner (có rồng canvas), 29 màu tên, 6 hiệu ứng thắng. |
@@ -41,7 +41,7 @@ Chi tiết đầy đủ (luật từng game, vật phẩm, tỉ lệ Gacha…): 
 
 ---
 
-## 🎮 Danh sách game — 94 game
+## 🎮 Danh sách game — 95 game
 
 <details>
 <summary><b>♟️ Cờ bàn — 30 game</b></summary>
@@ -65,9 +65,9 @@ Chi tiết đầy đủ (luật từng game, vật phẩm, tỉ lệ Gacha…): 
 </details>
 
 <details>
-<summary><b>🧩 Kiểu khác — 20 game</b></summary>
+<summary><b>🧩 Kiểu khác — 22 game</b></summary>
 
-[Nối từ](https://gumballzgames.vercel.app/noitu/) · [Bầu cua](https://gumballzgames.vercel.app/baucua/) · [Sudoku](https://gumballzgames.vercel.app/sudoku/) · [Wordle](https://gumballzgames.vercel.app/wordle/) · [Dò Mìn](https://gumballzgames.vercel.app/domi/) · [2048](https://gumballzgames.vercel.app/s2048/) · [Mạt Chược](https://gumballzgames.vercel.app/matchu/) · [Tetris](https://gumballzgames.vercel.app/tetris/) · [Rắn Săn Mồi](https://gumballzgames.vercel.app/ransanmoi/) · [Xếp Kẹo](https://gumballzgames.vercel.app/xepkeo/) · [Bắn Bóng](https://gumballzgames.vercel.app/banbong/) · [Nonogram](https://gumballzgames.vercel.app/nonogram/) · [Ghép Hình](https://gumballzgames.vercel.app/ghephinh/) · [Nhện](https://gumballzgames.vercel.app/nhen/) · [Bida 8-ball](https://gumballzgames.vercel.app/bida8/) · [Đá Penalty](https://gumballzgames.vercel.app/dapenalty/) · [Phi Tiêu](https://gumballzgames.vercel.app/phitieu/) · [Kéo Búa Bao](https://gumballzgames.vercel.app/keobuabao/) · [Đố Vui](https://gumballzgames.vercel.app/dovui/) · [Lặn Sâu](https://gumballzgames.vercel.app/lansau/)
+[Nối từ](https://gumballzgames.vercel.app/noitu/) · [Bầu cua](https://gumballzgames.vercel.app/baucua/) · [Sudoku](https://gumballzgames.vercel.app/sudoku/) · [Wordle](https://gumballzgames.vercel.app/wordle/) · [Dò Mìn](https://gumballzgames.vercel.app/domi/) · [2048](https://gumballzgames.vercel.app/s2048/) · [Mạt Chược](https://gumballzgames.vercel.app/matchu/) · [Tetris](https://gumballzgames.vercel.app/tetris/) · [Rắn Săn Mồi](https://gumballzgames.vercel.app/ransanmoi/) · [Xếp Kẹo](https://gumballzgames.vercel.app/xepkeo/) · [Bắn Bóng](https://gumballzgames.vercel.app/banbong/) · [Nonogram](https://gumballzgames.vercel.app/nonogram/) · [Ghép Hình](https://gumballzgames.vercel.app/ghephinh/) · [Nhện](https://gumballzgames.vercel.app/nhen/) · [Bida 8-ball](https://gumballzgames.vercel.app/bida8/) · [Đá Penalty](https://gumballzgames.vercel.app/dapenalty/) · [Phi Tiêu](https://gumballzgames.vercel.app/phitieu/) · [Kéo Búa Bao](https://gumballzgames.vercel.app/keobuabao/) · [Đố Vui](https://gumballzgames.vercel.app/dovui/) · [Lặn Sâu](https://gumballzgames.vercel.app/lansau/) · [Vua Tiếng Việt](https://gumballzgames.vercel.app/vuatiengviet/) · [Đoán Nhạc](https://gumballzgames.vercel.app/doannhac/)
 
 </details>
 
@@ -92,7 +92,7 @@ cd server && npx wrangler deploy
 ## 🗂️ Cấu trúc
 
 ```
-index.html            Trang chủ: 94 game, tìm kiếm, lọc theo nhóm
+index.html            Trang chủ: 95 game, tìm kiếm, lọc theo nhóm
 <game>/               Mỗi game một thư mục (luật + bot + online riêng)
 sanh/                 Sảnh chung: tìm phòng, chat thế giới
 shop/                 Cửa hàng + Rương Gacha

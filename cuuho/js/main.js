@@ -4,7 +4,7 @@ import { DEF } from './def.js?v=3';
 import * as E from './engine.js?v=4';
 import { CITIES, ROUTES } from '../../xuyenviet/js/map.js?v=4';
 import { LAND, LBL, MAP_W, MAP_H } from '../../xuyenviet/js/geo.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);

@@ -3,7 +3,7 @@
 import { loadWallet, balance, fmt, spend, grantCosmetic, owns, widOf, COSMETICS, CHEST_TABLE, CHEST_PRICE, DUP_REFUND, openChest } from '../../shared/ui/wallet.js?v=7';
 import { avatarHTML, avatar, setAvatarLook, profileCss } from '../../shared/ui/profile.js?v=64';
 import { FRAMES, NAME_COLORS, BANNERS, partOpen, readParts, itemLabel } from '../../shared/js/avatar-rewards.js';
-import { totals } from '../../shared/ui/stats.js?v=96'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
+import { totals } from '../../shared/ui/stats.js?v=97'; /* 🧸 cấp hiện tại để biết linh kiện rương đã mở chưa (trùng thì hoàn xu) */
 import { BACKS, backDataURI, setBack, getBack } from '../../shared/ui/deck/deck.js?v=5';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 

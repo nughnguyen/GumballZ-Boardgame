@@ -11,7 +11,7 @@
 // Người chơi cùng máy (local) và bot do máy chủ phòng điều khiển: hành động của họ gửi qua net.actAs(id, a).
 import { RoomHost, RoomClient, token, session } from './room.js?v=54';
 import { specBanner } from '../ui/spectate.js?v=8';
-import { watch } from '../ui/stats.js?v=96';
+import { watch } from '../ui/stats.js?v=97';
 export { session };
 import { RemoteBase, srvOn, takeOwnership } from './remotehost.js?v=2';
 import { titleById, myTitleId } from '../titles.js?v=7'; /* 🎖️ danh hiệu trưng ra (patch -97): chỉ tin id có trong bảng */

@@ -6,7 +6,7 @@ import { masterMove, masterReady, masterOff } from './master.js?v=1';
 import { PUZZLES } from './puzzles.js?v=1';
 import { POOLS, LEVELS, puzzleFor, indexOf as levelIndexOf, nextPuzzle, byId as levelById } from './levels.js?v=1';
 import { today, state as dailyState, markSolved, puzzleOf, pastDays, markPast } from './today.js?v=2';
-import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, $$, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { confirmBox, promptBox, toast as tip } from '../../shared/ui/dialog.js?v=10';
 
 

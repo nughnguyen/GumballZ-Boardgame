@@ -4,7 +4,7 @@ import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { cardHTML } from '../../shared/ui/deck/deck.js?v=5';
 
 const NET = makeNet(DEF);

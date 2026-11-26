@@ -2,7 +2,7 @@
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import * as E from './engine.js?v=1';
 import { botAction } from './bot.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 /* 🗺️ Bản đồ kiểu nhìn từ trên xuống: tên đường thật ở Chợ Lớn (Q.5–Q.6), mái nhà trang trí ở ô không bán, màu riêng cho từng loại tiệm */
 const STREETS = ['Đ. Tháp Mười', 'Đ. Hải Thượng Lãn Ông', 'Đ. Triệu Quang Phục', 'Đ. Kim Biên', 'Đ. Lương Nhữ Học', 'Đ. Trần Văn Kiểu'];
 const VEH = ['🛵', '🚲', '🛺', '🛵', '🚚', '🚲'], ROOF = ['', '🏯', '🌳', '🛕', '⛲', '⚓'];

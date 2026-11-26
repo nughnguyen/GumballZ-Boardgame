@@ -4,7 +4,7 @@ import { DEF } from './def.js?v=1';
 import * as E from './engine.js?v=4';
 import { HEXES, VERTS, EDGES, PIP, S } from './map.js?v=2';
 import { botAction } from './bot.js?v=4';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 import { createDiceView } from '../../shared/js/dice3d-gl.js?v=4';
 

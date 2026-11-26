@@ -5,7 +5,7 @@ import * as E from './engine.js?v=5';
 import { CITIES, ROUTES, TICKETS, COLORS, COLOR_NAME, ROUTE_PTS } from './map.js?v=5';
 import { botAction } from './bot.js?v=5';
 import { LAND, LBL, MAP_W, MAP_H } from './geo.js?v=1';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 
 const NET = makeNet(DEF);

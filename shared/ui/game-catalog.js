@@ -1,5 +1,5 @@
 // 📚 Danh mục game cho "Đổi game trong phòng" (patch goto).
-//   import { GAME_CATALOG, gameById, fitting, tooSmall, tooBig } from './game-catalog.js?v=1'
+//   import { GAME_CATALOG, gameById, fitting, tooSmall, tooBig } from './game-catalog.js?v=2'
 // Nguồn min/max (đọc từ code ở origin/main -187, KHÔNG đoán):
 //   • makeNet({min, max}) trong <game>/js/main.js — 62 game.
 //   • makeNet KHÔNG khai min/max → mặc định của simplenet (MIN = cfg.min || 2,
@@ -115,6 +115,7 @@ export const GAME_CATALOG = [
   { id: 'hoisanquai', name: 'Hội Săn Quái', min: 2, max: 6, hasBot: true },
   { id: 'lansau', name: 'Lặn Sâu', min: 1, max: 16, hasBot: true },
   { id: 'vuatiengviet', name: 'Vua Tiếng Việt', min: 1, max: 16, hasBot: true },
+  { id: 'doannhac', name: 'Đoán Nhạc', min: 1, max: 16, hasBot: true },
 ];
 
 export const gameById = id => GAME_CATALOG.find(g => g.id === id) || null;

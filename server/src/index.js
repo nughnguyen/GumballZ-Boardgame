@@ -26,7 +26,7 @@ const ORIGINS = [/^https:\/\/gumballzgames\.vercel\.app$/, /^http:\/\/(localhost
 const okOrigin = o => !o || ORIGINS.some(r => r.test(o)); // không có Origin (app/test) thì cho qua – chỉ chặn web lạ nhúng
 import { norm as ntNorm0 } from '../../noitu/js/engine.js';
 const ntNorm = x => { const w = ntNorm0(String(x || '').slice(0, 40)); return w.split(' ').length === 2 ? w : ''; }; /* 🔗 Nối từ: chỉ nhận từ đúng 2 tiếng (để duyệt tay ở trang Quản trị) */
-export const FIND_GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai', 'lansau', 'vuatiengviet'];
+export const FIND_GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai', 'lansau', 'vuatiengviet', 'doannhac'];
 const NS = /^gumballz-[a-z0-9]{2,12}$/, CODE = /^[A-Z0-9]{5}$/, ID = /^[a-z0-9]{4,24}$/;
 const MAX_MSG = 512000, MAX_CLIENTS = 36, RATE = 80, RATE_HOST = 240; // tin/giây mỗi kết nối (chủ phòng thoáng hơn cho phòng đông)
 
@@ -54,6 +54,7 @@ function ntRateOk(ip) { const now = Date.now(), a = (ntRateHits.get(ip) || []).f
 /* ---------- ☕ ủng hộ qua SePay (patch -102) ---------- */
 let donCache = null;
 const donMsgRate = new Map(); /* 💌 mỗi IP tối đa 8 lời nhắn / 10 phút */
+const dailyRate = new Map(); /* 📅 mỗi IP tối đa 30 lần gửi điểm ngày / 10 phút (patch -192) */
 async function sepayHook(req, env, ctx) {
   const raw = await req.text();
   const v = await verifyWebhook('sepay', raw, req.headers, env);
@@ -196,6 +197,21 @@ export default {
         return json({ ok: true, st: r.st }, 200, H);
       }
       return json({ ok: false }, 404, H);
+    }
+    if (p[0] === 'daily') { /* 📅 điểm thử thách hằng ngày (patch -192): mỗi máy 1 lần/ngày, lần đầu mới tính — URL /daily/<game>/score + /daily/<game>/dist */
+      if (!okOrigin(origin)) return json({ ok: false }, 403);
+      const L = env.LOBBY.get(env.LOBBY.idFromName('main')), H = cors(origin), g = p[1] || '';
+      if (p[2] === 'score' && req.method === 'POST') {
+        const k = ip || 'x', t = Date.now(), hits = (dailyRate.get(k) || []).filter(x => t - x < 600e3);
+        if (hits.length >= 30) return json({ ok: false, msg: 'Gửi chậm lại chút nha' }, 200, H); hits.push(t); dailyRate.set(k, hits); if (dailyRate.size > 5000) dailyRate.clear();
+        const d = await body(); return json(await L.dailyScore(g, d.day, d.v, d.dev), 200, H);
+      }
+      if (p[2] === 'dist' && req.method === 'GET') return json(await L.dailyDist(g, url.searchParams.get('day') || '', url.searchParams.get('dev') || ''), 200, H);
+      return json({ ok: false }, 404, H);
+    }
+    if (p[0] === 'doannhac' && p[1] === 'off') { /* 🎧 bài đã xoá khỏi Đoán Nhạc (patch -192): chưa có bài nào bị xoá */
+      if (!okOrigin(origin)) return json({ ok: false }, 403);
+      return json({ ok: true, off: [], src: null }, 200, cors(origin));
     }
     if (p[0] === 'status') { // trạng thái hạn mức công khai (cache 60 giây)
       const cache = caches.default, key = new Request('https://gumballzgames.vercel.app/status-cache');

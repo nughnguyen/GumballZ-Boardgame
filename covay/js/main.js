@@ -8,9 +8,9 @@ import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
-import { recordEvent } from '../../shared/ui/stats.js?v=96';
+import { recordEvent } from '../../shared/ui/stats.js?v=97';
 
 const CELL = 34; /* px 1 giao điểm ở zoom 1× (kể cả ô nhãn trục) */
 const TAP_PX = 8; /* kéo xa hơn chừng này thì chỉ trượt bàn, không đặt quân */

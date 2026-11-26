@@ -11,10 +11,10 @@ import { chooseMove } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=3';
 import { loadSprites } from './sprites.js?v=1';
 import * as Snd from './sound.js?v=1';
-import { record, recordEvent } from '../../shared/ui/stats.js?v=96';
+import { record, recordEvent } from '../../shared/ui/stats.js?v=97';
 import { toast } from '../../shared/ui/dialog.js?v=10';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const HINT_TEXT = '✋ Nhấn ô bên trái / phải để rải • Nhấn lại ô này để đặt xuống';

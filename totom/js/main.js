@@ -9,7 +9,7 @@ import { botAction } from './bot.js?v=1';
 import { GUIDE_HTML } from './guide.js?v=1';
 import * as Snd from './sound.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
-import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { promptBox, toast as tip, confirmBox } from '../../shared/ui/dialog.js?v=10';
 
 /* ?seed=N: gieo hạt cố định cho ván đấu (chơi lại 1 ván đã biết / test

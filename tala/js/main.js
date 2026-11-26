@@ -3,7 +3,7 @@ import { flipRender } from '../../shared/lib/gsap/flip.js?v=1';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
 import * as E from './engine.js?v=2';
 import { botAction } from './bot.js?v=2';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { cardHTML, backHTML } from '../../shared/ui/deck/deck.js?v=1';
 
 const NET = makeNet({

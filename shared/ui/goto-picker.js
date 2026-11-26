@@ -1,11 +1,11 @@
 // 🔄 Bảng chọn game cho "Đổi game trong phòng" (patch goto).
-//   import { openGotoPicker, showGotoNotice, mountGotoButtons, syncGotoButtons } from './goto-picker.js?v=1'
+//   import { openGotoPicker, showGotoNotice, mountGotoButtons, syncGotoButtons } from './goto-picker.js?v=2'
 // gamekit.js là nơi duy nhất gọi các hàm này (không sửa từng game).
 // ĐIỂM NỐI LÕI (do worker khác làm, chưa có lúc viết file này):
 //   • host: ui.net.raw.gotoGame(gameId) — gọi khi chủ phòng chốt game mới.
 //   • client: handler onGoto(game, code) trong gamekit.js → showGotoNotice().
 //   Nếu gotoGame chưa có, bấm chọn chỉ toast báo (không crash, không chuyển nhầm).
-import { GAME_CATALOG, gameById, classify, needFor, extraFor } from './game-catalog.js?v=1';
+import { GAME_CATALOG, gameById, classify, needFor, extraFor } from './game-catalog.js?v=2';
 import { confirmBox } from './dialog.js?v=10';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -13,6 +13,7 @@ const $ = s => document.querySelector(s);
 
 const CSS = `.gg-float{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:9040;min-height:44px;padding:10px 14px;border-radius:999px;border:2px solid var(--ink,#222);background:var(--card,#fff);color:var(--ink,var(--ink2,#222));font:800 14px/1.2 Nunito,system-ui,sans-serif;box-shadow:0 8px 20px -8px #0009;cursor:pointer}
 .gg-float:active{transform:scale(.96)}
+@media (max-width:1150px){.gg-float{bottom:calc(80px + env(safe-area-inset-bottom))}} /* nút nổi không đè tabbar (tabbar ~73px, như .start-bar ở gamekit.css) */
 #modal-box.gg-modal{width:min(480px,100%);max-height:calc(100dvh - 32px);overflow:auto}
 .gg-title{margin:0 0 4px;font:400 21px/1.25 var(--font-display,"Bungee","Baloo 2",Nunito,sans-serif)}
 .gg-sub{color:var(--muted,#666);font-size:14px;margin:0 0 10px}

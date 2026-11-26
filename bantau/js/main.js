@@ -3,9 +3,9 @@ import { SHIPS, SHIP_BY_ID, ITEMS, COINS_START, coordName, area3x3, placeOk, shi
 import { botAction } from './bot.js?v=10';
 import { GUIDE_HTML } from './guide.js?v=10';
 import { makeNet } from '../../shared/net/simplenet.js?v=53';
-import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=15';
+import { gameKit, $, esc, ls, avatar, cleanName } from '../../shared/ui/gamekit.js?v=16';
 import { toast as tip } from '../../shared/ui/dialog.js?v=10';
-import { recordEvent } from '../../shared/ui/stats.js?v=96';
+import { recordEvent } from '../../shared/ui/stats.js?v=97';
 import { stock, useItem } from '../../shared/ui/wallet.js?v=7'; /* 💰 kho ví: vật phẩm mua sẵn ở Cửa hàng */
 
 let sound = ls.get('bantau-sound') !== '0';

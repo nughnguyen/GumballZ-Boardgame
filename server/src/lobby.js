@@ -5,7 +5,7 @@ import { clean, cleanName } from './filter.js';
 import { Meter, LIMITS, GB } from './meter.js';
 import { donTables, donHas as _donHas, donAdd as _donAdd, donInfo as _donInfo, donRef as _donRef, donList as _donList, donAutoCount as _donAutoCount, donMsg as _donMsg, donReply as _donReply, donDel as _donDel, donClaimAdd as _donClaimAdd, donClaims as _donClaims, donClaimDecide as _donClaimDecide, donClaimSetDmid as _donClaimSetDmid, donClaimDel as _donClaimDel, donCfgGet as _donCfgGet, donCfgSet as _donCfgSet } from './donate.js'; /* ☕ ủng hộ (patch -102): logic ở donate.js, Lobby chỉ giữ bảng + gọi qua */
 
-const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai', 'lansau', 'vuatiengviet'];
+const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai', 'lansau', 'vuatiengviet', 'doannhac'];
 const DUO = new Set(['cotuong', 'covua', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'codam', 'colat', 'connect4', 'sudoku']); /* game đúng 2 người (+ Sudoku: Tìm trận ghép solo 1v1) */
 const LV = v => Math.max(0, Math.min(10, Math.floor(+v || 0))); /* cấp độ 1–10 (0 = chưa rõ) */
 const gap = (a, b) => (a && b ? Math.abs(a - b) : 3); /* chưa rõ trình thì coi như lệch vừa */
@@ -27,6 +27,7 @@ export class Lobby extends DurableObject {
     try { this.sql.exec('ALTER TABLE rg ADD COLUMN n INTEGER DEFAULT 0'); } catch (e) {} // id Durable Object phòng → game (để trang Quản trị biết game nào tốn thời gian chạy)
     this.sql.exec(`CREATE TABLE IF NOT EXISTS stat (k TEXT PRIMARY KEY, v INTEGER)`);
     this.sql.exec(`CREATE TABLE IF NOT EXISTS nt (w TEXT PRIMARY KEY, st TEXT, n INTEGER, yes INTEGER, no INTEGER, ts INTEGER, why TEXT)`); /* Nối từ: từ người chơi bỏ phiếu nhận. st: pend (chờ kiểm) · ok (có thật, vào kho) · bad (không có) */
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS daily (g TEXT, day TEXT, dev TEXT, v INTEGER, ts INTEGER, PRIMARY KEY (g, day, dev))`); /* 📅 điểm thử thách hằng ngày (patch -192) */
     try { this.sql.exec("ALTER TABLE live ADD COLUMN g TEXT DEFAULT ''"); } catch (e) {} // game của phòng
     try { this.sql.exec('ALTER TABLE rooms ADD COLUMN lv INTEGER DEFAULT 0'); } catch (e) {} // cấp độ chủ phòng (ghép trận theo trình)
     try { this.sql.exec("ALTER TABLE chat ADD COLUMN kind TEXT DEFAULT ''"); } catch (e) {} // loại tin: 'invite' = lời mời phòng lên kênh thế giới
@@ -405,6 +406,24 @@ export class Lobby extends DurableObject {
   async ntWords() { return this.sql.exec("SELECT w FROM nt WHERE st = 'ok'").toArray().map(r => r.w); }
   async ntList() { return this.sql.exec('SELECT w, st, n, yes, no, ts, why FROM nt ORDER BY ts DESC LIMIT 300').toArray(); }
   async ntDel(w) { this.sql.exec('DELETE FROM nt WHERE w = ?', w); }
+  // ---------- 📅 điểm thử thách hằng ngày (patch -192) ----------
+  /* ghi điểm ngày của một máy (mỗi máy 1 lần/ngày, lần đầu mới tính) rồi trả phân bố như dailyDist */
+  async dailyScore(g, day, v, dev) {
+    g = String(g || ''); day = String(day || ''); dev = String(dev || ''); v = Math.max(0, Math.min(10000, Math.floor(+v || 0)));
+    if (!GAMES.includes(g) || !/^\d{4}-\d{2}-\d{2}$/.test(day) || !/^[a-z0-9]{8,40}$/.test(dev)) return { ok: false };
+    this.sql.exec('INSERT OR IGNORE INTO daily (g, day, dev, v, ts) VALUES (?,?,?,?,?)', g, day, dev, v, now());
+    if (Math.random() < 0.05) this.sql.exec('DELETE FROM daily WHERE day < ?', new Date(Date.now() - 45 * 864e5).toISOString().slice(0, 10)); /* dọn điểm cũ hơn 45 ngày */
+    return this.dailyDist(g, day, dev);
+  }
+  /* phân bố điểm ngày: { ok, n, c, mine } — c là mảng đếm theo giá trị điểm (c[v] = số người được v điểm) */
+  async dailyDist(g, day, dev) {
+    g = String(g || ''); day = String(day || ''); dev = String(dev || '');
+    if (!GAMES.includes(g) || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return { ok: false };
+    const rows = this.sql.exec('SELECT v, COUNT(*) AS k FROM daily WHERE g = ? AND day = ? GROUP BY v', g, day).toArray();
+    const c = []; let n = 0; for (const r of rows) { c[r.v] = r.k; n += r.k; }
+    let mine = null; if (/^[a-z0-9]{8,40}$/.test(dev)) { const row = this.sql.exec('SELECT v FROM daily WHERE g = ? AND day = ? AND dev = ?', g, day, dev).toArray()[0]; mine = row ? row.v : null; }
+    return { ok: true, n, c, mine };
+  }
   // ---------- ☕ ủng hộ (patch -102): bảng + logic ở server/src/donate.js ----------
   async donHas(id) { return _donHas(this.sql, id); }
   async donAdd(d) { return _donAdd(this.sql, d); }
