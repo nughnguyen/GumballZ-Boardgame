@@ -1,8 +1,8 @@
 // ☕ Ủng hộ GumballZ: mã QR chuyển khoản (SePay tự báo về máy chủ), thanh "quỹ máy chủ tháng này", tường cảm ơn, duyệt tay khi hết lượt auto.
-// Máy chủ: GET /donate/info, POST /donate/msg, POST /donate/claim, POST /sepay/hook (server/src/donate.js).
+// Máy chủ: GET /donate/info, POST /donate/msg, POST /donate/claim, POST /sepay/hook, POST /donate/iphone-hook (server/src/donate.js, patch -196).
 // Chuyển khoản ghi "SEVQR GZ U<id 6 số>X R<ref>Z" (vd. U000001X) → tài khoản <id> có huy hiệu 💎 Nhà Tài Trợ (bậc theo tổng tiền, shared/donor.js).
-// Mã QR động VietQR: OCB 0388205003 (tài khoản công khai của chủ web, lấy từ mã QR cũ — đổi amount/addInfo là mã đổi theo, không cần secret).
-// Ảnh QR cũ shared/img/donate-qr.png chỉ còn là dự phòng khi img.vietqr.io không tải được. DONATE_ACC/DONATE_BANK chỉ còn dùng cho SePay tự báo về (xác nhận tự động), không ảnh hưởng mã QR.
+// Mã QR động VietQR: ngân hàng nhận lấy từ máy chủ (/donate/info → recvBank, Quản trị đổi được từ -196; mặc định OCB 0388205003).
+// Ảnh QR cũ shared/img/donate-qr.png chỉ còn là dự phòng khi img.vietqr.io không tải được VÀ ngân hàng đang là OCB mặc định — ngân hàng khác thì ảnh cũ sai nên ẩn QR và hiện số tài khoản + nội dung để chuyển tay. DONATE_ACC/DONATE_BANK chỉ còn dùng cho SePay tự báo về (xác nhận tự động), không ảnh hưởng mã QR.
 import { auth, API } from '../net/api.js?v=29';
 import { TIERS, tierOfWith, mergeTierMins, tierInfo } from '../donor.js?v=2'; /* 🏅 bậc ủng hộ (patch -102; mốc tuỳ chỉnh từ máy chủ từ -163) */
 import { uid6 } from './badges.js?v=8'; /* 🆔 id tài khoản hiển thị 6 chữ số trong nội dung chuyển khoản (patch -108) */
@@ -124,7 +124,10 @@ export async function openDonate() {
   const code = () => 'SEVQR ' + (u ? `GZ ${show ? 'U' : 'A'}${uid6(u.id)}X` : 'GZ') + ` R${ref}Z`; /* SEVQR: tài khoản ngân hàng nối SePay chỉ báo giao dịch có chữ này – id hiển thị 6 số (patch -108) */
   const pct = Math.min(100, Math.round(I.got / Math.max(1, I.goal) * 100));
   const ROOT = new URL('../../', import.meta.url).href;
-  const qr = () => `https://img.vietqr.io/image/OCB-0388205003-payos.png?amount=${amt || ''}&addInfo=${encodeURIComponent(code())}&accountName=GumballZ`; /* mã QR động VietQR, mẫu payos (patch -118): OCB 0388205003 của chủ web — đổi amount/addInfo là mã đổi theo, không cần DONATE_ACC; mẫu payos trả về SVG (301 → .svg), đã kiểm HTTP 200 */
+  /* 🏦 ngân hàng nhận (patch -196): máy chủ gửi recvBank {code, acc, name}; máy chủ cũ không gửi thì dùng OCB mặc định */
+  const BK = I.recvBank && /^[A-Z]{2,10}$/.test(String(I.recvBank.code || '').toUpperCase()) && /^\d{6,20}$/.test(String(I.recvBank.acc || '')) ? { code: String(I.recvBank.code).toUpperCase(), acc: String(I.recvBank.acc), name: String(I.recvBank.name || 'GumballZ') } : { code: 'OCB', acc: '0388205003', name: 'GumballZ' };
+  const isDefaultBank = BK.code === 'OCB' && BK.acc === '0388205003';
+  const qr = () => `https://img.vietqr.io/image/${BK.code}-${BK.acc}-payos.png?amount=${amt || ''}&addInfo=${encodeURIComponent(code())}&accountName=${encodeURIComponent(BK.name)}`; /* mã QR động VietQR, mẫu payos (patch -118): đổi amount/addInfo là mã đổi theo, không cần DONATE_ACC; mẫu payos trả về SVG (301 → .svg), đã kiểm HTTP 200 */
   bd.innerHTML = `
     <p class="dn-p">GumballZ miễn phí, không quảng cáo. Tiền máy chủ mỗi tháng khoảng <b>${vnd(I.goal)}</b> – ai thấy vui thì góp một ly cà phê giúp mình giữ web chạy lâu nha 💛</p>
     <p class="dn-p" style="font-size:12.5px">Ủng hộ là tự nguyện, chỉ nhận huy hiệu cảm ơn – <b>không</b> đổi được chip hay lợi thế gì trong game.</p>
@@ -133,7 +136,8 @@ export async function openDonate() {
     ${I.auto === false ? '<div class="dn-note">⚠️ Lượt xác nhận tự động tháng này đã hết – chuyển khoản xong nhớ gửi yêu cầu duyệt tay ở cuối hộp (chủ web duyệt là có huy hiệu ngay).</div>' : ''}
     <div class="dn-amt">${AMOUNTS.map(a => `<button type="button" data-amt="${a}" class="${a === amt ? 'on' : ''}">${a / 1000}k</button>`).join('')}<button type="button" data-amt="own" class="${amt === 0 ? 'on' : ''}" aria-label="Tự nhập số tiền">Khác</button></div>
     <div data-ownbox><label class="dn-own"><input type="text" inputmode="numeric" autocomplete="off" placeholder="Nhập số tiền, vd 30.000" aria-label="Số tiền muốn ủng hộ (đồng)" data-own><span>đ</span></label><small style="display:block;color:var(--muted);font-size:12px;margin:4px 2px 0">Tối thiểu 1.000đ – mã QR tự đổi theo số bạn nhập.</small></div>
-    <div class="dn-qr"><span class="dn-qr-cap">📷 Quét mã để chuyển khoản</span><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}" onerror="this.onerror=null;this.src='${ROOT}shared/img/donate-qr.png?v=3'"></div>
+    <div class="dn-qr"><span class="dn-qr-cap">📷 Quét mã để chuyển khoản</span><img alt="Mã QR chuyển khoản ủng hộ GumballZ" src="${qr()}" data-fb="${isDefaultBank ? '1' : '0'}" onerror="this.onerror=null;if(this.dataset.fb==='1'){this.src='${ROOT}shared/img/donate-qr.png?v=3'}else{this.style.display='none';var t=this.parentNode.querySelector('[data-qr-alt]');if(t)t.hidden=false}"><div data-qr-alt hidden style="text-align:center;font-size:13.5px;color:#5b5170">Không tải được mã QR — chuyển khoản tay theo số tài khoản bên dưới nha.</div></div>
+    <div class="dn-row"><span><small>Ngân hàng nhận</small><code>${esc(BK.code)} · ${esc(BK.acc)} · ${esc(BK.name)}</code></span><button type="button" data-cp="acc">Chép STK</button></div>
     <div class="dn-row"><span><small>Nội dung chuyển khoản (giữ nguyên)</small><code data-code>${esc(code())}</code></span><button type="button" data-cp="code">Chép</button></div>
     ${u ? `<label class="dn-chk"><input type="checkbox" data-show ${show ? 'checked' : ''}> Hiện tên <b>${esc(u.name)}</b> trên Tường cảm ơn</label>
     <div class="dn-note">Quét mã bằng app ngân hàng / MoMo / ZaloPay. Chuyển xong vài giây là hộp này báo đã nhận và tài khoản có huy hiệu <b>💎 Nhà Tài Trợ</b> – cứ để hộp mở nha.</div>`
@@ -186,7 +190,7 @@ export async function openDonate() {
       if (own) { const inp = bd.querySelector('[data-own]'); amt = ownAmt(inp.value); inp.focus(); } else amt = +b.dataset.amt;
       redraw();
     }
-    else if (b.dataset.cp) copy(code(), b);
+    else if (b.dataset.cp) copy(b.dataset.cp === 'acc' ? BK.acc : code(), b);
     else if (b.hasAttribute('data-sendmsg')) sendMsg(b);
     else if (b.hasAttribute('data-claim-send')) sendClaim(b);
     else if (b.hasAttribute('data-login')) { close(); import('./account.js?v=53').then(m => m.openLogin()); }

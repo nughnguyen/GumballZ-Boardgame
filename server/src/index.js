@@ -13,7 +13,7 @@ import { cfUsage } from './cfstats.js';
 import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
-import { monthStartVN, verifyWebhook, parseDonContent, DONATE_GOAL_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim, editDiscordClaim, discordDecidePayload } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102) */
+import { monthStartVN, verifyWebhook, parseDonContent, parseBankNotif, sha256Hex, DONATE_GOAL_DEFAULT, DONATE_BANK_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim, editDiscordClaim, discordDecidePayload } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102); patch -196: parseBankNotif + sha256Hex cho webhook iPhone, DONATE_BANK_DEFAULT cho ngân hàng nhận tuỳ chỉnh */
 import { TUT } from '../../shared/tutorials.js';
 import { DurableObject } from 'cloudflare:workers';
 export { Users } from './users.js';
@@ -50,6 +50,9 @@ const NOT_HUMAN = { ok: false, msg: 'Chưa xác nhận được bạn là ngư�
 /* 🔗 Nối từ: giới hạn 30 lượt báo từ/giờ cho mỗi IP. Tạm đếm trong bộ nhớ – giống bộ đếm trần AI trong server/src/ai.js, mất khi Worker khởi động lại. */
 const ntRateHits = new Map();
 function ntRateOk(ip) { const now = Date.now(), a = (ntRateHits.get(ip) || []).filter(t => now - t < 3600e3); if (a.length >= 30) return false; if (ntRateHits.size > 5000) ntRateHits.clear(); a.push(now); ntRateHits.set(ip, a); return true; }
+/* 📱 webhook iPhone (patch -196): tối đa 30 lần POST/giờ cho mỗi IP — điện thoại chỉ gửi khi có thông báo MB Bank chứa SEVQR nên bình thường chỉ vài lần/ngày. */
+const iphoneHookRate = new Map();
+function iphoneHookRateOk(ip) { const now = Date.now(), a = (iphoneHookRate.get(ip) || []).filter(t => now - t < 3600e3); if (a.length >= 30) return false; if (iphoneHookRate.size > 5000) iphoneHookRate.clear(); a.push(now); iphoneHookRate.set(ip, a); return true; }
 
 /* ---------- ☕ ủng hộ qua SePay (patch -102) ---------- */
 let donCache = null;
@@ -81,6 +84,66 @@ async function sepayHook(req, env, ctx) {
   if (parsed.uid) u = await U.addSup(parsed.uid, amt);
   await L.donAdd({ id, at: Date.now(), amt, uid: u ? u.id : 0, name: u ? u.name : '', hide: parsed.hide, ref: parsed.ref, src: 'auto' });
   donCache = null; return OK();
+}
+
+/* ---------- 📱 ủng hộ qua webhook iPhone (patch -196) ----------
+   iPhone (Shortcuts): khi nhận thông báo biến động số dư từ app ngân hàng → POST
+   nội dung thông báo lên đây → máy chủ tự duyệt như SePay, miễn phí.
+   POST /donate/iphone-hook, header X-Hook-Key = secret IPHONE_HOOK_KEY (đặt trên
+   Cloudflare, KHÔNG ghi vào repo), body JSON { content: "<nội dung thông báo>" }.
+   Không có key → 503; sai key → 401; quá 30 lần/giờ/IP → 429. Nội dung không có
+   chữ SEVQR GZ → 200 bỏ qua (điện thoại chỉ nên gửi thông báo có SEVQR, xem filter
+   ở Shortcut; gửi nhầm cũng không sao).
+   Chống trùng 2 lớp: (1) id 'm' + SHA-256 của toàn bộ nội dung (cùng thông báo gửi
+   lại chỉ tính 1 lần); (2) cùng mã ref + số tiền trong 2 giờ qua đã có dòng don thì
+   cũng bỏ qua (tránh MB Bank gửi 2 thông báo cho 1 lần chuyển).
+   Khớp đơn chờ duyệt: nếu người ủng hộ đã gửi yêu cầu duyệt tay cùng ref + uid thì
+   tự duyệt luôn đơn đó (cộng tiền theo SỐ TIỀN THẬT trong thông báo, không theo số
+   người đó khai), sửa lại embed Discord như duyệt tay; chưa có đơn thì cộng thẳng
+   như SePay (src 'iphone', ăn chung quota auto 100 lượt/tháng). */
+async function iphoneHook(req, env, ctx) {
+  const ip = req.headers.get('CF-Connecting-IP') || '';
+  const key = String(env.IPHONE_HOOK_KEY || '').trim();
+  if (!key) return new Response('not set', { status: 503 });
+  const raw = await req.text();
+  if (raw.length > 20000) return new Response('too big', { status: 413 });
+  if (!eqTime((req.headers.get('X-Hook-Key') || '').trim(), key)) return new Response('bad key', { status: 401 });
+  if (!iphoneHookRateOk(ip)) return new Response('slow down', { status: 429 });
+  let d; try { d = JSON.parse(raw); } catch (e) { return new Response('bad json', { status: 400 }); }
+  const content = String(d.content || '');
+  const parsed = parseBankNotif(content);
+  if (!parsed) return json({ ok: true, ignored: true });
+  const L = env.LOBBY.get(env.LOBBY.idFromName('main')), U = env.USERS.get(env.USERS.idFromName('main'));
+  const id = 'm' + (await sha256Hex(content)).slice(0, 30);
+  if (await L.donHas(id)) return json({ ok: true, dup: true }); /* cùng thông báo gửi lại */
+  if ((await L.donRef(parsed.ref)) >= parsed.amt) return json({ ok: true, dup: true }); /* cùng ref + tiền đã ghi trong 2 giờ qua */
+  const quota = Math.max(0, +env.DONATE_AUTO_QUOTA || DONATE_AUTO_QUOTA_DEFAULT);
+  const used = await L.donAutoCount(monthStartVN());
+  if (used >= quota) { /* hết lượt auto: xếp vào hàng chờ duyệt tay, không mất tiền (giống sepayHook) */
+    const r = await L.donClaimAdd({ uid: parsed.uid, name: '', amt: parsed.amt, ref: parsed.ref || '', msg: '', hide: parsed.hide });
+    if (!r.dup && env.DONATE_DISCORD_WEBHOOK) {
+      const p = notifyDiscordClaim(env.DONATE_DISCORD_WEBHOOK, { uid: parsed.uid, username: '', name: '', amt: parsed.amt, ref: parsed.ref || '', msg: '', hide: parsed.hide, at: Date.now() }, fetch, 5000, env.DONATE_ADMIN_ID || '').then(res => { if (res && res.ok && res.messageId) return L.donClaimSetDmid(r.id, res.messageId); }).catch(() => {});
+      if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
+    }
+    donCache = null; return json({ ok: true, queued: true });
+  }
+  const pend = await L.donClaimPendByRef(parsed.ref, parsed.uid);
+  if (pend) {
+    const c = await L.donClaimDecide(pend.id, true, 'iPhone');
+    if (c) {
+      const u = await U.addSup(c.uid, parsed.amt);
+      await L.donAdd({ id: 'c' + c.id, at: Date.now(), amt: parsed.amt, uid: u ? u.id : 0, name: u ? u.name : c.name, hide: !!c.hide, ref: c.ref, msg: c.msg, src: 'iphone' });
+      if (c.dmid && env.DONATE_DISCORD_WEBHOOK) { /* sửa lại embed Discord như duyệt tay (patch -172), fire-and-forget — embed hiện SỐ TIỀN THẬT trong thông báo, không phải số người đó khai */
+        const ep = editDiscordClaim(env.DONATE_DISCORD_WEBHOOK, c.dmid, discordDecidePayload({ ...c, amt: parsed.amt }, true, 'iPhone'), fetch, 5000);
+        if (ctx && ctx.waitUntil) ctx.waitUntil(ep); else ep.catch(() => {});
+      }
+      donCache = null; return json({ ok: true, claim: c.id });
+    }
+  }
+  let u = null;
+  if (parsed.uid) u = await U.addSup(parsed.uid, parsed.amt);
+  await L.donAdd({ id, at: Date.now(), amt: parsed.amt, uid: u ? u.id : 0, name: u ? u.name : '', hide: parsed.hide, ref: parsed.ref, src: 'iphone' });
+  donCache = null; return json({ ok: true });
 }
 
 export default {
@@ -246,6 +309,7 @@ export default {
     }
     // ---------- ☕ ủng hộ qua quét mã QR (patch -102) ----------
     if (p[0] === 'sepay' && p[1] === 'hook' && req.method === 'POST') return sepayHook(req, env, ctx); /* SePay báo có chuyển khoản (máy chủ gọi máy chủ, không cần CORS) */
+    if (p[0] === 'donate' && p[1] === 'iphone-hook' && req.method === 'POST') return iphoneHook(req, env, ctx); /* 📱 iPhone Shortcuts báo có chuyển khoản (patch -196; máy chủ gọi máy chủ, không cần CORS, không chặn Origin) */
     if (p[0] === 'donate') {
       const H = cors(origin); if (!okOrigin(origin)) return json({ ok: false }, 403, H);
       const L = env.LOBBY.get(env.LOBBY.idFromName('main')), U = env.USERS.get(env.USERS.idFromName('main'));
@@ -253,13 +317,13 @@ export default {
       if (p[1] === 'info') { /* GET: quỹ tháng + tường cảm ơn + chỗ chuyển khoản; ?ref=6 số → hộp đang mở hỏi đã nhận chưa */
         const uid = Math.max(0, +url.searchParams.get('u') || 0), after = +url.searchParams.get('after') || 0;
         const ref = (url.searchParams.get('ref') || '').replace(/\D/g, '').slice(0, 6);
-        let cfg; try { cfg = await L.donCfg(); } catch (e) { cfg = { goal: DONATE_GOAL_DEFAULT, mins: [1, 50000, 100000, 200000, 500000] }; } /* 🎯 mục tiêu + mốc bậc tuỳ chỉnh (patch -163); lỗi đọc thì dùng mặc định */
+        let cfg; try { cfg = await L.donCfg(); } catch (e) { cfg = { goal: DONATE_GOAL_DEFAULT, mins: [1, 50000, 100000, 200000, 500000], bank: DONATE_BANK_DEFAULT }; } /* 🎯 mục tiêu + mốc bậc tuỳ chỉnh (patch -163) + ngân hàng nhận (patch -196); lỗi đọc thì dùng mặc định */
         const tiers = cfg.mins.map((min, i) => ({ t: i + 1, min }));
         if (ref.length === 6) { try { const paid = await L.donRef(ref); return json({ ok: true, paid, goal: cfg.goal, tiers, ...(paid ? await L.donInfo(monthStartVN(), 0, 0, cfg.mins) : {}) }, 200, H); } catch (e) { return json({ ok: false }, 200, H); } }
         if (!uid && donCache && Date.now() - donCache.at < 30000) return json(donCache.v, 200, H);
         let r; try { r = await L.donInfo(monthStartVN(), uid, after, cfg.mins); } catch (e) { return json({ ok: false, on: false, msg: 'Máy chủ bận – thử lại sau nha' }, 200, H); }
         const used = await L.donAutoCount(monthStartVN());
-        const v = { ok: true, on: !!(env.DONATE_ACC && env.DONATE_BANK), acc: env.DONATE_ACC || '', bank: env.DONATE_BANK || '', goal: cfg.goal, tiers, auto: used < quota, quotaLeft: Math.max(0, quota - used), ...r };
+        const v = { ok: true, on: !!(env.DONATE_ACC && env.DONATE_BANK), acc: env.DONATE_ACC || '', bank: env.DONATE_BANK || '', goal: cfg.goal, tiers, auto: used < quota, quotaLeft: Math.max(0, quota - used), recvBank: cfg.bank || DONATE_BANK_DEFAULT, ...r };
         if (!uid) { delete v.mine; donCache = { at: Date.now(), v }; }
         return json(v, 200, H);
       }
@@ -303,7 +367,7 @@ export default {
         const used = await L.donAutoCount(monthStartVN());
         const cfg = await L.donCfg();
         const info = await L.donInfo(monthStartVN(), 0, 0, cfg.mins);
-        return json({ ok: true, month: info.got, goal: cfg.goal, tiers: cfg.mins.map((min, i) => ({ t: i + 1, min })), auto: used < quota, quotaLeft: Math.max(0, quota - used), quota, on: !!(env.DONATE_ACC && env.DONATE_BANK), hook: !!(env.SEPAY_KEY || env.SEPAY_HMAC), ...(await L.donClaims()), list: await L.donList() }, 200, H);
+        return json({ ok: true, month: info.got, goal: cfg.goal, tiers: cfg.mins.map((min, i) => ({ t: i + 1, min })), auto: used < quota, quotaLeft: Math.max(0, quota - used), quota, on: !!(env.DONATE_ACC && env.DONATE_BANK), hook: !!(env.SEPAY_KEY || env.SEPAY_HMAC), hookIphone: !!(env.IPHONE_HOOK_KEY), recvBank: cfg.bank || DONATE_BANK_DEFAULT, ...(await L.donClaims()), list: await L.donList() }, 200, H);
       }
       if (p[1] === 'claim-decide' && req.method === 'POST') { /* ✅/❌ Quản trị duyệt yêu cầu ủng hộ */
         const me = bearer() ? await U.whoami(bearer()) : null;
@@ -341,17 +405,20 @@ export default {
         await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', c.uid, c.name, 'xoá yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + (c.ref || '—') + ', ' + (c.st === 'ok' ? 'đã duyệt' : c.st === 'no' ? 'đã từ chối' : 'chờ duyệt') + ')' + (subtracted > 0 ? ' – đã TRỪ ' + subtracted.toLocaleString('vi-VN') + 'đ khỏi quỹ (hạng ủng hộ hạ theo)' : ' – quỹ không đổi'));
         donCache = null; return json({ ok: true, subtracted }, 200, H);
       }
-      if (p[1] === 'config' && req.method === 'POST') { /* 🎯 Quản trị đổi mốc quỹ: mục tiêu + 5 mốc bậc (patch -163) */
+      if (p[1] === 'config' && req.method === 'POST') { /* 🎯 Quản trị đổi mốc quỹ: mục tiêu + 5 mốc bậc (patch -163) + ngân hàng nhận (patch -196) */
         const me = bearer() ? await U.whoami(bearer()) : null;
         if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
         const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
         if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới đổi mốc quỹ' }, 200, H);
         const d = await body();
         const goal = +d.goal, mins = Array.isArray(d.mins) ? d.mins.map(x => +x) : [];
-        const r = await L.donCfgSet(goal, mins);
+        const old = await L.donCfg();
+        const bank = d.bank !== undefined && d.bank !== null ? { code: String(d.bank.code || ''), acc: String(d.bank.acc || ''), name: String(d.bank.name || '') } : undefined;
+        const r = await L.donCfgSet(goal, mins, bank);
         if (!r.ok) return json({ ok: false, msg: r.msg }, 200, H);
-        await U.auditLog({ id: me.id, name: me.name }, 'donate', 0, null, 'đổi mốc quỹ: mục tiêu ' + goal.toLocaleString('vi-VN') + 'đ; bậc ' + mins.map((m, i) => (i + 1) + ':' + m.toLocaleString('vi-VN') + 'đ').join(' · ') + ' – hạng tính theo mốc mới từ lúc lưu');
-        donCache = null; return json({ ok: true, goal: r.goal, tiers: r.mins.map((min, i) => ({ t: i + 1, min })) }, 200, H);
+        const bankNote = bank && (old.bank.code !== r.bank.code || old.bank.acc !== r.bank.acc || old.bank.name !== r.bank.name) ? ' · ngân hàng nhận ' + r.bank.code + ' ' + r.bank.acc + ' (' + r.bank.name + ')' : '';
+        await U.auditLog({ id: me.id, name: me.name }, 'donate', 0, null, 'đổi mốc quỹ: mục tiêu ' + goal.toLocaleString('vi-VN') + 'đ; bậc ' + mins.map((m, i) => (i + 1) + ':' + m.toLocaleString('vi-VN') + 'đ').join(' · ') + ' – hạng tính theo mốc mới từ lúc lưu' + bankNote);
+        donCache = null; return json({ ok: true, goal: r.goal, tiers: r.mins.map((min, i) => ({ t: i + 1, min })), bank: r.bank }, 200, H);
       }
       return json({ ok: false }, 404, H);
     }

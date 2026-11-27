@@ -3,7 +3,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { clean, cleanName } from './filter.js';
 import { Meter, LIMITS, GB } from './meter.js';
-import { donTables, donHas as _donHas, donAdd as _donAdd, donInfo as _donInfo, donRef as _donRef, donList as _donList, donAutoCount as _donAutoCount, donMsg as _donMsg, donReply as _donReply, donDel as _donDel, donClaimAdd as _donClaimAdd, donClaims as _donClaims, donClaimDecide as _donClaimDecide, donClaimSetDmid as _donClaimSetDmid, donClaimDel as _donClaimDel, donCfgGet as _donCfgGet, donCfgSet as _donCfgSet } from './donate.js'; /* ☕ ủng hộ (patch -102): logic ở donate.js, Lobby chỉ giữ bảng + gọi qua */
+import { donTables, donHas as _donHas, donAdd as _donAdd, donInfo as _donInfo, donRef as _donRef, donList as _donList, donAutoCount as _donAutoCount, donMsg as _donMsg, donReply as _donReply, donDel as _donDel, donClaimAdd as _donClaimAdd, donClaims as _donClaims, donClaimDecide as _donClaimDecide, donClaimSetDmid as _donClaimSetDmid, donClaimDel as _donClaimDel, donClaimPendByRef as _donClaimPendByRef, donCfgGet as _donCfgGet, donCfgSet as _donCfgSet } from './donate.js'; /* ☕ ủng hộ (patch -102): logic ở donate.js, Lobby chỉ giữ bảng + gọi qua */
 
 const GAMES = ['bang', 'uno', 'typhu', 'tamquoc', 'meono', 'masoi', 'scribble', 'tienlen', 'poker', 'xidach', 'catte', 'bacao', 'cangua', 'camel', 'cotuong', 'thathaythach', 'bantau', 'baitan', 'loto', 'covua', 'tala', 'cholon', 'tusac', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'sam', 'baucua', 'noitu', 'xuyenviet', 'khaihoang', 'daochinh', 'cuuho', 'xiecthu', 'giandiep', 'codam', 'lieng', 'maubinh', 'xito', 'colat', 'domino', 'connect4', 'matthu', 'avalon', 'spyfall', 'sudoku', 'wordle', 'domi', 's2048', 'matchu', 'loveletter', 'sushigo', 'lay6', 'saboteur', 'skull', 'hanabi', 'chan', 'totom', 'carcassonne', 'azul', 'splendor', 'conhay', 'backgammon', 'rummikub', 'quoridor', 'blokus', 'scrabble', 'mastermind', 'ailatrieuphu', 'haithat1gia', 'doanhdong', 'wavelength', 'resistance', 'vetruyentin', 'tetris', 'ransanmoi', 'xepkeo', 'banbong', 'nonogram', 'ghephinh', 'nhen', 'bida8', 'dapenalty', 'phitieu', 'keobuabao', 'dovui', 'hoisanquai', 'lansau', 'vuatiengviet', 'doannhac', 'honkem', 'nganha'];
 const DUO = new Set(['cotuong', 'covua', 'oanquan', 'caro', 'tictactoe', 'memory', 'covay', 'cothu', 'ranvathang', 'codam', 'colat', 'connect4', 'sudoku']); /* game đúng 2 người (+ Sudoku: Tìm trận ghép solo 1v1) */
@@ -439,8 +439,9 @@ export class Lobby extends DurableObject {
   async donClaimDecide(id, ok, byName) { return _donClaimDecide(this.sql, id, ok, byName); }
   async donClaimSetDmid(id, dmid) { return _donClaimSetDmid(this.sql, id, dmid); } /* patch -172: lưu Discord message id để sửa embed khi duyệt/từ chối */
   async donClaimDel(id) { return _donClaimDel(this.sql, id); } /* patch -163, -176: xoá yêu cầu + trừ tiền khỏi quỹ nếu đã duyệt (trả {claim, subtracted}) */
-  async donCfg() { return _donCfgGet(this.sql); } /* patch -163: cấu hình quỹ (mục tiêu + mốc bậc) */
-  async donCfgSet(goal, mins) { return _donCfgSet(this.sql, goal, mins); }
+  async donClaimPendByRef(ref, uid) { return _donClaimPendByRef(this.sql, ref, uid); } /* patch -196: yêu cầu chờ duyệt khớp mã ref + uid (webhook iPhone tự duyệt) */
+  async donCfg() { return _donCfgGet(this.sql); } /* patch -163: cấu hình quỹ (mục tiêu + mốc bậc); patch -196: thêm ngân hàng nhận */
+  async donCfgSet(goal, mins, bank) { return _donCfgSet(this.sql, goal, mins, bank); }
   async auditMod(by, action, who, detail) { // 📜 ghi hành động cấm/ẩn/bỏ qua vào nhật ký quản trị (Users DO)
     try {
       const us = this.env.USERS.get(this.env.USERS.idFromName('main'));

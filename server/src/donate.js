@@ -11,6 +11,20 @@
 import { tierOfWith } from '../../shared/donor.js';
 export const DONATE_TIER_MINS_DEFAULT = [1, 50000, 100000, 200000, 500000]; /* mốc tối thiểu 5 bậc ủng hộ (patch -102) – Quản trị sửa được từ -163 */
 
+export const DONATE_BANK_DEFAULT = { code: 'OCB', acc: '0388205003', name: 'GumballZ' }; /* 🏦 ngân hàng nhận mặc định (patch -196): đúng giá trị đang cứng trong shared/ui/donate.js — chưa đổi gì cho tới khi Quản trị lưu ngân hàng khác */
+/* Mã ngân hàng VietQR 2–10 chữ cái (OCB/MB/VCB…), số tài khoản 6–20 chữ số, tên 1–50 ký tự. */
+export function validateDonBank(b) {
+  if (!b || typeof b !== 'object') return 'Ngân hàng nhận chưa hợp lệ.';
+  const code = String(b.code || '').trim().toUpperCase();
+  if (!/^[A-Z]{2,10}$/.test(code)) return 'Mã ngân hàng VietQR phải 2–10 chữ cái (vd OCB, MB, VCB).';
+  const acc = String(b.acc || '').trim();
+  if (!/^\d{6,20}$/.test(acc)) return 'Số tài khoản phải 6–20 chữ số.';
+  const name = String(b.name || '').trim();
+  if (name.length < 1 || name.length > 50) return 'Tên tài khoản phải 1–50 ký tự.';
+  return null;
+}
+export const normDonBank = b => ({ code: String(b.code).trim().toUpperCase(), acc: String(b.acc).trim(), name: String(b.name).trim() });
+
 export const DONATE_GOAL_DEFAULT = 300000;
 export const DONATE_AUTO_QUOTA_DEFAULT = 100; /* lượt auto-verify / tháng, hết thì chuyển duyệt tay */
 export const monthStartVN = () => { const d = new Date(Date.now() + 7 * 3600e3); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1) - 7 * 3600e3; }; /* đầu tháng theo giờ VN */
@@ -39,7 +53,41 @@ export function parseDonContent(text) {
   return { uid: m ? +m[2] : 0, hide: !m || m[1] === 'A', ref: rf[1] };
 }
 
-/* Xác thực webhook theo từng hãng. Trả { ok: true, data } hoặc { ok: false, status, msg }. */
+/* 📱 Đọc nội dung thông báo biến động số dư của app ngân hàng (patch -196, webhook iPhone):
+   chạy parseDonContent để lấy {uid, hide, ref} + tách số tiền.
+   Số tiền tách theo thứ tự: (1) "+500,000 VND" (dấu + trước số), (2) "VND 500000",
+   (3) "500,000 VND" (không dấu +). Số Việt Nam dùng . hoặc , làm dấu phân cách nghìn
+   nên bỏ hết . và , rồi mới đổi sang số nguyên.
+   ⚠️ Mẫu câu thông báo thật của MB Bank CHƯA được kiểm chứng — chỉ cover các dạng
+   thường gặp; nếu MB Bank viết khác (vd "So du: ..." không kèm VND, số tiền viết
+   "500000" không dấu phân cách) thì phải chỉnh regex theo một thông báo thật.
+   ⚠️ KHÔNG dùng "đ\b" sau đơn vị tiền: "đ" không phải ký tự \w nên "+50.000đ" ở
+   cuối chuỗi (hoặc trước khoảng trắng) không bao giờ khớp — dùng lookahead
+   Unicode (?![\p{L}\p{N}]) thay thế (cùng cách parse.ts của web bán tool). */
+export function parseBankNotif(text) {
+  const parsed = parseDonContent(text);
+  if (!parsed) return null;
+  const t = String(text || '');
+  const m = t.match(/\+\s*([\d.,]+)\s*(?:VND|VNĐ|đ)(?![\p{L}\p{N}])/iu) || t.match(/(?:VND|VNĐ)\s*([\d.,]+)/i) || t.match(/([\d.,]+)\s*(?:VND|VNĐ|đ)(?![\p{L}\p{N}])/iu);
+  if (!m) return null;
+  const amt = Math.floor(Number(String(m[1]).replace(/[.,]/g, '')) || 0);
+  if (!(amt >= 1000 && amt <= 50000000)) return null;
+  return { uid: parsed.uid, hide: parsed.hide, ref: parsed.ref, amt };
+}
+
+/* SHA-256 hex (Node + Workers đều có crypto.subtle) — dùng làm id chống trùng cho
+   webhook iPhone: cùng một nội dung thông báo gửi lại thì chỉ tính 1 lần. */
+export async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text || '')));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* Yêu cầu chờ duyệt có cùng mã ref + uid (webhook iPhone tự duyệt khớp đơn đã tạo
+   trước — tránh cộng tiền 2 lần: 1 lần tự động + 1 lần duyệt tay sau đó). */
+export function donClaimPendByRef(sql, ref, uid) {
+  const r = sql.exec("SELECT * FROM donclaim WHERE ref = ? AND uid = ? AND st = 'pend' ORDER BY at ASC LIMIT 1", String(ref || '').slice(0, 8), +uid || 0).toArray()[0];
+  return r || null;
+}
 export async function verifyWebhook(provider, raw, headers, env) {
   const p = String(provider || 'sepay').toLowerCase();
   if (p === 'sepay') {
@@ -95,7 +143,7 @@ export function donInfo(sql, since = 0, uid = 0, after = 0, mins) {
 
 export function donRef(sql, ref) { const r = sql.exec('SELECT amt FROM don WHERE ref = ? AND at > ?', String(ref), Date.now() - 2 * 3600e3).toArray(); return r.reduce((t, x) => t + x.amt, 0); }
 export function donList(sql) { return sql.exec('SELECT id, at, amt, uid, name, hide, ref, msg, src, reply, rat FROM don ORDER BY at DESC LIMIT 300').toArray(); }
-export function donAutoCount(sql, since) { return sql.exec("SELECT COUNT(*) AS n FROM don WHERE at >= ? AND src = 'auto'", since).one().n; }
+export function donAutoCount(sql, since) { return sql.exec("SELECT COUNT(*) AS n FROM don WHERE at >= ? AND src IN ('auto','iphone')", since).one().n; } /* patch -196: webhook iPhone ăn chung quota auto với SePay */
 
 /* 💌 người ủng hộ gửi lời nhắn theo mã R…Z của hộp: tiền về rồi thì gắn luôn, chưa về thì giữ chờ (2 ngày) */
 export function donMsg(sql, ref, msg) {
@@ -178,14 +226,25 @@ export function donCfgGet(sql) {
   let mins = DONATE_TIER_MINS_DEFAULT;
   if (m) { try { const p = JSON.parse(m.v); if (Array.isArray(p) && p.length === 5 && p.every(x => Number.isInteger(x) && x >= 1)) mins = p; } catch (e) {} }
   const goal = g && Number.isInteger(+g.v) && +g.v > 0 ? +g.v : DONATE_GOAL_DEFAULT;
-  return { goal, mins: [...mins] };
+  let bank = DONATE_BANK_DEFAULT; /* 🏦 ngân hàng nhận (patch -196): chưa lưu lần nào → OCB mặc định */
+  const bk = sql.exec("SELECT v FROM doncfg WHERE k = 'bank'").toArray()[0];
+  if (bk) { try { const p = JSON.parse(bk.v); if (p && validateDonBank(p) === null) bank = normDonBank(p); } catch (e) {} }
+  return { goal, mins: [...mins], bank };
 }
-export function donCfgSet(sql, goal, mins) {
+export function donCfgSet(sql, goal, mins, bank) {
   const err = validateDonCfg(goal, mins);
   if (err) return { ok: false, msg: err };
+  let nb = null;
+  if (bank !== undefined && bank !== null) { /* bank không gửi → giữ ngân hàng cũ (tương thích route cũ) */
+    const e2 = validateDonBank(bank);
+    if (e2) return { ok: false, msg: e2 };
+    nb = normDonBank(bank);
+  }
   sql.exec("INSERT INTO doncfg (k, v) VALUES ('goal', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", String(goal));
   sql.exec("INSERT INTO doncfg (k, v) VALUES ('mins', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", JSON.stringify(mins));
-  return { ok: true, goal, mins: [...mins] };
+  if (nb) sql.exec("INSERT INTO doncfg (k, v) VALUES ('bank', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v", JSON.stringify(nb));
+  const cur = donCfgGet(sql);
+  return { ok: true, goal: cur.goal, mins: [...cur.mins], bank: cur.bank };
 }
 
 /* ---------- thông báo Discord khi có yêu cầu ủng hộ MỚI chờ duyệt (patch -160) ----------
