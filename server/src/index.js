@@ -405,6 +405,17 @@ export default {
         await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', c.uid, c.name, 'xoá yêu cầu ủng hộ ' + c.amt.toLocaleString('vi-VN') + 'đ (ref ' + (c.ref || '—') + ', ' + (c.st === 'ok' ? 'đã duyệt' : c.st === 'no' ? 'đã từ chối' : 'chờ duyệt') + ')' + (subtracted > 0 ? ' – đã TRỪ ' + subtracted.toLocaleString('vi-VN') + 'đ khỏi quỹ (hạng ủng hộ hạ theo)' : ' – quỹ không đổi'));
         donCache = null; return json({ ok: true, subtracted }, 200, H);
       }
+      if (p[1] === 'delete' && req.method === 'POST') { /* 🗑️ Quản trị xoá khoản ủng hộ đã nhận (patch -196 follow-up): xoá dòng don + TRỪ tiền khỏi quỹ + hạ hạng ủng hộ (như -176 với claim đã duyệt) */
+        const me = bearer() ? await U.whoami(bearer()) : null;
+        if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
+        const role = me.role != null ? +me.role : (me.admin ? 2 : 0);
+        if (role < 2) return json({ ok: false, msg: 'Chỉ Quản trị mới xoá' }, 200, H);
+        const d = await body(), r = await L.donDel(String(d.id || ''));
+        if (!r) return json({ ok: false, msg: 'Không tìm thấy khoản ủng hộ' }, 200, H);
+        if (+r.amt > 0 && +r.uid > 0) await U.addSup(+r.uid, -r.amt);
+        await U.auditLog({ id: me.id, name: me.name }, 'donate-delete', +r.uid || 0, null, 'xoá khoản ủng hộ đã nhận ' + (+r.amt).toLocaleString('vi-VN') + 'đ – đã TRỪ khỏi quỹ (hạng ủng hộ hạ theo)');
+        donCache = null; return json({ ok: true, subtracted: +r.amt || 0 }, 200, H);
+      }
       if (p[1] === 'config' && req.method === 'POST') { /* 🎯 Quản trị đổi mốc quỹ: mục tiêu + 5 mốc bậc (patch -163) + ngân hàng nhận (patch -196) */
         const me = bearer() ? await U.whoami(bearer()) : null;
         if (!me || me.banned) return json({ ok: false, msg: 'Hết phiên đăng nhập' }, 200, H);
