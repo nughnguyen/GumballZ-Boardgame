@@ -353,14 +353,16 @@ export function discordClaimPayload(c, adminId) {
    khi duyệt / đỏ 0xED4245 khi từ chối, thêm dòng người duyệt + giờ quyết định (giờ VN).
    BỎ dòng tag ping (đã ping từ lúc tạo đơn) và BỎ link "Mở trang Quản trị" (quyết định xong
    rồi). Giữ nguyên bảng thông tin + mã chuyển khoản SEVQR + Lời nhắn + banner tĩnh. */
-export function discordDecidePayload(c, ok, byName, decidedAt = Date.now()) {
+export function discordDecidePayload(c, ok, byName, decidedAt = Date.now(), autoVia = '') {
   const { name, info, code, msg } = donClaimParts(c);
   const who = (String(byName || '').replace(/[\r\n`]+/g, ' ').trim().slice(0, 30)) || 'Quản trị';
   const vnD = vnFmt(decidedAt);
+  const title = autoVia ? '✅ Đơn ủng hộ đã tự động xác nhận' : (ok ? '✅ Đơn ủng hộ đã được duyệt' : '❌ Đơn ủng hộ đã bị từ chối');
+  const whoLine = autoVia ? 'Tự động xác nhận qua **' + autoVia + '** · ' + vnD : (ok ? 'Đã duyệt bởi **' + who + '** · ' : 'Đã từ chối bởi **' + who + '** · ') + vnD;
   const inner = [
     TD('**' + name + '**'),
-    TD('```\n' + (ok ? '✅ Đơn ủng hộ đã được duyệt' : '❌ Đơn ủng hộ đã bị từ chối') + '\n```'),
-    TD((ok ? 'Đã duyệt bởi **' + who + '** · ' : 'Đã từ chối bởi **' + who + '** · ') + vnD),
+    TD('```\n' + title + '\n```'),
+    TD(whoLine),
     SEP(1),
     TD('```\n' + info + '\n```'),
     TD('**Nội dung chuyển khoản**\n```\n' + code + '\n```'),
@@ -368,11 +370,43 @@ export function discordDecidePayload(c, ok, byName, decidedAt = Date.now()) {
   if (msg) inner.push(TD('**Lời nhắn**\n' + msg.slice(0, 200).split('\n').map(l => '> ' + l).join('\n')));
   inner.push(SEP(1));
   inner.push({ type: 12, items: [{ media: { url: DISCORD_BANNER_URL }, description: 'GumballZ Boardgame' }] });
-  inner.push(TD('-# GumballZ · ' + (ok ? 'Đã duyệt' : 'Đã từ chối') + ' · ' + vnD));
+  inner.push(TD('-# GumballZ · ' + (autoVia ? 'Tự động xác nhận' : ok ? 'Đã duyệt' : 'Đã từ chối') + ' · ' + vnD));
   return {
     flags: DISCORD_COMPONENTS_V2,
-    components: [{ type: 17, accent_color: ok ? 0x2ecc71 : 0xed4245, components: inner }],
+    components: [{ type: 17, accent_color: autoVia || ok ? 0x2ecc71 : 0xed4245, components: inner }],
   };
+}
+/* Tin nhắn khi khoản ủng hộ được xác nhận TỰ ĐỘNG (SePay / iPhone, patch -197):
+   khung "đã duyệt" của discordDecidePayload với autoVia (tiêu đề "đã tự động xác nhận",
+   không còn "chờ duyệt"), kèm 1 dòng ping admin ngoài Container (chưa có tin nào ping
+   cho khoản này — khác tin duyệt tay vốn đã ping từ lúc tạo đơn). */
+export function discordAutoPayload(c, via, adminId) {
+  const out = discordDecidePayload(c, true, via, Date.now(), via);
+  const id = String(adminId || '').trim();
+  if (/^\d{5,25}$/.test(id)) {
+    out.components.unshift(TD('<@' + id + '> Có khoản ủng hộ vừa được tự động xác nhận qua ' + via + '.'));
+    out.allowed_mentions = { parse: [], users: [id] };
+  }
+  return out;
+}
+/* Gửi tin tự động xác nhận (patch -197): POST 1 lần, fire-and-forget ở route gọi —
+   Discord lỗi thì đơn vẫn cộng tiền bình thường, chỉ mất tin báo. Trả { ok } (không
+   cần messageId vì tin này không sửa lại sau). */
+export async function notifyDiscordAuto(webhookUrl, c, via, fetchFn = fetch, timeoutMs = 5000, adminId = '') {
+  if (!webhookUrl) return { ok: false };
+  const hookUrl = String(webhookUrl);
+  let sendUrl = hookUrl;
+  if (!/[?&]with_components=/.test(hookUrl)) sendUrl += (sendUrl.includes('?') ? '&' : '?') + 'with_components=true';
+  if (!/[?&]wait=/.test(hookUrl)) sendUrl += '&wait=true';
+  try {
+    const r = await fetchFn(sendUrl, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(discordAutoPayload(c, via, adminId)),
+      signal: AbortSignal.timeout(Math.max(100, +timeoutMs || 5000)),
+    });
+    if (!r || !r.ok) { console.error('[donate-discord] webhook trả mã lỗi'); return { ok: false }; }
+    return { ok: true };
+  } catch (e) { console.error('[donate-discord] gửi thông báo thất bại'); return { ok: false }; } /* KHÔNG log URL */
 }
 export async function notifyDiscordClaim(webhookUrl, c, fetchFn = fetch, timeoutMs = 5000, adminId = '') {
   if (!webhookUrl) return { ok: false }; /* chưa cấu hình webhook: bỏ qua lặng lẽ */

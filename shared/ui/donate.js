@@ -52,6 +52,9 @@ function css() {
 .dn-done{display:grid;place-items:center;gap:4px;text-align:center;padding:26px 8px;min-height:220px}.dn-done .big{font-size:58px;line-height:1;animation:dnPop .5s cubic-bezier(.3,1.6,.5,1)}.dn-done b{font:400 24px 'Baloo 2',Nunito,sans-serif;color:#14743a}.dn-done span{color:#5b5170}
 @keyframes dnPop{from{transform:scale(.3)}}
 .dn-ok{text-align:center;background:#e9fbef;color:#14743a;border:2px solid var(--ink);border-radius:14px;padding:10px;font:800 15px Nunito,sans-serif}
+.dn-again{margin-top:10px;min-height:46px;padding:0 22px;border:2px solid var(--ink);border-radius:99px;background:var(--y1);color:var(--ink);font:800 15px Nunito,sans-serif;cursor:pointer;box-shadow:var(--sh-xs);transition:transform .1s}
+.dn-again:hover{transform:translateY(-1px)}
+.dn-again:active{transform:translate(1px,1px);box-shadow:var(--sh-1px)}
 .dn-wall h4{margin:0 0 6px;font:400 17px "Baloo 2",Nunito,sans-serif;border-left:4px solid var(--p1);padding-left:8px}
 .dn-wall div{display:flex;flex-wrap:wrap;gap:6px}.dn-wall span{background:#fff;border:2px solid var(--ink);border-radius:99px;padding:3px 10px;font-size:13px}
 .dn-tiers{background:#fff;border:2px solid var(--ink);border-radius:16px;padding:10px 12px;box-shadow:var(--sh-sm)}
@@ -119,8 +122,8 @@ export async function openDonate() {
   ov.addEventListener('click', e => { if (e.target === ov || e.target.closest('.dn-x')) close(); });
   const I = await info(auth.user() ? auth.user().id : 0); const bd = ov.querySelector('.dn-bd');
   if (!I.ok) Object.assign(I, { got: 0, goal: 300000, wall: [], anon: 0, msgs: [], mine: 0, auto: true }); /* máy chủ không trả lời: vẫn cho quét mã QR cũ */
-  const u = auth.user(), opened = Date.now(); let amt = 0, show = ls.get('gumballz-don-hide') !== '1'; /* patch -108: mặc định là số tiền TÙY CHỈNH (chưa nhập → amt 0, nút "Khác" được chọn) */
-  const ref = String(100000 + Math.floor(Math.random() * 900000)); /* mã riêng của lần mở hộp này → máy chủ báo "đã nhận" ngay khi SePay gửi về */
+  const u = auth.user(); let opened = Date.now(); let amt = 0, show = ls.get('gumballz-don-hide') !== '1'; /* patch -108: mặc định là số tiền TÙY CHỈNH (chưa nhập → amt 0, nút "Khác" được chọn) */
+  let ref = String(100000 + Math.floor(Math.random() * 900000)); /* mã riêng của lần mở hộp này → máy chủ báo "đã nhận" ngay khi SePay gửi về; nút "Ủng hộ tiếp" (-197) sinh mã mới */
   const code = () => 'SEVQR ' + (u ? `GZ ${show ? 'U' : 'A'}${uid6(u.id)}X` : 'GZ') + ` R${ref}Z`; /* SEVQR: tài khoản ngân hàng nối SePay chỉ báo giao dịch có chữ này – id hiển thị 6 số (patch -108) */
   const pct = Math.min(100, Math.round(I.got / Math.max(1, I.goal) * 100));
   const ROOT = new URL('../../', import.meta.url).href;
@@ -154,7 +157,7 @@ export async function openDonate() {
       <label>Lời nhắn (không bắt buộc)</label><textarea maxlength="200" data-claim-msg placeholder="Vd: Ủng hộ tháng này nha!"></textarea>
       <div><button type="button" data-claim-send>Gửi yêu cầu duyệt</button> <small data-claim-st style="color:var(--muted)"></small></div>
     </details>`;
-  const img = bd.querySelector('.dn-qr img'), codeEl = bd.querySelector('[data-code]'), redraw = () => { img.src = qr(); codeEl.textContent = code(); };
+  let img = bd.querySelector('.dn-qr img'), codeEl = bd.querySelector('[data-code]'), redraw = () => { img.src = qr(); codeEl.textContent = code(); };
   /* ✍️ số tiền tự chọn: gõ tới đâu định dạng 30.000 tới đó, mã QR đổi sau 0,4 giây (khỏi tải ảnh liên tục) */
   const ownAmt = v => { const n = Math.floor(+String(v).replace(/\D/g, '') || 0); return n >= 1000 ? Math.min(n, 50000000) : 0; };
   const ownInp = bd.querySelector('[data-own]'); let ownT = 0;
@@ -193,6 +196,7 @@ export async function openDonate() {
     else if (b.dataset.cp) copy(b.dataset.cp === 'acc' ? BK.acc : code(), b);
     else if (b.hasAttribute('data-sendmsg')) sendMsg(b);
     else if (b.hasAttribute('data-claim-send')) sendClaim(b);
+    else if (b.hasAttribute('data-again')) resetAgain();
     else if (b.hasAttribute('data-login')) { close(); import('./account.js?v=53').then(m => m.openLogin()); }
   });
   /* ⚡ quét xong là báo liền: hỏi máy chủ 3 giây/lần (sau 5 phút thì 8 giây/lần) xem khoản có mã R…Z của hộp này về chưa */
@@ -202,14 +206,38 @@ export async function openDonate() {
     if (!document.hidden) { const r = await fetch(API() + '/donate/info?ref=' + ref).then(x => x.json()).catch(() => null); if (r && r.ok && r.paid) { paid(r); return; } }
     poll = setTimeout(check, ++tries > 100 ? 8000 : 3000);
   };
+  let qrHtml = ''; /* khối QR gốc, lưu lúc paid() để resetAgain() dựng lại */
   const paid = async r => {
-    const box = bd.querySelector('.dn-qr'); box.innerHTML = `<div class="dn-done"><div class="big">🎉</div><b>Đã nhận ${vnd(r.paid)}!</b><span>Cảm ơn bạn nhiều lắm 💛${u ? '<br>Huy hiệu 💎 Nhà Tài Trợ đã gắn vào tài khoản.' : ''}</span></div>`;
+    const box = bd.querySelector('.dn-qr'); if (!qrHtml) qrHtml = box.innerHTML; /* giữ lại khối QR gốc để nút "Ủng hộ tiếp" (-197) dựng lại */
+    box.innerHTML = `<div class="dn-done"><div class="big">🎉</div><b>Đã nhận ${vnd(r.paid)}!</b><span>Cảm ơn bạn nhiều lắm 💛${u ? '<br>Huy hiệu 💎 Nhà Tài Trợ đã gắn vào tài khoản.' : ''}</span><button type="button" class="dn-again" data-again>☕ Ủng hộ tiếp</button></div>`;
     bd.querySelectorAll('.dn-amt,[data-ownbox],.dn-row,.dn-note,.dn-chk').forEach(x => { x.style.display = 'none'; });
     const say = bd.querySelector('.dn-say'); if (say && !msgSent) { say.querySelector('h4').innerHTML = '💌 Nhắn gì cho chủ web hông?'; say.querySelector('[data-msgst]').textContent = 'Lời nhắn hiện trên Tường cảm ơn, chủ web có thể trả lời bạn ở đó.'; }
     if (r.got != null) { const pc = Math.min(100, Math.round(r.got / Math.max(1, I.goal) * 100)); bd.querySelector('.dn-fund b').textContent = `${vnd(r.got)} / ${vnd(I.goal)}`; bd.querySelector('.dn-bar i').style.width = pc + '%'; }
     box.scrollIntoView({ block: 'center', behavior: 'smooth' }); burst(box);
     try { navigator.vibrate && navigator.vibrate([30, 40, 60]); } catch (e) {}
     ls.set('gumballz-don-at', String(Date.now())); if (u) { try { await auth.refresh(); const I2 = await info(u.id); const tl = bd.querySelector('.dn-tiers'); if (I2.ok && tl) tl.outerHTML = ladder(I2.mine || 0, true, mergeTierMins((I2.tiers || []).map(x => x.min)) || TIERS); } catch (e) {} }
+  };
+  /* ☕ Ủng hộ tiếp (patch -197): quay lại hộp chuyển khoản mà không cần đóng/mở lại —
+     sinh mã ref mới (mã cũ đã nhận tiền rồi), về số tiền tùy chỉnh, dựng lại khối QR,
+     hiện lại các mục đã ẩn, đặt lại ô duyệt tay + lời nhắn, chạy lại vòng hỏi máy chủ. */
+  const resetAgain = () => {
+    ref = String(100000 + Math.floor(Math.random() * 900000));
+    amt = 0; tries = 0; opened = Date.now(); msgSent = false;
+    bd.querySelectorAll('[data-amt]').forEach(x => x.classList.toggle('on', x.dataset.amt === 'own'));
+    const own = bd.querySelector('[data-own]'); if (own) own.value = '';
+    const box = bd.querySelector('.dn-qr'); if (qrHtml) box.innerHTML = qrHtml;
+    img = bd.querySelector('.dn-qr img'); codeEl = bd.querySelector('[data-code]');
+    bd.querySelectorAll('.dn-amt,[data-ownbox],.dn-row,.dn-note,.dn-chk').forEach(x => { x.hidden = false; x.style.display = ''; });
+    const cr = bd.querySelector('[data-claim-ref]'); if (cr) cr.value = ref;
+    const say = bd.querySelector('.dn-say');
+    if (say) {
+      say.querySelector('h4').innerHTML = '💌 Gửi lời nhắn cho chủ web <small style="font:700 12px Nunito,sans-serif;color:var(--muted)">(không bắt buộc)</small>';
+      const ta = say.querySelector('[data-msg]'); if (ta) ta.value = '';
+      const st = say.querySelector('[data-msgst]'); if (st) st.textContent = 'Lời nhắn hiện trên Tường cảm ơn khi khoản ủng hộ về (giấu tên thì hiện "Ẩn danh").';
+    }
+    redraw();
+    clearTimeout(poll); poll = setTimeout(check, 4000);
+    box.scrollIntoView({ block: 'center', behavior: 'smooth' });
   };
   poll = setTimeout(check, 4000);
 }

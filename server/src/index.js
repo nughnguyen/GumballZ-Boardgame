@@ -13,7 +13,7 @@ import { cfUsage } from './cfstats.js';
 import { makePass, checkPass, makeIdPass } from './vip.js';
 import { masoiLine, tttCards, rulesAnswer, aiStatus, CAPS } from './ai.js';
 import { clean } from './filter.js';
-import { monthStartVN, verifyWebhook, parseDonContent, parseBankNotif, sha256Hex, DONATE_GOAL_DEFAULT, DONATE_BANK_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim, editDiscordClaim, discordDecidePayload } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102); patch -196: parseBankNotif + sha256Hex cho webhook iPhone, DONATE_BANK_DEFAULT cho ngân hàng nhận tuỳ chỉnh */
+import { monthStartVN, verifyWebhook, parseDonContent, parseBankNotif, sha256Hex, DONATE_GOAL_DEFAULT, DONATE_BANK_DEFAULT, DONATE_AUTO_QUOTA_DEFAULT, notifyDiscordClaim, notifyDiscordAuto, editDiscordClaim, discordDecidePayload } from './donate.js'; /* ☕ ủng hộ qua quét mã QR (patch -102); patch -196: parseBankNotif + sha256Hex cho webhook iPhone, DONATE_BANK_DEFAULT cho ngân hàng nhận tuỳ chỉnh; patch -197: notifyDiscordAuto báo Discord khi tự động xác nhận */
 import { TUT } from '../../shared/tutorials.js';
 import { DurableObject } from 'cloudflare:workers';
 export { Users } from './users.js';
@@ -83,6 +83,10 @@ async function sepayHook(req, env, ctx) {
   let u = null;
   if (parsed.uid) u = await U.addSup(parsed.uid, amt);
   await L.donAdd({ id, at: Date.now(), amt, uid: u ? u.id : 0, name: u ? u.name : '', hide: parsed.hide, ref: parsed.ref, src: 'auto' });
+  if (env.DONATE_DISCORD_WEBHOOK) { /* patch -197: khoản tự động xác nhận cũng báo Discord (trước đó chỉ hết quota mới báo) — fire-and-forget, Discord lỗi không chặn cộng tiền */
+    const p = notifyDiscordAuto(env.DONATE_DISCORD_WEBHOOK, { uid: u ? u.id : 0, username: '', name: u ? u.name : '', amt, ref: parsed.ref, msg: '', hide: parsed.hide, at: Date.now() }, 'SePay', fetch, 5000, env.DONATE_ADMIN_ID || '');
+    if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
+  }
   donCache = null; return OK();
 }
 
@@ -143,6 +147,10 @@ async function iphoneHook(req, env, ctx) {
   let u = null;
   if (parsed.uid) u = await U.addSup(parsed.uid, parsed.amt);
   await L.donAdd({ id, at: Date.now(), amt: parsed.amt, uid: u ? u.id : 0, name: u ? u.name : '', hide: parsed.hide, ref: parsed.ref, src: 'iphone' });
+  if (env.DONATE_DISCORD_WEBHOOK) { /* patch -197: khoản tự động xác nhận cũng báo Discord (trước đó chỉ hết quota / khớp claim mới báo) — fire-and-forget, Discord lỗi không chặn cộng tiền */
+    const p = notifyDiscordAuto(env.DONATE_DISCORD_WEBHOOK, { uid: u ? u.id : 0, username: '', name: u ? u.name : '', amt: parsed.amt, ref: parsed.ref, msg: '', hide: parsed.hide, at: Date.now() }, 'iPhone', fetch, 5000, env.DONATE_ADMIN_ID || '');
+    if (ctx && ctx.waitUntil) ctx.waitUntil(p); else p.catch(() => {});
+  }
   donCache = null; return json({ ok: true });
 }
 
